@@ -93,6 +93,7 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                 {
                     var newfloor = floor.ShallowClone();
                     var clonedModData = new ModDataDictionary();
+                    
                     clonedModData.CopyFrom(floor.modData); // Or populate as needed
                     var paintable = new PaintableFromModData(clonedModData)
                     {
@@ -102,11 +103,8 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                             Name = "",
                         },
                         Related = null,
-
-                        /// This is actually an effect!
-                        /// This will update the texture on the modData provided
-                        Texture = texture,
                     };
+                    paintable.ApplyTexture(texture);
                     modDataRef(newfloor) = clonedModData;
 
                     newfloor.draw(e.SpriteBatch);
@@ -302,17 +300,17 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     private void DoApplyTexture(Tile tile)
     {
-        TextureIdentifier? toolTexture = tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] is { } owner
-                && tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] is { } name
-                && tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] is { } variation
-                ? new TextureIdentifier(owner, name, variation) : null;
+        // TextureIdentifier? toolTexture = tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] is { } owner
+        //         && tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] is { } name
+        //         && tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] is { } variation
+        //         ? new TextureIdentifier(owner, name, variation) : null;
         var paintables = IPaintable.OnTile(tile);
 
         foreach (var paintable in paintables)
         {
             if (paintable.Type == this.Type)
             {
-                paintable.Texture = toolTexture;
+                paintable.ApplyTexture(this.Texture);
                 return;
             }
         }

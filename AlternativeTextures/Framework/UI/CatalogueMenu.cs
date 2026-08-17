@@ -419,7 +419,10 @@ namespace AlternativeTextures.Framework.UI
             // Establish the alternative texture buttons
             _alternativeTextureButtons = new List<ClickableTextureComponent>();
 
-            var sourceRect = PaintBucketMenu.GetSourceRectangle(availableModels.First(), selectedObject, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
+            /// TODO
+            // var sourceRect = PaintBucketMenu.GetSourceRectangle(availableModels.First(), selectedObject, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
+            var sourceRect = new Rectangle(0,0,0,0);
+            
             if (sourceRect.Height >= 48)
             {
                 _maxRows = 2;

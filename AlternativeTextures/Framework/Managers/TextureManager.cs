@@ -108,25 +108,25 @@ namespace AlternativeTextures.Framework.Managers
                 return null;
             }
 
-            var validTextures = _alternativeTextures.Where(t => String.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var validTextures = _alternativeTextures.Where(t => string.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase)).ToList();
             return validTextures[Game1.random.Next(validTextures.Count())];
         }
 
         public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
         {
+            var x = _alternativeTextures.Take(3);
             if (!DoesObjectHaveAlternativeTextureById(textureId))
             {
                 return null;
             }
 
-            return _alternativeTextures.First(t => String.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
+            return _alternativeTextures.First(t => string.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
         }
 
         public List<AlternativeTextureModel> GetAvailableTextureModels(string modelName, Season season)
         {
             string modelNameWithSeason = string.Concat(modelName, "_", season);
 
-            Console.Log($"modelName: {modelName}");
             if (!DoesObjectHaveAlternativeTexture(modelName) && !DoesObjectHaveAlternativeTexture(modelNameWithSeason))
             {
                 return new List<AlternativeTextureModel>();

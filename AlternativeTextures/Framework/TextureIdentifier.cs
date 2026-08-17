@@ -1,8 +1,31 @@
+using System.Diagnostics.CodeAnalysis;
+using AlternativeTextures.Framework.Models;
+
 namespace AlternativeTextures.Framework;
 
-struct TextureIdentifier(string owner, string name, string variation)
+readonly struct TextureIdentifier()
 {
-  public readonly string Owner = owner;
-  public readonly string Name = name;
-  public readonly string Variation = variation;
+  public required string Owner { get; init; }
+  public required string Name { get; init; }
+  public required string Variation { get; init; }
+
+  [SetsRequiredMembers]
+  public TextureIdentifier(string owner, string name, string variation): this()
+  {
+    Owner = owner;
+    Name = name;
+    Variation = variation; 
+  }
+
+  [SetsRequiredMembers]
+  public TextureIdentifier(AlternativeTextureModel model, string variation)
+    : this(model.Owner, model.GetId(), variation)
+  { }
+
+  public bool IsDefault
+  {
+    get { return this.Variation == "-1" || this.Owner == AlternativeTextures.DEFAULT_OWNER; }
+  }
+
+  static public TextureIdentifier Default = new(AlternativeTextures.DEFAULT_OWNER, "", "-1");
 }
