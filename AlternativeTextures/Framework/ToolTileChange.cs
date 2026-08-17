@@ -21,13 +21,14 @@ public class ToolTileChange
 
     private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
     {
-        if (!Context.IsWorldReady || !Context.IsPlayerFree) return;
+        if (!Context.IsWorldReady || !Context.IsPlayerFree)
+            return;
 
         Vector2 playerTile = Game1.player.Tile;
         Vector2 mouseTile = _helper.Input.GetCursorPosition().GrabTile;
 
         bool tileChanged = playerTile != _lastPlayerTile || mouseTile != _lastMouseTile;
-        
+
         _lastPlayerTile = playerTile;
         _lastMouseTile = mouseTile;
 

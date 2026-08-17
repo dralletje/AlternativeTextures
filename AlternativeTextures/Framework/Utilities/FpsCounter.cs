@@ -25,10 +25,10 @@ SOFTWARE.
 // Modified version of Drachenkaetzchen's fps.cs
 // See link for original source code: https://github.com/Drachenkaetzchen/StardewScript/blob/fc41926c9f896473fe0c11fabd912c37249c75cc/StardewScript/Examples/fps.cs
 
+using System;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewValley;
-using System;
 
 namespace AlternativeTextures.Framework.Utilities
 {
@@ -59,10 +59,11 @@ namespace AlternativeTextures.Framework.Utilities
         /// </summary>
         private DateTime _lastFPSUpdate = DateTime.UtcNow;
 
-
         internal void OnRendered(object? sender, RenderedEventArgs e)
         {
-            var millisecondsSinceLastCall = DateTime.UtcNow.Subtract(_lastRenderingCall).TotalMilliseconds;
+            var millisecondsSinceLastCall = DateTime
+                .UtcNow.Subtract(_lastRenderingCall)
+                .TotalMilliseconds;
             _lastRenderingCall = DateTime.UtcNow;
 
             _numFramesRendered++;
@@ -77,12 +78,19 @@ namespace AlternativeTextures.Framework.Utilities
                 var averageRenderingTimePerFrame = _frameRenderingTime / _numFramesRendered;
                 _fpsString = $"{(1000 / averageRenderingTimePerFrame):F0}";
 
-
                 _frameRenderingTime = 0;
                 _numFramesRendered = 0;
             }
 
-            Utility.drawTextWithColoredShadow(e.SpriteBatch, $"{_fpsString} FPS", Game1.smallFont, new Vector2(10, 10), Color.LawnGreen, Color.Black, 1);
+            Utility.drawTextWithColoredShadow(
+                e.SpriteBatch,
+                $"{_fpsString} FPS",
+                Game1.smallFont,
+                new Vector2(10, 10),
+                Color.LawnGreen,
+                Color.Black,
+                1
+            );
         }
     }
 }

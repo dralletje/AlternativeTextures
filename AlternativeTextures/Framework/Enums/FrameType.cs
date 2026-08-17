@@ -4,6 +4,6 @@
     {
         Default,
         MachineIdle,
-        MachineActive
+        MachineActive,
     }
 }

@@ -5,7 +5,7 @@
 
 // interface IButtonRoutine
 // {
-  
+
 // }
 
 // public class ButtonContext(SButton initialButton, ICursorPosition cursor)
@@ -18,11 +18,11 @@
 // public class ButtonRoutine(SButton initialButton, ICursorPosition cursor)
 // {
 //   ButtonContext context = new ButtonContext(initialButton, cursor);
-//   IEnumerator<ButtonResponse> = 
+//   IEnumerator<ButtonResponse> =
 
 //   public progress()
 //   {
-    
+
 //   }
 // }
 
@@ -43,7 +43,6 @@
 //   public sealed record KeyPress(SButton Button) : ButtonEndEvent;
 //   public sealed record KeyRelease(SButton Button) : ButtonEndEvent;
 // }
-
 
 // public abstract record ButtonResponse
 // {

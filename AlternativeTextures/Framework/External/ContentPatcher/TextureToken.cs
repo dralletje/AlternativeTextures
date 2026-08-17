@@ -1,8 +1,8 @@
-﻿using AlternativeTextures.Framework.Managers;
-using AlternativeTextures.Framework.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.Framework.Managers;
+using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework.External.ContentPatcher
 {
@@ -19,16 +19,25 @@ namespace AlternativeTextures.Framework.External.ContentPatcher
 
         /// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
         /// <remarks>Default false.</remarks>
-        public bool AllowsInput() { return true; }
+        public bool AllowsInput()
+        {
+            return true;
+        }
 
         /// <summary>Whether the token requires input arguments to work, and does not provide values without it (see <see cref="AllowsInput"/>).</summary>
         /// <remarks>Default false.</remarks>
-        public bool RequiresInput() { return true; }
+        public bool RequiresInput()
+        {
+            return true;
+        }
 
         /// <summary>Whether the token may return multiple values for the given input.</summary>
         /// <param name="input">The input arguments, if any.</param>
         /// <remarks>Default true.</remarks>
-        public bool CanHaveMultipleValues(string input = null) { return false; }
+        public bool CanHaveMultipleValues(string input = null)
+        {
+            return false;
+        }
 
         /// <summary>Get the set of valid input arguments if restricted, or an empty collection if unrestricted.</summary>
         /// <remarks>Default unrestricted.</remarks>
@@ -46,9 +55,20 @@ namespace AlternativeTextures.Framework.External.ContentPatcher
         {
             error = String.Empty;
 
-            if (_textureManager.GetTextureByToken($"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}") is null)
+            if (
+                _textureManager.GetTextureByToken(
+                    $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}"
+                )
+                is null
+            )
             {
-                if (_textureManager.GetModelByToken($"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}") is TokenModel model && model is not null)
+                if (
+                    _textureManager.GetModelByToken(
+                        $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}"
+                    )
+                        is TokenModel model
+                    && model is not null
+                )
                 {
                     _textureManager.UpdateTokenCache(model.Id);
                     return true;
@@ -78,7 +98,12 @@ namespace AlternativeTextures.Framework.External.ContentPatcher
         /// <param name="input">The input arguments, if any.</param>
         public IEnumerable<string> GetValues(string input)
         {
-            if (!IsReady() || !_textureManager.GetValidTextureNamesWithSeason().Any(name => String.Equals(name, input, StringComparison.OrdinalIgnoreCase)))
+            if (
+                !IsReady()
+                || !_textureManager
+                    .GetValidTextureNamesWithSeason()
+                    .Any(name => String.Equals(name, input, StringComparison.OrdinalIgnoreCase))
+            )
                 yield break;
 
             yield return $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}";

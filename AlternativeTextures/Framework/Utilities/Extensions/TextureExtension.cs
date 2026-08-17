@@ -5,12 +5,19 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
 {
     public static class TextureExtension
     {
-        public static Texture2D CreateSelectiveCopy(this Texture2D sourceTexture, GraphicsDevice device, Rectangle selectionRect)
+        public static Texture2D CreateSelectiveCopy(
+            this Texture2D sourceTexture,
+            GraphicsDevice device,
+            Rectangle selectionRect
+        )
         {
-            Texture2D selectiveTexture = new Texture2D(device, selectionRect.Width, selectionRect.Height);
+            Texture2D selectiveTexture = new Texture2D(
+                device,
+                selectionRect.Width,
+                selectionRect.Height
+            );
             try
             {
-
                 int dimensions = selectionRect.Width * selectionRect.Height;
                 Color[] data = new Color[dimensions];
 
@@ -19,7 +26,10 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
             }
             catch
             {
-                AlternativeTextures.monitor.Log("Issue creating a selective texture copy, likely out of bounds for dimensions.", StardewModdingAPI.LogLevel.Trace);
+                AlternativeTextures.monitor.Log(
+                    "Issue creating a selective texture copy, likely out of bounds for dimensions.",
+                    StardewModdingAPI.LogLevel.Trace
+                );
             }
 
             return selectiveTexture;

@@ -1,4 +1,7 @@
-﻿using AlternativeTextures.Framework.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AlternativeTextures.Framework.Interfaces;
 using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches.Entities;
@@ -14,9 +17,6 @@ using StardewValley.Monsters;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
 
@@ -71,7 +71,12 @@ namespace AlternativeTextures.Framework.Patches
         internal static string GetObjectName(Object obj)
         {
             // Perform separate check for DGA objects, before using check for vanilla objects
-            if (IsDGAUsed() && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api && api != null)
+            if (
+                IsDGAUsed()
+                && AlternativeTextures.apiManager.GetDynamicGameAssetsApi()
+                    is IDynamicGameAssetsApi api
+                && api != null
+            )
             {
                 var dgaId = api.GetDGAItemId(obj);
                 if (dgaId != null)
@@ -126,9 +131,15 @@ namespace AlternativeTextures.Framework.Patches
                 var animalName = animal.type.Value;
                 if (animal.isBaby())
                 {
-                    animalName = "Baby" + (animal.type.Value.Equals("Duck") ? "White Chicken" : animal.type.Value);
+                    animalName =
+                        "Baby"
+                        + (animal.type.Value.Equals("Duck") ? "White Chicken" : animal.type.Value);
                 }
-                else if (animal.GetAnimalData() is not null && string.IsNullOrEmpty(animal.GetAnimalData().HarvestedTexture) is false && string.IsNullOrEmpty(animal.currentProduce.Value) is true)
+                else if (
+                    animal.GetAnimalData() is not null
+                    && string.IsNullOrEmpty(animal.GetAnimalData().HarvestedTexture) is false
+                    && string.IsNullOrEmpty(animal.currentProduce.Value) is true
+                )
                 {
                     animalName = "Sheared" + animalName;
                 }
@@ -181,7 +192,11 @@ namespace AlternativeTextures.Framework.Patches
             }
 
             // Prioritize checking non-rug furniture first
-            foreach (var furniture in location.furniture.Where(c => c.furniture_type.Value != Furniture.rug))
+            foreach (
+                var furniture in location.furniture.Where(c =>
+                    c.furniture_type.Value != Furniture.rug
+                )
+            )
             {
                 if (furniture.boundingBox.Value.Contains(x, y))
                 {
@@ -203,7 +218,10 @@ namespace AlternativeTextures.Framework.Patches
         internal static Building GetBuildingAt(GameLocation location, int x, int y)
         {
             Vector2 tile = new Vector2(x / 64, y / 64);
-            if (location.buildings.FirstOrDefault(b => b.occupiesTile(tile)) is Building building && building != null)
+            if (
+                location.buildings.FirstOrDefault(b => b.occupiesTile(tile)) is Building building
+                && building != null
+            )
             {
                 return building;
             }
@@ -218,7 +236,9 @@ namespace AlternativeTextures.Framework.Patches
             {
                 if (location.largeTerrainFeatures is not null)
                 {
-                    return location.largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tile);
+                    return location.largeTerrainFeatures.FirstOrDefault(t =>
+                        t is not null && t.Tile == tile
+                    );
                 }
                 return null;
             }
@@ -364,7 +384,9 @@ namespace AlternativeTextures.Framework.Patches
             {
                 if (!probe)
                 {
-                    obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = obj.modData["AlternativeTextureNameCached"];
+                    obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = obj.modData[
+                        "AlternativeTextureNameCached"
+                    ];
                     obj.modData.Remove("AlternativeTextureNameCached");
                 }
 
@@ -374,9 +396,15 @@ namespace AlternativeTextures.Framework.Patches
             return false;
         }
 
-        internal static bool IsPositionNearMailbox(GameLocation location, Point mailboxPosition, int x, int y)
+        internal static bool IsPositionNearMailbox(
+            GameLocation location,
+            Point mailboxPosition,
+            int x,
+            int y
+        )
         {
-            bool isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
+            bool isNearMailbox =
+                (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
             return isNearMailbox;
         }
 
@@ -392,7 +420,12 @@ namespace AlternativeTextures.Framework.Patches
 
         internal static bool IsDGAObject(object obj)
         {
-            if (IsDGAUsed() && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api && api != null)
+            if (
+                IsDGAUsed()
+                && AlternativeTextures.apiManager.GetDynamicGameAssetsApi()
+                    is IDynamicGameAssetsApi api
+                && api != null
+            )
             {
                 var dgaId = api.GetDGAItemId(obj);
                 if (dgaId != null)
@@ -423,7 +456,9 @@ namespace AlternativeTextures.Framework.Patches
                 case Object obj:
                     if (obj is not null && obj.Name == "Artifact Spot")
                     {
-                        return AlternativeTextures.modConfig.UseRandomTexturesWhenSpawningArtifactSpots;
+                        return AlternativeTextures
+                            .modConfig
+                            .UseRandomTexturesWhenSpawningArtifactSpots;
                     }
                     return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingObject;
                 case FarmAnimal:
@@ -437,18 +472,36 @@ namespace AlternativeTextures.Framework.Patches
             return true;
         }
 
-        internal static bool AssignDefaultModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
+        internal static bool AssignDefaultModData<T>(
+            T type,
+            string modelName,
+            bool trackSeason = false,
+            bool trackSheetId = false
+        )
         {
             if (HasCachedTextureName(type))
             {
                 return false;
             }
 
-            var textureModel = new AlternativeTextureModel() { Owner = AlternativeTextures.DEFAULT_OWNER, Season = trackSeason ? Game1.GetSeasonForLocation(Game1.currentLocation).ToString() : String.Empty };
+            var textureModel = new AlternativeTextureModel()
+            {
+                Owner = AlternativeTextures.DEFAULT_OWNER,
+                Season = trackSeason
+                    ? Game1.GetSeasonForLocation(Game1.currentLocation).ToString()
+                    : String.Empty,
+            };
             switch (type)
             {
                 case Object obj:
-                    AssignObjectModData(obj, modelName, textureModel, -1, trackSeason, trackSheetId);
+                    AssignObjectModData(
+                        obj,
+                        modelName,
+                        textureModel,
+                        -1,
+                        trackSeason,
+                        trackSheetId
+                    );
                     return true;
                 case TerrainFeature terrain:
                     AssignTerrainFeatureModData(terrain, modelName, textureModel, -1, trackSeason);
@@ -460,17 +513,34 @@ namespace AlternativeTextures.Framework.Patches
                     AssignBuildingModData(building, modelName, textureModel, -1, trackSeason);
                     return true;
                 case DecoratableLocation decoratableLocation:
-                    AssignDecoratableLocationModData(decoratableLocation, modelName, textureModel, -1, trackSeason);
+                    AssignDecoratableLocationModData(
+                        decoratableLocation,
+                        modelName,
+                        textureModel,
+                        -1,
+                        trackSeason
+                    );
                     return true;
                 case GameLocation gameLocation when gameLocation.IsBuildableLocation():
-                    AssignGameLocationModData(gameLocation, modelName, textureModel, -1, trackSeason);
+                    AssignGameLocationModData(
+                        gameLocation,
+                        modelName,
+                        textureModel,
+                        -1,
+                        trackSeason
+                    );
                     return true;
             }
 
             return false;
         }
 
-        internal static bool AssignModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
+        internal static bool AssignModData<T>(
+            T type,
+            string modelName,
+            bool trackSeason = false,
+            bool trackSheetId = false
+        )
         {
             if (HasCachedTextureName(type) || IsTextureRandomnessEnabled(type) is false)
             {
@@ -486,11 +556,19 @@ namespace AlternativeTextures.Framework.Patches
             }
             else if (textureModel.ManualVariations.Count() > 0)
             {
-                var weightedSelection = textureModel.ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble()).ToList();
+                var weightedSelection = textureModel
+                    .ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble())
+                    .ToList();
                 if (weightedSelection.Count > 0)
                 {
-                    var randomWeightedSelection = Game1.random.Next(!textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0, weightedSelection.Count());
-                    selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
+                    var randomWeightedSelection = Game1.random.Next(
+                        !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
+                        weightedSelection.Count()
+                    );
+                    selectedVariation =
+                        randomWeightedSelection == -1
+                            ? -1
+                            : weightedSelection[randomWeightedSelection].Id;
                 }
                 else
                 {
@@ -501,103 +579,209 @@ namespace AlternativeTextures.Framework.Patches
             switch (type)
             {
                 case Object obj:
-                    AssignObjectModData(obj, modelName, textureModel, selectedVariation, trackSeason, trackSheetId);
+                    AssignObjectModData(
+                        obj,
+                        modelName,
+                        textureModel,
+                        selectedVariation,
+                        trackSeason,
+                        trackSheetId
+                    );
                     return true;
                 case TerrainFeature terrain:
-                    AssignTerrainFeatureModData(terrain, modelName, textureModel, selectedVariation, trackSeason);
+                    AssignTerrainFeatureModData(
+                        terrain,
+                        modelName,
+                        textureModel,
+                        selectedVariation,
+                        trackSeason
+                    );
                     return true;
                 case Character character:
-                    AssignCharacterModData(character, modelName, textureModel, selectedVariation, trackSeason);
+                    AssignCharacterModData(
+                        character,
+                        modelName,
+                        textureModel,
+                        selectedVariation,
+                        trackSeason
+                    );
                     return true;
                 case Building building:
-                    AssignBuildingModData(building, modelName, textureModel, selectedVariation, trackSeason);
+                    AssignBuildingModData(
+                        building,
+                        modelName,
+                        textureModel,
+                        selectedVariation,
+                        trackSeason
+                    );
                     return true;
                 case DecoratableLocation decoratableLocation:
-                    AssignDecoratableLocationModData(decoratableLocation, modelName, textureModel, selectedVariation, trackSeason);
+                    AssignDecoratableLocationModData(
+                        decoratableLocation,
+                        modelName,
+                        textureModel,
+                        selectedVariation,
+                        trackSeason
+                    );
                     return true;
             }
 
             return false;
         }
 
-        private static void AssignObjectModData(Object obj, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false, bool trackSheetId = false)
+        private static void AssignObjectModData(
+            Object obj,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false,
+            bool trackSheetId = false
+        )
         {
             obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(Game1.currentLocation).ToString();
+                obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(Game1.currentLocation)
+                    .ToString();
             }
 
             if (trackSheetId)
             {
-                obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] = obj.ParentSheetIndex.ToString();
+                obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] =
+                    obj.ParentSheetIndex.ToString();
             }
 
             obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();
         }
 
-        private static void AssignTerrainFeatureModData(TerrainFeature terrain, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false)
+        private static void AssignTerrainFeatureModData(
+            TerrainFeature terrain,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false
+        )
         {
             terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(terrain.Location).ToString();
+                terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(terrain.Location)
+                    .ToString();
             }
 
             terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();
         }
 
-        private static void AssignCharacterModData(Character character, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false)
+        private static void AssignCharacterModData(
+            Character character,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false
+        )
         {
             character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(character.currentLocation).ToString();
+                character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(character.currentLocation)
+                    .ToString();
             }
 
             character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();
         }
 
-        private static void AssignBuildingModData(Building building, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false)
+        private static void AssignBuildingModData(
+            Building building,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false
+        )
         {
             building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(Game1.currentLocation).ToString();
+                building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(Game1.currentLocation)
+                    .ToString();
             }
 
             building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();
         }
 
-        private static void AssignDecoratableLocationModData(DecoratableLocation decoratableLocation, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false)
+        private static void AssignDecoratableLocationModData(
+            DecoratableLocation decoratableLocation,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false
+        )
         {
             decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(Game1.currentLocation).ToString();
+                decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(Game1.currentLocation)
+                    .ToString();
             }
 
-            decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();
+            decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] =
+                variation.ToString();
         }
 
-        private static void AssignGameLocationModData(GameLocation gameLocation, string modelName, AlternativeTextureModel textureModel, int variation, bool trackSeason = false)
+        private static void AssignGameLocationModData(
+            GameLocation gameLocation,
+            string modelName,
+            AlternativeTextureModel textureModel,
+            int variation,
+            bool trackSeason = false
+        )
         {
             gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-            gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
+            gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                textureModel.Owner,
+                ".",
+                modelName
+            );
 
             if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
             {
-                gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(Game1.currentLocation).ToString();
+                gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(Game1.currentLocation)
+                    .ToString();
             }
 
             gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = variation.ToString();

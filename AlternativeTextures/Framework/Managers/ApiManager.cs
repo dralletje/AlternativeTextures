@@ -18,7 +18,9 @@ namespace AlternativeTextures.Framework.Managers
 
         internal bool HookIntoMoreGiantCrops(IModHelper helper)
         {
-            _moreGiantCropsApi = helper.ModRegistry.GetApi<IMoreGiantCropsApi>("spacechase0.MoreGiantCrops");
+            _moreGiantCropsApi = helper.ModRegistry.GetApi<IMoreGiantCropsApi>(
+                "spacechase0.MoreGiantCrops"
+            );
 
             if (_moreGiantCropsApi is null)
             {
@@ -32,7 +34,9 @@ namespace AlternativeTextures.Framework.Managers
 
         internal bool HookIntoDynamicGameAssets(IModHelper helper)
         {
-            _dynamicGameAssetsApi = helper.ModRegistry.GetApi<IDynamicGameAssetsApi>("spacechase0.DynamicGameAssets");
+            _dynamicGameAssetsApi = helper.ModRegistry.GetApi<IDynamicGameAssetsApi>(
+                "spacechase0.DynamicGameAssets"
+            );
 
             if (_dynamicGameAssetsApi is null)
             {
@@ -46,7 +50,9 @@ namespace AlternativeTextures.Framework.Managers
 
         internal bool HookIntoContentPatcher(IModHelper helper)
         {
-            _contentPatcherApi = helper.ModRegistry.GetApi<IContentPatcherApi>("Pathoschild.ContentPatcher");
+            _contentPatcherApi = helper.ModRegistry.GetApi<IContentPatcherApi>(
+                "Pathoschild.ContentPatcher"
+            );
 
             if (_contentPatcherApi is null)
             {
@@ -60,15 +66,23 @@ namespace AlternativeTextures.Framework.Managers
 
         internal bool HookIntoGenericModConfigMenu(IModHelper helper)
         {
-            _genericModConfigMenuApi = helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
+            _genericModConfigMenuApi = helper.ModRegistry.GetApi<IGenericModConfigMenuApi>(
+                "spacechase0.GenericModConfigMenu"
+            );
 
             if (_genericModConfigMenuApi is null)
             {
-                _monitor.Log("Failed to hook into spacechase0.GenericModConfigMenu.", LogLevel.Error);
+                _monitor.Log(
+                    "Failed to hook into spacechase0.GenericModConfigMenu.",
+                    LogLevel.Error
+                );
                 return false;
             }
 
-            _monitor.Log("Successfully hooked into spacechase0.GenericModConfigMenu.", LogLevel.Debug);
+            _monitor.Log(
+                "Successfully hooked into spacechase0.GenericModConfigMenu.",
+                LogLevel.Debug
+            );
             return true;
         }
 

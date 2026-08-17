@@ -23,7 +23,6 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <remarks>Each mod can only be registered once, unless it's deleted via <see cref="Unregister"/> before calling this again.</remarks>
         void Register(IManifest mod, Action reset, Action save, bool titleScreenOnly = false);
 
-
         /****
         ** Basic options
         ****/
@@ -38,7 +37,12 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <param name="texture">The image texture to display.</param>
         /// <param name="texturePixelArea">The pixel area within the texture to display, or <c>null</c> to show the entire image.</param>
         /// <param name="scale">The zoom factor to apply to the image.</param>
-        void AddImage(IManifest mod, Func<Texture2D> texture, Rectangle? texturePixelArea = null, int scale = Game1.pixelZoom);
+        void AddImage(
+            IManifest mod,
+            Func<Texture2D> texture,
+            Rectangle? texturePixelArea = null,
+            int scale = Game1.pixelZoom
+        );
 
         /// <summary>Add a boolean option at the current position in the form.</summary>
         /// <param name="mod">The mod's manifest.</param>
@@ -47,7 +51,14 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <param name="name">The label text to show in the form.</param>
         /// <param name="tooltip">The tooltip text shown when the cursor hovers on the field, or <c>null</c> to disable the tooltip.</param>
         /// <param name="fieldId">The unique field ID for use with <see cref="OnFieldChanged"/>, or <c>null</c> to auto-generate a randomized ID.</param>
-        void AddBoolOption(IManifest mod, Func<bool> getValue, Action<bool> setValue, Func<string> name, Func<string> tooltip = null, string fieldId = null);
+        void AddBoolOption(
+            IManifest mod,
+            Func<bool> getValue,
+            Action<bool> setValue,
+            Func<string> name,
+            Func<string> tooltip = null,
+            string fieldId = null
+        );
 
         /****
         ** Multi-page management
@@ -64,7 +75,12 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <param name="pageId">The unique ID of the page to open when the link is clicked.</param>
         /// <param name="text">The link text shown in the form.</param>
         /// <param name="tooltip">The tooltip text shown when the cursor hovers on the link, or <c>null</c> to disable the tooltip.</param>
-        void AddPageLink(IManifest mod, string pageId, Func<string> text, Func<string> tooltip = null);
+        void AddPageLink(
+            IManifest mod,
+            string pageId,
+            Func<string> text,
+            Func<string> tooltip = null
+        );
 
         /****
         ** Advanced
@@ -83,6 +99,19 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <param name="height">The pixel height to allocate for the option in the form, or <c>null</c> for a standard input-sized option. This is called and cached each time the form is opened.</param>
         /// <param name="fieldId">The unique field ID for use with <see cref="OnFieldChanged"/>, or <c>null</c> to auto-generate a randomized ID.</param>
         /// <remarks>The custom logic represented by the callback parameters is responsible for managing its own state if needed. For example, you can store state in a static field or use closures to use a state variable.</remarks>
-        void AddComplexOption(IManifest mod, Func<string> name, Action<SpriteBatch, Vector2> draw, Func<string> tooltip = null, Action beforeMenuOpened = null, Action beforeSave = null, Action afterSave = null, Action beforeReset = null, Action afterReset = null, Action beforeMenuClosed = null, Func<int> height = null, string fieldId = null);
+        void AddComplexOption(
+            IManifest mod,
+            Func<string> name,
+            Action<SpriteBatch, Vector2> draw,
+            Func<string> tooltip = null,
+            Action beforeMenuOpened = null,
+            Action beforeSave = null,
+            Action afterSave = null,
+            Action beforeReset = null,
+            Action afterReset = null,
+            Action beforeMenuClosed = null,
+            Func<int> height = null,
+            string fieldId = null
+        );
     }
 }

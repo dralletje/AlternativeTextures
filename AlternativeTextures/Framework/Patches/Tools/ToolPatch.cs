@@ -1,4 +1,8 @@
-﻿using AlternativeTextures.Framework.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.UI;
 using AlternativeTextures.Framework.Utilities;
@@ -16,10 +20,6 @@ using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
 
@@ -29,16 +29,41 @@ namespace AlternativeTextures.Framework.Patches.Tools
     {
         private readonly Type _object = typeof(Tool);
 
-        internal ToolPatch(IMonitor modMonitor, IModHelper modHelper) : base(modMonitor, modHelper)
-        {
-
-        }
+        internal ToolPatch(IMonitor modMonitor, IModHelper modHelper)
+            : base(modMonitor, modHelper) { }
 
         internal void Apply(Harmony harmony)
         {
-            harmony.Patch(AccessTools.Method(typeof(Item), nameof(Item.canBeTrashed), null), postfix: new HarmonyMethod(GetType(), nameof(CanBeTrashedPostfix)));
-            harmony.Patch(AccessTools.Method(_object, nameof(Tool.drawInMenu), new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float), typeof(float), typeof(StackDrawType), typeof(Color), typeof(bool) }), prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix)));
-            harmony.Patch(AccessTools.Method(_object, nameof(GenericTool.beginUsing), new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }), prefix: new HarmonyMethod(GetType(), nameof(BeginUsingPrefix)));
+            harmony.Patch(
+                AccessTools.Method(typeof(Item), nameof(Item.canBeTrashed), null),
+                postfix: new HarmonyMethod(GetType(), nameof(CanBeTrashedPostfix))
+            );
+            harmony.Patch(
+                AccessTools.Method(
+                    _object,
+                    nameof(Tool.drawInMenu),
+                    new[]
+                    {
+                        typeof(SpriteBatch),
+                        typeof(Vector2),
+                        typeof(float),
+                        typeof(float),
+                        typeof(float),
+                        typeof(StackDrawType),
+                        typeof(Color),
+                        typeof(bool),
+                    }
+                ),
+                prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+            );
+            harmony.Patch(
+                AccessTools.Method(
+                    _object,
+                    nameof(GenericTool.beginUsing),
+                    new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }
+                ),
+                prefix: new HarmonyMethod(GetType(), nameof(BeginUsingPrefix))
+            );
         }
 
         private static void GetNamePostfix(Tool __instance, ref string __result)
@@ -116,22 +141,46 @@ namespace AlternativeTextures.Framework.Patches.Tools
             }
         }
 
-        private static bool DrawInMenuPrefix(Tool __instance, SpriteBatch spriteBatch, Vector2 location, ref float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
+        private static bool DrawInMenuPrefix(
+            Tool __instance,
+            SpriteBatch spriteBatch,
+            Vector2 location,
+            ref float scaleSize,
+            float transparency,
+            float layerDepth,
+            StackDrawType drawStackNumber,
+            Color color,
+            bool drawShadow
+        )
         {
             // Paint brush requires special draw prefix for
             if (__instance.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG))
             {
-                var scale = __instance.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_SCALE) ? float.Parse(__instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE]) : 0f;
+                var scale = __instance.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_SCALE)
+                    ? float.Parse(__instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE])
+                    : 0f;
                 var texture = Managers.ToolManager.GetPaintBrushEmptyTexture();
                 if (!String.IsNullOrEmpty(__instance.modData[AlternativeTextures.PAINT_BRUSH_FLAG]))
                 {
                     texture = Managers.ToolManager.GetPaintBrushFilledTexture();
                 }
-                spriteBatch.Draw(texture, location + new Vector2(32f, 32f), new Rectangle(0, 0, 16, 16), color * transparency, 0f, new Vector2(8f, 8f), 4f * (scaleSize + scale), SpriteEffects.None, layerDepth);
+                spriteBatch.Draw(
+                    texture,
+                    location + new Vector2(32f, 32f),
+                    new Rectangle(0, 0, 16, 16),
+                    color * transparency,
+                    0f,
+                    new Vector2(8f, 8f),
+                    4f * (scaleSize + scale),
+                    SpriteEffects.None,
+                    layerDepth
+                );
 
                 if (scale > 0f)
                 {
-                    __instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = (scale -= 0.01f).ToString();
+                    __instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = (
+                        scale -= 0.01f
+                    ).ToString();
                 }
                 return false;
             }
@@ -139,7 +188,14 @@ namespace AlternativeTextures.Framework.Patches.Tools
             return true;
         }
 
-        private static bool BeginUsingPrefix(GenericTool __instance, ref bool __result, GameLocation location, int x, int y, Farmer who)
+        private static bool BeginUsingPrefix(
+            GenericTool __instance,
+            ref bool __result,
+            GameLocation location,
+            int x,
+            int y,
+            Farmer who
+        )
         {
             if (who != Game1.player)
             {
@@ -179,13 +235,18 @@ namespace AlternativeTextures.Framework.Patches.Tools
             return true;
         }
 
-        internal static bool UsePaintBucket(GameLocation location, int x, int y, Farmer who, bool isSprayCan = false)
+        internal static bool UsePaintBucket(
+            GameLocation location,
+            int x,
+            int y,
+            Farmer who,
+            bool isSprayCan = false
+        )
         {
-
             ////////////////////////////////////////////////////
 
             var paintables = IPaintable.OnTile(new(x / 64, y / 64));
-            if (paintables.FirstOrDefault() is {} paintable)
+            if (paintables.FirstOrDefault() is { } paintable)
             {
                 // var itemId = $"{paintable.Type}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
                 // var modelName = paintable.Type;
@@ -216,14 +277,15 @@ namespace AlternativeTextures.Framework.Patches.Tools
                 // }
 
                 // Display texture menu
-                Game1.activeClickableMenu = new PaintBucketMenu(paintable, _helper.Translation.Get("tools.name.paint_bucket"));
+                Game1.activeClickableMenu = new PaintBucketMenu(
+                    paintable,
+                    _helper.Translation.Get("tools.name.paint_bucket")
+                );
 
                 return CancelUsing(who);
             }
 
             ////////////////////////////////////////////////////
-
-            
 
             // var targetedObject = GetObjectAt(location, x, y);
             // if (targetedObject != null)
@@ -608,30 +670,79 @@ namespace AlternativeTextures.Framework.Patches.Tools
                 var modelType = AlternativeTextureModel.TextureType.Character;
                 if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
                 {
-                    var instanceSeasonName = $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+                    var instanceSeasonName =
+                        $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
                     AssignDefaultModData(character, instanceSeasonName, true);
                 }
 
-                var modelName = character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-                if (modelName.Contains(GetCharacterName(character), StringComparison.OrdinalIgnoreCase) is false)
+                var modelName = character
+                    .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+                    .Replace(
+                        $"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.",
+                        String.Empty
+                    );
+                if (
+                    modelName.Contains(
+                        GetCharacterName(character),
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                    is false
+                )
                 {
-                    modelName = $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+                    modelName =
+                        $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
                 }
 
-                if (character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
+                if (
+                    character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                    && !String.IsNullOrEmpty(
+                        character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
+                    )
+                )
                 {
-                    modelName = GetModelNameWithoutSeason(modelName, character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
+                    modelName = GetModelNameWithoutSeason(
+                        modelName,
+                        character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
+                    );
                 }
 
-                if (AlternativeTextures.textureManager.GetAvailableTextureModels(modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
+                if (
+                    AlternativeTextures
+                        .textureManager.GetAvailableTextureModels(
+                            modelName,
+                            Game1.GetSeasonForLocation(Game1.currentLocation)
+                        )
+                        .Count == 0
+                )
                 {
-                    if ((character is Pet pet && pet.GetPetData() is var petData && petData is not null && petData.Breeds is not null) || (character is FarmAnimal animal && animal.GetAnimalData() is var animalData && animalData is not null && animalData.Skins is not null))
+                    if (
+                        (
+                            character is Pet pet
+                            && pet.GetPetData() is var petData
+                            && petData is not null
+                            && petData.Breeds is not null
+                        )
+                        || (
+                            character is FarmAnimal animal
+                            && animal.GetAnimalData() is var animalData
+                            && animalData is not null
+                            && animalData.Skins is not null
+                        )
+                    )
                     {
                         // Skip no texture warning
                     }
                     else
                     {
-                        Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
+                        Game1.addHUDMessage(
+                            new HUDMessage(
+                                _helper.Translation.Get(
+                                    "messages.warning.no_textures_for_season",
+                                    new { itemName = modelName }
+                                ),
+                                3
+                            )
+                        );
                         return CancelUsing(who);
                     }
                 }
@@ -642,7 +753,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
                     Name = character.Name,
                     displayName = character.displayName,
                     TileLocation = character.Tile,
-                    Location = location
+                    Location = location,
                 };
                 obj.modData.SetFromSerialization(character.modData);
 
@@ -670,7 +781,16 @@ namespace AlternativeTextures.Framework.Patches.Tools
 
         internal static bool IsAlternativeTextureTool(Item item)
         {
-            if (item is StardewValley.Tools.GenericTool tool && (tool.modData.ContainsKey(AlternativeTextures.PAINT_BUCKET_FLAG) || tool.modData.ContainsKey(AlternativeTextures.SCISSORS_FLAG) || tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG) || tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG) || tool.modData.ContainsKey(AlternativeTextures.CATALOGUE_FLAG)))
+            if (
+                item is StardewValley.Tools.GenericTool tool
+                && (
+                    tool.modData.ContainsKey(AlternativeTextures.PAINT_BUCKET_FLAG)
+                    || tool.modData.ContainsKey(AlternativeTextures.SCISSORS_FLAG)
+                    || tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
+                    || tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG)
+                    || tool.modData.ContainsKey(AlternativeTextures.CATALOGUE_FLAG)
+                )
+            )
             {
                 return true;
             }

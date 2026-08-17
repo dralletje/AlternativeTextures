@@ -1,7 +1,7 @@
-﻿using AlternativeTextures.Framework.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework.External.GenericModConfigMenu
 {
@@ -19,11 +19,17 @@ namespace AlternativeTextures.Framework.External.GenericModConfigMenu
         public bool UseRandomTexturesWhenPlacingFarmAnimal { get; set; } = true;
         public bool UseRandomTexturesWhenPlacingMonster { get; set; } = true;
         public bool UseRandomTexturesWhenPlacingBuilding { get; set; } = false;
-        public List<DisabledTextureModel> DisabledTextures { get; set; } = new List<DisabledTextureModel>();
+        public List<DisabledTextureModel> DisabledTextures { get; set; } =
+            new List<DisabledTextureModel>();
 
         internal bool IsTextureVariationDisabled(string textureId, int variation)
         {
-            if (DisabledTextures.Any(t => t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase) && t.DisabledVariations.Contains(variation)))
+            if (
+                DisabledTextures.Any(t =>
+                    t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
+                    && t.DisabledVariations.Contains(variation)
+                )
+            )
             {
                 return true;
             }
@@ -35,18 +41,28 @@ namespace AlternativeTextures.Framework.External.GenericModConfigMenu
         {
             if (isEnabled)
             {
-                if (!DisabledTextures.Any(t => t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase) && t.DisabledVariations.Contains(variation)))
+                if (
+                    !DisabledTextures.Any(t =>
+                        t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
+                        && t.DisabledVariations.Contains(variation)
+                    )
+                )
                 {
                     return;
                 }
 
                 DisabledTextures
-                    .First(t => t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase) && t.DisabledVariations.Contains(variation)).DisabledVariations
-                    .Remove(variation);
+                    .First(t =>
+                        t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
+                        && t.DisabledVariations.Contains(variation)
+                    )
+                    .DisabledVariations.Remove(variation);
             }
             else
             {
-                var model = DisabledTextures.FirstOrDefault(t => t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase));
+                var model = DisabledTextures.FirstOrDefault(t =>
+                    t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
+                );
                 if (model is null)
                 {
                     model = new DisabledTextureModel() { TextureId = textureId };

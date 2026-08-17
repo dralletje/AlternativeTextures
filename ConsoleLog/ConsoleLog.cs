@@ -117,12 +117,15 @@ public ref struct InspectString(int literalLength, int formattedCount)
 {
     private readonly StringBuilder _builder = new StringBuilder(literalLength);
 
-    public void AppendLiteral(string s) {
-         _builder.Append(s);
+    public void AppendLiteral(string s)
+    {
+        _builder.Append(s);
     }
 
-    public void AppendFormatted<T>(T value, string? format = null) {
-        if (format == "raw") {
+    public void AppendFormatted<T>(T value, string? format = null)
+    {
+        if (format == "raw")
+        {
             _builder.Append(value);
         }
         else
@@ -142,7 +145,6 @@ public static class PrettyPrint
         {
             Console.WriteLine(message.ToString());
         }
-
     }
 
     /// <summary>

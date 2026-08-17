@@ -16,7 +16,12 @@ namespace AlternativeTextures.Framework.External.GenericModConfigMenu
 
         public void Draw(SpriteBatch b, Vector2 pos)
         {
-            var bounds = new Rectangle((int)pos.X, (int)pos.Y, OptionsCheckbox.sourceRectChecked.Width * 4, OptionsCheckbox.sourceRectChecked.Width * 4);
+            var bounds = new Rectangle(
+                (int)pos.X,
+                (int)pos.Y,
+                OptionsCheckbox.sourceRectChecked.Width * 4,
+                OptionsCheckbox.sourceRectChecked.Width * 4
+            );
             bool isHovering = bounds.Contains(Game1.getOldMouseX(), Game1.getOldMouseY());
 
             bool isClicking = Game1.input.GetMouseState().LeftButton == ButtonState.Pressed;
@@ -26,7 +31,17 @@ namespace AlternativeTextures.Framework.External.GenericModConfigMenu
             }
             wasClicking = isClicking;
 
-            b.Draw(Game1.mouseCursors, pos, Enabled ? OptionsCheckbox.sourceRectChecked : OptionsCheckbox.sourceRectUnchecked, Color.White, 0, Vector2.Zero, 4, SpriteEffects.None, 0);
+            b.Draw(
+                Game1.mouseCursors,
+                pos,
+                Enabled ? OptionsCheckbox.sourceRectChecked : OptionsCheckbox.sourceRectUnchecked,
+                Color.White,
+                0,
+                Vector2.Zero,
+                4,
+                SpriteEffects.None,
+                0
+            );
         }
 
         internal void BeforeSave(ModConfig modConfig)

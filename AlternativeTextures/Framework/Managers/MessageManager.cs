@@ -1,11 +1,11 @@
-﻿using AlternativeTextures.Framework.Patches.Buildings;
+﻿using System;
+using System.Linq;
+using AlternativeTextures.Framework.Patches.Buildings;
 using AlternativeTextures.Framework.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Buildings;
-using System;
-using System.Linq;
 
 namespace AlternativeTextures.Framework.Managers
 {
@@ -18,7 +18,7 @@ namespace AlternativeTextures.Framework.Managers
         internal enum MessageType
         {
             Unknown,
-            BuildingTextureUpdate
+            BuildingTextureUpdate,
         }
 
         internal class BuildingTextureUpdateMessage
@@ -40,7 +40,10 @@ namespace AlternativeTextures.Framework.Managers
         {
             if (Enum.TryParse<MessageType>(e.Type, out var type) is false)
             {
-                _monitor.LogOnce($"Failed to handle incoming message with type {e.Type}", LogLevel.Trace);
+                _monitor.LogOnce(
+                    $"Failed to handle incoming message with type {e.Type}",
+                    LogLevel.Trace
+                );
                 return;
             }
 
@@ -52,9 +55,17 @@ namespace AlternativeTextures.Framework.Managers
                     var location = Game1.getLocationFromName(message.LocationName);
                     if (location is not null && location.buildings is not null)
                     {
-                        foreach (var building in location.buildings.Where(b => b is not null & b.id.Value == message.BuildingID))
+                        foreach (
+                            var building in location.buildings.Where(b =>
+                                b is not null & b.id.Value == message.BuildingID
+                            )
+                        )
                         {
-                            BuildingPatch.ForceResetTexture(building, message.TextureName, message.TextureVariation);
+                            BuildingPatch.ForceResetTexture(
+                                building,
+                                message.TextureName,
+                                message.TextureVariation
+                            );
                         }
                     }
                     return;
@@ -63,7 +74,10 @@ namespace AlternativeTextures.Framework.Managers
 
         public void SendBuildingTextureUpdate(Building building)
         {
-            if (building.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is false || building.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is false)
+            if (
+                building.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is false
+                || building.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is false
+            )
             {
                 return;
             }
@@ -73,9 +87,13 @@ namespace AlternativeTextures.Framework.Managers
                 LocationName = building.GetParentLocation().NameOrUniqueName,
                 BuildingID = building.id.Value,
                 TextureName = building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                TextureVariation = building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
+                TextureVariation = building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
             };
-            _helper.Multiplayer.SendMessage(message, MessageType.BuildingTextureUpdate.ToString(), modIDs: new[] { _modID });
+            _helper.Multiplayer.SendMessage(
+                message,
+                MessageType.BuildingTextureUpdate.ToString(),
+                modIDs: new[] { _modID }
+            );
         }
     }
 }

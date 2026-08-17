@@ -1,9 +1,9 @@
-﻿using AlternativeTextures.Framework.Models;
+﻿using System;
+using AlternativeTextures.Framework.Models;
 using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using System;
 
 namespace AlternativeTextures.Framework.Patches.Entities
 {
@@ -11,35 +11,63 @@ namespace AlternativeTextures.Framework.Patches.Entities
     {
         private readonly Type _entity = typeof(Child);
 
-        internal ChildPatch(IMonitor modMonitor, IModHelper modHelper) : base(modMonitor, modHelper)
-        {
-
-        }
+        internal ChildPatch(IMonitor modMonitor, IModHelper modHelper)
+            : base(modMonitor, modHelper) { }
 
         internal void Apply(Harmony harmony)
         {
-            harmony.Patch(AccessTools.Constructor(_entity, new[] { typeof(string), typeof(bool), typeof(bool), typeof(Farmer) }), postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix)));
+            harmony.Patch(
+                AccessTools.Constructor(
+                    _entity,
+                    new[] { typeof(string), typeof(bool), typeof(bool), typeof(Farmer) }
+                ),
+                postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix))
+            );
         }
 
-        private static void ChildPostfix(Child __instance, string name, bool isMale, bool isDarkSkinned, Farmer parent)
+        private static void ChildPostfix(
+            Child __instance,
+            string name,
+            bool isMale,
+            bool isDarkSkinned,
+            Farmer parent
+        )
         {
-            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName =
+                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName =
+                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName) && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
+            if (
+                AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
+                    instanceSeasonName
+                )
+            )
             {
-                var result = Game1.random.Next(2) > 0 ? AssignModData(__instance, instanceSeasonName, true) : AssignModData(__instance, instanceName, false);
+                var result =
+                    Game1.random.Next(2) > 0
+                        ? AssignModData(__instance, instanceSeasonName, true)
+                        : AssignModData(__instance, instanceName, false);
                 return;
             }
             else
             {
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
+                if (
+                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
+                        instanceName
+                    )
+                )
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
+                if (
+                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
+                        instanceSeasonName
+                    )
+                )
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;
