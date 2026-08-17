@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to SMAPI",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "StardewModdingAPI"
+    },
+    {
+      "name": "Launch SMAPI",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/stardew_install_symlink/StardewModdingAPI",
+      "cwd": "${workspaceFolder}/stardew_install_symlink"
+    }
+  ]
+}

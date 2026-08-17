@@ -179,7 +179,21 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         }
                         else
                         {
-                            spriteBatch.Draw(heldItemData.GetTexture(), Game1.GlobalToLocal(Game1.viewport, new Vector2(__instance.boundingBox.Center.X - 32, __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85))), heldItemData.GetSourceRect(), Color.White * alpha, 0f, Vector2.Zero, 4f, SpriteEffects.None, (float)(__instance.boundingBox.Bottom + 1) / 10000f);
+                            spriteBatch.Draw(
+                                heldItemData.GetTexture(),
+                                Game1.GlobalToLocal(
+                                    Game1.viewport,
+                                    new Vector2(
+                                        __instance.boundingBox.Center.X - 32,
+                                        __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                                    )
+                                ),
+                                heldItemData.GetSourceRect(),
+                                Color.White * alpha,
+                                0f, Vector2.Zero,
+                                4f, SpriteEffects.None,
+                                (float)(__instance.boundingBox.Bottom + 1) / 10000f
+                            );
                         }
                     }
                 }

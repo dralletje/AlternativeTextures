@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
+using ConsoleLog;
 
 namespace AlternativeTextures.Framework.UI
 {
@@ -31,15 +32,15 @@ namespace AlternativeTextures.Framework.UI
         public ClickableTextureComponent hovered;
         public ClickableTextureComponent forwardButton;
         public ClickableTextureComponent backButton;
-        public ClickableTextureComponent queryButton;
+        // public ClickableTextureComponent queryButton;
 
         public List<Item> filteredTextureOptions = new List<Item>();
         public List<Item> cachedTextureOptions = new List<Item>();
         public List<ClickableTextureComponent> availableTextures = new List<ClickableTextureComponent>();
 
         // Textbox
-        protected TextBox _searchBox;
-        protected ClickableComponent _searchBoxCC;
+        // protected TextBox _searchBox;
+        // protected ClickableComponent _searchBoxCC;
 
         protected string _title;
         protected string _cachedTextBoxValue;
@@ -64,6 +65,27 @@ namespace AlternativeTextures.Framework.UI
         protected Dictionary<string, SelectedTextureModel> _selectedIdsToModels;
         private Dictionary<string, Texture2D> _skinIdToTextures = new Dictionary<string, Texture2D>();
         private Dictionary<string, Texture2D> _breedIdToTextures = new Dictionary<string, Texture2D>();
+
+        //   private void setScrollBarToCurrentIndex()
+        //   {
+        //     if (forSale.Count > 0)
+        //     {
+        //       float num = (float)scrollBarRunner.Height / (float)Math.Max(1, forSale.Count - 4 + 1);
+        //       scrollBar.bounds.Y = (int)(num * (float)currentItemIndex + (float)upArrow.bounds.Bottom + 4f);
+        //       if (currentItemIndex == forSale.Count - 4)
+        //       {
+        //         scrollBar.bounds.Y = downArrow.bounds.Y - scrollBar.bounds.Height - 4;
+        //       }
+        //     }
+        //   }
+
+
+        ClickableTextureComponent upArrow;
+        ClickableTextureComponent downArrow;
+        ClickableTextureComponent scrollBar;
+        Rectangle scrollBarRunner;
+
+        ShopMenu.ShopCachedTheme VisualTheme = new ShopMenu.ShopCachedTheme(null);
 
         public PaintBucketMenu(Object target, Vector2 position, TextureType textureType, string modelName, string uiTitle = "Paint Bucket", int textureTileWidth = -1, bool isSprayCan = false, string textureOwnerKey = ModDataKeys.ALTERNATIVE_TEXTURE_OWNER, string textureNameKey = ModDataKeys.ALTERNATIVE_TEXTURE_NAME, string textureVariationKey = ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION, string textureSeasonKey = ModDataKeys.ALTERNATIVE_TEXTURE_SEASON, string textureDisplayNameKey = ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME) : base(0, 0, 832, 576, showUpperRightCloseButton: true)
         {
@@ -90,6 +112,25 @@ namespace AlternativeTextures.Framework.UI
             Vector2 topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
             base.xPositionOnScreen = (int)topLeft.X;
             base.yPositionOnScreen = (int)topLeft.Y;
+
+            /////////////////////////////////////
+
+            upArrow = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width + 16, yPositionOnScreen + 16, 44, 48), VisualTheme.ScrollUpTexture, VisualTheme.ScrollUpSourceRect, 4f)
+            {
+                myID = 97865,
+                downNeighborID = 106,
+                leftNeighborID = 3546
+            };
+            downArrow = new ClickableTextureComponent(new Rectangle(xPositionOnScreen + width + 16, yPositionOnScreen + height - 64, 44, 48), VisualTheme.ScrollDownTexture, VisualTheme.ScrollDownSourceRect, 4f)
+            {
+                myID = 106,
+                upNeighborID = 97865,
+                leftNeighborID = 3546
+            };
+            scrollBar = new ClickableTextureComponent(new Rectangle(upArrow.bounds.X + 12, upArrow.bounds.Y + upArrow.bounds.Height + 4, 24, 40), VisualTheme.ScrollBarFrontTexture, VisualTheme.ScrollBarFrontSourceRect, 4f);
+            scrollBarRunner = new Rectangle(scrollBar.bounds.X, upArrow.bounds.Y + upArrow.bounds.Height + 4, scrollBar.bounds.Width, height - 64 - upArrow.bounds.Height - 28);
+
+            /////////////////////////////////////
 
             // Populate the texture selection components
             var availableModels = AlternativeTextures.textureManager.GetAvailableTextureModels($"{textureType}_{target.ItemId}", modelName, Game1.GetSeasonForLocation(Game1.currentLocation));
@@ -431,7 +472,7 @@ namespace AlternativeTextures.Framework.UI
                     {
                         myID = componentId,
                         downNeighborID = componentId + _texturesPerRow,
-                        upNeighborID = r >= _texturesPerRow ? componentId - _texturesPerRow : -1,
+                        upNeighborID = r >= 0 ? componentId - _texturesPerRow : -1,
                         rightNeighborID = c == 5 ? 9997 : componentId + 1,
                         leftNeighborID = c > 0 ? componentId - 1 : 9998
                     });
@@ -455,47 +496,54 @@ namespace AlternativeTextures.Framework.UI
             this.backButton = new ClickableTextureComponent(new Rectangle(base.xPositionOnScreen - 64, base.yPositionOnScreen + 8, 48, 44), Game1.mouseCursors, new Rectangle(352, 495, 12, 11), 4f)
             {
                 myID = 9998,
-                rightNeighborID = 0
+                rightNeighborID = -99998
             };
             this.forwardButton = new ClickableTextureComponent(new Rectangle(base.xPositionOnScreen + base.width + 64 - 48, base.yPositionOnScreen + base.height - 48, 48, 44), Game1.mouseCursors, new Rectangle(365, 495, 12, 11), 4f)
             {
-                myID = 9997
+                myID = 9997,
+                leftNeighborID = -99998
             };
 
             // Textbox related
             var xTextbox = base.xPositionOnScreen + 64 + IClickableMenu.spaceToClearSideBorder + IClickableMenu.borderWidth + 320;
             var yTextbox = base.yPositionOnScreen - 58;
-            _searchBox = new TextBox(Game1.content.Load<Texture2D>("LooseSprites\\textBox"), null, Game1.smallFont, Game1.textColor)
-            {
-                X = xTextbox,
-                Y = yTextbox,
-                Width = 384,
-                limitWidth = false,
-                Text = String.Empty
-            };
+            // _searchBox = new TextBox(Game1.content.Load<Texture2D>("LooseSprites\\textBox"), null, Game1.smallFont, Game1.textColor)
+            // {
+            //     X = xTextbox,
+            //     Y = yTextbox,
+            //     Width = 384,
+            //     limitWidth = false,
+            //     Text = String.Empty
+            // };
 
-            _searchBoxCC = new ClickableComponent(new Rectangle(xTextbox, yTextbox, 192, 48), "")
-            {
-                myID = 9999,
-                upNeighborID = -99998,
-                leftNeighborID = -99998,
-                rightNeighborID = -99998,
-                downNeighborID = -99998
-            };
-            Game1.keyboardDispatcher.Subscriber = this._searchBox;
-            _searchBox.Selected = true;
+            // _searchBoxCC = new ClickableComponent(new Rectangle(xTextbox, yTextbox, 192, 48), "")
+            // {
+            //     myID = 9999,
+            //     upNeighborID = -99998,
+            //     leftNeighborID = -99998,
+            //     rightNeighborID = -99998,
+            //     downNeighborID = -99998
+            // };
+            // Game1.keyboardDispatcher.Subscriber = this._searchBox;
+            // _searchBox.Selected = true;
 
-            this.queryButton = new ClickableTextureComponent(new Rectangle(xTextbox - 32, base.yPositionOnScreen - 48, 48, 44), Game1.mouseCursors, new Rectangle(208, 320, 16, 16), 2f)
-            {
-                myID = -1
-            };
+            // this.queryButton = new ClickableTextureComponent(new Rectangle(xTextbox - 32, base.yPositionOnScreen - 48, 48, 44), Game1.mouseCursors, new Rectangle(208, 320, 16, 16), 2f)
+            // {
+            //     myID = -1
+            // };
 
             // Call snap functions
             if (Game1.options.SnappyMenus)
             {
                 base.populateClickableComponentList();
-                this.snapToDefaultClickableComponent();
+                this.setCurrentlySnappedComponentTo(0);
+                this.snapCursorToCurrentSnappedComponent();
             }
+        }
+
+        protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
+        {
+            base.customSnapBehavior(direction, oldRegion, oldID);
         }
 
         public override void performHoverAction(int x, int y)
@@ -526,32 +574,35 @@ namespace AlternativeTextures.Framework.UI
 
         public override void receiveKeyPress(Keys key)
         {
-            if (key == Keys.Escape)
-            {
-                base.receiveKeyPress(key);
-            }
+            PrettyPrint.Log("KeyPress", key);
+            // if (key == Keys.Escape)
+            // {
+            //     base.receiveKeyPress(key);
+            // }
+
+            base.receiveKeyPress(key);
         }
 
         public override void update(GameTime time)
         {
             base.update(time);
 
-            if (_searchBox.Text != _cachedTextBoxValue)
-            {
-                _startingRow = 0;
-                _cachedTextBoxValue = _searchBox.Text;
+            // if (_searchBox.Text != _cachedTextBoxValue)
+            // {
+            //     _startingRow = 0;
+            //     _cachedTextBoxValue = _searchBox.Text;
 
-                if (String.IsNullOrEmpty(_searchBox.Text))
-                {
-                    filteredTextureOptions = cachedTextureOptions;
-                }
-                else
-                {
-                    var preFilteredTextureOptions = cachedTextureOptions.Where(i => !i.modData[_textureOwnerKey].Contains(AlternativeTextures.DEFAULT_OWNER) && AlternativeTextures.textureManager.GetSpecificTextureModel(i.modData[_textureNameKey]) is AlternativeTextureModel model && model.HasKeyword(i.modData[_textureVariationKey], _searchBox.Text));
-                    var vanillaFilteredTexureOptions = cachedTextureOptions.Where(i => (i.modData[_textureOwnerKey].Contains(AlternativeTextures.DEFAULT_OWNER) && i.modData[_textureNameKey].Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)) || (i.modData.TryGetValue(_textureDisplayNameKey, out string displayName) && string.IsNullOrEmpty(displayName) is false && displayName.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)));
-                    filteredTextureOptions = preFilteredTextureOptions.Concat(vanillaFilteredTexureOptions).ToList();
-                }
-            }
+            //     if (String.IsNullOrEmpty(_searchBox.Text))
+            //     {
+            //         filteredTextureOptions = cachedTextureOptions;
+            //     }
+            //     else
+            //     {
+            //         var preFilteredTextureOptions = cachedTextureOptions.Where(i => !i.modData[_textureOwnerKey].Contains(AlternativeTextures.DEFAULT_OWNER) && AlternativeTextures.textureManager.GetSpecificTextureModel(i.modData[_textureNameKey]) is AlternativeTextureModel model && model.HasKeyword(i.modData[_textureVariationKey], _searchBox.Text));
+            //         var vanillaFilteredTexureOptions = cachedTextureOptions.Where(i => (i.modData[_textureOwnerKey].Contains(AlternativeTextures.DEFAULT_OWNER) && i.modData[_textureNameKey].Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)) || (i.modData.TryGetValue(_textureDisplayNameKey, out string displayName) && string.IsNullOrEmpty(displayName) is false && displayName.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)));
+            //         filteredTextureOptions = preFilteredTextureOptions.Concat(vanillaFilteredTexureOptions).ToList();
+            //     }
+            // }
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = false)
@@ -638,6 +689,7 @@ namespace AlternativeTextures.Framework.UI
                     {
                         foreach (string key in c.item.modData.Keys)
                         {
+                            Console.Log($"[{key}] {c.item.modData[key]}");
                             feature.modData[key] = c.item.modData[key];
                         }
                     }
@@ -993,8 +1045,22 @@ namespace AlternativeTextures.Framework.UI
                     }
                 }
 
-                _searchBox.Draw(b);
-                queryButton.draw(b);
+                upArrow.draw(b);
+                downArrow.draw(b);
+                // foreach (ShopTabClickableTextureComponent tabButton in tabButtons)
+                // {
+                // tabButton.draw(b);
+                // }
+
+                // if (forSale.Count > 4)
+                // {
+                IClickableMenu.drawTextureBox(b, VisualTheme.ScrollBarBackTexture, VisualTheme.ScrollBarBackSourceRect, scrollBarRunner.X, scrollBarRunner.Y, scrollBarRunner.Width, scrollBarRunner.Height, Color.White, 4f);
+                scrollBar.draw(b);
+                // }
+
+
+                // _searchBox.Draw(b);
+                // queryButton.draw(b);
             }
 
             var hoverInfoText = String.Empty;

@@ -1,4 +1,5 @@
 ﻿using AlternativeTextures.Framework.Models;
+using ConsoleLog;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -100,7 +101,7 @@ namespace AlternativeTextures.Framework.Managers
             return _textureIdsInsensitive.Contains(objectId);
         }
 
-        public AlternativeTextureModel GetRandomTextureModel(string objectName)
+        public AlternativeTextureModel? GetRandomTextureModel(string objectName)
         {
             if (!DoesObjectHaveAlternativeTexture(objectName))
             {
@@ -111,7 +112,7 @@ namespace AlternativeTextures.Framework.Managers
             return validTextures[Game1.random.Next(validTextures.Count())];
         }
 
-        public AlternativeTextureModel GetSpecificTextureModel(string textureId)
+        public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
         {
             if (!DoesObjectHaveAlternativeTextureById(textureId))
             {
@@ -125,6 +126,7 @@ namespace AlternativeTextures.Framework.Managers
         {
             string modelNameWithSeason = string.Concat(modelName, "_", season);
 
+            Console.Log($"modelName: {modelName}");
             if (!DoesObjectHaveAlternativeTexture(modelName) && !DoesObjectHaveAlternativeTexture(modelNameWithSeason))
             {
                 return new List<AlternativeTextureModel>();

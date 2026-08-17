@@ -60,7 +60,7 @@ namespace AlternativeTextures.Framework.Utilities
         private DateTime _lastFPSUpdate = DateTime.UtcNow;
 
 
-        internal void OnRendered(object sender, RenderedEventArgs e)
+        internal void OnRendered(object? sender, RenderedEventArgs e)
         {
             var millisecondsSinceLastCall = DateTime.UtcNow.Subtract(_lastRenderingCall).TotalMilliseconds;
             _lastRenderingCall = DateTime.UtcNow;

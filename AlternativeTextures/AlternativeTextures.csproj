@@ -4,15 +4,22 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<LangVersion>preview</LangVersion>
 		<EnableHarmony>true</EnableHarmony>
+		<Nullable>enable</Nullable>
+		<EnablePreviewFeatures>true</EnablePreviewFeatures>
+
 		<EnableModZip>false</EnableModZip>
-		<EnableModDeploy>false</EnableModDeploy>
-		<GameModsPath>E:\SteamLibrary\steamapps\common\Stardew Valley\Mods</GameModsPath>
+		<!-- <EnableModDeploy>false</EnableModDeploy> -->
+		<!-- <GameModsPath>E:\SteamLibrary\steamapps\common\Stardew Valley\Mods</GameModsPath> -->
+		<GamePath>../stardew_install_symlink</GamePath>
+		<EnableModDeploy>true</EnableModDeploy>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Remove="releases\**" />
 		<EmbeddedResource Remove="releases\**" />
 		<None Remove="releases\**" />
 	</ItemGroup>
+	
 	<ItemGroup>
 	  <None Remove="Framework\Assets\Catalogue.png" />
 	</ItemGroup>
@@ -20,7 +27,12 @@
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
+		<PackageReference Include="PolySharp" Version="1.16.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\ConsoleLog\ConsoleLog.csproj" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<Content Include="Framework\Assets\PaintBrushEmpty.png">
@@ -74,9 +86,9 @@
 		<None Update="i18n\uk.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="manifest.json">
+		<!-- <None Update="manifest.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
+		</None> -->
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -84,7 +96,7 @@
 			$(PostBuildEventDependsOn);
 			PostBuildMacros;
 		</PostBuildEventDependsOn>
-		<PostBuildEvent>
+		<!-- <PostBuildEvent>
 			powershell -Command "(ls *manifest.json -rec | foreach-object { $f=$_.FullName; (gc -LiteralPath \"$f\") -replace 'REPLACE_ME_WITH_VERSION',  '$(Version)' | sc -LiteralPath \"$f\" })"
 
 			powershell Remove-Item -Path 'C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures"' -Recurse -Force
@@ -96,6 +108,6 @@
 
 			xcopy /s /y /i "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures" "$(GameModsPath)\AlternativeTextures"
 			xcopy /s /y /i "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\Examples\*" "$(GameModsPath)\Alternative Textures Examples"
-		</PostBuildEvent>
+		</PostBuildEvent> -->
 	</PropertyGroup>
 </Project>

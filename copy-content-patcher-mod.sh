@@ -1,0 +1,2 @@
+trash ./stardew_install_symlink/Mods/AlternativeTexturesContentPatcher
+cp -r ./AlternativeTexturesContentPatcher ./stardew_install_symlink/Mods/AlternativeTexturesContentPatcher

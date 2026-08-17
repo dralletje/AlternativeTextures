@@ -1,5 +1,6 @@
 ﻿using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
+using ConsoleLog;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,7 +12,7 @@ using System;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects
 {
-    internal class FlooringPatch : PatchTemplate
+  internal class FlooringPatch : PatchTemplate
     {
         private readonly Type _object = typeof(Flooring);
 
@@ -116,7 +117,17 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         }
                 }
 
-                spriteBatch.Draw(textureModel.GetTexture(textureVariation), Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)), new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16), Color.White, 0f, Vector2.Zero, 4f, SpriteEffects.None, 1E-09f);
+                spriteBatch.Draw(
+                    textureModel.GetTexture(textureVariation),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
+                    new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    4f,
+                    SpriteEffects.None,
+                    1E-09f
+                );
 
                 return false;
             }

@@ -1,0 +1,29 @@
+{
+  "Format": "2.0.0",
+  "Changes": [
+    {
+      "Action": "Load",
+      "Target": "{{ModId}}_PaintPail",
+      "FromFile": "assets/PaintPail.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Furniture",
+      "Entries": {
+        "{{ModId}}_PaintPail": "Paint Pail/furniture/1 1/1 1/1/500/2/Paint Pail/0/{{ModId}}_PaintPail"
+      }
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Shops",
+      "TargetField": ["Carpenter", "Items"],
+      "Entries": {
+        "(F){{ModId}}_PaintPail": {
+          "Id": "(F){{ModId}}_PaintPail",
+          "ItemId": "(F){{ModId}}_PaintPail",
+          "Price": 0
+        }
+      }
+    }
+  ]
+}

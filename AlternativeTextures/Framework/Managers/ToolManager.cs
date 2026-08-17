@@ -58,13 +58,17 @@ namespace AlternativeTextures.Framework.Managers
             {
                 ClassName = "GenericTool",
                 Name = fullId,
-                SalePrice = 500,
+                SalePrice = 0,
                 DisplayName = _helper.Translation.Get($"tools.name.{translationKey}"),
                 Description = _helper.Translation.Get($"tools.description.{translationKey}"),
                 Texture = $"{AlternativeTextures.TOOL_TOKEN_HEADER}{toolKey}",
                 ModData = new()
                 {
                     [modDataKey] = modDataValue
+                },
+                SetProperties = new Dictionary<string, string>() {
+                    // Tells the game not to play the vanilla wind-up/swing animation
+                    { "InstantUse", "true" } 
                 }
             };
             toolData[fullId] = newToolData;
