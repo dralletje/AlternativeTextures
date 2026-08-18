@@ -38,8 +38,7 @@ namespace AlternativeTextures.Framework.Models
         public int? DefaultVariation { get; set; }
         internal int MaxVariationsPerTextures { get; set; } = -1;
         internal string TileSheetPath { get; set; }
-        internal Dictionary<int, Texture2D> Textures { get; set; } =
-            new Dictionary<int, Texture2D>();
+        internal Dictionary<int, Texture2D> Textures { get; set; } = new Dictionary<int, Texture2D>();
         public List<VariationModel> ManualVariations { get; set; } = new List<VariationModel>();
         public List<AnimationModel> Animation { get; set; } = new List<AnimationModel>();
 
@@ -89,12 +88,8 @@ namespace AlternativeTextures.Framework.Models
 
         public string GetTokenId(int? variation = null)
         {
-            string seasonSuffix = String.IsNullOrEmpty(Season)
-                ? String.Empty
-                : String.Concat("_", Season);
-            string variationSuffix = variation is null
-                ? String.Empty
-                : String.Concat("_", variation);
+            string seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
+            string variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
             return String.Concat(Owner, ".", ItemName, seasonSuffix, variationSuffix);
         }
 
@@ -112,10 +107,7 @@ namespace AlternativeTextures.Framework.Models
 
         public bool IsManualVariationsValid()
         {
-            if (
-                ManualVariations.Any(v => v.Id == 1) is true
-                && ManualVariations.Any(v => v.Id == 0) is false
-            )
+            if (ManualVariations.Any(v => v.Id == 1) is true && ManualVariations.Any(v => v.Id == 0) is false)
             {
                 return false;
             }
@@ -125,9 +117,7 @@ namespace AlternativeTextures.Framework.Models
 
         public List<AnimationModel> GetAnimationData(int variation)
         {
-            var manualVariation = ManualVariations.FirstOrDefault(v =>
-                v.Id == variation && v.HasAnimation()
-            );
+            var manualVariation = ManualVariations.FirstOrDefault(v => v.Id == variation && v.HasAnimation());
             if (manualVariation != null)
             {
                 return manualVariation.Animation;
@@ -176,10 +166,7 @@ namespace AlternativeTextures.Framework.Models
                     $"Error drawing the texture {TextureId}: It was incorrectly disposed!",
                     StardewModdingAPI.LogLevel.Warn
                 );
-                AlternativeTextures.monitor.LogOnce(
-                    this.ToString(),
-                    StardewModdingAPI.LogLevel.Trace
-                );
+                AlternativeTextures.monitor.LogOnce(this.ToString(), StardewModdingAPI.LogLevel.Trace);
                 return AlternativeTextures.textureManager.ErrorTexture;
             }
 
@@ -205,11 +192,7 @@ namespace AlternativeTextures.Framework.Models
 
         public bool IsDecoration()
         {
-            return String.Equals(
-                GetTextureType(),
-                "Decoration",
-                StringComparison.OrdinalIgnoreCase
-            );
+            return String.Equals(GetTextureType(), "Decoration", StringComparison.OrdinalIgnoreCase);
         }
 
         public bool HasKeyword(string variationString, string keyword)
@@ -236,8 +219,7 @@ namespace AlternativeTextures.Framework.Models
 
         public bool HasAnimation(int variation)
         {
-            return Animation.Count() > 0
-                || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
+            return Animation.Count() > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
         }
 
         public bool HasTint(int variation)
@@ -267,10 +249,7 @@ namespace AlternativeTextures.Framework.Models
             {
                 for (int x = 0; x < CollectiveNames.Count; x++)
                 {
-                    var changedName = AlternativeTextureModel.GetNameChange(
-                        Type,
-                        CollectiveNames[x]
-                    );
+                    var changedName = AlternativeTextureModel.GetNameChange(Type, CollectiveNames[x]);
 
                     if (CollectiveNames[x] != changedName)
                     {
@@ -309,9 +288,7 @@ namespace AlternativeTextures.Framework.Models
 
             if (
                 Type is TextureType.Craftable
-                && CollectiveNames.Any(n =>
-                    n.Equals("Artifact Spot", StringComparison.OrdinalIgnoreCase)
-                )
+                && CollectiveNames.Any(n => n.Equals("Artifact Spot", StringComparison.OrdinalIgnoreCase))
             )
             {
                 Type = TextureType.ArtifactSpot;

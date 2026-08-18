@@ -40,10 +40,7 @@ namespace AlternativeTextures.Framework.Managers
         {
             if (Enum.TryParse<MessageType>(e.Type, out var type) is false)
             {
-                _monitor.LogOnce(
-                    $"Failed to handle incoming message with type {e.Type}",
-                    LogLevel.Trace
-                );
+                _monitor.LogOnce($"Failed to handle incoming message with type {e.Type}", LogLevel.Trace);
                 return;
             }
 
@@ -61,11 +58,7 @@ namespace AlternativeTextures.Framework.Managers
                             )
                         )
                         {
-                            BuildingPatch.ForceResetTexture(
-                                building,
-                                message.TextureName,
-                                message.TextureVariation
-                            );
+                            BuildingPatch.ForceResetTexture(building, message.TextureName, message.TextureVariation);
                         }
                     }
                     return;

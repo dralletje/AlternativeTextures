@@ -78,8 +78,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 ".",
                 $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}"
             );
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
             if (
                 !String.Equals(
@@ -101,9 +100,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 );
                 if (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -146,17 +143,9 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                         SpriteEffects.None,
                         1f
                     );
-                    for (
-                        int yWater = building.tileY.Value;
-                        yWater < building.tileY.Value + 5;
-                        yWater++
-                    )
+                    for (int yWater = building.tileY.Value; yWater < building.tileY.Value + 5; yWater++)
                     {
-                        for (
-                            int xWater = building.tileX.Value;
-                            xWater < building.tileX.Value + 4;
-                            xWater++
-                        )
+                        for (int xWater = building.tileX.Value; xWater < building.tileX.Value + 4; xWater++)
                         {
                             bool num = yWater == building.tileY.Value + 4;
                             bool topY = yWater == building.tileY.Value;
@@ -166,26 +155,15 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                                     Game1.mouseCursors,
                                     new Vector2(
                                         x + xWater * 64 + 32,
-                                        y
-                                            + (yWater + 1) * 64
-                                            - (int)Game1.currentLocation.waterPosition
-                                            - 32
+                                        y + (yWater + 1) * 64 - (int)Game1.currentLocation.waterPosition - 32
                                     ),
                                     new Rectangle(
                                         Game1.currentLocation.waterAnimationIndex * 64,
                                         2064
                                             + (
                                                 ((xWater + yWater) % 2 != 0)
-                                                    ? (
-                                                        (!Game1.currentLocation.waterTileFlip)
-                                                            ? 128
-                                                            : 0
-                                                    )
-                                                    : (
-                                                        Game1.currentLocation.waterTileFlip
-                                                            ? 128
-                                                            : 0
-                                                    )
+                                                    ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
+                                                    : (Game1.currentLocation.waterTileFlip ? 128 : 0)
                                             ),
                                         64,
                                         32 + (int)Game1.currentLocation.waterPosition - 5
@@ -204,45 +182,19 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                                     Game1.mouseCursors,
                                     new Vector2(
                                         x + xWater * 64 + 32,
-                                        y
-                                            + yWater * 64
-                                            + 32
-                                            - (int)(
-                                                (!topY) ? Game1.currentLocation.waterPosition : 0f
-                                            )
+                                        y + yWater * 64 + 32 - (int)((!topY) ? Game1.currentLocation.waterPosition : 0f)
                                     ),
                                     new Rectangle(
                                         Game1.currentLocation.waterAnimationIndex * 64,
                                         2064
                                             + (
                                                 ((xWater + yWater) % 2 != 0)
-                                                    ? (
-                                                        (!Game1.currentLocation.waterTileFlip)
-                                                            ? 128
-                                                            : 0
-                                                    )
-                                                    : (
-                                                        Game1.currentLocation.waterTileFlip
-                                                            ? 128
-                                                            : 0
-                                                    )
+                                                    ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
+                                                    : (Game1.currentLocation.waterTileFlip ? 128 : 0)
                                             )
-                                            + (
-                                                topY
-                                                    ? ((int)Game1.currentLocation.waterPosition)
-                                                    : 0
-                                            ),
+                                            + (topY ? ((int)Game1.currentLocation.waterPosition) : 0),
                                         64,
-                                        64
-                                            + (
-                                                topY
-                                                    ? (
-                                                        (int)(
-                                                            0f - Game1.currentLocation.waterPosition
-                                                        )
-                                                    )
-                                                    : 0
-                                            )
+                                        64 + (topY ? ((int)(0f - Game1.currentLocation.waterPosition)) : 0)
                                     ),
                                     Game1.currentLocation.waterColor.Value,
                                     0f,
@@ -269,17 +221,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                         texture,
                         new Vector2(
                             x + 32,
-                            y
-                                + 24
-                                + (
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                            % 2500.0
-                                        < 1250.0
-                                    )
-                                        ? 4
-                                        : 0
-                                )
+                            y + 24 + ((Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 2500.0 < 1250.0) ? 4 : 0)
                         ),
                         new Rectangle(16, 160, 48, 7),
                         Color.White * alpha,
@@ -402,15 +344,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -419,11 +356,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 __instance.texture = new Lazy<Texture2D>(
                     delegate
                     {
-                        return GetBuildingTextureWithPaint(
-                            __instance,
-                            textureModel,
-                            textureVariation
-                        );
+                        return GetBuildingTextureWithPaint(__instance, textureModel, textureVariation);
                     }
                 );
                 return false;
@@ -432,15 +365,9 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             return true;
         }
 
-        internal static void ForceResetTexture(
-            Building __instance,
-            string textureName,
-            string variation
-        )
+        internal static void ForceResetTexture(Building __instance, string textureName, string variation)
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                textureName
-            );
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureName);
             if (textureModel is null)
             {
                 return;
@@ -449,10 +376,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             var textureVariation = Int32.Parse(variation);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 return;
@@ -481,15 +405,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 return;
             }
 
-            var textureVariation = Int32.Parse(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-            );
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 return;
@@ -536,15 +455,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -579,9 +493,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             }
             else if (
                 __instance.buildingType.Value == "Farmhouse"
-                && __instance
-                    .GetParentLocation()
-                    .modData.ContainsKey("AlternativeTextureName.Mailbox")
+                && __instance.GetParentLocation().modData.ContainsKey("AlternativeTextureName.Mailbox")
             )
             {
                 BuildingData data = __instance.GetData();
@@ -596,10 +508,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 {
                     return true;
                 }
-                else if (
-                    AlternativeTextures.textureManager.GetModelByToken(drawLayer.Texture)
-                    is not null
-                )
+                else if (AlternativeTextures.textureManager.GetModelByToken(drawLayer.Texture) is not null)
                 {
                     drawLayer.Texture = "Buildings\\Mailbox";
                 }
@@ -622,10 +531,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 var textureVariation = Int32.Parse(rawVariationIndex);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -654,11 +560,8 @@ namespace AlternativeTextures.Framework.Patches.Buildings
 
             // Handle instances where required paint masks are missing but textureModel.IgnoreBuildingColorMask is false
             bool canReallyBePainted =
-                (building.CanBePainted() || canBePaintedOverride)
-                && textureModel.IgnoreBuildingColorMask is false;
-            var originalTexture = AlternativeTextures.modHelper.GameContent.Load<Texture2D>(
-                building.textureName()
-            );
+                (building.CanBePainted() || canBePaintedOverride) && textureModel.IgnoreBuildingColorMask is false;
+            var originalTexture = AlternativeTextures.modHelper.GameContent.Load<Texture2D>(building.textureName());
             if (originalTexture is not null)
             {
                 if (canReallyBePainted && baseTexture.Width <= originalTexture.Width)
@@ -712,9 +615,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             List<List<int>> paint_indices = null;
             try
             {
-                Color[] mask_pixels = new Color[
-                    paint_mask_texture.Width * paint_mask_texture.Height
-                ];
+                Color[] mask_pixels = new Color[paint_mask_texture.Width * paint_mask_texture.Height];
                 paint_mask_texture.GetData(mask_pixels);
                 paint_indices = new List<List<int>>();
                 for (int j = 0; j < 3; j++)
@@ -753,11 +654,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             }
             Color[] painted_pixels = new Color[base_texture.Width * base_texture.Height];
             base_texture.GetData(painted_pixels);
-            Texture2D texture2D = new Texture2D(
-                Game1.graphics.GraphicsDevice,
-                base_texture.Width,
-                base_texture.Height
-            );
+            Texture2D texture2D = new Texture2D(Game1.graphics.GraphicsDevice, base_texture.Width, base_texture.Height);
             if (!color.Color1Default.Value)
             {
                 ApplyPaint(0, -100, 0, ref painted_pixels, paint_indices[0]);
@@ -796,13 +693,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             return texture2D;
         }
 
-        private static void ApplyPaint(
-            int h_shift,
-            int s_shift,
-            int l_shift,
-            ref Color[] pixels,
-            List<int> indices
-        )
+        private static void ApplyPaint(int h_shift, int s_shift, int l_shift, ref Color[] pixels, List<int> indices)
         {
             foreach (int index in indices)
             {
@@ -842,16 +733,12 @@ namespace AlternativeTextures.Framework.Patches.Buildings
 
         private static void BuildingPostfix(Building __instance, string type, Vector2 tile)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -862,21 +749,13 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

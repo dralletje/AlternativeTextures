@@ -34,9 +34,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 try
                 {
                     if (
-                        Type.GetType(
-                            "DynamicGameAssets.Game.CustomFishTankFurniture, DynamicGameAssets"
-                        )
+                        Type.GetType("DynamicGameAssets.Game.CustomFishTankFurniture, DynamicGameAssets")
                             is Type dgaFishTankFurnitureType
                         && dgaFishTankFurnitureType != null
                     )
@@ -45,13 +43,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFishTankFurnitureType,
                                 nameof(FishTankFurniture.draw),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(int),
-                                    typeof(int),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -63,10 +55,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
@@ -91,15 +80,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -113,8 +97,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     if (!Furniture.isDrawingLocationFurniture)
                     {
                         draw_position = new Vector2(x, y) * 64f;
-                        draw_position.Y -=
-                            __instance.sourceRect.Height * 4 - __instance.boundingBox.Height;
+                        draw_position.Y -= __instance.sourceRect.Height * 4 - __instance.boundingBox.Height;
                     }
                     if (__instance.shakeTimer > 0)
                     {
@@ -168,10 +151,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                             spriteBatch,
                                             Game1.GlobalToLocal(
                                                 fish.GetWorldPosition()
-                                                    + new Vector2(
-                                                        -30 + (fish.facingLeft ? (-4) : 0),
-                                                        -55f
-                                                    )
+                                                    + new Vector2(-30 + (fish.facingLeft ? (-4) : 0), -55f)
                                             ),
                                             0.75f,
                                             1f,
@@ -189,9 +169,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         {
                             if (__instance.floorDecorations[j].HasValue)
                             {
-                                KeyValuePair<Rectangle, Vector2> decoration = __instance
-                                    .floorDecorations[j]
-                                    .Value;
+                                KeyValuePair<Rectangle, Vector2> decoration = __instance.floorDecorations[j].Value;
                                 Vector2 decoration_position = decoration.Value;
                                 Rectangle decoration_source_rect = decoration.Key;
                                 float decoration_layer =
@@ -204,19 +182,14 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     __instance.GetAquariumTexture(),
                                     Game1.GlobalToLocal(
                                         new Vector2(
-                                            (float)__instance.GetTankBounds().Left
-                                                + decoration_position.X * 4f,
-                                            (float)(__instance.GetTankBounds().Bottom - 4)
-                                                - decoration_position.Y * 4f
+                                            (float)__instance.GetTankBounds().Left + decoration_position.X * 4f,
+                                            (float)(__instance.GetTankBounds().Bottom - 4) - decoration_position.Y * 4f
                                         )
                                     ),
                                     decoration_source_rect,
                                     Color.White * alpha,
                                     0f,
-                                    new Vector2(
-                                        decoration_source_rect.Width / 2,
-                                        decoration_source_rect.Height - 4
-                                    ),
+                                    new Vector2(decoration_source_rect.Width / 2, decoration_source_rect.Height - 4),
                                     4f,
                                     SpriteEffects.None,
                                     decoration_layer
@@ -236,9 +209,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 Game1.GlobalToLocal(
                                     new Vector2(
                                         (float)__instance.GetTankBounds().Left + bubble.X,
-                                        (float)(__instance.GetTankBounds().Bottom - 4)
-                                            - bubble.Y
-                                            - bubble.Z * 4f
+                                        (float)(__instance.GetTankBounds().Bottom - 4) - bubble.Y - bubble.Z * 4f
                                     )
                                 ),
                                 new Rectangle(0, 240, 16, 16),

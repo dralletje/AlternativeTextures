@@ -42,13 +42,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaBedFurnitureType,
                                 nameof(BedFurniture.draw),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(int),
-                                    typeof(int),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -60,10 +54,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
@@ -87,15 +78,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -117,10 +103,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 ___drawPosition.Value
                                     + (
                                         (__instance.shakeTimer > 0)
-                                            ? new Vector2(
-                                                Game1.random.Next(-1, 2),
-                                                Game1.random.Next(-1, 2)
-                                            )
+                                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
                                             : Vector2.Zero
                                     )
                             ),
@@ -129,9 +112,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.Flipped
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)(__instance.boundingBox.Value.Top + 1) / 10000f
                         );
                         sourceRect.X += sourceRect.Width;
@@ -142,10 +123,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 ___drawPosition.Value
                                     + (
                                         (__instance.shakeTimer > 0)
-                                            ? new Vector2(
-                                                Game1.random.Next(-1, 2),
-                                                Game1.random.Next(-1, 2)
-                                            )
+                                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
                                             : Vector2.Zero
                                     )
                             ),
@@ -154,9 +132,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.Flipped
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)(__instance.boundingBox.Value.Bottom - 1) / 10000f
                         );
                     }

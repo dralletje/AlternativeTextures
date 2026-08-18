@@ -57,15 +57,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -86,10 +81,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             )
                             : (
                                 tileLocation * 64f
-                                + new Vector2(
-                                    (float)(16 + ___offset1[i] * 4 - 4) + 30f,
-                                    16 + ___offset2[i] * 4 + 40
-                                )
+                                + new Vector2((float)(16 + ___offset1[i] * 4 - 4) + 30f, 16 + ___offset2[i] * 4 + 40)
                             )
                     );
                     spriteBatch.Draw(
@@ -131,14 +123,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         private static void GrassPostfix(Grass __instance)
         {
             var instanceName = $"{AlternativeTextureModel.TextureType.Grass}_{NAME_PREFIX}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -149,21 +138,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

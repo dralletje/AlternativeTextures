@@ -52,12 +52,7 @@ namespace AlternativeTextures.Framework.UI
             IsClicked = false;
         }
 
-        public override void draw(
-            SpriteBatch b,
-            int slotX,
-            int slotY,
-            IClickableMenu context = null
-        )
+        public override void draw(SpriteBatch b, int slotX, int slotY, IClickableMenu context = null)
         {
             base.draw(b, slotX, slotY, context);
         }

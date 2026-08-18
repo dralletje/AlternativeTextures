@@ -50,15 +50,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -71,10 +66,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 }
                 Vector2 scale_factor = Vector2.One;
                 scale_factor *= 4f;
-                Vector2 position = Game1.GlobalToLocal(
-                    Game1.viewport,
-                    new Vector2(x * 64, y * 64 - 64)
-                );
+                Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 Rectangle destination = new Rectangle(
                     (int)(position.X - scale_factor.X / 2f)
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -83,8 +75,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     (int)(64f + scale_factor.X),
                     (int)(128f + scale_factor.Y / 2f)
                 );
-                float draw_layer =
-                    Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     destination,
@@ -113,11 +104,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                         draw_layer + 0.0035f
                     );
                 }
-                if (
-                    ___depositedItem.Value != null
-                    && __instance.shakeTimer > 0
-                    && ____isAnimatingChip
-                )
+                if (___depositedItem.Value != null && __instance.shakeTimer > 0 && ____isAnimatingChip)
                 {
                     float completion = 1f - (float)__instance.shakeTimer / 1000f;
                     Vector2 end_position = position + new Vector2(32f, 32f);
@@ -131,23 +118,18 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     spriteBatch.Draw(
                         Game1.objectSpriteSheet,
                         draw_position,
-                        GameLocation.getSourceRectForObject(
-                            ___depositedItem.Value.ParentSheetIndex
-                        ),
+                        GameLocation.getSourceRectForObject(___depositedItem.Value.ParentSheetIndex),
                         Color.White * alpha,
                         0f,
                         new Vector2(8f, 8f),
                         4f * draw_scale,
-                        ___depositedItem.Value.Flipped
-                            ? SpriteEffects.FlipHorizontally
-                            : SpriteEffects.None,
+                        ___depositedItem.Value.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                         draw_layer + 0.00175f
                     );
                 }
                 if (___depositedItem.Value != null && __instance.MinutesUntilReady > 0)
                 {
-                    int frame =
-                        (int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 200.0) / 50;
+                    int frame = (int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 200.0) / 50;
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         position + new Vector2(6f, 17f) * 4f,
@@ -178,18 +160,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return false;
                 }
                 float yOffset =
-                    4f
-                    * (float)
-                        Math.Round(
-                            Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0),
-                            2
-                        );
+                    4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(
-                        Game1.viewport,
-                        new Vector2(x * 64 - 8, (float)(y * 64 - 96 - 16) + yOffset)
-                    ),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 - 8, (float)(y * 64 - 96 - 16) + yOffset)),
                     new Rectangle(141, 465, 20, 24),
                     Color.White * 0.75f,
                     0f,

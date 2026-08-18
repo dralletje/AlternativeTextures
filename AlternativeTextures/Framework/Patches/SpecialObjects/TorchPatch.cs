@@ -55,15 +55,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -93,10 +88,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     );
                     sourceRect.Y += 8;
                     sourceRect.Height /= 2;
-                    Vector2 position2 = Game1.GlobalToLocal(
-                        Game1.viewport,
-                        new Vector2(x * 64, y * 64 + 32)
-                    );
+                    Vector2 position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
                     Rectangle? sourceRectangle = sourceRect;
                     Color white = Color.White;
                     Vector2 zero = Vector2.Zero;
@@ -153,10 +145,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     sourceRect.Height = 8;
                     spriteBatch.Draw(
                         Game1.mouseCursors,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(x * 64 + 32 + 4, y * 64 + 16 + 4)
-                        ),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 + 4, y * 64 + 16 + 4)),
                         sourceRect,
                         Color.White * 0.75f,
                         0f,
@@ -172,10 +161,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                             Game1.objectSpriteSheet,
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                new Vector2(
-                                    (float)(x * 64 + 32) + ___ashes[i].X,
-                                    (float)(y * 64 + 32) + ___ashes[i].Y
-                                )
+                                new Vector2((float)(x * 64 + 32) + ___ashes[i].X, (float)(y * 64 + 32) + ___ashes[i].Y)
                             ),
                             new Rectangle(344 + i % 3, 53, 1, 1),
                             Color.White * 0.5f * ((-100f - ___ashes[i].Y / 2f) / -100f),
@@ -189,8 +175,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return false;
                 }
                 ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
-                float draw_layer =
-                    Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
 
                 if (!__instance.IsOn)
                 {
@@ -201,10 +186,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 {
                     spriteBatch.Draw(
                         Game1.mouseCursors,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(x * 64 + 16 - 4, y * 64 - 8)
-                        ),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 4, y * 64 - 8)),
                         new Rectangle(
                             276
                                 + (int)(
@@ -254,10 +236,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     );
                     spriteBatch.Draw(
                         Game1.mouseCursors,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(x * 64 + 32 - 20, y * 64 + 12)
-                        ),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 20, y * 64 + 12)),
                         new Rectangle(
                             276
                                 + (int)(
@@ -290,10 +269,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 {
                     spriteBatch.Draw(
                         Game1.mouseCursors,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(x * 64 + 16 - 8, y * 64 - 64 + 8)
-                        ),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 8, y * 64 - 64 + 8)),
                         new Rectangle(
                             276
                                 + (int)(

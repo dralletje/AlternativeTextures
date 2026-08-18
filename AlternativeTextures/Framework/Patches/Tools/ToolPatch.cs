@@ -178,9 +178,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
 
                 if (scale > 0f)
                 {
-                    __instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = (
-                        scale -= 0.01f
-                    ).ToString();
+                    __instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = (scale -= 0.01f).ToString();
                 }
                 return false;
             }
@@ -235,13 +233,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
             return true;
         }
 
-        internal static bool UsePaintBucket(
-            GameLocation location,
-            int x,
-            int y,
-            Farmer who,
-            bool isSprayCan = false
-        )
+        internal static bool UsePaintBucket(GameLocation location, int x, int y, Farmer who, bool isSprayCan = false)
         {
             ////////////////////////////////////////////////////
 
@@ -677,17 +669,8 @@ namespace AlternativeTextures.Framework.Patches.Tools
 
                 var modelName = character
                     .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                    .Replace(
-                        $"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.",
-                        String.Empty
-                    );
-                if (
-                    modelName.Contains(
-                        GetCharacterName(character),
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                    is false
-                )
+                    .Replace($"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
+                if (modelName.Contains(GetCharacterName(character), StringComparison.OrdinalIgnoreCase) is false)
                 {
                     modelName =
                         $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
@@ -695,9 +678,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
 
                 if (
                     character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     modelName = GetModelNameWithoutSeason(

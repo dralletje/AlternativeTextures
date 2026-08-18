@@ -64,9 +64,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 try
                 {
                     if (
-                        Type.GetType(
-                            "DynamicGameAssets.Game.CustomBasicFurniture, DynamicGameAssets"
-                        )
+                        Type.GetType("DynamicGameAssets.Game.CustomBasicFurniture, DynamicGameAssets")
                             is Type dgaFurnitureType
                         && dgaFurnitureType != null
                     )
@@ -75,13 +73,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFurnitureType,
                                 nameof(Furniture.draw),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(int),
-                                    typeof(int),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -89,13 +81,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(Vector2),
-                                    typeof(float),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -120,9 +106,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     }
 
                     if (
-                        Type.GetType(
-                            "DynamicGameAssets.Game.CustomStorageFurniture, DynamicGameAssets"
-                        )
+                        Type.GetType("DynamicGameAssets.Game.CustomStorageFurniture, DynamicGameAssets")
                             is Type dgaStorageFurnitureType
                         && dgaStorageFurnitureType != null
                     )
@@ -131,13 +115,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaStorageFurnitureType,
                                 nameof(Furniture.draw),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(int),
-                                    typeof(int),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -145,13 +123,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaStorageFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(Vector2),
-                                    typeof(float),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -185,13 +157,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaTVFurnitureType,
                                 nameof(Furniture.draw),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(int),
-                                    typeof(int),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -199,13 +165,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaTVFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[]
-                                {
-                                    typeof(SpriteBatch),
-                                    typeof(Vector2),
-                                    typeof(float),
-                                    typeof(float),
-                                }
+                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -235,10 +195,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
@@ -263,15 +220,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -304,38 +256,24 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         __instance.modData["AlternativeTextureElapsedDuration"] = "0";
                     }
 
-                    var currentFrame = Int32.Parse(
-                        __instance.modData["AlternativeTextureCurrentFrame"]
-                    );
-                    var frameIndex = Int32.Parse(
-                        __instance.modData["AlternativeTextureFrameIndex"]
-                    );
-                    var frameDuration = Int32.Parse(
-                        __instance.modData["AlternativeTextureFrameDuration"]
-                    );
-                    var elapsedDuration = Int32.Parse(
-                        __instance.modData["AlternativeTextureElapsedDuration"]
-                    );
+                    var currentFrame = Int32.Parse(__instance.modData["AlternativeTextureCurrentFrame"]);
+                    var frameIndex = Int32.Parse(__instance.modData["AlternativeTextureFrameIndex"]);
+                    var frameDuration = Int32.Parse(__instance.modData["AlternativeTextureFrameDuration"]);
+                    var elapsedDuration = Int32.Parse(__instance.modData["AlternativeTextureElapsedDuration"]);
 
                     if (elapsedDuration >= frameDuration)
                     {
                         frameIndex =
-                            frameIndex + 1
-                            >= textureModel.GetAnimationData(textureVariation).Count()
+                            frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count()
                                 ? 0
                                 : frameIndex + 1;
 
-                        var animationData = textureModel.GetAnimationDataAtIndex(
-                            textureVariation,
-                            frameIndex
-                        );
+                        var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                         currentFrame = animationData.Frame;
 
-                        __instance.modData["AlternativeTextureCurrentFrame"] =
-                            currentFrame.ToString();
+                        __instance.modData["AlternativeTextureCurrentFrame"] = currentFrame.ToString();
                         __instance.modData["AlternativeTextureFrameIndex"] = frameIndex.ToString();
-                        __instance.modData["AlternativeTextureFrameDuration"] =
-                            animationData.Duration.ToString();
+                        __instance.modData["AlternativeTextureFrameDuration"] = animationData.Duration.ToString();
                         __instance.modData["AlternativeTextureElapsedDuration"] = "0";
                     }
                     else
@@ -351,8 +289,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
                 Rectangle sourceRect = __instance.sourceRect.Value;
                 sourceRect.X -= __instance.defaultSourceRect.X;
-                sourceRect.X +=
-                    (actualSourceIndexOffset * sourceRect.Width) + (xTileOffset * sourceRect.Width);
+                sourceRect.X += (actualSourceIndexOffset * sourceRect.Width) + (xTileOffset * sourceRect.Width);
                 sourceRect.Y = textureOffset;
 
                 if (Furniture.isDrawingLocationFurniture)
@@ -363,9 +300,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         try
                         {
                             frontTexture = Game1.content.Load<Texture2D>(
-                                ItemRegistry
-                                    .GetDataOrErrorItem(__instance.QualifiedItemId)
-                                    .TextureName + "Front"
+                                ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).TextureName + "Front"
                             );
                         }
                         catch
@@ -387,10 +322,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 ___drawPosition.Value
                                     + (
                                         (__instance.shakeTimer > 0)
-                                            ? new Vector2(
-                                                Game1.random.Next(-1, 2),
-                                                Game1.random.Next(-1, 2)
-                                            )
+                                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
                                             : Vector2.Zero
                                     )
                             ),
@@ -399,9 +331,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.Flipped
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)(__instance.boundingBox.Value.Top + 16) / 10000f
                         );
 
@@ -414,10 +344,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 ___drawPosition.Value
                                     + (
                                         (__instance.shakeTimer > 0)
-                                            ? new Vector2(
-                                                Game1.random.Next(-1, 2),
-                                                Game1.random.Next(-1, 2)
-                                            )
+                                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
                                             : Vector2.Zero
                                     )
                             ),
@@ -426,9 +353,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.Flipped
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)(__instance.boundingBox.Value.Bottom - 8) / 10000f
                         );
                     }
@@ -441,10 +366,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 ___drawPosition.Value
                                     + (
                                         (__instance.shakeTimer > 0)
-                                            ? new Vector2(
-                                                Game1.random.Next(-1, 2),
-                                                Game1.random.Next(-1, 2)
-                                            )
+                                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
                                             : Vector2.Zero
                                     )
                             ),
@@ -453,9 +375,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.Flipped
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (__instance.furniture_type.Value == 12)
                                 ? (2E-09f + __instance.TileLocation.Y / 100000f)
                                 : (
@@ -482,13 +402,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                x * 64
-                                    + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                                x * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                                 y * 64
-                                    - (
-                                        __instance.sourceRect.Height * 4
-                                        - __instance.boundingBox.Height
-                                    )
+                                    - (__instance.sourceRect.Height * 4 - __instance.boundingBox.Height)
                                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                             )
                         ),
@@ -527,9 +443,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 new Vector2(
                                     __instance.boundingBox.Center.X - 32,
                                     __instance.boundingBox.Center.Y
-                                        - (__instance.heldObject.Value as Furniture)
-                                            .sourceRect
-                                            .Height * 4
+                                        - (__instance.heldObject.Value as Furniture).sourceRect.Height * 4
                                         - (__instance.drawHeldObjectLow.Value ? (-16) : 16)
                                 )
                             ),
@@ -545,8 +459,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 Game1.viewport,
                                 new Vector2(
                                     __instance.boundingBox.Center.X - 32,
-                                    __instance.boundingBox.Center.Y
-                                        - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                                    __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
                                 )
                             ),
                             (float)(__instance.boundingBox.Bottom + 1) / 10000f,
@@ -563,17 +476,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 Game1.viewport,
                                 new Vector2(
                                     __instance.boundingBox.Center.X - 32,
-                                    __instance.boundingBox.Center.Y
-                                        - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                                    __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
                                 )
                             ) + new Vector2(32f, 53f),
                             Game1.shadowTexture.Bounds,
                             Color.White * alpha,
                             0f,
-                            new Vector2(
-                                Game1.shadowTexture.Bounds.Center.X,
-                                Game1.shadowTexture.Bounds.Center.Y
-                            ),
+                            new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y),
                             4f,
                             SpriteEffects.None,
                             (float)__instance.boundingBox.Bottom / 10000f
@@ -586,8 +495,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Game1.viewport,
                                     new Vector2(
                                         __instance.boundingBox.Center.X - 32,
-                                        __instance.boundingBox.Center.Y
-                                            - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                                        __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
                                     )
                                 ),
                                 1f,
@@ -606,8 +514,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Game1.viewport,
                                     new Vector2(
                                         __instance.boundingBox.Center.X - 32,
-                                        __instance.boundingBox.Center.Y
-                                            - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                                        __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
                                     )
                                 ),
                                 heldItemData.GetSourceRect(),
@@ -627,10 +534,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         Game1.mouseCursors,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(
-                                __instance.boundingBox.Center.X - 12,
-                                __instance.boundingBox.Center.Y - 64
-                            )
+                            new Vector2(__instance.boundingBox.Center.X - 12, __instance.boundingBox.Center.Y - 64)
                         ),
                         new Rectangle(
                             276
@@ -658,10 +562,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         Game1.mouseCursors,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(
-                                __instance.boundingBox.Center.X - 32 - 4,
-                                __instance.boundingBox.Center.Y - 64
-                            )
+                            new Vector2(__instance.boundingBox.Center.X - 32 - 4, __instance.boundingBox.Center.Y - 64)
                         ),
                         new Rectangle(
                             276
@@ -744,15 +645,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -760,9 +656,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
                 // Get the current X index for the source tile
-                var xTileOffset = __instance.modData.ContainsKey(
-                    ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID
-                )
+                var xTileOffset = __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID)
                     ? __instance.ParentSheetIndex
                         - Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID])
                     : 0;
@@ -815,15 +709,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -865,19 +754,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         )
         {
             if (
-                (
-                    Game1.activeClickableMenu is PaintBucketMenu
-                    || Game1.activeClickableMenu is CatalogueMenu
-                ) && !PatchTemplate.IsDGAObject(__instance)
+                (Game1.activeClickableMenu is PaintBucketMenu || Game1.activeClickableMenu is CatalogueMenu)
+                && !PatchTemplate.IsDGAObject(__instance)
             )
             {
-                var texture = ItemRegistry
-                    .GetDataOrErrorItem(__instance.QualifiedItemId)
-                    .GetTexture();
+                var texture = ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).GetTexture();
                 var sourceRect =
-                    __instance.rotations.Value > 1
-                        ? __instance.sourceRect.Value
-                        : __instance.defaultSourceRect.Value;
+                    __instance.rotations.Value > 1 ? __instance.sourceRect.Value : __instance.defaultSourceRect.Value;
 
                 if (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
@@ -893,10 +776,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 )
                 {
                     texture = textureModel.GetTexture(textureVariation);
-                    sourceRect.X = Math.Max(
-                        0,
-                        __instance.sourceRect.X - __instance.defaultSourceRect.X
-                    );
+                    sourceRect.X = Math.Max(0, __instance.sourceRect.X - __instance.defaultSourceRect.X);
                     sourceRect.Y = textureModel.GetTextureOffset(textureVariation);
                 }
 

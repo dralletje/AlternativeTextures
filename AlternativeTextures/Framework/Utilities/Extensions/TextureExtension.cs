@@ -11,11 +11,7 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
             Rectangle selectionRect
         )
         {
-            Texture2D selectiveTexture = new Texture2D(
-                device,
-                selectionRect.Width,
-                selectionRect.Height
-            );
+            Texture2D selectiveTexture = new Texture2D(device, selectionRect.Width, selectionRect.Height);
             try
             {
                 int dimensions = selectionRect.Width * selectionRect.Height;

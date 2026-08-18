@@ -19,8 +19,7 @@ namespace AlternativeTextures.Framework.Managers
         internal const string TOOL_ID_SCISSORS = $"(T){AlternativeTextures.MOD_ID}_Scissors";
         internal const string TOOL_ID_PAINT_BRUSH = $"(T){AlternativeTextures.MOD_ID}_PaintBrush";
         internal const string TOOL_ID_SPRAY_CAN = $"(T){AlternativeTextures.MOD_ID}_SprayCan";
-        internal const string TOOL_ID_SPRAY_CAN_RARE =
-            $"(T){AlternativeTextures.MOD_ID}_SprayCanRare";
+        internal const string TOOL_ID_SPRAY_CAN_RARE = $"(T){AlternativeTextures.MOD_ID}_SprayCanRare";
         internal const string TOOL_ID_CATALOGUE = $"(T){AlternativeTextures.MOD_ID}_Catalogue";
 
         public ToolManager(IModHelper helper)
@@ -28,9 +27,7 @@ namespace AlternativeTextures.Framework.Managers
             _helper = helper;
 
             // Get the asset folder path
-            assetFolderPath = helper
-                .ModContent.GetInternalAssetName(Path.Combine("Framework", "Assets"))
-                .Name;
+            assetFolderPath = helper.ModContent.GetInternalAssetName(Path.Combine("Framework", "Assets")).Name;
 
             // Setup toolNames
             toolKeyToData.Add(
@@ -73,34 +70,12 @@ namespace AlternativeTextures.Framework.Managers
                 AlternativeTextures.PAINT_BUCKET_FLAG,
                 true.ToString()
             );
-            AddToolDataEntry(
-                toolData,
-                "Scissors",
-                "scissors",
-                AlternativeTextures.SCISSORS_FLAG,
-                true.ToString()
-            );
-            AddToolDataEntry(
-                toolData,
-                "SprayCan",
-                "spray_can",
-                AlternativeTextures.SPRAY_CAN_FLAG,
-                null
-            );
-            AddToolDataEntry(
-                toolData,
-                "SprayCanRare",
-                "spray_can",
-                AlternativeTextures.SPRAY_CAN_FLAG,
-                null
-            ).ModData[AlternativeTextures.SPRAY_CAN_RARE] = null;
-            AddToolDataEntry(
-                toolData,
-                "Catalogue",
-                "catalogue",
-                AlternativeTextures.CATALOGUE_FLAG,
-                null
-            );
+            AddToolDataEntry(toolData, "Scissors", "scissors", AlternativeTextures.SCISSORS_FLAG, true.ToString());
+            AddToolDataEntry(toolData, "SprayCan", "spray_can", AlternativeTextures.SPRAY_CAN_FLAG, null);
+            AddToolDataEntry(toolData, "SprayCanRare", "spray_can", AlternativeTextures.SPRAY_CAN_FLAG, null).ModData[
+                AlternativeTextures.SPRAY_CAN_RARE
+            ] = null;
+            AddToolDataEntry(toolData, "Catalogue", "catalogue", AlternativeTextures.CATALOGUE_FLAG, null);
 
             AddToolDataEntry(
                 toolData,
@@ -166,16 +141,12 @@ namespace AlternativeTextures.Framework.Managers
 
         internal static Texture2D GetPaintBrushEmptyTexture()
         {
-            return Game1.content.Load<Texture2D>(
-                $"{AlternativeTextures.TOOL_TOKEN_HEADER}PaintBrush_Empty"
-            );
+            return Game1.content.Load<Texture2D>($"{AlternativeTextures.TOOL_TOKEN_HEADER}PaintBrush_Empty");
         }
 
         internal static Texture2D GetPaintBrushFilledTexture()
         {
-            return Game1.content.Load<Texture2D>(
-                $"{AlternativeTextures.TOOL_TOKEN_HEADER}PaintBrush_Filled"
-            );
+            return Game1.content.Load<Texture2D>($"{AlternativeTextures.TOOL_TOKEN_HEADER}PaintBrush_Filled");
         }
     }
 }

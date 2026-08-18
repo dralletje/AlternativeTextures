@@ -23,11 +23,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(
-                    _entity,
-                    nameof(Character.update),
-                    new[] { typeof(GameTime), typeof(GameLocation) }
-                ),
+                AccessTools.Method(_entity, nameof(Character.update), new[] { typeof(GameTime), typeof(GameLocation) }),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
             harmony.Patch(
@@ -37,21 +33,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
 
             harmony
                 .CreateReversePatcher(
-                    AccessTools.Method(
-                        _entity,
-                        nameof(Character.draw),
-                        new[] { typeof(SpriteBatch) }
-                    ),
+                    AccessTools.Method(_entity, nameof(Character.draw), new[] { typeof(SpriteBatch) }),
                     new HarmonyMethod(GetType(), nameof(DrawReversePatch))
                 )
                 .Patch();
         }
 
-        private static void UpdatePostfix(
-            Character __instance,
-            GameTime time,
-            GameLocation location
-        )
+        private static void UpdatePostfix(Character __instance, GameTime time, GameLocation location)
         {
             if (
                 !__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
@@ -94,9 +82,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
                 if (
                     child.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -132,9 +118,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
                 if (
                     horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -163,15 +147,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;

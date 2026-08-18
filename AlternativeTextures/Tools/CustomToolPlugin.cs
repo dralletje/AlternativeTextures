@@ -52,8 +52,7 @@ public class CustomToolPlugin(IModHelper helper)
 
             var currentTool = Game1.player.CurrentTool;
             var nextCustomTool =
-                PaintBrushTool.From(helper, currentTool) as ICustomTool
-                ?? SprayCanTool.From(helper, currentTool);
+                PaintBrushTool.From(helper, currentTool) as ICustomTool ?? SprayCanTool.From(helper, currentTool);
 
             currentCustomToolCache = new()
             {
@@ -109,11 +108,7 @@ public class CustomToolPlugin(IModHelper helper)
     {
         if (this.Current is { } tool)
         {
-            if (
-                this.currentPressRoutine is { } routine
-                && routine.Button == e.Button
-                && routine.Tool == tool
-            )
+            if (this.currentPressRoutine is { } routine && routine.Button == e.Button && routine.Tool == tool)
             {
                 Console.Log($"DISPOSE RELEASE: {e.Button.ToString()}");
                 routine.Routine.Dispose();

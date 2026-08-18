@@ -31,10 +31,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 postfix: new HarmonyMethod(GetType(), nameof(UpdateWhenCurrentLocationPostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(
-                    _entity,
-                    new[] { typeof(string), typeof(long), typeof(long) }
-                ),
+                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(long), typeof(long) }),
                 postfix: new HarmonyMethod(GetType(), nameof(FarmAnimalPostfix))
             );
         }
@@ -52,15 +49,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     __instance.Sprite.loadedTexture = String.Empty;
@@ -122,9 +114,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
                 if (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -139,23 +129,14 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
         }
 
-        private static void FarmAnimalPostfix(
-            FarmAnimal __instance,
-            string type,
-            long id,
-            long ownerID
-        )
+        private static void FarmAnimalPostfix(FarmAnimal __instance, string type, long id, long ownerID)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -166,21 +147,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

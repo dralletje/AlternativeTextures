@@ -49,15 +49,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -74,10 +69,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 }
 
                 ___yBob = (float)(
-                    Math.Sin(
-                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 500.0
-                            + (double)(x * 64)
-                    ) * 8.0
+                    Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 500.0 + (double)(x * 64)) * 8.0
                     + 8.0
                 );
                 if (___yBob <= 0.001f)
@@ -122,38 +114,24 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                         __instance.modData["AlternativeTextureElapsedDuration"] = "0";
                     }
 
-                    var currentFrame = Int32.Parse(
-                        __instance.modData["AlternativeTextureCurrentFrame"]
-                    );
-                    var frameIndex = Int32.Parse(
-                        __instance.modData["AlternativeTextureFrameIndex"]
-                    );
-                    var frameDuration = Int32.Parse(
-                        __instance.modData["AlternativeTextureFrameDuration"]
-                    );
-                    var elapsedDuration = Int32.Parse(
-                        __instance.modData["AlternativeTextureElapsedDuration"]
-                    );
+                    var currentFrame = Int32.Parse(__instance.modData["AlternativeTextureCurrentFrame"]);
+                    var frameIndex = Int32.Parse(__instance.modData["AlternativeTextureFrameIndex"]);
+                    var frameDuration = Int32.Parse(__instance.modData["AlternativeTextureFrameDuration"]);
+                    var elapsedDuration = Int32.Parse(__instance.modData["AlternativeTextureElapsedDuration"]);
 
                     if (elapsedDuration >= frameDuration)
                     {
                         frameIndex =
-                            frameIndex + 1
-                            >= textureModel.GetAnimationData(textureVariation).Count()
+                            frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count()
                                 ? 0
                                 : frameIndex + 1;
 
-                        var animationData = textureModel.GetAnimationDataAtIndex(
-                            textureVariation,
-                            frameIndex
-                        );
+                        var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                         currentFrame = animationData.Frame;
 
-                        __instance.modData["AlternativeTextureCurrentFrame"] =
-                            currentFrame.ToString();
+                        __instance.modData["AlternativeTextureCurrentFrame"] = currentFrame.ToString();
                         __instance.modData["AlternativeTextureFrameIndex"] = frameIndex.ToString();
-                        __instance.modData["AlternativeTextureFrameDuration"] =
-                            animationData.Duration.ToString();
+                        __instance.modData["AlternativeTextureFrameDuration"] = animationData.Duration.ToString();
                         __instance.modData["AlternativeTextureElapsedDuration"] = "0";
                     }
                     else
@@ -171,12 +149,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        __instance.directionOffset.Value
-                            + new Vector2(x * 64, y * 64 + (int)___yBob)
+                        __instance.directionOffset.Value + new Vector2(x * 64, y * 64 + (int)___yBob)
                     ) + ___shake,
                     new Rectangle(
-                        ((__instance.tileIndexToShow - 710) * textureModel.TextureWidth)
-                            + xTileOffset,
+                        ((__instance.tileIndexToShow - 710) * textureModel.TextureWidth) + xTileOffset,
                         textureOffset,
                         16,
                         16
@@ -217,13 +193,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 {
                     float yOffset =
                         4f
-                        * (float)
-                            Math.Round(
-                                Math.Sin(
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0
-                                ),
-                                2
-                            );
+                        * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                     spriteBatch.Draw(
                         Game1.mouseCursors,
                         Game1.GlobalToLocal(

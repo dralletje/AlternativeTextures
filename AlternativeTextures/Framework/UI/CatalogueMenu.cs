@@ -52,8 +52,7 @@ namespace AlternativeTextures.Framework.UI
 
         private List<ClickableTextureComponent> _tabButtons;
         private List<ClickableComponent> _objectButtons;
-        private List<ClickableTextureComponent> _alternativeTextureButtons =
-            new List<ClickableTextureComponent>();
+        private List<ClickableTextureComponent> _alternativeTextureButtons = new List<ClickableTextureComponent>();
 
         private enum Filter
         {
@@ -73,19 +72,14 @@ namespace AlternativeTextures.Framework.UI
 
             // Set up menu structure
             if (
-                LocalizedContentManager.CurrentLanguageCode
-                    == LocalizedContentManager.LanguageCode.ko
-                || LocalizedContentManager.CurrentLanguageCode
-                    == LocalizedContentManager.LanguageCode.fr
+                LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.ko
+                || LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.fr
             )
             {
                 base.height += 64;
             }
 
-            Vector2 topLeft = Utility.getTopLeftPositionForCenteringOnScreen(
-                base.width,
-                base.height
-            );
+            Vector2 topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
             base.xPositionOnScreen = (int)topLeft.X;
             base.yPositionOnScreen = (int)topLeft.Y;
 
@@ -94,11 +88,7 @@ namespace AlternativeTextures.Framework.UI
             _currentlyDisplayedObjects = new List<Object>();
 
             var allFurniture = ItemQueryResolver.TryResolve("ALL_ITEMS (F)", context: null);
-            foreach (
-                Object item in allFurniture
-                    .Where(f => f.Item is Furniture)
-                    .Select(f => f.Item as Object)
-            )
+            foreach (Object item in allFurniture.Where(f => f.Item is Furniture).Select(f => f.Item as Object))
             {
                 // Set the stack based on the amount of available textures for the item
                 var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{item.ItemId}";
@@ -447,10 +437,7 @@ namespace AlternativeTextures.Framework.UI
                                     i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                                 )
                                     is AlternativeTextureModel model
-                                && model.Author.Contains(
-                                    _searchBox.Text,
-                                    StringComparison.OrdinalIgnoreCase
-                                )
+                                && model.Author.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
                             )
                             .ToList();
                         break;
@@ -463,10 +450,7 @@ namespace AlternativeTextures.Framework.UI
                                     i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                                 )
                                     is AlternativeTextureModel model
-                                && model.PackName.Contains(
-                                    _searchBox.Text,
-                                    StringComparison.OrdinalIgnoreCase
-                                )
+                                && model.PackName.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
                             )
                             .ToList();
                         break;
@@ -503,10 +487,8 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Get the textures available
-            string itemId =
-                $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.ItemId}";
-            string modelName =
-                $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.Name}";
+            string itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.ItemId}";
+            string modelName = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.Name}";
             var availableModels = AlternativeTextures.textureManager.GetAvailableTextureModels(
                 itemId,
                 modelName,
@@ -517,24 +499,20 @@ namespace AlternativeTextures.Framework.UI
             _currentlyDisplayedTextures = new List<Item>();
             for (int m = 0; m < availableModels.Count; m++)
             {
-                var manualVariations = availableModels[m]
-                    .ManualVariations.Where(v => v.Id != -1)
-                    .ToList();
+                var manualVariations = availableModels[m].ManualVariations.Where(v => v.Id != -1).ToList();
                 if (manualVariations.Count() > 0)
                 {
                     for (int v = 0; v < manualVariations.Count(); v++)
                     {
                         var objectWithVariation = selectedObject.getOne();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] =
-                            availableModels[m].Owner;
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] =
-                            availableModels[m].GetId();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] =
-                            manualVariations[v].Id.ToString();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] =
-                            availableModels[m].Season;
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME] =
-                            manualVariations[v].Name;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = availableModels[m].Owner;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = availableModels[m].GetId();
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = manualVariations[v]
+                            .Id.ToString();
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = availableModels[m].Season;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME] = manualVariations[
+                            v
+                        ].Name;
 
                         if (
                             AlternativeTextures.modConfig.IsTextureVariationDisabled(
@@ -548,9 +526,7 @@ namespace AlternativeTextures.Framework.UI
 
                         if (selectedObject is Furniture furniture)
                         {
-                            (objectWithVariation as Furniture).currentRotation.Value = furniture
-                                .currentRotation
-                                .Value;
+                            (objectWithVariation as Furniture).currentRotation.Value = furniture.currentRotation.Value;
                             (objectWithVariation as Furniture).updateRotation();
                         }
 
@@ -563,16 +539,11 @@ namespace AlternativeTextures.Framework.UI
                     for (int v = 0; v < availableModels[m].Variations; v++)
                     {
                         var objectWithVariation = selectedObject.getOne();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] =
-                            availableModels[m].Owner;
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] =
-                            availableModels[m].GetId();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] =
-                            v.ToString();
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] =
-                            availableModels[m].Season;
-                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME] =
-                            String.Empty;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = availableModels[m].Owner;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = availableModels[m].GetId();
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = v.ToString();
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = availableModels[m].Season;
+                        objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME] = String.Empty;
 
                         if (
                             AlternativeTextures.modConfig.IsTextureVariationDisabled(
@@ -586,9 +557,7 @@ namespace AlternativeTextures.Framework.UI
 
                         if (selectedObject is Furniture furniture)
                         {
-                            (objectWithVariation as Furniture).currentRotation.Value = furniture
-                                .currentRotation
-                                .Value;
+                            (objectWithVariation as Furniture).currentRotation.Value = furniture.currentRotation.Value;
                             (objectWithVariation as Furniture).updateRotation();
                         }
 
@@ -646,8 +615,7 @@ namespace AlternativeTextures.Framework.UI
                         {
                             myID = componentId,
                             downNeighborID = componentId + _texturesPerRow,
-                            upNeighborID =
-                                r >= _texturesPerRow ? componentId - _texturesPerRow : -1,
+                            upNeighborID = r >= _texturesPerRow ? componentId - _texturesPerRow : -1,
                             rightNeighborID = c == 5 ? 9997 : componentId + 1,
                             leftNeighborID = c > 0 ? componentId - 1 : 9998,
                         }
@@ -730,8 +698,7 @@ namespace AlternativeTextures.Framework.UI
                 var modelType = AlternativeTextureModel.TextureType.Furniture;
                 if (
                     _alternativeTextureButtons[i].item is null
-                    || !_alternativeTextureButtons[i]
-                        .item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
+                    || !_alternativeTextureButtons[i].item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
                     || !_alternativeTextureButtons[i]
                         .item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
                 )
@@ -743,8 +710,7 @@ namespace AlternativeTextures.Framework.UI
                 if (
                     _owner is not null
                     && _owner.Items.FirstOrDefault(i =>
-                        i is GenericTool tool
-                        && tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
+                        i is GenericTool tool && tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
                     )
                         is GenericTool tool
                 )
@@ -756,19 +722,15 @@ namespace AlternativeTextures.Framework.UI
                     tool.modData[AlternativeTextures.PAINT_BRUSH_FLAG] =
                         $"{modelType}_{PatchTemplate.GetObjectName((Object)_alternativeTextureButtons[i].item)}";
                     tool.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = 0.5f.ToString();
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] =
-                        _alternativeTextureButtons[i].item.modData[
-                            ModDataKeys.ALTERNATIVE_TEXTURE_OWNER
-                        ];
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = _alternativeTextureButtons[
-                        i
-                    ]
+                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = _alternativeTextureButtons[i].item.modData[
+                        ModDataKeys.ALTERNATIVE_TEXTURE_OWNER
+                    ];
+                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = _alternativeTextureButtons[i].item.modData[
+                        ModDataKeys.ALTERNATIVE_TEXTURE_NAME
+                    ];
+                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = _alternativeTextureButtons[i]
                         .item
-                        .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME];
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] =
-                        _alternativeTextureButtons[i].item.modData[
-                            ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION
-                        ];
+                        .modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION];
                 }
                 else
                 {
@@ -783,10 +745,7 @@ namespace AlternativeTextures.Framework.UI
             // Handle filter
             if (
                 _searchFilterOptions.bounds.Contains(x, y)
-                || (
-                    _searchFilterOptions.IsClicked
-                    && _searchFilterOptions.dropDownBounds.Contains(x, y)
-                )
+                || (_searchFilterOptions.IsClicked && _searchFilterOptions.dropDownBounds.Contains(x, y))
             )
             {
                 _searchFilterOptions.receiveLeftClick(x, y);
@@ -800,10 +759,7 @@ namespace AlternativeTextures.Framework.UI
             // Handle filter
             if (
                 _searchFilterOptions.bounds.Contains(x, y)
-                || (
-                    _searchFilterOptions.IsClicked
-                    && _searchFilterOptions.dropDownBounds.Contains(x, y)
-                )
+                || (_searchFilterOptions.IsClicked && _searchFilterOptions.dropDownBounds.Contains(x, y))
             )
             {
                 _searchFilterOptions.leftClickHeld(x, y);
@@ -815,10 +771,7 @@ namespace AlternativeTextures.Framework.UI
             base.releaseLeftClick(x, y);
 
             // Handle filter
-            if (
-                _searchFilterOptions.bounds.Contains(x, y)
-                || _searchFilterOptions.dropDownBounds.Contains(x, y)
-            )
+            if (_searchFilterOptions.bounds.Contains(x, y) || _searchFilterOptions.dropDownBounds.Contains(x, y))
             {
                 _searchFilterOptions.leftClickReleased(x, y);
             }
@@ -831,19 +784,13 @@ namespace AlternativeTextures.Framework.UI
             int offset = direction > 0 ? 1 : -1;
 
             _currentObjectIndex = Math.Max(0, _currentObjectIndex - offset);
-            _currentObjectIndex = Math.Min(
-                _currentObjectIndex,
-                _currentlyDisplayedObjects.Count - PAGE_SIZE
-            );
+            _currentObjectIndex = Math.Min(_currentObjectIndex, _currentlyDisplayedObjects.Count - PAGE_SIZE);
 
             if (direction > 0 && _startingRow > 0)
             {
                 _startingRow--;
             }
-            else if (
-                direction < 0
-                && (_maxRows + _startingRow) * _texturesPerRow < _currentlyDisplayedTextures.Count
-            )
+            else if (direction < 0 && (_maxRows + _startingRow) * _texturesPerRow < _currentlyDisplayedTextures.Count)
             {
                 _startingRow++;
             }
@@ -862,9 +809,7 @@ namespace AlternativeTextures.Framework.UI
             }
             _hoverText = string.Empty;
 
-            if (
-                _searchFilterOptions.IsClicked && _searchFilterOptions.dropDownBounds.Contains(x, y)
-            )
+            if (_searchFilterOptions.IsClicked && _searchFilterOptions.dropDownBounds.Contains(x, y))
             {
                 return;
             }
@@ -887,9 +832,7 @@ namespace AlternativeTextures.Framework.UI
                         string optionalDisplayName = string.Empty;
                         if (
                             c.item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME)
-                            && !String.IsNullOrEmpty(
-                                c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME]
-                            )
+                            && !String.IsNullOrEmpty(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME])
                         )
                         {
                             optionalDisplayName =
@@ -898,16 +841,11 @@ namespace AlternativeTextures.Framework.UI
 
                         List<string> keywords = alternativeTextureModel.Keywords;
                         if (
-                            int.TryParse(
-                                c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
-                                out int variation
-                            )
+                            int.TryParse(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION], out int variation)
                             && alternativeTextureModel.ManualVariations.Any(v => v.Id == variation)
                         )
                         {
-                            keywords.AddRange(
-                                alternativeTextureModel.ManualVariations[variation].Keywords
-                            );
+                            keywords.AddRange(alternativeTextureModel.ManualVariations[variation].Keywords);
                         }
                         keywords = keywords.Distinct().ToList();
 
@@ -915,9 +853,7 @@ namespace AlternativeTextures.Framework.UI
                         string keywordsTemp = string.Empty;
                         foreach (string keyword in keywords)
                         {
-                            keywordsTemp += string.IsNullOrEmpty(keywordsTemp)
-                                ? keyword
-                                : $", {keyword}";
+                            keywordsTemp += string.IsNullOrEmpty(keywordsTemp) ? keyword : $", {keyword}";
 
                             if (keywordsTemp.Length > 24 || keywords.Last() == keyword)
                             {
@@ -967,11 +903,7 @@ namespace AlternativeTextures.Framework.UI
 
         public override void draw(SpriteBatch b)
         {
-            b.Draw(
-                Game1.fadeToBlackRect,
-                Game1.graphics.GraphicsDevice.Viewport.Bounds,
-                Color.Black * 0.75f
-            );
+            b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.75f);
             IClickableMenu.drawTextureBox(
                 b,
                 Game1.mouseCursors,
@@ -993,9 +925,7 @@ namespace AlternativeTextures.Framework.UI
             // Draw the search box
             _searchBox.Draw(b);
 
-            string titleBarText = AlternativeTextures.modHelper.Translation.Get(
-                "ui.labels.catalogue"
-            );
+            string titleBarText = AlternativeTextures.modHelper.Translation.Get("ui.labels.catalogue");
             if (_isDisplayingAlternativeTextures && _selectedObject is not null)
             {
                 titleBarText = $"{titleBarText} > {_selectedObject.DisplayName}";
@@ -1009,34 +939,25 @@ namespace AlternativeTextures.Framework.UI
                     if (textureIndex < _currentlyDisplayedTextures.Count)
                     {
                         var textureObject = _currentlyDisplayedTextures[textureIndex];
-                        var textureModel =
-                            AlternativeTextures.textureManager.GetSpecificTextureModel(
-                                textureObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                            );
-                        var variation = int.Parse(
-                            textureObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
+                        var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                            textureObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                         );
+                        var variation = int.Parse(textureObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
 
-                        _alternativeTextureButtons[i].item = _currentlyDisplayedTextures[
-                            textureIndex
-                        ];
+                        _alternativeTextureButtons[i].item = _currentlyDisplayedTextures[textureIndex];
                         if (PatchTemplate.IsDGAUsed() && PatchTemplate.IsDGAObject(_selectedObject))
                         {
                             var offset = textureModel.TextureHeight <= 16 ? 32 : 0;
-                            _alternativeTextureButtons[i].texture = textureModel.GetTexture(
-                                variation
-                            );
+                            _alternativeTextureButtons[i].texture = textureModel.GetTexture(variation);
                             b.Draw(
                                 _alternativeTextureButtons[i].texture,
                                 new Vector2(
                                     (float)_alternativeTextureButtons[i].bounds.X
-                                        + (float)(
-                                            _alternativeTextureButtons[i].sourceRect.Width / 2
-                                        ) * _alternativeTextureButtons[i].baseScale,
+                                        + (float)(_alternativeTextureButtons[i].sourceRect.Width / 2)
+                                            * _alternativeTextureButtons[i].baseScale,
                                     (float)_alternativeTextureButtons[i].bounds.Y
-                                        + (float)(
-                                            _alternativeTextureButtons[i].sourceRect.Height / 2
-                                        ) * _alternativeTextureButtons[i].baseScale
+                                        + (float)(_alternativeTextureButtons[i].sourceRect.Height / 2)
+                                            * _alternativeTextureButtons[i].baseScale
                                         + offset
                                 ),
                                 _alternativeTextureButtons[i].sourceRect,
@@ -1100,10 +1021,7 @@ namespace AlternativeTextures.Framework.UI
                         _objectButtons[k].bounds.Y,
                         _objectButtons[k].bounds.Width,
                         _objectButtons[k].bounds.Height,
-                        (
-                            _objectButtons[k]
-                                .containsPoint(Game1.getOldMouseX(), Game1.getOldMouseY())
-                        )
+                        (_objectButtons[k].containsPoint(Game1.getOldMouseX(), Game1.getOldMouseY()))
                             ? purchaseTextColor
                             : Color.White,
                         4f,
@@ -1116,10 +1034,7 @@ namespace AlternativeTextures.Framework.UI
                     {
                         b.Draw(
                             purchaseTexture,
-                            new Vector2(
-                                _objectButtons[k].bounds.X + 32 - 12,
-                                _objectButtons[k].bounds.Y + 24 - 12
-                            ),
+                            new Vector2(_objectButtons[k].bounds.X + 32 - 12, _objectButtons[k].bounds.Y + 24 - 12),
                             purchaseTextureBackground,
                             Color.White,
                             0f,
@@ -1130,10 +1045,7 @@ namespace AlternativeTextures.Framework.UI
                         );
                         item.drawInMenu(
                             b,
-                            new Vector2(
-                                _objectButtons[k].bounds.X + 32 - 8,
-                                _objectButtons[k].bounds.Y + 24 - 8
-                            ),
+                            new Vector2(_objectButtons[k].bounds.X + 32 - 8, _objectButtons[k].bounds.Y + 24 - 8),
                             1f,
                             1f,
                             0.9f,
@@ -1144,13 +1056,9 @@ namespace AlternativeTextures.Framework.UI
                         Utility.drawTinyDigits(
                             item.Stack,
                             b,
-                            new Vector2(
-                                _objectButtons[k].bounds.X + 32 - 8,
-                                _objectButtons[k].bounds.Y + 24 - 8
-                            )
+                            new Vector2(_objectButtons[k].bounds.X + 32 - 8, _objectButtons[k].bounds.Y + 24 - 8)
                                 + new Vector2(
-                                    (float)(64 - Utility.getWidthOfTinyDigitString(item.Stack, 3f))
-                                        + 4f,
+                                    (float)(64 - Utility.getWidthOfTinyDigitString(item.Stack, 3f)) + 4f,
                                     64f - 18f + 2f
                                 ),
                             3f,
@@ -1191,10 +1099,7 @@ namespace AlternativeTextures.Framework.UI
                     b,
                     _paintBrushWarningText,
                     Game1.smallFont,
-                    new Vector2(
-                        base.xPositionOnScreen + 32,
-                        base.yPositionOnScreen + base.height - 64
-                    ),
+                    new Vector2(base.xPositionOnScreen + 32, base.yPositionOnScreen + base.height - 64),
                     Color.Black * _paintBrushWarningAlpha,
                     shadowIntensity: 0f
                 );

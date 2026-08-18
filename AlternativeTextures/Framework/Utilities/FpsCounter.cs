@@ -61,9 +61,7 @@ namespace AlternativeTextures.Framework.Utilities
 
         internal void OnRendered(object? sender, RenderedEventArgs e)
         {
-            var millisecondsSinceLastCall = DateTime
-                .UtcNow.Subtract(_lastRenderingCall)
-                .TotalMilliseconds;
+            var millisecondsSinceLastCall = DateTime.UtcNow.Subtract(_lastRenderingCall).TotalMilliseconds;
             _lastRenderingCall = DateTime.UtcNow;
 
             _numFramesRendered++;

@@ -44,8 +44,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 try
                 {
                     if (
-                        Type.GetType("DynamicGameAssets.Game.CustomFruitTree, DynamicGameAssets")
-                            is Type dgaCropType
+                        Type.GetType("DynamicGameAssets.Game.CustomFruitTree, DynamicGameAssets") is Type dgaCropType
                         && dgaCropType != null
                     )
                     {
@@ -58,11 +57,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
                         harmony.Patch(
-                            AccessTools.Method(
-                                dgaCropType,
-                                nameof(FruitTree.seasonUpdate),
-                                new[] { typeof(bool) }
-                            ),
+                            AccessTools.Method(dgaCropType, nameof(FruitTree.seasonUpdate), new[] { typeof(bool) }),
                             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
                         );
                     }
@@ -73,10 +68,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
@@ -101,15 +93,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -121,10 +108,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     spriteBatch.Draw(
                         Game1.mouseCursors,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                        ),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
                         new Rectangle(669, 1957, 16, 16),
                         Color.White,
                         0f,
@@ -143,20 +127,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             (float)
                                 Math.Max(
                                     -8.0,
-                                    Math.Min(
-                                        64.0,
-                                        Math.Sin((double)(tileLocation.X * 200f) / (Math.PI * 2.0))
-                                            * -16.0
-                                    )
+                                    Math.Min(64.0, Math.Sin((double)(tileLocation.X * 200f) / (Math.PI * 2.0)) * -16.0)
                                 ),
                             (float)
                                 Math.Max(
                                     -8.0,
-                                    Math.Min(
-                                        64.0,
-                                        Math.Sin((double)(tileLocation.X * 200f) / (Math.PI * 2.0))
-                                            * -16.0
-                                    )
+                                    Math.Min(64.0, Math.Sin((double)(tileLocation.X * 200f) / (Math.PI * 2.0)) * -16.0)
                                 )
                         ) / 2f;
                     Rectangle sourceRect = Rectangle.Empty;
@@ -182,10 +158,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             Game1.viewport,
                             new Vector2(
                                 tileLocation.X * 64f + 32f + positionOffset.X,
-                                tileLocation.Y * 64f
-                                    - (float)sourceRect.Height
-                                    + 128f
-                                    + positionOffset.Y
+                                tileLocation.Y * 64f - (float)sourceRect.Height + 128f + positionOffset.Y
                             )
                         ),
                         sourceRect,
@@ -193,9 +166,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         ___shakeRotation,
                         new Vector2(24f, 80f),
                         4f,
-                        __instance.flipped.Value
-                            ? SpriteEffects.FlipHorizontally
-                            : SpriteEffects.None,
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                         __instance.getBoundingBox().Bottom / 10000f - tileLocation.X / 1000000f
                     );
                 }
@@ -211,14 +182,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 textureModel.GetTexture(textureVariation),
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f + 32f,
-                                        tileLocation.Y * 64f + 64f
-                                    )
+                                    new Vector2(tileLocation.X * 64f + 32f, tileLocation.Y * 64f + 64f)
                                 ),
                                 new Rectangle(
-                                    (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3)
-                                        * 16,
+                                    (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3) * 16,
                                     textureOffset * 5 * 16 + 64,
                                     48,
                                     16
@@ -229,9 +196,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 0f,
                                 new Vector2(24f, 16f),
                                 4f,
-                                __instance.flipped.Value
-                                    ? SpriteEffects.FlipHorizontally
-                                    : SpriteEffects.None,
+                                __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                                 1E-07f
                             );
                         }
@@ -242,8 +207,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 new Vector2(tileLocation.X * 64f + 32f, tileLocation.Y * 64f + 64f)
                             ),
                             new Rectangle(
-                                (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3)
-                                    * 16,
+                                (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3) * 16,
                                 textureOffset * 5 * 16,
                                 48,
                                 64
@@ -254,16 +218,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             ___shakeRotation,
                             new Vector2(24f, 80f),
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             boundingBox.Bottom / 10000f + 0.001f - tileLocation.X / 1000000f
                         );
                     }
-                    if (
-                        __instance.health.Value >= 1f
-                        || (!___falling.Value && __instance.health.Value > -99f)
-                    )
+                    if (__instance.health.Value >= 1f || (!___falling.Value && __instance.health.Value > -99f))
                     {
                         spriteBatch.Draw(
                             textureModel.GetTexture(textureVariation),
@@ -274,12 +233,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         + 32f
                                         + (
                                             (___shakeTimer > 0f)
-                                                ? (
-                                                    (float)
-                                                        Math.Sin(
-                                                            Math.PI * 2.0 / (double)___shakeTimer
-                                                        ) * 2f
-                                                )
+                                                ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 2f)
                                                 : 0f
                                         ),
                                     tileLocation.Y * 64f + 64f
@@ -292,9 +246,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             new Vector2(24f, 32f),
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (__instance.stump.Value && !___falling.Value)
                                 ? (boundingBox.Bottom / 10000f)
                                 : (boundingBox.Bottom / 10000f - 0.001f - tileLocation.X / 1000000f)
@@ -305,9 +257,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         ParsedItemData obj = (
                             (__instance.struckByLightningCountdown.Value > 0)
                                 ? ItemRegistry.GetDataOrErrorItem("(O)382")
-                                : ItemRegistry.GetDataOrErrorItem(
-                                    __instance.fruit[i].QualifiedItemId
-                                )
+                                : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId)
                         );
                         Texture2D texture = obj.GetTexture();
                         Rectangle sourceRect = obj.GetSourceRect();
@@ -319,9 +269,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Game1.GlobalToLocal(
                                         Game1.viewport,
                                         new Vector2(
-                                            tileLocation.X * 64f
-                                                - 64f
-                                                + tileLocation.X * 200f % 64f / 2f,
+                                            tileLocation.X * 64f - 64f + tileLocation.X * 200f % 64f / 2f,
                                             tileLocation.Y * 64f - 192f - tileLocation.X % 64f / 3f
                                         )
                                     ),
@@ -331,9 +279,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Vector2.Zero,
                                     4f,
                                     SpriteEffects.None,
-                                    (float)boundingBox.Bottom / 10000f
-                                        + 0.002f
-                                        - tileLocation.X / 1000000f
+                                    (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
                                 );
                                 break;
                             case 1:
@@ -343,9 +289,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         Game1.viewport,
                                         new Vector2(
                                             tileLocation.X * 64f + 32f,
-                                            tileLocation.Y * 64f
-                                                - 256f
-                                                + tileLocation.X * 232f % 64f / 3f
+                                            tileLocation.Y * 64f - 256f + tileLocation.X * 232f % 64f / 3f
                                         )
                                     ),
                                     sourceRect,
@@ -354,9 +298,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Vector2.Zero,
                                     4f,
                                     SpriteEffects.None,
-                                    (float)boundingBox.Bottom / 10000f
-                                        + 0.002f
-                                        - tileLocation.X / 1000000f
+                                    (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
                                 );
                                 break;
                             case 2:
@@ -366,9 +308,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         Game1.viewport,
                                         new Vector2(
                                             tileLocation.X * 64f + tileLocation.X * 200f % 64f / 3f,
-                                            tileLocation.Y * 64f
-                                                - 160f
-                                                + tileLocation.X * 200f % 64f / 3f
+                                            tileLocation.Y * 64f - 160f + tileLocation.X * 200f % 64f / 3f
                                         )
                                     ),
                                     sourceRect,
@@ -377,9 +317,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Vector2.Zero,
                                     4f,
                                     SpriteEffects.FlipHorizontally,
-                                    (float)boundingBox.Bottom / 10000f
-                                        + 0.002f
-                                        - tileLocation.X / 1000000f
+                                    (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
                                 );
                                 break;
                         }
@@ -390,12 +328,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         Game1.GlobalToLocal(Game1.viewport, j.position),
-                        new Rectangle(
-                            (24 + Utility.getSeasonNumber(season)) * 16,
-                            textureOffset * 5 * 16,
-                            8,
-                            8
-                        ),
+                        new Rectangle((24 + Utility.getSeasonNumber(season)) * 16, textureOffset * 5 * 16, 8, 8),
                         Color.White,
                         j.rotation,
                         Vector2.Zero,
@@ -439,18 +372,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 return;
             }
 
-            var saplingName = Game1.objectData.ContainsKey(id)
-                ? Game1.objectData[id].Name
-                : String.Empty;
+            var saplingName = Game1.objectData.ContainsKey(id) ? Game1.objectData[id].Name : String.Empty;
             var instanceName = $"{AlternativeTextureModel.TextureType.FruitTree}_{saplingName}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SAPLING_NAME] = saplingName;
@@ -462,22 +390,14 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SAPLING_NAME] = saplingName;
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SAPLING_NAME] = saplingName;
                     AssignModData(__instance, instanceSeasonName, true);

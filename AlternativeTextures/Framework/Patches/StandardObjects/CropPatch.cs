@@ -31,14 +31,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Crop.drawWithOffset),
-                    new[]
-                    {
-                        typeof(SpriteBatch),
-                        typeof(Vector2),
-                        typeof(Color),
-                        typeof(float),
-                        typeof(Vector2),
-                    }
+                    new[] { typeof(SpriteBatch), typeof(Vector2), typeof(Color), typeof(float), typeof(Vector2) }
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawWithOffsetPrefix))
             );
@@ -48,8 +41,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 try
                 {
                     if (
-                        Type.GetType("DynamicGameAssets.Game.CustomCrop, DynamicGameAssets")
-                            is Type dgaCropType
+                        Type.GetType("DynamicGameAssets.Game.CustomCrop, DynamicGameAssets") is Type dgaCropType
                         && dgaCropType != null
                     )
                     {
@@ -64,10 +56,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
@@ -89,10 +78,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         )
         {
             if (
-                Game1.currentLocation.terrainFeatures.TryGetValue(
-                    tileLocation,
-                    out TerrainFeature hoeDirt
-                )
+                Game1.currentLocation.terrainFeatures.TryGetValue(tileLocation, out TerrainFeature hoeDirt)
                 && hoeDirt is HoeDirt
                 && hoeDirt.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
             )
@@ -105,16 +91,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    hoeDirt.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(hoeDirt.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     __instance.dead.Value
                     || textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -147,11 +128,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             new Vector2(8f, 16f),
                             4f,
                             SpriteEffects.None,
-                            (
-                                tileLocation.Y * 64f
-                                + 32f
-                                + ((tileLocation.Y * 11f + tileLocation.X * 7f) % 10f - 5f)
-                            ) / 10000f
+                            (tileLocation.Y * 64f + 32f + ((tileLocation.Y * 11f + tileLocation.X * 7f) % 10f - 5f))
+                                / 10000f
                         );
                     }
                     else
@@ -173,9 +151,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
 
                 // Handle the crops / flowers
-                SpriteEffects effect = (
-                    __instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None
-                );
+                SpriteEffects effect = (__instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
                 var layerDepth =
                     (
                         tileLocation.Y * 64f
@@ -190,14 +166,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         )
                     )
                     / 10000f
-                    / (
-                        (
-                            __instance.currentPhase.Value == 0
-                            && __instance.shouldDrawDarkWhenWatered()
-                        )
-                            ? 2f
-                            : 1f
-                    );
+                    / ((__instance.currentPhase.Value == 0 && __instance.shouldDrawDarkWhenWatered()) ? 2f : 1f);
                 var sourceX = ___sourceRect.X >= 128 ? ___sourceRect.X - 128 : ___sourceRect.X;
 
                 b.Draw(
@@ -229,9 +198,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         textureModel.GetTexture(textureVariation),
                         position,
                         new Rectangle(
-                            ___coloredSourceRect.X >= 128
-                                ? ___coloredSourceRect.X - 128
-                                : ___coloredSourceRect.X,
+                            ___coloredSourceRect.X >= 128 ? ___coloredSourceRect.X - 128 : ___coloredSourceRect.X,
                             textureOffset,
                             ___coloredSourceRect.Width,
                             ___coloredSourceRect.Height
@@ -265,18 +232,14 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         )
         {
             var gardenPot =
-                Game1.currentLocation.getObjectAtTile((int)tileLocation.X, (int)tileLocation.Y)
-                as IndoorPot;
+                Game1.currentLocation.getObjectAtTile((int)tileLocation.X, (int)tileLocation.Y) as IndoorPot;
             if (gardenPot is null)
             {
                 return true;
             }
 
             var hoeDirt = gardenPot.hoeDirt.Value;
-            if (
-                hoeDirt != null
-                && hoeDirt.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            )
+            if (hoeDirt != null && hoeDirt.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
                 var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
                     hoeDirt.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
@@ -286,16 +249,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    hoeDirt.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(hoeDirt.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     __instance.dead.Value
                     || textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -355,9 +313,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             offset + new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
                         ),
                         new Rectangle(
-                            ___coloredSourceRect.X >= 128
-                                ? ___coloredSourceRect.X - 128
-                                : ___coloredSourceRect.X,
+                            ___coloredSourceRect.X >= 128 ? ___coloredSourceRect.X - 128 : ___coloredSourceRect.X,
                             textureOffset,
                             ___coloredSourceRect.Width,
                             ___coloredSourceRect.Height

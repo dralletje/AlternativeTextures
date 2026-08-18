@@ -41,12 +41,7 @@ static class SourceRects
         var sourceRect = new Rectangle(0, textureOffset, textureWidth, textureHeight);
         if (target is Fence fence)
         {
-            sourceRect = SourceRects.GetFenceSourceRect(
-                textureModel,
-                fence,
-                textureHeight,
-                variation
-            );
+            sourceRect = SourceRects.GetFenceSourceRect(textureModel, fence, textureHeight, variation);
         }
         else if (target is Furniture furniture)
         {
@@ -200,12 +195,7 @@ static class SourceRects
         }
 
         int sourceRectOffset = textureModel?.GetTextureOffset(variation) ?? 0;
-        return new Rectangle(
-            sourceRectPosition % 16 * 16,
-            sourceRectPosition / 16 * 16 + sourceRectOffset,
-            16,
-            16
-        );
+        return new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16 + sourceRectOffset, 16, 16);
     }
 
     public static Rectangle GetTreeSourceRect(
@@ -252,9 +242,7 @@ static class SourceRects
                     + (
                         fruitTree.IgnoresSeasonsHere()
                             ? 1
-                            : Utility.getSeasonNumber(
-                                Game1.GetSeasonForLocation(Game1.currentLocation).ToString()
-                            )
+                            : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
                     ) * 3
                 ) * 16,
                 fruitTree.GetSpriteRowNumber() * 5 * 16,
@@ -270,9 +258,7 @@ static class SourceRects
                 + (
                     fruitTree.IgnoresSeasonsHere()
                         ? 1
-                        : Utility.getSeasonNumber(
-                            Game1.GetSeasonForLocation(Game1.currentLocation).ToString()
-                        )
+                        : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
                 ) * 3
             ) * 16,
             0,
@@ -329,10 +315,7 @@ static class SourceRects
         if (variation == -1)
         {
             bush.setUpSourceRect();
-            return AlternativeTextures
-                .modHelper.Reflection.GetField<NetRectangle>(bush, "sourceRect")
-                .GetValue()
-                .Value;
+            return AlternativeTextures.modHelper.Reflection.GetField<NetRectangle>(bush, "sourceRect").GetValue().Value;
         }
 
         if (bush.size.Value == Bush.greenTeaBush)

@@ -25,10 +25,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Constructor(
-                    typeof(GiantCrop),
-                    new[] { typeof(string), typeof(Vector2) }
-                ),
+                AccessTools.Constructor(typeof(GiantCrop), new[] { typeof(string), typeof(Vector2) }),
                 postfix: new HarmonyMethod(GetType(), nameof(GiantCropPostfix))
             );
 
@@ -58,20 +55,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
 
         [HarmonyBefore(new string[] { "spacechase0.JsonAssets", "spacechase0.MoreGiantCrops" })]
-        private static bool DrawPrefix(
-            GiantCrop __instance,
-            float ___shakeTimer,
-            SpriteBatch spriteBatch
-        )
+        private static bool DrawPrefix(GiantCrop __instance, float ___shakeTimer, SpriteBatch spriteBatch)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -85,15 +75,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -133,14 +118,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             {
                 return;
             }
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -151,21 +133,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;
@@ -180,8 +154,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             instanceName = String.Empty;
             if (giantCrop.GetData() is not GiantCropData giantCropData)
                 return false;
-            instanceName =
-                ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? String.Empty;
+            instanceName = ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? String.Empty;
             instanceName = $"{AlternativeTextureModel.TextureType.GiantCrop}_{instanceName}";
             return true;
         }

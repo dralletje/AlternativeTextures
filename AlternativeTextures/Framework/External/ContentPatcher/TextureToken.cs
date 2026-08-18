@@ -55,17 +55,10 @@ namespace AlternativeTextures.Framework.External.ContentPatcher
         {
             error = String.Empty;
 
-            if (
-                _textureManager.GetTextureByToken(
-                    $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}"
-                )
-                is null
-            )
+            if (_textureManager.GetTextureByToken($"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}") is null)
             {
                 if (
-                    _textureManager.GetModelByToken(
-                        $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}"
-                    )
+                    _textureManager.GetModelByToken($"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{input}")
                         is TokenModel model
                     && model is not null
                 )

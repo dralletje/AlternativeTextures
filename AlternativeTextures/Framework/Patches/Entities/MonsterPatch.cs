@@ -24,11 +24,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    _entity,
-                    nameof(Monster.update),
-                    new[] { typeof(GameTime), typeof(GameLocation) }
-                ),
+                AccessTools.Method(_entity, nameof(Monster.update), new[] { typeof(GameTime), typeof(GameLocation) }),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
             harmony.Patch(
@@ -36,10 +32,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 postfix: new HarmonyMethod(GetType(), nameof(ReloadSpritePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(
-                    _entity,
-                    new[] { typeof(string), typeof(Vector2), typeof(int) }
-                ),
+                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(Vector2), typeof(int) }),
                 postfix: new HarmonyMethod(GetType(), nameof(MonsterPostfix))
             );
         }
@@ -52,15 +45,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 return;
             }
 
-            var textureVariation = Int32.Parse(
-                monster.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-            );
+            var textureVariation = Int32.Parse(monster.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 monster.Sprite.loadedTexture = String.Empty;
@@ -102,10 +90,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
 
             if (
-                __instance.Sprite.textureName.Value.IndexOf(
-                    "_dangerous",
-                    StringComparison.OrdinalIgnoreCase
-                ) >= 0
+                __instance.Sprite.textureName.Value.IndexOf("_dangerous", StringComparison.OrdinalIgnoreCase) >= 0
                 && __instance
                     .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                     .IndexOf("_dangerous", StringComparison.OrdinalIgnoreCase) == -1
@@ -113,16 +98,11 @@ namespace AlternativeTextures.Framework.Patches.Entities
             {
                 var instanceName =
                     $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}_dangerous";
-                var instanceSeasonName =
-                    $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+                var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
                 if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                    && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
+                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
+                    && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
                 )
                 {
                     var result =
@@ -133,21 +113,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 }
                 else
                 {
-                    if (
-                        AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                            instanceName
-                        )
-                    )
+                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                     {
                         AssignModData(__instance, instanceName, false);
                         return;
                     }
 
-                    if (
-                        AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                            instanceSeasonName
-                        )
-                    )
+                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                     {
                         AssignModData(__instance, instanceSeasonName, true);
                         return;
@@ -166,25 +138,17 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 return;
             }
 
-            var textureVariation = Int32.Parse(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-            );
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 __instance.Sprite.loadedTexture = String.Empty;
                 return;
             }
 
-            if (
-                __instance.Sprite.textureName.Value
-                != textureModel.GetTexture(textureVariation).Name
-            )
+            if (__instance.Sprite.textureName.Value != textureModel.GetTexture(textureVariation).Name)
             {
                 SetTexture(__instance, textureModel);
             }
@@ -203,23 +167,14 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
         }
 
-        private static void MonsterPostfix(
-            Monster __instance,
-            string name,
-            Vector2 position,
-            int facingDir
-        )
+        private static void MonsterPostfix(Monster __instance, string name, Vector2 position, int facingDir)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -230,21 +185,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

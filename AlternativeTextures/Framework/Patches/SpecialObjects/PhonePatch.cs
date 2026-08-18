@@ -28,13 +28,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
             );
         }
 
-        private static bool DrawPrefix(
-            Phone __instance,
-            SpriteBatch spriteBatch,
-            int x,
-            int y,
-            float alpha = 1f
-        )
+        private static bool DrawPrefix(Phone __instance, SpriteBatch spriteBatch, int x, int y, float alpha = 1f)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -46,15 +40,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -63,10 +52,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
 
                 Vector2 scaleFactor = __instance.getScale();
                 scaleFactor *= 4f;
-                Vector2 position = Game1.GlobalToLocal(
-                    Game1.viewport,
-                    new Vector2(x * 64, y * 64 - 64)
-                );
+                Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 Rectangle destination = new Rectangle(
                     (int)(position.X - scaleFactor.X / 2f)
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -75,17 +61,11 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     (int)(64f + scaleFactor.X),
                     (int)(128f + scaleFactor.Y / 2f)
                 );
-                float draw_layer =
-                    Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     destination,
-                    new Rectangle(
-                        0,
-                        textureOffset,
-                        textureModel.TextureWidth,
-                        textureModel.TextureHeight
-                    ),
+                    new Rectangle(0, textureOffset, textureModel.TextureWidth, textureModel.TextureHeight),
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -96,10 +76,8 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 bool ringing = Phone.ringingTimer > 0 && Phone.ringingTimer < 600;
                 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 destination = new Rectangle(
-                    (int)position.X
-                        + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                    (int)position.Y
-                        + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                    (int)position.X + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                    (int)position.Y + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                     64,
                     128
                 );

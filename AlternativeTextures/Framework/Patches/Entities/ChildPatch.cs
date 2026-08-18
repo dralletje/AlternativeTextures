@@ -17,32 +17,19 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Constructor(
-                    _entity,
-                    new[] { typeof(string), typeof(bool), typeof(bool), typeof(Farmer) }
-                ),
+                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(bool), typeof(bool), typeof(Farmer) }),
                 postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix))
             );
         }
 
-        private static void ChildPostfix(
-            Child __instance,
-            string name,
-            bool isMale,
-            bool isDarkSkinned,
-            Farmer parent
-        )
+        private static void ChildPostfix(Child __instance, string name, bool isMale, bool isDarkSkinned, Farmer parent)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -53,21 +40,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

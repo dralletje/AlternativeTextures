@@ -28,13 +28,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
             );
         }
 
-        private static bool DrawPrefix(
-            IndoorPot __instance,
-            SpriteBatch spriteBatch,
-            int x,
-            int y,
-            float alpha = 1f
-        )
+        private static bool DrawPrefix(IndoorPot __instance, SpriteBatch spriteBatch, int x, int y, float alpha = 1f)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -46,15 +40,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -63,10 +52,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
 
                 Vector2 scaleFactor = __instance.getScale();
                 scaleFactor *= 4f;
-                Vector2 position = Game1.GlobalToLocal(
-                    Game1.viewport,
-                    new Vector2(x * 64, y * 64 - 64)
-                );
+                Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 Rectangle destination = new Rectangle(
                     (int)(position.X - scaleFactor.X / 2f)
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -102,10 +88,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                         Game1.mouseCursors,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(
-                                __instance.TileLocation.X * 64f + 4f,
-                                __instance.TileLocation.Y * 64f - 12f
-                            )
+                            new Vector2(__instance.TileLocation.X * 64f + 4f, __instance.TileLocation.Y * 64f - 12f)
                         ),
                         fertilizer_rect,
                         Color.White,

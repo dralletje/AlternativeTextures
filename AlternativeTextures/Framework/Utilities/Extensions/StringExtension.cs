@@ -4,11 +4,7 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
 {
     public static class StringExtension
     {
-        public static string ReplaceLastInstance(
-            this string source,
-            string target,
-            string replacement
-        )
+        public static string ReplaceLastInstance(this string source, string target, string replacement)
         {
             int index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
 

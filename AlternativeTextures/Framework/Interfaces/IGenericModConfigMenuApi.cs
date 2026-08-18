@@ -75,12 +75,7 @@ namespace AlternativeTextures.Framework.Interfaces
         /// <param name="pageId">The unique ID of the page to open when the link is clicked.</param>
         /// <param name="text">The link text shown in the form.</param>
         /// <param name="tooltip">The tooltip text shown when the cursor hovers on the link, or <c>null</c> to disable the tooltip.</param>
-        void AddPageLink(
-            IManifest mod,
-            string pageId,
-            Func<string> text,
-            Func<string> tooltip = null
-        );
+        void AddPageLink(IManifest mod, string pageId, Func<string> text, Func<string> tooltip = null);
 
         /****
         ** Advanced

@@ -41,8 +41,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 try
                 {
                     if (
-                        Type.GetType("DynamicGameAssets.Game.CustomFence, DynamicGameAssets")
-                            is Type dgaFenceType
+                        Type.GetType("DynamicGameAssets.Game.CustomFence, DynamicGameAssets") is Type dgaFenceType
                         && dgaFenceType != null
                     )
                     {
@@ -57,21 +56,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                         LogLevel.Warn
                     );
-                    _monitor.Log(
-                        $"Patch for DGA failed in {this.GetType().Name}: {ex}",
-                        LogLevel.Trace
-                    );
+                    _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
                 }
             }
         }
 
-        private static bool DrawPrefix(
-            Fence __instance,
-            SpriteBatch b,
-            int x,
-            int y,
-            float alpha = 1f
-        )
+        private static bool DrawPrefix(Fence __instance, SpriteBatch b, int x, int y, float alpha = 1f)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -83,15 +73,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -113,10 +98,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         case 10:
                             b.Draw(
                                 textureModel.GetTexture(textureVariation),
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    offset + new Vector2(x * 64 - 16, y * 64 - 128)
-                                ),
+                                Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 128)),
                                 new Rectangle(
                                     (__instance.gatePosition.Value == 88) ? 24 : 0,
                                     textureOffset + (192 - gateOffset),
@@ -134,10 +116,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         case 100:
                             b.Draw(
                                 textureModel.GetTexture(textureVariation),
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    offset + new Vector2(x * 64 - 16, y * 64 - 128)
-                                ),
+                                Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 128)),
                                 new Rectangle(
                                     (__instance.gatePosition.Value == 88) ? 24 : 0,
                                     textureOffset + (240 - gateOffset),
@@ -197,10 +176,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         case 110:
                             b.Draw(
                                 textureModel.GetTexture(textureVariation),
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    offset + new Vector2(x * 64 - 16, y * 64 - 64)
-                                ),
+                                Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 64)),
                                 new Rectangle(
                                     (__instance.gatePosition.Value == 88) ? 24 : 0,
                                     textureOffset + (128 - gateOffset),
@@ -356,73 +332,35 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             {
                 var instanceName =
                     $"{AlternativeTextureModel.TextureType.Craftable}_{Game1.objectData[dropInItem.ItemId].Name}";
-                var instanceSeasonName =
-                    $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+                var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
                 if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                    && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
+                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
+                    && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
                 )
                 {
                     var result =
                         Game1.random.Next(2) > 0
-                            ? AssignModData(
-                                __instance,
-                                instanceSeasonName,
-                                true,
-                                __instance.bigCraftable.Value
-                            )
-                            : AssignModData(
-                                __instance,
-                                instanceName,
-                                false,
-                                __instance.bigCraftable.Value
-                            );
+                            ? AssignModData(__instance, instanceSeasonName, true, __instance.bigCraftable.Value)
+                            : AssignModData(__instance, instanceName, false, __instance.bigCraftable.Value);
                     return;
                 }
                 else
                 {
-                    if (
-                        AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                            instanceName
-                        )
-                    )
+                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                     {
-                        AssignModData(
-                            __instance,
-                            instanceName,
-                            false,
-                            __instance.bigCraftable.Value
-                        );
+                        AssignModData(__instance, instanceName, false, __instance.bigCraftable.Value);
                         return;
                     }
 
-                    if (
-                        AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                            instanceSeasonName
-                        )
-                    )
+                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                     {
-                        AssignModData(
-                            __instance,
-                            instanceSeasonName,
-                            true,
-                            __instance.bigCraftable.Value
-                        );
+                        AssignModData(__instance, instanceSeasonName, true, __instance.bigCraftable.Value);
                         return;
                     }
                 }
 
-                AssignDefaultModData(
-                    __instance,
-                    instanceSeasonName,
-                    true,
-                    __instance.bigCraftable.Value
-                );
+                AssignDefaultModData(__instance, instanceSeasonName, true, __instance.bigCraftable.Value);
             }
         }
     }

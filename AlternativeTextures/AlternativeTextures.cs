@@ -42,8 +42,7 @@ namespace AlternativeTextures
 {
     public class AlternativeTextures : Mod
     {
-        internal const string PAINTPAIL =
-            "(F)PeacefulEnd.AlternativeTexturesContentPatcher_PaintPail";
+        internal const string PAINTPAIL = "(F)PeacefulEnd.AlternativeTexturesContentPatcher_PaintPail";
         internal const string PAINT_BRUSH_FLAG = PaintBrushTool.PAINT_BRUSH_FLAG;
         internal const string PAINT_BRUSH_SCALE = PaintBrushTool.PAINT_BRUSH_SCALE;
 
@@ -94,9 +93,7 @@ namespace AlternativeTextures
             // Set up the monitor, helper and multiplayer
             monitor = Monitor;
             modHelper = helper;
-            multiplayer = helper
-                .Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer")
-                .GetValue();
+            multiplayer = helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 
             // Setup our managers
             textureManager = new TextureManager(monitor, helper);
@@ -252,10 +249,7 @@ namespace AlternativeTextures
         private void OnContentAssetReady(object? sender, AssetReadyEventArgs e)
         {
             var asset = e.Name;
-            if (
-                textureManager.GetTextureByToken(asset.Name) is Texture2D texture
-                && texture is not null
-            )
+            if (textureManager.GetTextureByToken(asset.Name) is Texture2D texture && texture is not null)
             {
                 var loadedTexture = Helper.GameContent.Load<Texture2D>(asset.Name);
 
@@ -268,14 +262,9 @@ namespace AlternativeTextures
             if (e.DataType == typeof(Texture2D))
             {
                 var asset = e.Name;
-                if (
-                    textureManager.GetModelByToken(asset.Name) is TokenModel tokenModel
-                    && tokenModel is not null
-                )
+                if (textureManager.GetModelByToken(asset.Name) is TokenModel tokenModel && tokenModel is not null)
                 {
-                    var originalTexture = tokenModel.AlternativeTexture.GetTexture(
-                        tokenModel.Variation
-                    );
+                    var originalTexture = tokenModel.AlternativeTexture.GetTexture(tokenModel.Variation);
                     var clonedTexture = originalTexture.CreateSelectiveCopy(
                         Game1.graphics.GraphicsDevice,
                         new Rectangle(0, 0, originalTexture.Width, originalTexture.Height)
@@ -284,10 +273,7 @@ namespace AlternativeTextures
                 }
                 else if (toolManager.toolKeyToData.ContainsKey(asset.Name))
                 {
-                    e.LoadFromModFile<Texture2D>(
-                        toolManager.toolKeyToData[asset.Name],
-                        AssetLoadPriority.Exclusive
-                    );
+                    e.LoadFromModFile<Texture2D>(toolManager.toolKeyToData[asset.Name], AssetLoadPriority.Exclusive);
                 }
             }
             else if (
@@ -297,23 +283,18 @@ namespace AlternativeTextures
             {
                 e.Edit(asset =>
                 {
-                    List<ModWallpaperOrFlooring> moddedDecorations = asset.GetData<
-                        List<ModWallpaperOrFlooring>
-                    >();
+                    List<ModWallpaperOrFlooring> moddedDecorations = asset.GetData<List<ModWallpaperOrFlooring>>();
 
                     foreach (
                         var textureModel in textureManager
                             .GetAllTextures()
-                            .Where(t =>
-                                t.IsDecoration() && !moddedDecorations.Any(d => d.Id == t.GetId())
-                            )
+                            .Where(t => t.IsDecoration() && !moddedDecorations.Any(d => d.Id == t.GetId()))
                     )
                     {
                         var decoration = new ModWallpaperOrFlooring()
                         {
                             Id = textureModel.GetId(),
-                            Texture =
-                                $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}",
+                            Texture = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}",
                             IsFlooring = String.Equals(
                                 textureModel.ItemName,
                                 "Floor",
@@ -381,25 +362,14 @@ namespace AlternativeTextures
                 apiManager.HookIntoDynamicGameAssets(Helper);
             }
 
-            if (
-                Helper.ModRegistry.IsLoaded("Pathoschild.ContentPatcher")
-                && apiManager.HookIntoContentPatcher(Helper)
-            )
+            if (Helper.ModRegistry.IsLoaded("Pathoschild.ContentPatcher") && apiManager.HookIntoContentPatcher(Helper))
             {
                 apiManager
                     .GetContentPatcherApi()
-                    .RegisterToken(
-                        ModManifest,
-                        "Textures",
-                        new TextureToken(textureManager, toolManager)
-                    );
+                    .RegisterToken(ModManifest, "Textures", new TextureToken(textureManager, toolManager));
                 apiManager
                     .GetContentPatcherApi()
-                    .RegisterToken(
-                        ModManifest,
-                        "Tools",
-                        new ToolToken(textureManager, toolManager)
-                    );
+                    .RegisterToken(ModManifest, "Tools", new ToolToken(textureManager, toolManager));
             }
 
             // Load any owned content packs
@@ -414,11 +384,7 @@ namespace AlternativeTextures
             )
             {
                 var configApi = apiManager.GetGenericModConfigMenuApi();
-                configApi.Register(
-                    ModManifest,
-                    () => modConfig = new ModConfig(),
-                    () => Helper.WriteConfig(modConfig)
-                );
+                configApi.Register(ModManifest, () => modConfig = new ModConfig(), () => Helper.WriteConfig(modConfig));
 
                 // Register the standard settings
                 configApi.AddSectionTitle(
@@ -495,10 +461,7 @@ namespace AlternativeTextures
                 var contentPacks = Helper.ContentPacks.GetOwned();
                 string caret = Helper.Translation.Get("config.special.caret");
                 // Create the page labels for each content pack's page
-                configApi.AddSectionTitle(
-                    ModManifest,
-                    () => Helper.Translation.Get("config.section.content_pack")
-                );
+                configApi.AddSectionTitle(ModManifest, () => Helper.Translation.Get("config.section.content_pack"));
 
                 // Add the content pack owner pages
                 foreach (var contentPack in contentPacks)
@@ -506,11 +469,7 @@ namespace AlternativeTextures
                     configApi.AddPageLink(
                         ModManifest,
                         contentPack.Manifest.UniqueID,
-                        () =>
-                            String.Concat(
-                                caret,
-                                CleanContentPackNameForConfig(contentPack.Manifest.Name)
-                            ),
+                        () => String.Concat(caret, CleanContentPackNameForConfig(contentPack.Manifest.Name)),
                         () => contentPack.Manifest.Description
                     );
 
@@ -521,10 +480,7 @@ namespace AlternativeTextures
                     );
 
                     // Create a page label for each TextureType under this content pack
-                    configApi.AddSectionTitle(
-                        ModManifest,
-                        () => Helper.Translation.Get("config.section.categories")
-                    );
+                    configApi.AddSectionTitle(ModManifest, () => Helper.Translation.Get("config.section.categories"));
                     foreach (
                         var textureType in textureManager
                             .GetAllTextures()
@@ -537,11 +493,7 @@ namespace AlternativeTextures
                         configApi.AddPageLink(
                             ModManifest,
                             String.Concat(contentPack.Manifest.UniqueID, ".", textureType),
-                            () =>
-                                String.Concat(
-                                    caret,
-                                    Helper.Translation.Get($"config.type_label.{textureType}")
-                                )
+                            () => String.Concat(caret, Helper.Translation.Get($"config.type_label.{textureType}"))
                         );
                     }
 
@@ -556,15 +508,8 @@ namespace AlternativeTextures
                     {
                         configApi.AddPage(
                             ModManifest,
-                            String.Concat(
-                                contentPack.Manifest.UniqueID,
-                                ".",
-                                model.GetTextureType()
-                            ),
-                            pageTitle: () =>
-                                Helper.Translation.Get(
-                                    $"config.type_label.{model.GetTextureType()}"
-                                )
+                            String.Concat(contentPack.Manifest.UniqueID, ".", model.GetTextureType()),
+                            pageTitle: () => Helper.Translation.Get($"config.type_label.{model.GetTextureType()}")
                         );
                         configApi.AddPageLink(
                             ModManifest,
@@ -576,9 +521,7 @@ namespace AlternativeTextures
                                     new
                                     {
                                         textureType = model.GetTextureType(),
-                                        season = String.IsNullOrEmpty(model.Season)
-                                            ? "All"
-                                            : model.Season,
+                                        season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
                                         variations = model.GetVariations(),
                                     }
                                 )
@@ -602,9 +545,7 @@ namespace AlternativeTextures
                                         new
                                         {
                                             textureType = model.GetTextureType(),
-                                            season = String.IsNullOrEmpty(model.Season)
-                                                ? "All"
-                                                : model.Season,
+                                            season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
                                         }
                                     )
                             );
@@ -619,10 +560,7 @@ namespace AlternativeTextures
                             switch (model.GetTextureType())
                             {
                                 case "Decoration":
-                                    var isFloor = model.ItemName.Equals(
-                                        "Floor",
-                                        StringComparison.OrdinalIgnoreCase
-                                    );
+                                    var isFloor = model.ItemName.Equals("Floor", StringComparison.OrdinalIgnoreCase);
                                     var decorationOffset = isFloor ? 8 : 16;
                                     sourceRect = new Rectangle(
                                         (variation % decorationOffset) * model.TextureWidth,
@@ -651,17 +589,13 @@ namespace AlternativeTextures
                             {
                                 TextureId = model.GetId(),
                                 Variation = variation,
-                                Enabled = !modConfig.IsTextureVariationDisabled(
-                                    model.GetId(),
-                                    variation
-                                ),
+                                Enabled = !modConfig.IsTextureVariationDisabled(model.GetId(), variation),
                             };
                             configApi.AddComplexOption(
                                 ModManifest,
                                 () => Helper.Translation.Get("config.widget.enabled.name"),
                                 textureWidget.Draw,
-                                tooltip: () =>
-                                    Helper.Translation.Get("config.widget.enabled.description"),
+                                tooltip: () => Helper.Translation.Get("config.widget.enabled.description"),
                                 beforeSave: () => textureWidget.BeforeSave(modConfig)
                             );
                         }
@@ -669,8 +603,7 @@ namespace AlternativeTextures
                         configApi.AddPage(
                             ModManifest,
                             contentPack.Manifest.UniqueID,
-                            pageTitle: () =>
-                                CleanContentPackNameForConfig(contentPack.Manifest.Name)
+                            pageTitle: () => CleanContentPackNameForConfig(contentPack.Manifest.Name)
                         );
                     }
 
@@ -726,15 +659,9 @@ namespace AlternativeTextures
                             contentPack.DirectoryPath + Path.DirectorySeparatorChar,
                             String.Empty
                         );
-                        var modelPath = Path.Combine(
-                            parentFolderName,
-                            textureFolder.Name,
-                            "texture.json"
-                        );
+                        var modelPath = Path.Combine(parentFolderName, textureFolder.Name, "texture.json");
 
-                        var baseModel = contentPack.ReadJsonFile<AlternativeTextureModel>(
-                            modelPath
-                        );
+                        var baseModel = contentPack.ReadJsonFile<AlternativeTextureModel>(modelPath);
                         baseModel.Owner = contentPack.Manifest.UniqueID;
                         baseModel.PackName = contentPack.Manifest.Name;
                         baseModel.Author = contentPack.Manifest.Author;
@@ -751,10 +678,7 @@ namespace AlternativeTextures
 
                         // Handle SDV and framework related changes
                         string originalItemName = baseModel.ItemName;
-                        if (
-                            baseModel.HandleNameChanges() is List<string> changedNames
-                            && changedNames.Count > 0
-                        )
+                        if (baseModel.HandleNameChanges() is List<string> changedNames && changedNames.Count > 0)
                         {
                             foreach (var changedName in changedNames)
                             {
@@ -789,10 +713,7 @@ namespace AlternativeTextures
                         var seasons = baseModel.Seasons;
                         for (int s = 0; s < 4; s++)
                         {
-                            if (
-                                (seasons.Count() == 0 && s > 0)
-                                || (seasons.Count() > 0 && s >= seasons.Count())
-                            )
+                            if ((seasons.Count() == 0 && s > 0) || (seasons.Count() > 0 && s >= seasons.Count()))
                             {
                                 continue;
                             }
@@ -812,9 +733,7 @@ namespace AlternativeTextures
                                 {
                                     // Override Grass Alternative Texture pack ItemName to always be Grass, in order to be compatible with translations
                                     textureModel.ItemName =
-                                        textureModel.Type.ToString() == "Grass"
-                                            ? "Grass"
-                                            : textureData.Name;
+                                        textureModel.Type.ToString() == "Grass" ? "Grass" : textureData.Name;
                                 }
 
                                 // Verify that ItemName or ItemNames is given
@@ -841,16 +760,11 @@ namespace AlternativeTextures
                                 }
 
                                 // Set the season (if any)
-                                textureModel.Season =
-                                    seasons.Count() == 0 ? String.Empty : seasons[s];
+                                textureModel.Season = seasons.Count() == 0 ? String.Empty : seasons[s];
 
                                 // Set the ModelName and TextureId
                                 textureModel.ModelName = String.IsNullOrEmpty(textureModel.Season)
-                                    ? String.Concat(
-                                        textureModel.GetTextureType(),
-                                        "_",
-                                        textureModel.ItemName
-                                    )
+                                    ? String.Concat(textureModel.GetTextureType(), "_", textureModel.ItemName)
                                     : String.Concat(
                                         textureModel.GetTextureType(),
                                         "_",
@@ -858,18 +772,10 @@ namespace AlternativeTextures
                                         "_",
                                         textureModel.Season
                                     );
-                                textureModel.TextureId = String.Concat(
-                                    textureModel.Owner,
-                                    ".",
-                                    textureModel.ModelName
-                                );
+                                textureModel.TextureId = String.Concat(textureModel.Owner, ".", textureModel.ModelName);
 
                                 // Verify we are given a texture and if so, track it
-                                if (
-                                    !File.Exists(
-                                        Path.Combine(textureFolder.FullName, "texture.png")
-                                    )
-                                )
+                                if (!File.Exists(Path.Combine(textureFolder.FullName, "texture.png")))
                                 {
                                     // No texture.png found, may be using split texture files (texture_1.png, texture_2.png, etc.)
                                     var textureFilePaths = Directory
@@ -942,11 +848,7 @@ namespace AlternativeTextures
 
                                     textureModel.TileSheetPath = contentPack
                                         .ModContent.GetInternalAssetName(
-                                            Path.Combine(
-                                                parentFolderName,
-                                                textureFolder.Name,
-                                                textureFilePaths.First()
-                                            )
+                                            Path.Combine(parentFolderName, textureFolder.Name, textureFilePaths.First())
                                         )
                                         .Name;
                                 }
@@ -955,21 +857,13 @@ namespace AlternativeTextures
                                     // Load in the single vertical texture
                                     textureModel.TileSheetPath = contentPack
                                         .ModContent.GetInternalAssetName(
-                                            Path.Combine(
-                                                parentFolderName,
-                                                textureFolder.Name,
-                                                "texture.png"
-                                            )
+                                            Path.Combine(parentFolderName, textureFolder.Name, "texture.png")
                                         )
                                         .Name;
-                                    Texture2D singularTexture =
-                                        contentPack.ModContent.Load<Texture2D>(
-                                            textureModel.TileSheetPath
-                                        );
-                                    if (
-                                        singularTexture.Height
-                                        >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT
-                                    )
+                                    Texture2D singularTexture = contentPack.ModContent.Load<Texture2D>(
+                                        textureModel.TileSheetPath
+                                    );
+                                    if (singularTexture.Height >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT)
                                     {
                                         Monitor.Log(
                                             $"Unable to add alternative texture for {textureModel.Owner}: The texture {textureModel.TextureId} has a height larger than 16384!\nPlease split it into individual textures (e.g. texture_0.png, texture_1.png, etc.) to resolve this issue. See the log for additional details.",
@@ -1024,10 +918,7 @@ namespace AlternativeTextures
                 }
                 catch (Exception ex)
                 {
-                    Monitor.Log(
-                        $"Error loading content pack {contentPack.Manifest.Name}: {ex}",
-                        LogLevel.Error
-                    );
+                    Monitor.Log($"Error loading content pack {contentPack.Manifest.Name}: {ex}", LogLevel.Error);
                 }
 
                 individualLoadingStopwatch.Stop();
@@ -1063,14 +954,11 @@ namespace AlternativeTextures
                         verticalTexture.Width,
                         textureModel.TextureHeight
                     );
-                    Color[] extractPixels = new Color[
-                        extractRectangle.Width * extractRectangle.Height
-                    ];
+                    Color[] extractPixels = new Color[extractRectangle.Width * extractRectangle.Height];
 
                     if (verticalTexture.Bounds.Contains(extractRectangle) is false)
                     {
-                        int maxVariationsPossible =
-                            verticalTexture.Height / textureModel.TextureHeight;
+                        int maxVariationsPossible = verticalTexture.Height / textureModel.TextureHeight;
 
                         Monitor.Log(
                             $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPackName}: More variations specified ({textureModel.GetVariations()}) than given ({maxVariationsPossible})",
@@ -1080,13 +968,7 @@ namespace AlternativeTextures
                     }
 
                     // Get the required pixels
-                    verticalTexture.GetData(
-                        0,
-                        extractRectangle,
-                        extractPixels,
-                        0,
-                        extractPixels.Length
-                    );
+                    verticalTexture.GetData(0, extractRectangle, extractPixels, 0, extractPixels.Length);
 
                     // Set the required pixels
                     var extractedTexture = new Texture2D(
@@ -1142,9 +1024,7 @@ namespace AlternativeTextures
                 int variation = 0;
                 foreach (var textureFilePath in textureFilePaths)
                 {
-                    var splitTexture = contentPack.ModContent.Load<Texture2D>(
-                        Path.Combine(rootPath, textureFilePath)
-                    );
+                    var splitTexture = contentPack.ModContent.Load<Texture2D>(Path.Combine(rootPath, textureFilePath));
                     textureModel.Textures[variation] = splitTexture;
 
                     variation++;
@@ -1176,16 +1056,12 @@ namespace AlternativeTextures
                 Monitor.Log($"Invalid count given for (QUANTITY)", LogLevel.Warn);
                 return;
             }
-            Type monsterType = Type.GetType(
-                "StardewValley.Monsters." + args[0] + ",Stardew Valley"
-            );
+            Type monsterType = Type.GetType("StardewValley.Monsters." + args[0] + ",Stardew Valley");
 
             Monitor.Log(Game1.player.Tile.ToString(), LogLevel.Debug);
             for (int i = 0; i < amountToSpawn; i++)
             {
-                var monster =
-                    Activator.CreateInstance(monsterType, new object[] { Game1.player.Tile })
-                    as Monster;
+                var monster = Activator.CreateInstance(monsterType, new object[] { Game1.player.Tile }) as Monster;
                 monster.Position = Game1.player.Position;
                 Game1.currentLocation.characters.Add(monster);
             }
@@ -1207,10 +1083,7 @@ namespace AlternativeTextures
                 )
             )
             {
-                Monitor.Log(
-                    $"Command can only be used on a plantable location allowing giant crops.",
-                    LogLevel.Warn
-                );
+                Monitor.Log($"Command can only be used on a plantable location allowing giant crops.", LogLevel.Warn);
                 return;
             }
 
@@ -1243,13 +1116,9 @@ namespace AlternativeTextures
                                 Vector2 key2 = new(j, i);
 
                                 if (
-                                    !gameLocation.terrainFeatures.TryGetValue(
-                                        key2,
-                                        out TerrainFeature terrainFeature
-                                    )
+                                    !gameLocation.terrainFeatures.TryGetValue(key2, out TerrainFeature terrainFeature)
                                     || terrainFeature is not HoeDirt hoeDirt2
-                                    || hoeDirt2.crop?.indexOfHarvest.Value
-                                        != crop.indexOfHarvest.Value
+                                    || hoeDirt2.crop?.indexOfHarvest.Value != crop.indexOfHarvest.Value
                                 )
                                 {
                                     flag = false;
@@ -1310,10 +1179,7 @@ namespace AlternativeTextures
         {
             if (args.Length < 2)
             {
-                Monitor.Log(
-                    $"Missing required arguments: [AGE] [IS_MALE] [SKIN_TONE]",
-                    LogLevel.Warn
-                );
+                Monitor.Log($"Missing required arguments: [AGE] [IS_MALE] [SKIN_TONE]", LogLevel.Warn);
                 return;
             }
 
@@ -1406,10 +1272,7 @@ namespace AlternativeTextures
                 Monitor.Log($"No object detected below the player!", LogLevel.Warn);
                 return;
             }
-            monitor.Log(
-                $"Attempting to change texture of {objectBelowPlayer.Name} to {args[0]}",
-                LogLevel.Debug
-            );
+            monitor.Log($"Attempting to change texture of {objectBelowPlayer.Name} to {args[0]}", LogLevel.Debug);
 
             _api.SetTextureForObject(objectBelowPlayer, args[0], season, variation);
         }

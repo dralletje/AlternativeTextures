@@ -29,32 +29,17 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Flooring.drawInMenu),
-                    new[]
-                    {
-                        typeof(SpriteBatch),
-                        typeof(Vector2),
-                        typeof(Vector2),
-                        typeof(float),
-                        typeof(float),
-                    }
+                    new[] { typeof(SpriteBatch), typeof(Vector2), typeof(Vector2), typeof(float), typeof(float) }
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    typeof(TerrainFeature),
-                    nameof(TerrainFeature.seasonUpdate),
-                    new[] { typeof(bool) }
-                ),
+                AccessTools.Method(typeof(TerrainFeature), nameof(TerrainFeature.seasonUpdate), new[] { typeof(bool) }),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
         }
 
-        private static bool DrawPrefix(
-            Flooring __instance,
-            byte ___neighborMask,
-            SpriteBatch spriteBatch
-        )
+        private static bool DrawPrefix(Flooring __instance, byte ___neighborMask, SpriteBatch spriteBatch)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -66,15 +51,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -125,23 +105,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         tileLocation.Y * 64f
                                     )
                                 ),
-                                new Rectangle(
-                                    16 + corner.X,
-                                    48 - border_size + corner.Y,
-                                    border_size,
-                                    border_size
-                                ),
+                                new Rectangle(16 + corner.X, 48 - border_size + corner.Y, border_size, border_size),
                                 Color.White,
                                 0f,
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (
-                                    tileLocation.Y * 64f
-                                    + 2f
-                                    + tileLocation.X / 10000f
-                                    + cornerSortOffset
-                                ) / 20000f
+                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
                             );
                         }
                         if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
@@ -175,12 +145,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         tileLocation.Y * 64f + 64f - (float)(border_size * 4)
                                     )
                                 ),
-                                new Rectangle(
-                                    64 - border_size + corner.X,
-                                    corner.Y,
-                                    border_size,
-                                    border_size
-                                ),
+                                new Rectangle(64 - border_size + corner.X, corner.Y, border_size, border_size),
                                 Color.White,
                                 0f,
                                 Vector2.Zero,
@@ -227,23 +192,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         tileLocation.Y * 64f
                                     )
                                 ),
-                                new Rectangle(
-                                    16 + corner.X,
-                                    48 - borderSize + corner.Y,
-                                    borderSize,
-                                    borderSize
-                                ),
+                                new Rectangle(16 + corner.X, 48 - borderSize + corner.Y, borderSize, borderSize),
                                 Color.White,
                                 0f,
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (
-                                    tileLocation.Y * 64f
-                                    + 2f
-                                    + tileLocation.X / 10000f
-                                    + cornerSortOffset
-                                ) / 20000f
+                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
                             );
                         }
                         if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
@@ -277,12 +232,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         tileLocation.Y * 64f + 64f - (float)(borderSize * 4)
                                     )
                                 ),
-                                new Rectangle(
-                                    64 - borderSize + corner.X,
-                                    corner.Y,
-                                    borderSize,
-                                    borderSize
-                                ),
+                                new Rectangle(64 - borderSize + corner.X, corner.Y, borderSize, borderSize),
                                 Color.White,
                                 0f,
                                 Vector2.Zero,
@@ -321,10 +271,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         shadowColor.A = (byte)((float)(int)shadowColor.A * 0.33f);
                         spriteBatch.Draw(
                             texture,
-                            Game1.GlobalToLocal(
-                                Game1.viewport,
-                                new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                            ) + new Vector2(-4f, 4f),
+                            Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f))
+                                + new Vector2(-4f, 4f),
                             new Rectangle(
                                 corner.X + sourceRectPosition * 16 % 256,
                                 sourceRectPosition / 16 * 16 + corner.Y,
@@ -344,10 +292,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
-                    Game1.GlobalToLocal(
-                        Game1.viewport,
-                        new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                    ),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
                     new Rectangle(
                         sourceRectPosition * 16 % 256,
                         (sourceRectPosition / 16 * 16) + textureOffset,
@@ -389,15 +334,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -445,12 +385,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     positionOnScreen,
-                    new Rectangle(
-                        sourceRectPosition % 16 * 16,
-                        sourceRectPosition / 16 * 16 + textureOffset,
-                        16,
-                        16
-                    ),
+                    new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16 + textureOffset, 16, 16),
                     Color.White,
                     0f,
                     Vector2.Zero,
@@ -485,18 +420,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
                     && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                     && !String.Equals(
                         __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON],
                         season,
                         StringComparison.OrdinalIgnoreCase
                     )
-                )
-                || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(
-                    seasonalName
-                )
+                ) || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(seasonalName)
             )
             {
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = season;

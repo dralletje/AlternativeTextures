@@ -35,10 +35,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             GameTime time
         )
         {
-            if (
-                ___shippingBinLid != null
-                && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            )
+            if (___shippingBinLid != null && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
                 var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
@@ -48,15 +45,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -68,12 +60,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     || ___shippingBinLid.sourceRectStartingPos != new Vector2(32, textureOffset)
                 )
                 {
-                    InitLidPostfix(
-                        __instance,
-                        ___shippingBinLid,
-                        ___shippingBinLidOpenArea,
-                        ____lidGenerationPosition
-                    );
+                    InitLidPostfix(__instance, ___shippingBinLid, ___shippingBinLidOpenArea, ____lidGenerationPosition);
                 }
 
                 return true;
@@ -89,10 +76,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             Vector2 ____lidGenerationPosition
         )
         {
-            if (
-                ___shippingBinLid != null
-                && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            )
+            if (___shippingBinLid != null && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
                 var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
@@ -102,15 +86,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     return;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return;

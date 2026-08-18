@@ -34,10 +34,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(
-                    typeof(Tree),
-                    new[] { typeof(string), typeof(int), typeof(bool) }
-                ),
+                AccessTools.Constructor(typeof(Tree), new[] { typeof(string), typeof(int), typeof(bool) }),
                 postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
             );
         }
@@ -62,15 +59,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -119,12 +111,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         ___shakeRotation,
                         new Vector2(8f, (__instance.growthStage.Value >= 3) ? 32 : 16),
                         4f,
-                        __instance.flipped.Value
-                            ? SpriteEffects.FlipHorizontally
-                            : SpriteEffects.None,
-                        (__instance.growthStage.Value == 0)
-                            ? 0.0001f
-                            : (__instance.getBoundingBox().Bottom / 10000f)
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                        (__instance.growthStage.Value == 0) ? 0.0001f : (__instance.getBoundingBox().Bottom / 10000f)
                     );
                 }
                 else
@@ -143,9 +131,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             1E-06f
                         );
                         Rectangle source_rect = Tree.treeTopSourceRect;
@@ -180,11 +166,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             ___shakeRotation,
                             new Vector2(24f, 96f),
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
-                            (float)(__instance.getBoundingBox().Bottom + 2) / 10000f
-                                - tileLocation.X / 1000000f
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                            (float)(__instance.getBoundingBox().Bottom + 2) / 10000f - tileLocation.X / 1000000f
                         );
                     }
 
@@ -198,10 +181,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     {
                         stumpSource.X += 96;
                     }
-                    if (
-                        __instance.health.Value >= 1f
-                        || (!___falling.Value && __instance.health.Value > -99f)
-                    )
+                    if (__instance.health.Value >= 1f || (!___falling.Value && __instance.health.Value > -99f))
                     {
                         spriteBatch.Draw(
                             treeTexture,
@@ -211,12 +191,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     tileLocation.X * 64f
                                         + (
                                             (___shakeTimer > 0f)
-                                                ? (
-                                                    (float)
-                                                        Math.Sin(
-                                                            Math.PI * 2.0 / (double)___shakeTimer
-                                                        ) * 3f
-                                                )
+                                                ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
                                                 : 0f
                                         ),
                                     tileLocation.Y * 64f - 64f
@@ -227,17 +202,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)__instance.getBoundingBox().Bottom / 10000f
                         );
                     }
-                    if (
-                        (bool)__instance.stump.Value
-                        && __instance.health.Value < 4f
-                        && __instance.health.Value > -99f
-                    )
+                    if ((bool)__instance.stump.Value && __instance.health.Value < 4f && __instance.health.Value > -99f)
                     {
                         spriteBatch.Draw(
                             treeTexture,
@@ -247,12 +216,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     tileLocation.X * 64f
                                         + (
                                             (___shakeTimer > 0f)
-                                                ? (
-                                                    (float)
-                                                        Math.Sin(
-                                                            Math.PI * 2.0 / (double)___shakeTimer
-                                                        ) * 3f
-                                                )
+                                                ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
                                                 : 0f
                                         ),
                                     tileLocation.Y * 64f
@@ -268,9 +232,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             (float)(__instance.getBoundingBox().Bottom + 1) / 10000f
                         );
                     }
@@ -280,12 +242,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         Game1.GlobalToLocal(Game1.viewport, i.position),
-                        new Rectangle(
-                            16 + i.type % 2 * 8,
-                            textureOffset + (112 + i.type / 2 * 8),
-                            8,
-                            8
-                        ),
+                        new Rectangle(16 + i.type % 2 * 8, textureOffset + (112 + i.type / 2 * 8), 8, 8),
                         Color.White,
                         i.rotation,
                         Vector2.Zero,
@@ -320,16 +277,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
         private static void TreePostfix(Tree __instance)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Tree}_{GetTreeTypeString(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Tree}_{GetTreeTypeString(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -340,21 +293,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

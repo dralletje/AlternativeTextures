@@ -20,43 +20,23 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(ResourceClump.draw),
-                    new[] { typeof(SpriteBatch) }
-                ),
+                AccessTools.Method(_object, nameof(ResourceClump.draw), new[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    typeof(TerrainFeature),
-                    nameof(TerrainFeature.seasonUpdate),
-                    new[] { typeof(bool) }
-                ),
+                AccessTools.Method(typeof(TerrainFeature), nameof(TerrainFeature.seasonUpdate), new[] { typeof(bool) }),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(
                 AccessTools.Constructor(
                     typeof(ResourceClump),
-                    new[]
-                    {
-                        typeof(int),
-                        typeof(int),
-                        typeof(int),
-                        typeof(Vector2),
-                        typeof(int),
-                        typeof(string),
-                    }
+                    new[] { typeof(int), typeof(int), typeof(int), typeof(Vector2), typeof(int), typeof(string) }
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(ResourceClumpPostfix))
             );
         }
 
-        private static bool DrawPrefix(
-            ResourceClump __instance,
-            float ___shakeTimer,
-            SpriteBatch spriteBatch
-        )
+        private static bool DrawPrefix(ResourceClump __instance, float ___shakeTimer, SpriteBatch spriteBatch)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
@@ -68,15 +48,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -116,9 +91,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 if (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
                     && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -137,14 +110,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         {
             var instanceName =
                 $"{AlternativeTextureModel.TextureType.ResourceClump}_{GetResourceClumpName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -155,21 +125,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

@@ -21,8 +21,7 @@ readonly struct SprayCanTool : ICustomTool
     internal const string SPRAY_CAN_FLAG = AlternativeTextures.SPRAY_CAN_FLAG;
     internal const string SPRAY_CAN_RADIUS = AlternativeTextures.SPRAY_CAN_RADIUS;
     internal const string SPRAY_CAN_RARE = AlternativeTextures.SPRAY_CAN_RARE;
-    internal const string ENABLED_SPRAY_CAN_TEXTURES =
-        AlternativeTextures.ENABLED_SPRAY_CAN_TEXTURES;
+    internal const string ENABLED_SPRAY_CAN_TEXTURES = AlternativeTextures.ENABLED_SPRAY_CAN_TEXTURES;
 
     private readonly GenericTool tool;
 

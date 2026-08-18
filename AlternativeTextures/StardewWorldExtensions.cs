@@ -23,9 +23,7 @@ public static class StardewWorldExtensions
             }
             else if (location.largeTerrainFeatures is { } largeTerrainFeatures)
             {
-                return largeTerrainFeatures.FirstOrDefault(t =>
-                    t is not null && t.Tile == tileVector
-                );
+                return largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tileVector);
             }
             else
             {
@@ -48,11 +46,7 @@ public static class StardewWorldExtensions
             }
 
             // Prioritize checking non-rug furniture first
-            foreach (
-                var furniture in location.furniture.Where(c =>
-                    c.furniture_type.Value != Furniture.rug
-                )
-            )
+            foreach (var furniture in location.furniture.Where(c => c.furniture_type.Value != Furniture.rug))
             {
                 if (furniture.boundingBox.Value.Contains(pixelCoordinates.X, pixelCoordinates.Y))
                 {
@@ -89,8 +83,7 @@ public static class StardewWorldExtensions
             {
                 if (giantCrop.GetData() is GiantCropData giantCropData)
                 {
-                    return ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName
-                        ?? string.Empty;
+                    return ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? string.Empty;
                 }
                 else
                 {
@@ -104,10 +97,7 @@ public static class StardewWorldExtensions
     {
         internal string InternalName
         {
-            get
-            {
-                return ItemRegistry.GetData(floor.GetData()?.ItemId)?.InternalName ?? string.Empty;
-            }
+            get { return ItemRegistry.GetData(floor.GetData()?.ItemId)?.InternalName ?? string.Empty; }
         }
     }
 }

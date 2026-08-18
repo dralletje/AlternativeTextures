@@ -55,15 +55,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -80,8 +75,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             Game1.GlobalToLocal(
                                 Game1.viewport,
                                 new Vector2(
-                                    (tileLocation.X + ((effectiveSize == 1) ? 0.5f : 1f)) * 64f
-                                        - 51f,
+                                    (tileLocation.X + ((effectiveSize == 1) ? 0.5f : 1f)) * 64f - 51f,
                                     tileLocation.Y * 64f - 16f + ___yDrawOffset
                                 )
                             ),
@@ -90,9 +84,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             0f,
                             Vector2.Zero,
                             4f,
-                            __instance.flipped.Value
-                                ? SpriteEffects.FlipHorizontally
-                                : SpriteEffects.None,
+                            __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             1E-06f
                         );
                     }
@@ -110,10 +102,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             Game1.shadowTexture.Bounds,
                             Color.White,
                             0f,
-                            new Vector2(
-                                Game1.shadowTexture.Bounds.Center.X,
-                                Game1.shadowTexture.Bounds.Center.Y
-                            ),
+                            new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y),
                             4f,
                             SpriteEffects.None,
                             1E-06f
@@ -131,8 +120,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 if (__instance.size.Value == Bush.greenTeaBush)
                 {
                     sourceRect = new Rectangle(
-                        Math.Min(2, __instance.getAge() / 10) * 16
-                            + __instance.tileSheetOffset.Value * 16,
+                        Math.Min(2, __instance.getAge() / 10) * 16 + __instance.tileSheetOffset.Value * 16,
                         textureOffset,
                         16,
                         32
@@ -163,8 +151,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     new Vector2((effectiveSize + 1) * 16 / 2, 32f),
                     4f,
                     __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                    (float)(__instance.getBoundingBox().Center.Y + 48) / 10000f
-                        - tileLocation.X / 1000000f
+                    (float)(__instance.getBoundingBox().Center.Y + 48) / 10000f - tileLocation.X / 1000000f
                 );
 
                 return false;
@@ -207,16 +194,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
         private static void BushPostfix(Bush __instance)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Bush}_{GetBushTypeString(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Bush}_{GetBushTypeString(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -227,21 +210,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

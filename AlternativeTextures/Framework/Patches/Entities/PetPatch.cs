@@ -24,11 +24,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    _entity,
-                    nameof(Pet.update),
-                    new[] { typeof(GameTime), typeof(GameLocation) }
-                ),
+                AccessTools.Method(_entity, nameof(Pet.update), new[] { typeof(GameTime), typeof(GameLocation) }),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
 
@@ -45,8 +41,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
         {
             if (
                 __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-                && __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]
-                    != AlternativeTextures.DEFAULT_OWNER
+                && __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] != AlternativeTextures.DEFAULT_OWNER
             )
             {
                 var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
@@ -58,15 +53,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     return;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     __instance.Sprite.LoadTexture(__instance.getPetTextureName());
@@ -100,15 +90,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     return true;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return true;
@@ -128,10 +113,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 b.Draw(
                     __instance.Sprite.Texture,
                     __instance.getLocalPosition(Game1.viewport)
-                        + new Vector2(
-                            __instance.Sprite.SpriteWidth * 4 / 2,
-                            __instance.GetBoundingBox().Height / 2
-                        )
+                        + new Vector2(__instance.Sprite.SpriteWidth * 4 / 2, __instance.GetBoundingBox().Height / 2)
                         + (
                             (___shakeTimer > 0)
                                 ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
@@ -140,19 +122,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     __instance.Sprite.SourceRect,
                     Color.White,
                     __instance.rotation,
-                    new Vector2(
-                        __instance.Sprite.SpriteWidth / 2,
-                        (float)__instance.Sprite.SpriteHeight * 3f / 4f
-                    ),
+                    new Vector2(__instance.Sprite.SpriteWidth / 2, (float)__instance.Sprite.SpriteHeight * 3f / 4f),
                     Math.Max(0.2f, __instance.Scale) * 4f,
                     (
                         __instance.flip
                         || (
                             __instance.Sprite.CurrentAnimation != null
-                            && __instance
-                                .Sprite
-                                .CurrentAnimation[__instance.Sprite.currentAnimationIndex]
-                                .flip
+                            && __instance.Sprite.CurrentAnimation[__instance.Sprite.currentAnimationIndex].flip
                         )
                     )
                         ? SpriteEffects.FlipHorizontally
@@ -170,10 +146,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     Point point = __instance.GetPetData()?.EmoteOffset ?? Point.Zero;
                     b.Draw(
                         Game1.emoteSpriteSheet,
-                        new Vector2(
-                            localPosition.X + 32f + (float)point.X,
-                            localPosition.Y - 96f + (float)point.Y
-                        ),
+                        new Vector2(localPosition.X + 32f + (float)point.X, localPosition.Y - 96f + (float)point.Y),
                         new Rectangle(
                             __instance.CurrentEmoteIndex * 16 % Game1.emoteSpriteSheet.Width,
                             __instance.CurrentEmoteIndex * 16 / Game1.emoteSpriteSheet.Width * 16,
@@ -230,9 +203,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
                 if (
                     pet.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(
-                        __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    )
+                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                 )
                 {
                     pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -249,24 +220,14 @@ namespace AlternativeTextures.Framework.Patches.Entities
             ReloadBreedSpritePostfix(__instance);
         }
 
-        private static void PetPostfix(
-            Pet __instance,
-            int xTile,
-            int yTile,
-            string petBreed,
-            string petType
-        )
+        private static void PetPostfix(Pet __instance, int xTile, int yTile, string petBreed, string petType)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -277,21 +238,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

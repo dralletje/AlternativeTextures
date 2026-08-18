@@ -28,10 +28,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
 
             harmony.Patch(
                 AccessTools.Method(_entity, nameof(Horse.draw), new[] { typeof(SpriteBatch) }),
-                transpiler: new HarmonyMethod(
-                    typeof(HorsePatch),
-                    nameof(AdjustForVariationTranspiler)
-                )
+                transpiler: new HarmonyMethod(typeof(HorsePatch), nameof(AdjustForVariationTranspiler))
             );
             harmony.Patch(
                 AccessTools.Constructor(_entity, new[] { typeof(Guid), typeof(int), typeof(int) }),
@@ -51,9 +48,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     if (
                         list[i].opcode == OpCodes.Callvirt
                         && list[i].operand is not null
-                        && list[i]
-                            .operand.ToString()
-                            .Contains("updatesourcerect", StringComparison.OrdinalIgnoreCase)
+                        && list[i].operand.ToString().Contains("updatesourcerect", StringComparison.OrdinalIgnoreCase)
                     )
                     {
                         list.Insert(i + 1, new CodeInstruction(OpCodes.Ldarg_0));
@@ -88,10 +83,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             catch (Exception e)
             {
-                _monitor.Log(
-                    $"There was an issue modifying the instructions for Horse.draw: {e}",
-                    LogLevel.Error
-                );
+                _monitor.Log($"There was an issue modifying the instructions for Horse.draw: {e}", LogLevel.Error);
                 return instructions;
             }
         }
@@ -112,15 +104,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 return yOffset;
             }
 
-            var textureVariation = Int32.Parse(
-                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-            );
+            var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 return yOffset;
@@ -144,15 +131,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 return;
             }
 
-            var textureVariation = Int32.Parse(
-                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-            );
+            var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                    textureModel.GetId(),
-                    textureVariation
-                )
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
             )
             {
                 return;
@@ -183,15 +165,10 @@ namespace AlternativeTextures.Framework.Patches.Entities
                     return;
                 }
 
-                var textureVariation = Int32.Parse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]
-                );
+                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
                     textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(
-                        textureModel.GetId(),
-                        textureVariation
-                    )
+                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
                 )
                 {
                     return;
@@ -203,16 +180,12 @@ namespace AlternativeTextures.Framework.Patches.Entities
 
         private static void HorsePostfix(Horse __instance, Guid horseId, int xTile, int yTile)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
                 AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                    instanceSeasonName
-                )
+                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
             )
             {
                 var result =
@@ -223,21 +196,13 @@ namespace AlternativeTextures.Framework.Patches.Entities
             }
             else
             {
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
                 {
                     AssignModData(__instance, instanceName, false);
                     return;
                 }
 
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(
-                        instanceSeasonName
-                    )
-                )
+                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
                 {
                     AssignModData(__instance, instanceSeasonName, true);
                     return;

@@ -26,10 +26,7 @@ public static class MyExtensions
                 else
                 {
                     var toolLoc = player.GetToolLocation();
-                    return new Tile(
-                        (int)(toolLoc.X / Game1.tileSize),
-                        (int)(toolLoc.Y / Game1.tileSize)
-                    );
+                    return new Tile((int)(toolLoc.X / Game1.tileSize), (int)(toolLoc.Y / Game1.tileSize));
                 }
             }
         }

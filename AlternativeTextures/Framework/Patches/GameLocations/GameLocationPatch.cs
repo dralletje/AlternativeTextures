@@ -23,12 +23,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 AccessTools.Method(
                     _object,
                     nameof(GameLocation.checkAction),
-                    new[]
-                    {
-                        typeof(xTile.Dimensions.Location),
-                        typeof(xTile.Dimensions.Rectangle),
-                        typeof(Farmer),
-                    }
+                    new[] { typeof(xTile.Dimensions.Location), typeof(xTile.Dimensions.Rectangle), typeof(Farmer) }
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(CheckActionPrefix))
             );
@@ -49,11 +44,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 prefix: new HarmonyMethod(GetType(), nameof(LowPriorityLeftClickPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(GameLocation.seasonUpdate),
-                    new[] { typeof(bool) }
-                ),
+                AccessTools.Method(_object, nameof(GameLocation.seasonUpdate), new[] { typeof(bool) }),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
         }
@@ -84,10 +75,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 Vector2 position = (
                     (!Game1.wasMouseVisibleThisFrame)
                         ? Game1.player.GetToolLocation()
-                        : new Vector2(
-                            Game1.getOldMouseX() + Game1.viewport.X,
-                            Game1.getOldMouseY() + Game1.viewport.Y
-                        )
+                        : new Vector2(Game1.getOldMouseX() + Game1.viewport.X, Game1.getOldMouseY() + Game1.viewport.Y)
                 );
                 tool.beginUsing(__instance, (int)position.X, (int)position.Y, who);
                 __result = false;
@@ -154,18 +142,13 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                         if (
                             (
                                 obj.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                                && !String.IsNullOrEmpty(
-                                    obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                                )
+                                && !String.IsNullOrEmpty(obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                                 && !String.Equals(
                                     obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON],
                                     Game1.GetSeasonForLocation(Game1.currentLocation).ToString(),
                                     StringComparison.OrdinalIgnoreCase
                                 )
-                            )
-                            || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(
-                                seasonalName
-                            )
+                            ) || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(seasonalName)
                         )
                         {
                             obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = season.ToString();
@@ -194,25 +177,17 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                         );
                         if (
                             (
-                                character.modData.ContainsKey(
-                                    ModDataKeys.ALTERNATIVE_TEXTURE_SEASON
-                                )
-                                && !String.IsNullOrEmpty(
-                                    character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                                )
+                                character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                                && !String.IsNullOrEmpty(character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                                 && !String.Equals(
                                     character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON],
                                     Game1.GetSeasonForLocation(Game1.currentLocation).ToString(),
                                     StringComparison.OrdinalIgnoreCase
                                 )
-                            )
-                            || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(
-                                seasonalName
-                            )
+                            ) || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(seasonalName)
                         )
                         {
-                            character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] =
-                                season.ToString();
+                            character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = season.ToString();
                             character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = seasonalName;
                         }
                     }
@@ -240,25 +215,17 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                         );
                         if (
                             (
-                                farmAnimal.modData.ContainsKey(
-                                    ModDataKeys.ALTERNATIVE_TEXTURE_SEASON
-                                )
-                                && !String.IsNullOrEmpty(
-                                    farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                                )
+                                farmAnimal.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                                && !String.IsNullOrEmpty(farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                                 && !String.Equals(
                                     farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON],
                                     Game1.GetSeasonForLocation(Game1.currentLocation).ToString(),
                                     StringComparison.OrdinalIgnoreCase
                                 )
-                            )
-                            || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(
-                                seasonalName
-                            )
+                            ) || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(seasonalName)
                         )
                         {
-                            farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] =
-                                season.ToString();
+                            farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = season.ToString();
                             farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = seasonalName;
                         }
                     }
@@ -272,9 +239,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
             )
             {
                 var buildingType = $"Farmhouse_{Game1.MasterPlayer.HouseUpgradeLevel}";
-                if (
-                    !__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(buildingType)
-                )
+                if (!__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(buildingType))
                 {
                     return;
                 }
@@ -284,8 +249,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                     ".",
                     $"{AlternativeTextureModel.TextureType.Building}_{buildingType}"
                 );
-                var instanceSeasonName =
-                    $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+                var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
                 if (
                     !String.Equals(
@@ -307,9 +271,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                     );
                     if (
                         __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                        && !String.IsNullOrEmpty(
-                            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                        )
+                        && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
                     )
                     {
                         __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
