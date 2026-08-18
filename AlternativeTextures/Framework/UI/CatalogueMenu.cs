@@ -52,7 +52,7 @@ namespace AlternativeTextures.Framework.UI
 
         private List<ClickableTextureComponent> _tabButtons;
         private List<ClickableComponent> _objectButtons;
-        private List<ClickableTextureComponent> _alternativeTextureButtons = new List<ClickableTextureComponent>();
+        private List<ClickableTextureComponent> _alternativeTextureButtons = [];
 
         private enum Filter
         {
@@ -84,8 +84,8 @@ namespace AlternativeTextures.Framework.UI
             base.yPositionOnScreen = (int)topLeft.Y;
 
             // Set the items to display
-            _displayableObjects = new List<Object>();
-            _currentlyDisplayedObjects = new List<Object>();
+            _displayableObjects = [];
+            _currentlyDisplayedObjects = [];
 
             var allFurniture = ItemQueryResolver.TryResolve("ALL_ITEMS (F)", context: null);
             foreach (Object item in allFurniture.Where(f => f.Item is Furniture).Select(f => f.Item as Object))
@@ -112,11 +112,11 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Establish the texture lists
-            _displayableTextures = new List<Item>();
-            _currentlyDisplayedTextures = new List<Item>();
+            _displayableTextures = [];
+            _currentlyDisplayedTextures = [];
 
             // Establish the object buttons
-            _objectButtons = new List<ClickableComponent>();
+            _objectButtons = [];
             for (int i = 0; i < PAGE_SIZE; i++)
             {
                 _objectButtons.Add(
@@ -139,8 +139,8 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Establish the tabs
-            _tabButtons = new List<ClickableTextureComponent>()
-            {
+            _tabButtons =
+            [
                 new ClickableTextureComponent(
                     new Rectangle(0, 0, 64, 64),
                     Game1.mouseCursors2,
@@ -219,7 +219,7 @@ namespace AlternativeTextures.Framework.UI
                     rightNeighborID = -1,
                     name = Filter.Decorations.ToString(),
                 },
-            };
+            ];
 
             // Establish the search box
             _searchBox = new TextBox(
@@ -237,7 +237,7 @@ namespace AlternativeTextures.Framework.UI
             };
 
             // Establish the search options
-            List<string> options = new List<string>() { "None", "Author", "Pack Name", "Tags" };
+            List<string> options = ["None", "Author", "Pack Name", "Tags"];
             _searchFilterOptions = new FilterDropDown("Filter", 0)
             {
                 dropDownDisplayOptions = options,
@@ -495,8 +495,8 @@ namespace AlternativeTextures.Framework.UI
                 Game1.GetSeasonForLocation(Game1.currentLocation)
             );
 
-            _displayableTextures = new List<Item>();
-            _currentlyDisplayedTextures = new List<Item>();
+            _displayableTextures = [];
+            _currentlyDisplayedTextures = [];
             for (int m = 0; m < availableModels.Count; m++)
             {
                 var manualVariations = availableModels[m].ManualVariations.Where(v => v.Id != -1).ToList();
@@ -568,7 +568,7 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Establish the alternative texture buttons
-            _alternativeTextureButtons = new List<ClickableTextureComponent>();
+            _alternativeTextureButtons = [];
 
             /// TODO
             // var sourceRect = PaintBucketMenu.GetSourceRectangle(availableModels.First(), selectedObject, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);

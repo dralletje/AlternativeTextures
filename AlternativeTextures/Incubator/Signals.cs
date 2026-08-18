@@ -31,7 +31,7 @@ internal static class ReactiveContext
 public class Signal<T> : ISignal<T>
 {
     private T _value;
-    private readonly Dictionary<object, Action> _subscribers = new();
+    private readonly Dictionary<object, Action> _subscribers = [];
 
     public Signal(T initialValue) => _value = initialValue;
 
@@ -62,8 +62,8 @@ public class Signal<T> : ISignal<T>
 public class Computed<T> : ISignal<T>
 {
     private readonly Func<T> _compute;
-    private readonly Dictionary<object, Action> _subscribers = new();
-    private readonly HashSet<ISignalBase> _deps = new();
+    private readonly Dictionary<object, Action> _subscribers = [];
+    private readonly HashSet<ISignalBase> _deps = [];
     private T _value = default!;
     private bool _stale = true;
 
@@ -109,7 +109,7 @@ public class Computed<T> : ISignal<T>
 public class Watcher<T>
 {
     private readonly Func<T> _action;
-    private readonly HashSet<ISignalBase> _deps = new();
+    private readonly HashSet<ISignalBase> _deps = [];
     public bool HasChanges { get; private set; }
     public T Value;
 

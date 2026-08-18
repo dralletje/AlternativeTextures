@@ -20,15 +20,15 @@ namespace AlternativeTextures.Framework.Models
         }
         private string _itemName;
         public string ItemId { get; set; }
-        public List<string> CollectiveNames { get; set; } = new List<string>();
-        public List<string> CollectiveIds { get; set; } = new List<string>();
+        public List<string> CollectiveNames { get; set; } = [];
+        public List<string> CollectiveIds { get; set; } = [];
         public TextureType Type { get; set; }
 
         [Obsolete("No longer used due SMAPI 3.14.0 allowing for passive invalidation checks.")]
         public bool EnableContentPatcherCheck { get; set; }
         public bool IgnoreBuildingColorMask { get; set; } // Only usable by Type == "Building"
-        public List<string> Keywords { get; set; } = new List<string>();
-        public List<string> Seasons { get; set; } = new List<string>(); // For use by mod user to determine which seasons the texture is valid for
+        public List<string> Keywords { get; set; } = [];
+        public List<string> Seasons { get; set; } = []; // For use by mod user to determine which seasons the texture is valid for
         internal string Season { get; set; } // Used by framework to split the Seasons property into individual AlternativeTextureModel models
         internal string TextureId { get; set; }
         internal string ModelName { get; set; }
@@ -38,9 +38,9 @@ namespace AlternativeTextures.Framework.Models
         public int? DefaultVariation { get; set; }
         internal int MaxVariationsPerTextures { get; set; } = -1;
         internal string TileSheetPath { get; set; }
-        internal Dictionary<int, Texture2D> Textures { get; set; } = new Dictionary<int, Texture2D>();
-        public List<VariationModel> ManualVariations { get; set; } = new List<VariationModel>();
-        public List<AnimationModel> Animation { get; set; } = new List<AnimationModel>();
+        internal Dictionary<int, Texture2D> Textures { get; set; } = [];
+        public List<VariationModel> ManualVariations { get; set; } = [];
+        public List<AnimationModel> Animation { get; set; } = [];
 
         public static int MAX_TEXTURE_HEIGHT
         {
@@ -244,7 +244,7 @@ namespace AlternativeTextures.Framework.Models
 
         internal List<string> HandleNameChanges()
         {
-            List<string> changedNames = new List<string>();
+            List<string> changedNames = [];
             if (CollectiveNames is not null)
             {
                 for (int x = 0; x < CollectiveNames.Count; x++)

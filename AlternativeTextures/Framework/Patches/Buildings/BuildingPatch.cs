@@ -617,10 +617,10 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             {
                 Color[] mask_pixels = new Color[paint_mask_texture.Width * paint_mask_texture.Height];
                 paint_mask_texture.GetData(mask_pixels);
-                paint_indices = new List<List<int>>();
+                paint_indices = [];
                 for (int j = 0; j < 3; j++)
                 {
-                    paint_indices.Add(new List<int>());
+                    paint_indices.Add([]);
                 }
                 for (int i = 0; i < mask_pixels.Length; i++)
                 {

@@ -29,11 +29,11 @@ namespace AlternativeTextures.Framework.Managers
         {
             _monitor = monitor;
             _helper = helper;
-            _alternativeTextures = new List<AlternativeTextureModel>();
-            _textureNames = new List<string>();
-            _textureIdsInsensitive = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            _tokenToTextures = new Dictionary<string, Texture2D>(StringComparer.OrdinalIgnoreCase);
-            _tokenToModel = new Dictionary<string, TokenModel>(StringComparer.OrdinalIgnoreCase);
+            _alternativeTextures = [];
+            _textureNames = [];
+            _textureIdsInsensitive = [with(StringComparer.OrdinalIgnoreCase)];
+            _tokenToTextures = [with(StringComparer.OrdinalIgnoreCase)];
+            _tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
 
             ErrorTexture = new Texture2D(Game1.graphics.GraphicsDevice, 16, 16);
             Color[] data = new Color[16 * 16];
@@ -142,7 +142,7 @@ namespace AlternativeTextures.Framework.Managers
 
             if (!DoesObjectHaveAlternativeTexture(modelName) && !DoesObjectHaveAlternativeTexture(modelNameWithSeason))
             {
-                return new List<AlternativeTextureModel>();
+                return [];
             }
 
             var seasonalTextures = _alternativeTextures

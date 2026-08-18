@@ -38,7 +38,7 @@ namespace AlternativeTextures.Framework.Interfaces.API
 
         public void AddAlternativeTexture(AlternativeTextureModel model, string owner, Texture2D texture)
         {
-            AddAlternativeTexture(model, owner, new List<Texture2D>() { texture });
+            AddAlternativeTexture(model, owner, [texture]);
         }
 
         public void AddAlternativeTexture(AlternativeTextureModel model, string owner, List<Texture2D> textures)
