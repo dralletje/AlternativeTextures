@@ -1,31 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Patches;
-using AlternativeTextures.Framework.Patches.Buildings;
-using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
+using DralGeometry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Netcode;
-using Newtonsoft.Json;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
-using StardewValley.Buildings;
-using StardewValley.Characters;
-using StardewValley.GameData.FloorsAndPaths;
-using StardewValley.GameData.GiantCrops;
-using StardewValley.Internal;
-using StardewValley.Locations;
 using StardewValley.Menus;
-using StardewValley.Objects;
-using StardewValley.TerrainFeatures;
 using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
-using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.UI;
+
+public static class PaddingExtensions
+{
+    extension(Rectangle rectangle)
+    {
+        public static Rectangle operator +(Rectangle rect, Padding padding) =>
+            (rect.ToSystemRectangle() + padding).ToXnaRectangle();
+
+        public static Rectangle operator -(Rectangle rect, Padding padding) => rect + (padding * -1);
+    }
+}
+
+public static class RectangleExtensions
+{
+    extension(Rectangle rectangle)
+    {
+        public System.Drawing.Rectangle ToSystemRectangle() =>
+            new(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+    }
+
+    extension(System.Drawing.Rectangle rectangle)
+    {
+        public Rectangle ToXnaRectangle() => new(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+    }
+}
 
 readonly struct PaintBucketMenuItem()
 {
@@ -37,20 +49,9 @@ readonly struct PaintBucketMenuItem()
     }
 }
 
-readonly struct GridSize(int rows, int columns)
-{
-    public readonly int Rows { get; init; } = rows;
-    public readonly int Columns { get; init; } = columns;
-
-    public int Count
-    {
-        get { return Rows * Columns; }
-    }
-}
-
 internal class PaintBucketMenu : IClickableMenu
 {
-    public ClickableComponent? hovered;
+    public PaintBucketMenuItem? hovered;
     public List<PaintBucketMenuItem> menuItems = [];
 
     public List<ClickableComponent> itemGrid = [];
@@ -70,12 +71,8 @@ internal class PaintBucketMenu : IClickableMenu
         if (menuItems.Count > 0)
         {
             var listProgress =
-                VirtualRows == 0
-                    ? 0
-                    : Math.Clamp((float)_startingRow / (VirtualRows - gridSize.Rows), 0, 1);
-            // scrollBar.bounds.Y = (int)(num * (float)_startingRow + (float)upArrow.bounds.Bottom + 4f);
-            var moveableHeight =
-                scrollBarRunner.Height - (scrollBar.bounds.Height * Game1.pixelZoom) - 8;
+                VirtualRows == 0 ? 0 : Math.Clamp((float)_startingRow / (VirtualRows - gridSize.Rows), 0, 1);
+            var moveableHeight = scrollBarRunner.Height - (scrollBar.bounds.Height * Game1.pixelZoom) - 8;
             scrollBar.bounds.Y = (int)(scrollBarRunner.Top + (moveableHeight * listProgress));
         }
     }
@@ -94,11 +91,7 @@ internal class PaintBucketMenu : IClickableMenu
     readonly IPaintable target;
 
     /// IEnumerable<PaintBucketMenuItem> menuItems
-    public PaintBucketMenu(
-        IPaintable target,
-        string uiTitle = "Paint Bucket",
-        int textureTileWidth = -1
-    )
+    public PaintBucketMenu(IPaintable target, string uiTitle = "Paint Bucket", int textureTileWidth = -1)
         : base(0, 0, 832, 576, showUpperRightCloseButton: true)
     {
         this.target = target;
@@ -110,8 +103,7 @@ internal class PaintBucketMenu : IClickableMenu
         // Set up menu structure
         if (
             LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.ko
-            || LocalizedContentManager.CurrentLanguageCode
-                == LocalizedContentManager.LanguageCode.fr
+            || LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.fr
         )
         {
             base.height += 64;
@@ -163,10 +155,7 @@ internal class PaintBucketMenu : IClickableMenu
             {
                 foreach (var variation in Enumerable.Range(0, model.Variations))
                 {
-                    var menuItem = new PaintBucketMenuItem()
-                    {
-                        TextureIdentifier = new(model, variation.ToString()),
-                    };
+                    var menuItem = new PaintBucketMenuItem() { TextureIdentifier = new(model, variation.ToString()) };
                     this.menuItems.Add(menuItem);
                 }
             }
@@ -344,11 +333,7 @@ internal class PaintBucketMenu : IClickableMenu
         // _textureType = textureType;
 
         var drawingScale = 4f;
-        var widthOffsetScale = 2;
-        var xOffset = 0;
-        var _sourceRect = target
-            .PreviewTexture(target.Texture ?? TextureIdentifier.Default)
-            ?.SourceRect;
+        var _sourceRect = target.PreviewTexture(target.Texture ?? TextureIdentifier.Default)?.SourceRect;
         var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
 
         // var sourceRect = SourceRects.GetSourceRectangle(availableModels.First(), target, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
@@ -368,35 +353,26 @@ internal class PaintBucketMenu : IClickableMenu
                 break;
             case TextureType.Tree:
                 gridSize = new(rows: 1, columns: 3);
-                widthOffsetScale = 4;
                 sourceRect = new Rectangle(0, 0, 48, 96);
                 break;
             case TextureType.FruitTree:
                 gridSize = new(rows: 1, columns: 3);
-                widthOffsetScale = 4;
                 sourceRect = new Rectangle(0, 0, 48, 80);
                 break;
             case TextureType.Crop:
                 gridSize = new(rows: 4, columns: 1);
-                widthOffsetScale = 4;
-                xOffset = 96;
                 sourceRect = new Rectangle(0, 0, 128, 32);
                 break;
             case TextureType.GiantCrop:
                 gridSize = new(rows: 2, columns: 3);
-                widthOffsetScale = 4;
                 sourceRect = new Rectangle(0, 0, 48, 64);
                 break;
             case TextureType.Grass:
                 gridSize = new(rows: 6, columns: 4);
-                widthOffsetScale = 3;
-                xOffset = 32;
                 sourceRect = new Rectangle(0, 0, 15, 20);
                 break;
             case TextureType.Bush:
                 gridSize = new(rows: 6, columns: 4);
-                widthOffsetScale = 3;
-                xOffset = 32;
                 break;
             case TextureType.Furniture:
                 if (sourceRect.Height >= 64)
@@ -415,7 +391,6 @@ internal class PaintBucketMenu : IClickableMenu
                 break;
             case TextureType.Building:
                 gridSize = new(rows: 1, columns: 3);
-                widthOffsetScale = 4;
                 sourceRect = new Rectangle(0, 0, 48, 160);
 
                 switch (textureTileWidth)
@@ -431,45 +406,49 @@ internal class PaintBucketMenu : IClickableMenu
                 drawingScale = _buildingScale;
                 break;
             case TextureType.Decoration:
-                widthOffsetScale = 3;
                 gridSize = new(rows: 2, columns: 4);
                 sourceRect = new Rectangle(0, 0, 32, 64);
                 break;
         }
 
-        var buttonWidth = width / gridSize.Columns;
-        var buttonHeight = height / gridSize.Rows;
-        if (availableModels.FirstOrDefault() is { } firstModel)
-        {
-            foreach (var row in Enumerable.Range(0, gridSize.Rows))
-            {
-                foreach (var column in Enumerable.Range(0, gridSize.Columns))
-                {
-                    var componentId = column + (row * gridSize.Columns);
-                    // var weirdRow = componentId % gridSize.Columns;
-                    var weirdRow = row;
-                    this.itemGrid.Add(
-                        new ClickableComponent(
-                            new Rectangle(
-                                // base.xPositionOnScreen + IClickableMenu.borderWidth + componentId % gridSize.Columns * 64 * widthOffsetScale + xOffset,
-                                // base.yPositionOnScreen + sourceRect.Height + componentId / gridSize.Columns * (4 * sourceRect.Height),
+        // var padding = new Padding
+        // {
+        //     // Top = 20,
+        //     Top = 40,
+        //     Bottom = -4,
+        //     Right = 16,
+        //     Left = 16,
+        // };
+        var borderInset = new Padding(all: 16) { Top = 20, Right = 12 };
+        var padding = new Padding(all: 16);
+        var menuarea = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
+        var buttonarea = menuarea - borderInset - padding;
+        var buttonWidth = buttonarea.Width / gridSize.Columns;
+        var buttonHeight = buttonarea.Height / gridSize.Rows;
 
-                                xPositionOnScreen + (buttonWidth * column),
-                                yPositionOnScreen + (buttonWidth * row),
-                                buttonWidth,
-                                buttonHeight
-                            ),
-                            ""
-                        )
-                        {
-                            myID = componentId,
-                            downNeighborID = componentId + gridSize.Columns,
-                            upNeighborID = row >= 0 ? componentId - gridSize.Columns : -1,
-                            rightNeighborID = column == 5 ? 9997 : componentId + 1,
-                            leftNeighborID = column > 0 ? componentId - 1 : 9998,
-                        }
-                    );
-                }
+        foreach (var row in Enumerable.Range(0, gridSize.Rows))
+        {
+            foreach (var column in Enumerable.Range(0, gridSize.Columns))
+            {
+                var componentId = column + (row * gridSize.Columns);
+                this.itemGrid.Add(
+                    new ClickableComponent(
+                        new Rectangle(
+                            buttonarea.X + (buttonWidth * column),
+                            buttonarea.Y + (buttonHeight * row),
+                            buttonWidth,
+                            buttonHeight
+                        ),
+                        ""
+                    )
+                    {
+                        myID = componentId,
+                        downNeighborID = componentId + gridSize.Columns,
+                        upNeighborID = row >= 0 ? componentId - gridSize.Columns : -1,
+                        rightNeighborID = column == 5 ? 9997 : componentId + 1,
+                        leftNeighborID = column > 0 ? componentId - 1 : 9998,
+                    }
+                );
             }
         }
 
@@ -543,11 +522,11 @@ internal class PaintBucketMenu : IClickableMenu
         }
 
         var maxScale = target.ModelIdentifier.Type == TextureType.Building ? _buildingScale : 4f;
-        foreach (var button in this.itemGrid)
+        foreach (var (button, menuItem) in elementsOnScreen)
         {
             if (button.containsPoint(x, y))
             {
-                this.hovered = button;
+                this.hovered = menuItem;
             }
         }
     }
@@ -712,10 +691,7 @@ internal class PaintBucketMenu : IClickableMenu
             return;
         }
 
-        if (
-            downArrow.containsPoint(x, y)
-            && _startingRow < Math.Max(0, VirtualRows - gridSize.Rows)
-        )
+        if (downArrow.containsPoint(x, y) && _startingRow < Math.Max(0, VirtualRows - gridSize.Rows))
         {
             downArrowPressed();
             Game1.playSound("shwip");
@@ -821,15 +797,25 @@ internal class PaintBucketMenu : IClickableMenu
         }
     }
 
+    public static Rectangle ScaleToFitCentered(Rectangle container, Rectangle fitting)
+    {
+        float containerRatio = (float)container.Width / container.Height;
+        float fittingRatio = (float)fitting.Width / fitting.Height;
+
+        float width = fittingRatio > containerRatio ? container.Width : container.Height * fittingRatio;
+        float height = fittingRatio > containerRatio ? container.Width / fittingRatio : container.Height;
+
+        float x = container.X + (container.Width - width) / 2f;
+        float y = container.Y + (container.Height - height) / 2f;
+
+        return new Rectangle((int)x, (int)y, (int)width, (int)height);
+    }
+
     public override void draw(SpriteBatch batch)
     {
         if (!Game1.dialogueUp && !Game1.IsFading())
         {
-            batch.Draw(
-                Game1.fadeToBlackRect,
-                Game1.graphics.GraphicsDevice.Viewport.Bounds,
-                Color.Black * 0.75f
-            );
+            batch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.75f);
             SpriteText.drawStringWithScrollCenteredAt(
                 batch,
                 _title,
@@ -867,9 +853,18 @@ internal class PaintBucketMenu : IClickableMenu
 
                 if (target.PreviewTexture(option.TextureIdentifier) is { } drawableTexture)
                 {
+                    if (drawableTexture.Texture == null)
+                    {
+                        Console.Log($"Texture == null: {option.TextureIdentifier}");
+                        continue;
+                    }
+
+                    var borderInset = new Padding(all: 12);
+                    var littleInset = button.bounds - borderInset - new Padding(all: 4);
+                    var rectangle = ScaleToFitCentered(littleInset, drawableTexture.SourceRect);
                     batch.Draw(
                         drawableTexture.Texture,
-                        button.bounds,
+                        rectangle,
                         drawableTexture.SourceRect,
                         Color.White,
                         0f,
@@ -882,7 +877,6 @@ internal class PaintBucketMenu : IClickableMenu
                 {
                     /// Draw error texture?
                 }
-                // button.draw(batch, Color.White, 0.87f);
             }
 
             if (menuItems.Count > gridSize.Count)
@@ -905,29 +899,33 @@ internal class PaintBucketMenu : IClickableMenu
         }
 
         /// TODO Hover
-        // var hoverInfoText = String.Empty;
-        // var hoverDisplayName = "Hover over an item to see its texture name!";
-        // if (this.hovered != null && this.hovered.item != null)
-        // {
-        //     if (this.hovered.item.modData.ContainsKey(_textureOwnerKey) && this.hovered.item.modData.ContainsKey(_textureVariationKey))
-        //     {
-        //         if (this.hovered.item.modData.ContainsKey(_textureDisplayNameKey) && !String.IsNullOrEmpty(this.hovered.item.modData[_textureDisplayNameKey]))
-        //         {
-        //             hoverInfoText = String.Concat(this.hovered.item.modData[_textureOwnerKey], " > ", Int32.Parse(this.hovered.item.modData[_textureVariationKey]) + 1);
-        //             hoverDisplayName = this.hovered.item.modData[_textureDisplayNameKey];
-        //         }
-        //         else
-        //         {
-        //             hoverDisplayName = String.Concat(this.hovered.item.modData[_textureOwnerKey], " > ", Int32.Parse(this.hovered.item.modData[_textureVariationKey]) + 1);
-        //         }
-        //     }
-        // }
-        // SpriteText.drawStringWithScrollCenteredAt(batch hoverDisplayName, Game1.uiViewport.Width / 2, base.yPositionOnScreen + base.height + 16, "Hover over an item to see its texture name!");
+        var hoverInfoText = String.Empty;
+        var hoverDisplayName = "Hover over an item to see its texture name!";
+        if (this.hovered is { } hovered)
+        {
+            var technicalName = $"{hovered.TextureIdentifier.Owner} > {hovered.TextureIdentifier.Variation + 1}";
+            if (hovered.DisplayName is { } displayName)
+            {
+                hoverInfoText = technicalName;
+                hoverDisplayName = displayName;
+            }
+            else
+            {
+                hoverDisplayName = technicalName;
+            }
+        }
+        SpriteText.drawStringWithScrollCenteredAt(
+            batch,
+            hoverDisplayName,
+            Game1.uiViewport.Width / 2,
+            base.yPositionOnScreen + base.height + 16,
+            "Hover over an item to see its texture name!"
+        );
 
-        // if (!String.IsNullOrEmpty(hoverInfoText))
-        // {
-        //     IClickableMenu.drawHoverText(batch hoverInfoText, Game1.smallFont);
-        // }
+        if (!String.IsNullOrEmpty(hoverInfoText))
+        {
+            IClickableMenu.drawHoverText(batch, hoverInfoText, Game1.smallFont);
+        }
 
         Game1.mouseCursorTransparency = 1f;
         base.drawMouse(batch);

@@ -229,9 +229,9 @@ namespace AlternativeTextures.Framework.Patches
             return null;
         }
 
-        internal static TerrainFeature GetTerrainFeatureAt(GameLocation location, int x, int y)
+        internal static TerrainFeature? GetTerrainFeatureAt(GameLocation location, int x, int y)
         {
-            Vector2 tile = new Vector2(x / 64, y / 64);
+            var tile = new Vector2(x / 64, y / 64);
             if (!location.terrainFeatures.ContainsKey(tile))
             {
                 if (location.largeTerrainFeatures is not null)

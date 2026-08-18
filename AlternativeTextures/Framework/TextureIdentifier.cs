@@ -7,10 +7,10 @@ readonly struct TextureIdentifier()
 {
     public required string Owner { get; init; }
     public required string Name { get; init; }
-    public required string Variation { get; init; }
+    public required int Variation { get; init; }
 
     [SetsRequiredMembers]
-    public TextureIdentifier(string owner, string name, string variation)
+    public TextureIdentifier(string owner, string name, int variation)
         : this()
     {
         Owner = owner;
@@ -19,13 +19,26 @@ readonly struct TextureIdentifier()
     }
 
     [SetsRequiredMembers]
+    public TextureIdentifier(string owner, string name, string variation)
+        : this()
+    {
+        Owner = owner;
+        Name = name;
+        Variation = int.Parse(variation);
+    }
+
+    [SetsRequiredMembers]
+    public TextureIdentifier(AlternativeTextureModel model, int variation)
+        : this(model.Owner, model.GetId(), variation) { }
+
+    [SetsRequiredMembers]
     public TextureIdentifier(AlternativeTextureModel model, string variation)
         : this(model.Owner, model.GetId(), variation) { }
 
     public bool IsDefault
     {
-        get { return this.Variation == "-1" || this.Owner == AlternativeTextures.DEFAULT_OWNER; }
+        get { return this.Variation == -1 || this.Owner == AlternativeTextures.DEFAULT_OWNER; }
     }
 
-    public static TextureIdentifier Default = new(AlternativeTextures.DEFAULT_OWNER, "", "-1");
+    public static TextureIdentifier Default = new(AlternativeTextures.DEFAULT_OWNER, "", -1);
 }

@@ -28,10 +28,12 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
+    <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ConsoleLog\ConsoleLog.csproj" />
+    <ProjectReference Include="..\DralGeometry\DralGeometry.csproj" />
   </ItemGroup>
 
   <ItemGroup>

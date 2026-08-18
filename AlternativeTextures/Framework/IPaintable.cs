@@ -8,6 +8,7 @@ using ConsoleLog;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.Locations;
 using StardewValley.Mods;
 using StardewValley.Objects;
@@ -79,8 +80,7 @@ interface IPaintable
 
         foreach (var placedObject in location.GetObjectsAtTile(tile))
         {
-            var modelType =
-                placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
+            var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
             paintables.Add(
                 new PaintableFromModData(placedObject.modData)
                 {
@@ -100,11 +100,7 @@ interface IPaintable
             paintables.Add(
                 new PaintableFromModData(giantCrop.modData)
                 {
-                    ModelIdentifier = new()
-                    {
-                        Type = TextureType.GiantCrop,
-                        Name = giantCrop.InternalName!,
-                    },
+                    ModelIdentifier = new() { Type = TextureType.GiantCrop, Name = giantCrop.InternalName! },
                     Related = giantCrop,
                 }
             );
@@ -123,9 +119,7 @@ interface IPaintable
                 },
                 Related = flooring,
             },
-            HoeDirt hoeDirt when hoeDirt.crop is not null => new PaintableFromModData(
-                hoeDirt.modData
-            )
+            HoeDirt hoeDirt when hoeDirt.crop is not null => new PaintableFromModData(hoeDirt.modData)
             {
                 ModelIdentifier = new() { Type = TextureType.Crop, Name = HoeDirtName(hoeDirt) },
                 Related = hoeDirt,
@@ -137,11 +131,7 @@ interface IPaintable
             },
             Bush bush => new PaintableFromModData(bush.modData)
             {
-                ModelIdentifier = new()
-                {
-                    Type = TextureType.Grass,
-                    Name = PatchTemplate.GetBushTypeString(bush),
-                },
+                ModelIdentifier = new() { Type = TextureType.Grass, Name = PatchTemplate.GetBushTypeString(bush) },
                 Related = bush,
             },
 
@@ -183,7 +173,7 @@ static class ModDataToTexture
         {
             modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = texture.Owner;
             modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = texture.Name;
-            modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = texture.Variation;
+            modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = texture.Variation.ToString();
         }
         else
         {
@@ -223,9 +213,7 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
                         return new()
                         {
                             Texture = Game1.bigCraftableSpriteSheet,
-                            SourceRect = StardewValley.Object.getSourceRectForBigCraftable(
-                                Related.ParentSheetIndex
-                            ),
+                            SourceRect = StardewValley.Object.getSourceRectForBigCraftable(Related.ParentSheetIndex),
                         };
                     }
                     else
@@ -233,16 +221,80 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
                         return new()
                         {
                             Texture = Game1.objectSpriteSheet,
-                            SourceRect = GameLocation.getSourceRectForObject(
-                                Related.ParentSheetIndex
-                            ),
+                            SourceRect = GameLocation.getSourceRectForObject(Related.ParentSheetIndex),
                         };
+                    }
+                }
+                else if (Related is Furniture furniture)
+                {
+                    if (ItemRegistry.GetData(Related.QualifiedItemId) is { } data)
+                    {
+                        return new()
+                        {
+                            Texture = data.GetTexture(),
+                            // SourceRect = data.GetSourceRect(),
+                            SourceRect = furniture.sourceRect.Value,
+                        };
+                    }
+                    else
+                    {
+                        return null;
                     }
                 }
                 else
                 {
                     return null;
                 }
+            }
+            else if (this.Related is TerrainFeature terrainFeature)
+            {
+                AlternativeTextureModel textureModel = null!;
+                var variation = -1;
+                return terrainFeature switch
+                {
+                    Tree tree => new()
+                    {
+                        Texture = tree.texture.Value,
+                        SourceRect = SourceRects.GetTreeSourceRect(textureModel, tree, 0, variation),
+                    },
+                    FruitTree fruitTree => new()
+                    {
+                        Texture = fruitTree.texture,
+                        SourceRect = SourceRects.GetFruitTreeSourceRect(textureModel, fruitTree, 0, variation),
+                    },
+                    Flooring flooring => new Func<DrawableTexture>(() =>
+                    {
+                        var whichFloor = flooring.whichFloor.Value.ToString();
+                        var floorData = Game1.content.Load<Dictionary<string, FloorPathData>>("Data/FloorsAndPaths");
+                        var texturePath =
+                            Game1.GetSeasonForLocation(flooring.Location) is Season.Winter
+                            && (flooring.Location == null || !flooring.Location.isGreenhouse.Value)
+                                ? floorData[whichFloor].WinterTexture
+                                : floorData[whichFloor].Texture;
+                        var texture = Game1.content.Load<Texture2D>(texturePath);
+                        return new()
+                        {
+                            Texture = texture,
+                            SourceRect = SourceRects.GetFlooringSourceRect(textureModel, flooring, 0, variation),
+                        };
+                    })(),
+                    HoeDirt hoeDirt => new()
+                    {
+                        Texture = Game1.cropSpriteSheet,
+                        SourceRect = SourceRects.GetCropSourceRect(textureModel, hoeDirt.crop, 0, variation),
+                    },
+                    Grass grass => new()
+                    {
+                        Texture = grass.texture.Value,
+                        SourceRect = SourceRects.GetGrassSourceRect(textureModel, grass, 0, variation),
+                    },
+                    Bush bush => new()
+                    {
+                        Texture = Bush.texture.Value,
+                        SourceRect = SourceRects.GetBushSourceRect(textureModel, bush, 0, variation),
+                    },
+                    _ => null,
+                };
             }
             else
             {
@@ -251,33 +303,96 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
         }
         else
         {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            if (textureModel is null)
+                return null;
+
+            var variation = textureIdentifier.Variation;
+            var texture = textureModel.GetTexture(textureIdentifier.Variation);
+
             if (this.Related is StardewValley.Object Related)
             {
-                var maybeTextureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    textureIdentifier.Name
-                );
-                var variation = int.Parse(textureIdentifier.Variation);
-
-                if (maybeTextureModel is { } textureModel)
+                return new()
                 {
-                    var texture = textureModel.GetTexture(variation);
-
-                    return new()
+                    Texture = texture,
+                    SourceRect = SourceRects.GetSourceRectangle(
+                        textureModel,
+                        Related,
+                        textureModel.TextureWidth,
+                        textureModel.TextureHeight,
+                        variation
+                    ),
+                };
+            }
+            else if (this.Related is TerrainFeature terrainFeature)
+            {
+                return terrainFeature switch
+                {
+                    Tree tree => new()
                     {
                         Texture = texture,
-                        SourceRect = SourceRects.GetSourceRectangle(
+                        SourceRect = SourceRects.GetTreeSourceRect(
                             textureModel,
-                            Related,
-                            textureModel.TextureWidth,
+                            tree,
                             textureModel.TextureHeight,
                             variation
                         ),
-                    };
-                }
-                else
-                {
-                    return null;
-                }
+                    },
+                    FruitTree fruitTree => new()
+                    {
+                        Texture = texture,
+                        SourceRect = SourceRects.GetFruitTreeSourceRect(
+                            textureModel,
+                            fruitTree,
+                            textureModel.TextureHeight,
+                            variation
+                        ),
+                    },
+                    Flooring flooring => new Func<DrawableTexture>(() =>
+                    {
+                        return new()
+                        {
+                            Texture = texture,
+                            SourceRect = SourceRects.GetFlooringSourceRect(
+                                textureModel,
+                                flooring,
+                                textureModel.TextureHeight,
+                                variation
+                            ),
+                        };
+                    })(),
+                    HoeDirt hoeDirt => new()
+                    {
+                        Texture = texture,
+                        SourceRect = SourceRects.GetCropSourceRect(
+                            textureModel,
+                            hoeDirt.crop,
+                            textureModel.TextureHeight,
+                            variation
+                        ),
+                    },
+                    Grass grass => new()
+                    {
+                        Texture = texture,
+                        SourceRect = SourceRects.GetGrassSourceRect(
+                            textureModel,
+                            grass,
+                            textureModel.TextureHeight,
+                            variation
+                        ),
+                    },
+                    Bush bush => new()
+                    {
+                        Texture = texture,
+                        SourceRect = SourceRects.GetBushSourceRect(
+                            textureModel,
+                            bush,
+                            textureModel.TextureHeight,
+                            variation
+                        ),
+                    },
+                    _ => null,
+                };
             }
             else
             {
@@ -381,42 +496,6 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
         //             b.Draw(Game1.mouseCursors, new Vector2(this.availableTextures[i].bounds.X + 4, this.availableTextures[i].bounds.Y - 20), new Rectangle(134, 226, 30, 25), colorOverlay, 0f, Vector2.Zero, _buildingScale, SpriteEffects.None, 1f);
         //         }
         //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Tree tree)
-        //     {
-        //         this.availableTextures[i].texture = tree.texture.Value;
-        //         this.availableTextures[i].sourceRect = GetTreeSourceRect(textureModel, tree, 0, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is FruitTree fruitTree)
-        //     {
-        //         this.availableTextures[i].texture = fruitTree.texture;
-        //         this.availableTextures[i].sourceRect = GetFruitTreeSourceRect(textureModel, fruitTree, 0, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Flooring flooring)
-        //     {
-        //         this.availableTextures[i].texture = Game1.GetSeasonForLocation(flooring.Location) is Season.Winter && (flooring.Location == null || !flooring.Location.isGreenhouse.Value) ? flooring.floorTextureWinter : flooring.floorTexture;
-        //         this.availableTextures[i].sourceRect = this.GetFlooringSourceRect(textureModel, flooring, this.availableTextures[i].sourceRect.Height, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is HoeDirt hoeDirt)
-        //     {
-        //         this.availableTextures[i].texture = Game1.cropSpriteSheet;
-        //         this.availableTextures[i].sourceRect = this.GetCropSourceRect(textureModel, hoeDirt.crop, 0, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Grass grass)
-        //     {
-        //         this.availableTextures[i].texture = grass.texture.Value;
-        //         this.availableTextures[i].sourceRect = this.GetGrassSourceRect(textureModel, grass, 0, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
-        //     else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Bush bush)
-        //     {
-        //         this.availableTextures[i].texture = Bush.texture.Value;
-        //         this.availableTextures[i].sourceRect = this.GetBushSourceRect(textureModel, bush, 0, -1);
-        //         this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        //     }
         //     else if (Game1.currentLocation is DecoratableLocation decoratableLocation && (string.IsNullOrEmpty(decoratableLocation.GetFloorID((int)_position.X, (int)_position.Y)) is false || string.IsNullOrEmpty(decoratableLocation.GetWallpaperID((int)_position.X, (int)_position.Y)) is false))
         //     {
         //         var which = variation;
@@ -475,42 +554,6 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
         //     {
         //         b.Draw(textureModel.GetTexture(variation), new Vector2(this.availableTextures[i].bounds.X + 4, this.availableTextures[i].bounds.Y - 20), new Rectangle(32, textureModel.GetTextureOffset(variation), 30, 25), colorOverlay, 0f, Vector2.Zero, _buildingScale, SpriteEffects.None, 1f);
         //     }
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Tree tree)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = GetTreeSourceRect(textureModel, tree, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is FruitTree fruitTree)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = GetFruitTreeSourceRect(textureModel, fruitTree, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Flooring flooring)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = GetFlooringSourceRect(textureModel, flooring, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is HoeDirt hoeDirt)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = this.GetCropSourceRect(textureModel, hoeDirt.crop, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Grass grass)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = this.GetGrassSourceRect(textureModel, grass, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
-        // }
-        // else if (PatchTemplate.GetTerrainFeatureAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Bush bush)
-        // {
-        //     this.availableTextures[i].texture = textureModel.GetTexture(variation);
-        //     this.availableTextures[i].sourceRect = this.GetBushSourceRect(textureModel, bush, textureModel.TextureHeight, variation);
-        //     this.availableTextures[i].draw(b, colorOverlay, 0.87f);
         // }
         // else if (Game1.currentLocation is DecoratableLocation decoratableLocation && (string.IsNullOrEmpty(decoratableLocation.GetFloorID((int)_position.X, (int)_position.Y)) is false || string.IsNullOrEmpty(decoratableLocation.GetWallpaperID((int)_position.X, (int)_position.Y)) is false))
         // {

@@ -58,8 +58,10 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     private bool is_dragging = false;
 
-    static readonly AccessTools.FieldRef<TerrainFeature, ModDataDictionary> modDataRef =
-        AccessTools.FieldRefAccess<TerrainFeature, ModDataDictionary>("<modData>k__BackingField");
+    static readonly AccessTools.FieldRef<TerrainFeature, ModDataDictionary> modDataRef = AccessTools.FieldRefAccess<
+        TerrainFeature,
+        ModDataDictionary
+    >("<modData>k__BackingField");
 
     public void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
     {
@@ -79,20 +81,12 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                 var paintables = IPaintable.OnTile(targetTile);
                 var target = paintables.FirstOrDefault(paintable => paintable.Type == objectType);
 
-                var positionOnScreen = Game1.GlobalToLocal(
-                    Game1.viewport,
-                    targetTile.ToVector2() * Game1.tileSize
-                );
+                var positionOnScreen = Game1.GlobalToLocal(Game1.viewport, targetTile.ToVector2() * Game1.tileSize);
                 var overlayColor = target is not null ? Color.Green * 0.7f : Color.Red * 0.7f;
 
                 e.SpriteBatch.Draw(
                     Game1.mouseCursors,
-                    new Rectangle(
-                        (int)positionOnScreen.X,
-                        (int)positionOnScreen.Y,
-                        Game1.tileSize,
-                        Game1.tileSize
-                    ),
+                    new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize),
                     new Rectangle(194, 388, 16, 16), // Source rect for vanilla placement square
                     overlayColor,
                     0f,
@@ -109,11 +103,7 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                     clonedModData.CopyFrom(floor.modData); // Or populate as needed
                     var paintable = new PaintableFromModData(clonedModData)
                     {
-                        ModelIdentifier = new()
-                        {
-                            Type = AlternativeTextureModel.TextureType.Unknown,
-                            Name = "",
-                        },
+                        ModelIdentifier = new() { Type = AlternativeTextureModel.TextureType.Unknown, Name = "" },
                         Related = null,
                     };
                     paintable.ApplyTexture(texture);
@@ -129,16 +119,14 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                 // }
                 else if (this.Texture is { } justtexture && Type is { } type)
                 {
-                    var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                        justtexture.Name
-                    );
+                    var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(justtexture.Name);
                     if (textureModel is null)
                     {
                         Console.Log($"textureModel is null ({justtexture.Name})");
                         return;
                     }
 
-                    var textureVariation = int.Parse(justtexture.Variation);
+                    var textureVariation = justtexture.Variation;
                     if (
                         textureVariation == -1
                         || AlternativeTextures.modConfig.IsTextureVariationDisabled(
@@ -196,12 +184,7 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                                 Game1.tileSize,
                                 Game1.tileSize
                             ),
-                            new Rectangle(
-                                0,
-                                0,
-                                Game1.tileSize / Game1.pixelZoom,
-                                Game1.tileSize / Game1.pixelZoom
-                            ),
+                            new Rectangle(0, 0, Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom),
                             target is not null ? Color.White * 0.7f : Color.White * 0.3f
                         );
                     }
@@ -211,23 +194,13 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                             texture2d,
                             new Rectangle(
                                 (int)positionOnScreen.X
-                                    + (
-                                        Game1.tileSize - textureModel.TextureWidth * Game1.pixelZoom
-                                    ),
+                                    + (Game1.tileSize - textureModel.TextureWidth * Game1.pixelZoom),
                                 (int)positionOnScreen.Y
-                                    + (
-                                        Game1.tileSize
-                                        - textureModel.TextureHeight * Game1.pixelZoom
-                                    ),
+                                    + (Game1.tileSize - textureModel.TextureHeight * Game1.pixelZoom),
                                 textureModel.TextureWidth * Game1.pixelZoom,
                                 textureModel.TextureHeight * Game1.pixelZoom
                             ),
-                            new Rectangle(
-                                0,
-                                0,
-                                textureModel.TextureWidth,
-                                textureModel.TextureHeight
-                            ),
+                            new Rectangle(0, 0, textureModel.TextureWidth, textureModel.TextureHeight),
                             // new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
 
                             target is not null
@@ -238,7 +211,7 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
                 }
                 else
                 {
-                    Console.Log($"this.Texture: {this.Texture}");
+                    // Console.Log($"this.Texture: {this.Texture}");
                 }
                 // if (this.Texture is { } texture && target?.Related is Flooring floor) {
                 //     var neighborMaskAccessor = AccessTools.FieldRefAccess<Flooring, byte>("neighborMask");
@@ -326,14 +299,12 @@ class PaintBrushTool(IModHelper helper, GenericTool tool) : ICustomTool
         if (paintableMaybe is { } paintable)
         {
             Console.Log($"paintable: {paintable.Category} - {paintable.InstanceName}");
-            Console.Log(
-                $"paintable.Texture: {paintable.Texture?.Owner} - {paintable.Texture?.Name}"
-            );
+            Console.Log($"paintable.Texture: {paintable.Texture?.Owner} - {paintable.Texture?.Name}");
             tool.modData[PAINT_BRUSH_FLAG] = paintable.Type;
             tool.modData[PAINT_BRUSH_SCALE] = 0.5f.ToString();
             tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = paintable.Texture?.Owner;
             tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = paintable.Texture?.Name;
-            tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = paintable.Texture?.Variation;
+            tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = paintable.Texture?.Variation.ToString();
         }
     }
 

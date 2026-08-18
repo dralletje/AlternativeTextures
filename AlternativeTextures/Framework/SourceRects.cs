@@ -62,7 +62,7 @@ static class SourceRects
         return sourceRect;
     }
 
-    private static Rectangle GetFenceSourceRect(
+    public static Rectangle GetFenceSourceRect(
         AlternativeTextureModel textureModel,
         Fence fence,
         int textureHeight,
@@ -143,7 +143,7 @@ static class SourceRects
         );
     }
 
-    private static Rectangle GetFlooringSourceRect(
+    public static Rectangle GetFlooringSourceRect(
         AlternativeTextureModel textureModel,
         Flooring flooring,
         int textureHeight,
@@ -208,7 +208,7 @@ static class SourceRects
         );
     }
 
-    private static Rectangle GetTreeSourceRect(
+    public static Rectangle GetTreeSourceRect(
         AlternativeTextureModel textureModel,
         Tree tree,
         int textureHeight,
@@ -237,7 +237,7 @@ static class SourceRects
         return source_rect;
     }
 
-    private static Rectangle GetFruitTreeSourceRect(
+    public static Rectangle GetFruitTreeSourceRect(
         AlternativeTextureModel textureModel,
         FruitTree fruitTree,
         int textureHeight,
@@ -284,7 +284,7 @@ static class SourceRects
         return source_rect;
     }
 
-    private static Rectangle GetCropSourceRect(
+    public static Rectangle GetCropSourceRect(
         AlternativeTextureModel textureModel,
         Crop crop,
         int textureHeight,
@@ -303,7 +303,7 @@ static class SourceRects
         return source_rect;
     }
 
-    private static Rectangle GetGrassSourceRect(
+    public static Rectangle GetGrassSourceRect(
         AlternativeTextureModel textureModel,
         Grass grass,
         int textureHeight,
@@ -319,7 +319,7 @@ static class SourceRects
         return source_rect;
     }
 
-    private static Rectangle GetBushSourceRect(
+    public static Rectangle GetBushSourceRect(
         AlternativeTextureModel textureModel,
         Bush bush,
         int textureHeight,
@@ -355,7 +355,7 @@ static class SourceRects
         );
     }
 
-    private static Rectangle GetCharacterSourceRectangle(
+    public static Rectangle GetCharacterSourceRectangle(
         AlternativeTextureModel textureModel,
         Character character,
         int textureWidth,
