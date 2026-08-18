@@ -56,7 +56,6 @@ internal class GridMenu : IClickableMenu
     )
         : base(0, 0, 832, 576, showUpperRightCloseButton: true)
     {
-        Console.Log($"gridSize: {gridSize}");
         this.items = items;
         this.gridSize = gridSize;
         this._title = uiTitle;
@@ -101,10 +100,11 @@ internal class GridMenu : IClickableMenu
                     )
                     {
                         myID = componentId,
-                        downNeighborID = componentId + gridSize.Columns,
-                        upNeighborID = row >= 0 ? componentId - gridSize.Columns : -1,
-                        rightNeighborID = column == 5 ? 9997 : componentId + 1,
-                        leftNeighborID = column > 0 ? componentId - 1 : 9998,
+                        downNeighborID = ClickableComponent.CUSTOM_SNAP_BEHAVIOR,
+                        upNeighborID = ClickableComponent.CUSTOM_SNAP_BEHAVIOR,
+                        rightNeighborID =
+                            column == (gridSize.Columns - 1) ? ClickableComponent.SNAP_AUTOMATIC : componentId + 1,
+                        leftNeighborID = column > 0 ? componentId - 1 : ClickableComponent.SNAP_AUTOMATIC,
                     }
                 );
             }
@@ -167,8 +167,73 @@ internal class GridMenu : IClickableMenu
         });
     }
 
+    public void ScrollTo(int index)
+    {
+        if (index >= items.Count)
+        {
+            return;
+        }
+
+        var row = Math.Min(
+            /// Row we want to see
+            index / gridSize.Columns,
+            /// Last scrollable row
+            VirtualRows - gridSize.Rows
+        );
+        rowsScrolled.Value = row;
+
+        var indexRelativeToRow = index - (row * gridSize.Columns);
+        if (itemGrid.ElementAtOrDefault(indexRelativeToRow) is { } element)
+        {
+            this.currentlySnappedComponent = element;
+            this.snapCursorToCurrentSnappedComponent();
+        }
+    }
+
+    static class Direction
+    {
+        public const int UP = 0;
+        public const int DOWN = 2;
+    }
+
     protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
     {
+        var thisRow = (oldID) / gridSize.Columns;
+        var isFirstRow = thisRow == 0;
+        var isLastRow = thisRow + 1 == gridSize.Rows;
+        if (direction is Direction.DOWN)
+        {
+            if (isLastRow && rowsScrolled + gridSize.Rows < VirtualRows)
+            {
+                rowsScrolled.Value++;
+            }
+            else if ((rowsScrolled * gridSize.Columns) + oldID + gridSize.Columns < items.Count)
+            {
+                this.currentlySnappedComponent = this.getComponentWithID(oldID + gridSize.Columns);
+                this.snapCursorToCurrentSnappedComponent();
+            }
+            else
+            {
+                /// Do something at the bottom of the bottom?
+            }
+        }
+        else if (direction is Direction.UP)
+        {
+            if (isFirstRow && rowsScrolled > 0)
+            {
+                rowsScrolled.Value--;
+            }
+            else if ((rowsScrolled * gridSize.Columns) + oldID - gridSize.Columns >= 0)
+            {
+                this.currentlySnappedComponent = this.getComponentWithID(oldID - gridSize.Columns);
+                this.snapCursorToCurrentSnappedComponent();
+            }
+            else
+            {
+                /// Do something at the top of the top?
+            }
+        }
+
         base.customSnapBehavior(direction, oldRegion, oldID);
     }
 
@@ -378,28 +443,26 @@ internal class GridMenu : IClickableMenu
         }
 
         /// TODO Hover
-        // var hoverInfoText = String.Empty;
-        // var hoverDisplayName = "Hover over an item to see its texture name!";
-        // if (this.hovered is { } hovered)
-        // {
-        //     var technicalName = $"{hovered.TextureIdentifier.Owner} > {hovered.TextureIdentifier.Variation + 1}";
-        //     if (hovered.DisplayName is { } displayName)
-        //     {
-        //         hoverInfoText = technicalName;
-        //         hoverDisplayName = displayName;
-        //     }
-        //     else
-        //     {
-        //         hoverDisplayName = technicalName;
-        //     }
-        // }
-        // SpriteText.drawStringWithScrollCenteredAt(
-        //     batch,
-        //     hoverDisplayName,
-        //     Game1.uiViewport.Width / 2,
-        //     base.yPositionOnScreen + base.height + 16,
-        //     "Hover over an item to see its texture name!"
-        // );
+        if (this.hovered?.DisplayName is { } text)
+        {
+            // var technicalName = $"{hovered.TextureIdentifier.Owner} > {hovered.TextureIdentifier.Variation + 1}";
+            // if (hovered.DisplayName is { } displayName)
+            // {
+            //     hoverInfoText = technicalName;
+            //     hoverDisplayName = displayName;
+            // }
+            // else
+            // {
+            //     hoverDisplayName = technicalName;
+            // }
+            SpriteText.drawStringWithScrollCenteredAt(
+                batch,
+                text,
+                Game1.uiViewport.Width / 2,
+                base.yPositionOnScreen + base.height + 16,
+                "Hover over an item to see its texture name!"
+            );
+        }
 
         // if (!String.IsNullOrEmpty(hoverInfoText))
         // {

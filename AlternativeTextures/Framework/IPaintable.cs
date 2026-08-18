@@ -37,9 +37,9 @@ readonly struct DrawableTexture()
     public required Rectangle SourceRect { get; init; }
 }
 
-static class Util
+static class Function
 {
-    public static T Do<T>(Func<T> function)
+    public static T Tap<T>(Func<T> function)
     {
         return function();
     }
@@ -245,7 +245,7 @@ readonly struct WallpaperDecorationPaintable(DecoratableLocation location, strin
                 [var variantString] when int.TryParse(variantString, out int variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Name = "Is this necessary in this case??",
+                    Name = AlternativeTextures.DEFAULT_OWNER,
                     Variation = variant,
                 },
                 _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
@@ -322,7 +322,7 @@ readonly struct FloorDecorationPaintable(DecoratableLocation location, string ro
                 [var variantString] when int.TryParse(variantString, out int variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Name = "Is this necessary in this case??",
+                    Name = AlternativeTextures.DEFAULT_OWNER,
                     Variation = variant,
                 },
                 _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
@@ -377,6 +377,134 @@ readonly struct FloorDecorationPaintable(DecoratableLocation location, string ro
     }
 }
 
+static class TextureHelper
+{
+    /// TODO: Do this without `related`?
+    public static DrawableTexture? GetDefault(ModelIdentifier modelIdentifier, object? related)
+    {
+        if (related is StardewValley.Object Related)
+        {
+            if (modelIdentifier.Type is TextureType.Craftable)
+            {
+                if (Related.bigCraftable.Value)
+                {
+                    return new()
+                    {
+                        Texture = Game1.bigCraftableSpriteSheet,
+                        SourceRect = StardewValley.Object.getSourceRectForBigCraftable(Related.ParentSheetIndex),
+                    };
+                }
+                else
+                {
+                    return new()
+                    {
+                        Texture = Game1.objectSpriteSheet,
+                        SourceRect = GameLocation.getSourceRectForObject(Related.ParentSheetIndex),
+                    };
+                }
+            }
+            else if (Related is Furniture furniture)
+            {
+                if (ItemRegistry.GetData(Related.QualifiedItemId) is { } data)
+                {
+                    return new()
+                    {
+                        Texture = data.GetTexture(),
+                        // SourceRect = data.GetSourceRect(),
+                        SourceRect = furniture.sourceRect.Value,
+                    };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                // Console.Log($"Related: {Related.GetType().ToString()}");
+                Console.Log($"Related: {Related.ToString()}");
+                return null;
+            }
+        }
+        else if (related is TerrainFeature terrainFeature)
+        {
+            AlternativeTextureModel textureModel = null!;
+            var variation = -1;
+            return terrainFeature switch
+            {
+                Tree tree => new()
+                {
+                    Texture = tree.texture.Value,
+                    SourceRect = SourceRects.GetTreeSourceRect(textureModel, tree, 0, variation),
+                },
+                FruitTree fruitTree => new()
+                {
+                    Texture = fruitTree.texture,
+                    SourceRect = SourceRects.GetFruitTreeSourceRect(textureModel, fruitTree, 0, variation),
+                },
+                Flooring flooring => Function.Tap<DrawableTexture>(() =>
+                {
+                    var whichFloor = flooring.whichFloor.Value.ToString();
+                    var floorData = Game1.content.Load<Dictionary<string, FloorPathData>>("Data/FloorsAndPaths");
+                    var texturePath =
+                        Game1.GetSeasonForLocation(flooring.Location) is Season.Winter
+                        && (flooring.Location == null || !flooring.Location.isGreenhouse.Value)
+                            ? floorData[whichFloor].WinterTexture
+                            : floorData[whichFloor].Texture;
+                    var texture = Game1.content.Load<Texture2D>(texturePath);
+                    return new()
+                    {
+                        Texture = texture,
+                        SourceRect = SourceRects.GetFlooringSourceRect(textureModel, flooring, 0, variation),
+                    };
+                }),
+                HoeDirt hoeDirt => new()
+                {
+                    Texture = Game1.cropSpriteSheet,
+                    SourceRect = SourceRects.GetCropSourceRect(textureModel, hoeDirt.crop, 0, variation),
+                },
+                Grass grass => new()
+                {
+                    Texture = grass.texture.Value,
+                    SourceRect = SourceRects.GetGrassSourceRect(textureModel, grass, 0, variation),
+                },
+                Bush bush => new()
+                {
+                    Texture = Bush.texture.Value,
+                    SourceRect = SourceRects.GetBushSourceRect(textureModel, bush, 0, variation),
+                },
+
+                ResourceClump resourceclump => Function.Tap<DrawableTexture>(() =>
+                {
+                    var texture = resourceclump.textureName.Value is { } textureName
+                        ? Game1.content.Load<Texture2D>(textureName)
+                        : Game1.objectSpriteSheet;
+
+                    var sourceRectForStandardTileSheet = Game1.getSourceRectForStandardTileSheet(
+                        texture,
+                        resourceclump.parentSheetIndex.Value,
+                        16,
+                        16
+                    );
+                    var sourceRect = sourceRectForStandardTileSheet with
+                    {
+                        Width = resourceclump.width.Value * 16,
+                        Height = resourceclump.height.Value * 16,
+                    };
+
+                    return new() { Texture = texture, SourceRect = sourceRect };
+                }),
+
+                _ => null,
+            };
+        }
+        else
+        {
+            return null;
+        }
+    }
+}
+
 readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
 {
     public readonly required ModelIdentifier ModelIdentifier { get; init; }
@@ -397,108 +525,15 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
     {
         if (textureIdentifier.IsDefault)
         {
-            if (this.Related is StardewValley.Object Related)
-            {
-                if (ModelIdentifier.Type is TextureType.Craftable)
-                {
-                    if (Related.bigCraftable.Value)
-                    {
-                        return new()
-                        {
-                            Texture = Game1.bigCraftableSpriteSheet,
-                            SourceRect = StardewValley.Object.getSourceRectForBigCraftable(Related.ParentSheetIndex),
-                        };
-                    }
-                    else
-                    {
-                        return new()
-                        {
-                            Texture = Game1.objectSpriteSheet,
-                            SourceRect = GameLocation.getSourceRectForObject(Related.ParentSheetIndex),
-                        };
-                    }
-                }
-                else if (Related is Furniture furniture)
-                {
-                    if (ItemRegistry.GetData(Related.QualifiedItemId) is { } data)
-                    {
-                        return new()
-                        {
-                            Texture = data.GetTexture(),
-                            // SourceRect = data.GetSourceRect(),
-                            SourceRect = furniture.sourceRect.Value,
-                        };
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else if (this.Related is TerrainFeature terrainFeature)
-            {
-                AlternativeTextureModel textureModel = null!;
-                var variation = -1;
-                return terrainFeature switch
-                {
-                    Tree tree => new()
-                    {
-                        Texture = tree.texture.Value,
-                        SourceRect = SourceRects.GetTreeSourceRect(textureModel, tree, 0, variation),
-                    },
-                    FruitTree fruitTree => new()
-                    {
-                        Texture = fruitTree.texture,
-                        SourceRect = SourceRects.GetFruitTreeSourceRect(textureModel, fruitTree, 0, variation),
-                    },
-                    Flooring flooring => new Func<DrawableTexture>(() =>
-                    {
-                        var whichFloor = flooring.whichFloor.Value.ToString();
-                        var floorData = Game1.content.Load<Dictionary<string, FloorPathData>>("Data/FloorsAndPaths");
-                        var texturePath =
-                            Game1.GetSeasonForLocation(flooring.Location) is Season.Winter
-                            && (flooring.Location == null || !flooring.Location.isGreenhouse.Value)
-                                ? floorData[whichFloor].WinterTexture
-                                : floorData[whichFloor].Texture;
-                        var texture = Game1.content.Load<Texture2D>(texturePath);
-                        return new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetFlooringSourceRect(textureModel, flooring, 0, variation),
-                        };
-                    })(),
-                    HoeDirt hoeDirt => new()
-                    {
-                        Texture = Game1.cropSpriteSheet,
-                        SourceRect = SourceRects.GetCropSourceRect(textureModel, hoeDirt.crop, 0, variation),
-                    },
-                    Grass grass => new()
-                    {
-                        Texture = grass.texture.Value,
-                        SourceRect = SourceRects.GetGrassSourceRect(textureModel, grass, 0, variation),
-                    },
-                    Bush bush => new()
-                    {
-                        Texture = Bush.texture.Value,
-                        SourceRect = SourceRects.GetBushSourceRect(textureModel, bush, 0, variation),
-                    },
-                    _ => null,
-                };
-            }
-            else
-            {
-                return null;
-            }
+            return TextureHelper.GetDefault(ModelIdentifier, Related);
         }
         else
         {
             var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
             if (textureModel is null)
-                return null;
+                /// Texture not found (most likely mod removed),
+                /// fall back to default
+                return TextureHelper.GetDefault(ModelIdentifier, this.Related);
 
             var variation = textureIdentifier.Variation;
             var texture = textureModel.GetTexture(textureIdentifier.Variation);
@@ -584,6 +619,7 @@ readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
                             variation
                         ),
                     },
+                    ResourceClump clump => new() { Texture = texture, SourceRect = new Rectangle(0, 0, 32, 32) },
                     _ => null,
                 };
             }

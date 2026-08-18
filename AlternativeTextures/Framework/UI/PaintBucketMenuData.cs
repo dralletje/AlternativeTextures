@@ -85,7 +85,7 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = floor.ParentSheetIndex,
-                        Name = "Huh",
+                        Name = AlternativeTextures.DEFAULT_OWNER,
                     },
                 };
             }
@@ -110,7 +110,7 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = wallpaper.ParentSheetIndex,
-                        Name = "Huh",
+                        Name = AlternativeTextures.DEFAULT_OWNER,
                     },
                 };
             }

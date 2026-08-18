@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -299,14 +300,33 @@ namespace AlternativeTextures.Framework.Patches.Tools
             }
         }
 
+        // internal static IEnumerable<IPaintable>
+
         internal static bool UsePaintBucket(GameLocation location, int x, int y, Farmer who, bool isSprayCan = false)
         {
-            var paintables = IPaintable.OnTile(new(x / 64, y / 64));
+            var tile = new Tile(x / 64, y / 64);
+            var paintables = IPaintable.OnTile(tile).ToList();
+
+            /// If you stand before a wall with something on it and you try to use this,
+            /// it will only find the wall, not the item.
+            /// So a small fix to check on tile above if standing in front of a wall:
+            if (paintables.Count == 0)
+            {
+                if (location is DecoratableLocation loc && loc.GetWallpaperID(tile.X, tile.Y) is { } roomId)
+                {
+                    paintables = IPaintable.OnTile(tile with { Y = tile.Y - 1 }).ToList();
+                }
+            }
+
             if (paintables.FirstOrDefault() is { } paintable)
             {
-                var items = PaintBucketMenuData.GetTexturesFor(paintable.ModelIdentifier).ToList();
+                List<TextureInfo> items =
+                [
+                    .. PaintBucketMenuData.VanillaTexturesFor(paintable.ModelIdentifier),
+                    .. PaintBucketMenuData.GetTexturesFor(paintable.ModelIdentifier),
+                ];
 
-                if (items.Count == 0)
+                if (items.Count == 1)
                 {
                     // Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
                     // csharpier-ignore
@@ -314,23 +334,18 @@ namespace AlternativeTextures.Framework.Patches.Tools
                     return CancelUsing(who);
                 }
 
-                Game1.activeClickableMenu = new GridMenu(
-                    [
-                        .. PaintBucketMenuData
-                            .VanillaTexturesFor(paintable.ModelIdentifier)
-                            .Select(textureInfo => new TextureGridMenuItem()
-                            {
-                                Paintable = paintable,
-                                TextureIdentifier = textureInfo.TextureIdentifier,
-                                DisplayName = textureInfo.DisplayName,
-                            }),
-                        .. items.Select(textureInfo => new TextureGridMenuItem()
-                        {
-                            Paintable = paintable,
-                            TextureIdentifier = textureInfo.TextureIdentifier,
-                            DisplayName = textureInfo.DisplayName,
-                        }),
-                    ],
+                var gridMenu = new GridMenu(
+                    items
+                        .Select(textureInfo =>
+                            (GridMenu.Item)
+                                new TextureGridMenuItem()
+                                {
+                                    Paintable = paintable,
+                                    TextureIdentifier = textureInfo.TextureIdentifier,
+                                    DisplayName = textureInfo.DisplayName,
+                                }
+                        )
+                        .ToList(),
                     gridSizeFor(paintable),
                     uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
                     onPress: (item) =>
@@ -341,6 +356,13 @@ namespace AlternativeTextures.Framework.Patches.Tools
                         }
                     }
                 );
+
+                Game1.activeClickableMenu = gridMenu;
+                if (paintable.Texture is { } texture)
+                {
+                    gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
+                }
+
                 return CancelUsing(who);
             }
 
@@ -348,8 +370,6 @@ namespace AlternativeTextures.Framework.Patches.Tools
 
             if (location is DecoratableLocation decoratableLocation)
             {
-                var tile = new Tile(x / 64, y / 64);
-
                 if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
                 {
                     var wallpaperPaintable = new WallpaperDecorationPaintable(decoratableLocation, wallId);
@@ -366,7 +386,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
                         return CancelUsing(who);
                     }
 
-                    Game1.activeClickableMenu = new GridMenu(
+                    var gridMenu = new GridMenu(
                         [
                             .. items.Select(textureInfo => new TextureGridMenuItem()
                             {
@@ -385,6 +405,13 @@ namespace AlternativeTextures.Framework.Patches.Tools
                             }
                         }
                     );
+
+                    Game1.activeClickableMenu = gridMenu;
+                    if (wallpaperPaintable.Texture is { } texture)
+                    {
+                        gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
+                    }
+
                     return CancelUsing(who);
                 }
 
@@ -404,7 +431,7 @@ namespace AlternativeTextures.Framework.Patches.Tools
                         return CancelUsing(who);
                     }
 
-                    Game1.activeClickableMenu = new GridMenu(
+                    var gridMenu = new GridMenu(
                         [
                             .. items.Select(textureInfo => new TextureGridMenuItem()
                             {
@@ -423,6 +450,13 @@ namespace AlternativeTextures.Framework.Patches.Tools
                             }
                         }
                     );
+
+                    Game1.activeClickableMenu = gridMenu;
+                    if (floorPaintable.Texture is { } texture)
+                    {
+                        gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
+                    }
+
                     return CancelUsing(who);
                 }
             }

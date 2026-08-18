@@ -234,7 +234,7 @@ namespace AlternativeTextures.Framework.Patches
             return location.terrainFeatures[tile];
         }
 
-        internal static ResourceClump GetResourceClumpAt(GameLocation location, int x, int y)
+        internal static ResourceClump? GetResourceClumpAt(GameLocation location, int x, int y)
         {
             Vector2 tile = new Vector2(x / 64, y / 64);
             if (!location.resourceClumps.Any(r => r.occupiesTile((int)tile.X, (int)tile.Y)))

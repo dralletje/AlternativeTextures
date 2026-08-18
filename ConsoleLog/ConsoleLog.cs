@@ -255,7 +255,7 @@ public static class PrettyPrint
                 .GetType()
                 // .GetProperties(System.Reflection.BindingFlags.Instance)
                 .GetFields()
-                .Where(p => p.IsPublic)
+                .Where(p => p.IsPublic && !p.IsStatic)
                 .ToList();
 
             var fieldValues = fields

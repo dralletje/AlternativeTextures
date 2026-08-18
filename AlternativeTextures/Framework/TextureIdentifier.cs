@@ -1,9 +1,10 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework;
 
-readonly struct TextureIdentifier()
+readonly record struct TextureIdentifier() : IEquatable<TextureIdentifier>
 {
     public required string Owner { get; init; }
     public required string Name { get; init; }
@@ -41,4 +42,14 @@ readonly struct TextureIdentifier()
     }
 
     public static TextureIdentifier Default = new(AlternativeTextures.DEFAULT_OWNER, "", -1);
+
+    public bool Equals(TextureIdentifier other)
+    {
+        return this.Name == other.Name && this.Variation == other.Variation;
+    }
+
+    public override int GetHashCode()
+    {
+        return this.Name.GetHashCode() * 17 + this.Variation;
+    }
 }
