@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AlternativeTextures.Incubator;
+namespace Incubator;
 
 public interface ISignalBase
 {

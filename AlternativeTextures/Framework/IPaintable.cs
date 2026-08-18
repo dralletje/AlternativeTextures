@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches;
 using AlternativeTextures.Framework.Patches.StandardObjects;
@@ -28,35 +29,44 @@ public static class EnumUtil
     }
 }
 
-record ModelIdentifier()
-{
-    public required TextureType Type { get; init; }
-    public required string Name { get; init; }
-    public string? ItemId { get; init; }
-
-    public override string ToString()
-    {
-        return $"{Type}_{Name}";
-    }
-
-    public static ModelIdentifier? FromString(string modelIdentifierString)
-    {
-        return modelIdentifierString.Split("_", 2) switch
-        {
-            [var typeString, var name] => EnumUtil.ParseOrNull<TextureType>(typeString) switch
-            {
-                { } modelType => new ModelIdentifier() { Type = modelType, Name = name },
-                null => null,
-            },
-            _ => null,
-        };
-    }
-}
-
-record DrawableTexture()
+public record DrawableTexture()
 {
     public required Texture2D Texture { get; init; }
     public required Rectangle SourceRect { get; init; }
+
+    [SetsRequiredMembers]
+    public DrawableTexture(Texture2D texture)
+        : this()
+    {
+        Texture = texture;
+        SourceRect = new()
+        {
+            X = 0,
+            Y = 0,
+            Width = texture.Width,
+            Height = texture.Height,
+        };
+    }
+
+    [SetsRequiredMembers]
+    public DrawableTexture(DrawableTexture parent, Rectangle sourceRect)
+        : this()
+    {
+        Texture = parent.Texture;
+        SourceRect = new()
+        {
+            X = parent.SourceRect.X + sourceRect.X,
+            Y = parent.SourceRect.Y + sourceRect.Y,
+            /// TODO Make sure the sourceRect fits inside the parent SourceRect
+            Width = sourceRect.Width,
+            Height = sourceRect.Height,
+        };
+    }
+
+    public DrawableTexture WithSourceRect(Rectangle sourceRect)
+    {
+        return new DrawableTexture(this, sourceRect);
+    }
 }
 
 static class Function
@@ -94,7 +104,7 @@ interface IPaintable
     }
     public string InstanceName
     {
-        get { return this.ModelIdentifier.Name; }
+        get { return this.ModelIdentifier.String; }
     }
 
     private static string HoeDirtName(HoeDirt hoeDirt)
@@ -117,12 +127,8 @@ interface IPaintable
             var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
             yield return new PaintableFromModData(placedObject.modData)
             {
-                ModelIdentifier = new()
-                {
-                    Type = modelType,
-                    ItemId = placedObject.ItemId,
-                    Name = PatchTemplate.GetObjectName(placedObject),
-                },
+                ModelIdentifier = modelType.WithName(PatchTemplate.GetObjectName(placedObject)),
+                // ItemId = placedObject.ItemId,
                 Related = placedObject,
             };
         }
@@ -131,17 +137,13 @@ interface IPaintable
         {
             GiantCrop giantCrop => new PaintableFromModData(giantCrop.modData)
             {
-                ModelIdentifier = new() { Type = TextureType.GiantCrop, Name = giantCrop.InternalName! },
+                ModelIdentifier = TextureType.GiantCrop.WithName(giantCrop.InternalName!),
                 Related = giantCrop,
             },
 
             ResourceClump clump => new PaintableFromModData(clump.modData)
             {
-                ModelIdentifier = new()
-                {
-                    Type = TextureType.ResourceClump,
-                    Name = ResourceClumpPatch.GetResourceClumpName(clump)!,
-                },
+                ModelIdentifier = TextureType.ResourceClump.WithName(ResourceClumpPatch.GetResourceClumpName(clump)!),
                 Related = clump,
             },
 
@@ -158,33 +160,27 @@ interface IPaintable
         {
             Flooring flooring => new PaintableFromModData(flooring.modData)
             {
-                ModelIdentifier = new()
-                {
-                    Type = TextureType.Flooring,
-                    Name = flooring.InternalName,
-                    /// TODO Should I put ItemId here?
-                    // ItemId = flooring.whichFloor.Value,
-                },
+                ModelIdentifier = TextureType.Flooring.WithName(flooring.InternalName),
                 Related = flooring,
             },
             HoeDirt hoeDirt when hoeDirt.crop is not null => new PaintableFromModData(hoeDirt.modData)
             {
-                ModelIdentifier = new() { Type = TextureType.Crop, Name = HoeDirtName(hoeDirt) },
+                ModelIdentifier = TextureType.Crop.WithName(HoeDirtName(hoeDirt)),
                 Related = hoeDirt,
             },
             Grass grass => new PaintableFromModData(grass.modData)
             {
-                ModelIdentifier = new() { Type = TextureType.Grass, Name = "Grass" },
+                ModelIdentifier = TextureType.Grass.WithName("Grass"),
                 Related = grass,
             },
             Bush bush => new PaintableFromModData(bush.modData)
             {
-                ModelIdentifier = new() { Type = TextureType.Grass, Name = PatchTemplate.GetBushTypeString(bush) },
+                ModelIdentifier = TextureType.Grass.WithName(PatchTemplate.GetBushTypeString(bush)),
                 Related = bush,
             },
             Tree tree => new PaintableFromModData(tree.modData)
             {
-                ModelIdentifier = new() { Type = TextureType.Tree, Name = PatchTemplate.GetTreeTypeString(tree) },
+                ModelIdentifier = TextureType.Tree.WithName(PatchTemplate.GetTreeTypeString(tree)),
                 Related = tree,
             },
             FruitTree fruitTree => new PaintableFromModData(fruitTree.modData)
@@ -195,9 +191,10 @@ interface IPaintable
                 ModelIdentifier = new()
                 {
                     Type = TextureType.Tree,
-                    Name = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value)
+                    String = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value)
                         ? Game1.objectData[fruitTree.treeId.Value].Name
                         : string.Empty,
+                    IsName = true,
                 },
                 Related = fruitTree,
             },
@@ -245,7 +242,7 @@ static class ModDataToTexture
 
 record WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
 {
-    public ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Wallpaper" };
+    public ModelIdentifier ModelIdentifier { get; } = TextureType.Decoration.WithName("Wallpaper");
 
     public object? Related { get; } = null;
 
@@ -301,28 +298,28 @@ record WallpaperDecorationPaintable(DecoratableLocation location, string roomId)
         }
         else
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            var identifier = UniqueTextureIdentifier.FromString(textureIdentifier.Name, textureIdentifier.Variation);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(identifier);
             if (textureModel is null)
                 return null;
 
             var decorationOffset = 16;
-            return new()
-            {
-                Texture = textureModel.GetTexture(textureIdentifier.Variation),
-                SourceRect = new Rectangle(
+            return new(
+                parent: textureModel.Texture,
+                sourceRect: new Rectangle(
                     textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
                     textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
                     textureModel.TextureWidth,
                     textureModel.TextureHeight
-                ),
-            };
+                )
+            );
         }
     }
 }
 
 record FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
 {
-    public ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Floor" };
+    public ModelIdentifier ModelIdentifier { get; } = TextureType.Decoration.WithName("Floor");
 
     public object? Related { get; } = null;
 
@@ -378,21 +375,21 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
         }
         else
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            var identifier = UniqueTextureIdentifier.FromString(textureIdentifier.Name, textureIdentifier.Variation);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(identifier);
             if (textureModel is null)
                 return null;
 
             var decorationOffset = 8;
-            return new()
-            {
-                Texture = textureModel.GetTexture(textureIdentifier.Variation),
-                SourceRect = new Rectangle(
+            return new(
+                parent: textureModel.Texture,
+                sourceRect: new Rectangle(
                     textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
                     textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
                     textureModel.TextureWidth,
                     textureModel.TextureHeight
-                ),
-            };
+                )
+            );
         }
     }
 }
@@ -438,19 +435,18 @@ static class TextureHelper
         }
         else if (related is TerrainFeature terrainFeature)
         {
-            AlternativeTextureModel textureModel = null!;
             var variation = -1;
             return terrainFeature switch
             {
                 Tree tree => new()
                 {
                     Texture = tree.texture.Value,
-                    SourceRect = SourceRects.GetTreeSourceRect(textureModel, tree, 0, variation),
+                    SourceRect = SourceRects.GetTreeSourceRect(tree, variation, 0),
                 },
                 FruitTree fruitTree => new()
                 {
                     Texture = fruitTree.texture,
-                    SourceRect = SourceRects.GetFruitTreeSourceRect(textureModel, fruitTree, 0, variation),
+                    SourceRect = SourceRects.GetFruitTreeSourceRect(fruitTree, variation, 0),
                 },
                 Flooring flooring => Function.Tap<DrawableTexture>(() =>
                 {
@@ -465,23 +461,23 @@ static class TextureHelper
                     return new()
                     {
                         Texture = texture,
-                        SourceRect = SourceRects.GetFlooringSourceRect(textureModel, flooring, 0, variation),
+                        SourceRect = SourceRects.GetFlooringSourceRect(flooring, variation, 0),
                     };
                 }),
                 HoeDirt hoeDirt => new()
                 {
                     Texture = Game1.cropSpriteSheet,
-                    SourceRect = SourceRects.GetCropSourceRect(textureModel, hoeDirt.crop, 0, variation),
+                    SourceRect = SourceRects.GetCropSourceRect(hoeDirt.crop, variation, 0),
                 },
                 Grass grass => new()
                 {
                     Texture = grass.texture.Value,
-                    SourceRect = SourceRects.GetGrassSourceRect(textureModel, grass, 0, variation),
+                    SourceRect = SourceRects.GetGrassSourceRect(grass, variation, 0),
                 },
                 Bush bush => new()
                 {
                     Texture = Bush.texture.Value,
-                    SourceRect = SourceRects.GetBushSourceRect(textureModel, bush, 0, variation),
+                    SourceRect = SourceRects.GetBushSourceRect(bush, variation, 0),
                 },
 
                 ResourceClump resourceclump => Function.Tap<DrawableTexture>(() =>
@@ -539,98 +535,62 @@ record PaintableFromModData(ModDataDictionary modData) : IPaintable
         }
         else
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(
+                textureIdentifier.ToUniqueTextureIdentifier()
+            );
             if (textureModel is null)
                 /// Texture not found (most likely mod removed),
                 /// fall back to default
                 return TextureHelper.GetDefault(ModelIdentifier, this.Related);
 
-            var variation = textureIdentifier.Variation;
-            var texture = textureModel.GetTexture(textureIdentifier.Variation);
-
             if (this.Related is StardewValley.Object Related)
             {
-                return new()
-                {
-                    Texture = texture,
-                    SourceRect = SourceRects.GetSourceRectangle(
-                        textureModel,
+                return new(
+                    parent: textureModel.Texture,
+                    sourceRect: SourceRects.GetSourceRectangle(
                         Related,
+                        textureModel.Variation,
                         textureModel.TextureWidth,
-                        textureModel.TextureHeight,
-                        variation
-                    ),
-                };
+                        textureModel.TextureHeight
+                    )
+                );
             }
             else
             {
                 return this.Related is TerrainFeature terrainFeature
                     ? terrainFeature switch
                     {
-                        Tree tree => new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetTreeSourceRect(
-                                textureModel,
-                                tree,
-                                textureModel.TextureHeight,
-                                variation
-                            ),
-                        },
-                        FruitTree fruitTree => new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetFruitTreeSourceRect(
-                                textureModel,
+                        Tree tree => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetTreeSourceRect(tree, textureModel.Variation, textureModel.TextureHeight)
+                        ),
+                        FruitTree fruitTree => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetFruitTreeSourceRect(
                                 fruitTree,
-                                textureModel.TextureHeight,
-                                variation
-                            ),
-                        },
-                        Flooring flooring => new Func<DrawableTexture>(() =>
-                        {
-                            return new()
-                            {
-                                Texture = texture,
-                                SourceRect = SourceRects.GetFlooringSourceRect(
-                                    textureModel,
-                                    flooring,
-                                    textureModel.TextureHeight,
-                                    variation
-                                ),
-                            };
-                        })(),
-                        HoeDirt hoeDirt => new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetCropSourceRect(
-                                textureModel,
+                                textureModel.Variation,
+                                textureModel.TextureHeight
+                            )
+                        ),
+                        Flooring flooring => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetFlooringSourceRect(
+                                flooring,
+                                textureModel.Variation,
+                                textureModel.TextureHeight
+                            )
+                        ),
+                        HoeDirt hoeDirt => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetCropSourceRect(
                                 hoeDirt.crop,
-                                textureModel.TextureHeight,
-                                variation
-                            ),
-                        },
-                        Grass grass => new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetGrassSourceRect(
-                                textureModel,
-                                grass,
-                                textureModel.TextureHeight,
-                                variation
-                            ),
-                        },
-                        Bush bush => new()
-                        {
-                            Texture = texture,
-                            SourceRect = SourceRects.GetBushSourceRect(
-                                textureModel,
-                                bush,
-                                textureModel.TextureHeight,
-                                variation
-                            ),
-                        },
-                        ResourceClump clump => new() { Texture = texture, SourceRect = new Rectangle(0, 0, 32, 32) },
+                                textureModel.Variation,
+                                textureModel.TextureHeight
+                            )
+                        ),
+                        Grass grass => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetGrassSourceRect(grass, textureModel.Variation, textureModel.TextureHeight)
+                        ),
+                        Bush bush => textureModel.Texture.WithSourceRect(
+                            SourceRects.GetBushSourceRect(bush, textureModel.Variation, textureModel.TextureHeight)
+                        ),
+                        ResourceClump clump => textureModel.Texture.WithSourceRect(new Rectangle(0, 0, 32, 32)),
                         _ => null,
                     }
                     : null;

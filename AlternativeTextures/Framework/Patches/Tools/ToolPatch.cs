@@ -22,12 +22,11 @@ using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
-using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.Tools;
 
-internal class ToolPatch(IMonitor _monitor, IModHelper _helper) : PatchTemplate()
+internal class ToolPatch(IModHelper _helper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Tool);
 
@@ -245,9 +244,9 @@ internal class ToolPatch(IMonitor _monitor, IModHelper _helper) : PatchTemplate(
 
             case { Type: TextureType.Building }:
                 return new(rows: 1, columns: 3);
-            case { Type: TextureType.Decoration, Name: "Floor" }:
+            case { Type: TextureType.Decoration, IsName: true, String: "Floor" }:
                 return new(rows: 3, columns: 4);
-            case { Type: TextureType.Decoration, Name: "Wallpaper" }:
+            case { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" }:
                 return new(rows: 2, columns: 6);
             default:
                 return new(rows: 4, columns: 6);
@@ -655,7 +654,8 @@ internal class ToolPatch(IMonitor _monitor, IModHelper _helper) : PatchTemplate(
 
     internal static bool UseTextureCatalogue(Farmer who)
     {
-        Game1.activeClickableMenu = new CatalogueMenu(who);
+        /// IMMEDIATE TODO
+        // Game1.activeClickableMenu = new CatalogueMenu(who);
 
         return CancelUsing(who);
     }

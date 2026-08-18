@@ -4,7 +4,7 @@ using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework;
 
-sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
+public sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
 {
     public required string Owner { get; init; }
     public required string Name { get; init; }
@@ -46,6 +46,11 @@ sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
     public bool Equals(TextureIdentifier? other)
     {
         return other is not null && this.Name == other.Name && this.Variation == other.Variation;
+    }
+
+    public UniqueTextureIdentifier ToUniqueTextureIdentifier()
+    {
+        return UniqueTextureIdentifier.FromString(Name, Variation);
     }
 
     public override int GetHashCode()

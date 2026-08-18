@@ -1,20 +1,29 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using AlternativeTextures.Framework;
+using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
+using AlternativeTextures.Framework.Parser;
+using ConsoleLog;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace AlternativeTextures;
 
+public sealed class ContentPackException(string message) : Exception(message);
+
+public sealed class ContentPackTextureException(string message) : Exception(message);
+
 class ContentPackLoader(Mod mod)
 {
-    readonly IMonitor Monitor = mod.Monitor;
     readonly IManifest ModManifest = mod.ModManifest;
     readonly IModHelper Helper = mod.Helper;
 
@@ -33,292 +42,23 @@ class ContentPackLoader(Mod mod)
             var individualLoadingStopwatch = Stopwatch.StartNew();
             try
             {
-                var textureFolders = new DirectoryInfo(
-                    Path.Combine(contentPack.DirectoryPath, "Textures")
-                ).GetDirectories("*", SearchOption.AllDirectories);
-                if (textureFolders.Length == 0)
+                var textureModels = LoadPackContents(contentPack).ToList();
+
+                var shouldBeUnique = textureModels.GroupBy(model => (model.Owner, model.ForModel, model.Season));
+
+                foreach (var matches in shouldBeUnique)
                 {
-                    Monitor.Log(
-                        $"No sub-folders found under Textures for the content pack {contentPack.Manifest.Name}!",
-                        LogLevel.Warn
-                    );
-                    continue;
-                }
-
-                // Load in the alternative textures
-                foreach (var textureFolder in textureFolders)
-                {
-                    if (!File.Exists(Path.Combine(textureFolder.FullName, "texture.json")))
+                    var hashset = new HashSet<int>(matches.Select(x => x.Variation));
+                    if (hashset.Count == matches.Count())
                     {
-                        if (textureFolder.GetDirectories().Length == 0)
+                        foreach (var match in matches)
                         {
-                            Monitor.Log(
-                                $"Content pack {contentPack.Manifest.Name} is missing a texture.json under {textureFolder.Name}!",
-                                LogLevel.Warn
-                            );
-                        }
-
-                        continue;
-                    }
-
-                    var parentFolderName = textureFolder.Parent.FullName.Replace(
-                        contentPack.DirectoryPath + Path.DirectorySeparatorChar,
-                        String.Empty
-                    );
-                    var modelPath = Path.Combine(parentFolderName, textureFolder.Name, "texture.json");
-
-                    var baseModel = contentPack.ReadJsonFile<AlternativeTextureModel>(modelPath);
-                    baseModel.Owner = contentPack.Manifest.UniqueID;
-                    baseModel.PackName = contentPack.Manifest.Name;
-                    baseModel.Author = contentPack.Manifest.Author;
-
-                    // Add to ItemId to CollectiveIds if ItemName is given or add to ItemName to CollectiveNames if ItemName is given
-                    if (String.IsNullOrEmpty(baseModel.ItemId) is false)
-                    {
-                        baseModel.CollectiveIds.Add(baseModel.ItemId);
-                    }
-                    else if (String.IsNullOrEmpty(baseModel.ItemName) is false)
-                    {
-                        baseModel.CollectiveNames.Add(baseModel.ItemName);
-                    }
-
-                    // Handle SDV and framework related changes
-                    var originalItemName = baseModel.ItemName;
-                    if (baseModel.HandleNameChanges() is List<string> changedNames && changedNames.Count > 0)
-                    {
-                        foreach (var changedName in changedNames)
-                        {
-                            Monitor.Log(
-                                $"The texture {baseModel.ItemName} from {contentPack.Manifest.Name} has an outdated ItemName that was handled automatically: {originalItemName} -> {changedName}",
-                                LogLevel.Trace
-                            );
+                            AlternativeTextures.textureManager.AddAlternativeTexture(match);
                         }
                     }
-
-                    var originalType = baseModel.Type;
-                    if (baseModel.HandleTypeChanges())
+                    else
                     {
-                        Monitor.Log(
-                            $"The texture {baseModel.ItemName} from {contentPack.Manifest.Name} has an outdated Type that was handled automatically: {originalType} -> {baseModel.Type}",
-                            LogLevel.Trace
-                        );
-                    }
-
-                    // Combine the two collective lists
-                    var collectedCollective = new List<dynamic>();
-                    foreach (var itemName in baseModel.CollectiveNames)
-                    {
-                        collectedCollective.Add(new { Name = itemName, IsId = false });
-                    }
-                    foreach (var itemId in baseModel.CollectiveIds)
-                    {
-                        collectedCollective.Add(new { Name = itemId, IsId = true });
-                    }
-
-                    // Attempt to add an instance of each season
-                    var seasons = baseModel.Seasons;
-                    for (var s = 0; s < 4; s++)
-                    {
-                        if ((seasons.Count == 0 && s > 0) || (seasons.Count > 0 && s >= seasons.Count))
-                        {
-                            continue;
-                        }
-
-                        // Attempt to add each instance under CollectiveNames
-                        foreach (var textureData in collectedCollective)
-                        {
-                            // Parse the model and assign it the content pack's owner
-                            var textureModel = baseModel.ShallowCopy();
-
-                            // Set the ItemName or ItemId depending on IsId flag
-                            if (textureData.IsId is true)
-                            {
-                                textureModel.ItemId = textureData.Name;
-                            }
-                            else
-                            {
-                                // Override Grass Alternative Texture pack ItemName to always be Grass, in order to be compatible with translations
-                                textureModel.ItemName =
-                                    textureModel.Type.ToString() == "Grass" ? "Grass" : textureData.Name;
-                            }
-
-                            // Verify that ItemName or ItemNames is given
-                            if (collectedCollective.Count == 0)
-                            {
-                                Monitor.Log(
-                                    $"Unable to add alternative texture for {textureModel.Owner}: Missing the ItemName, ItemId, CollectiveNames or CollectiveIds property! See the log for additional details.",
-                                    LogLevel.Warn
-                                );
-                                Monitor.Log(
-                                    $"Unable to add alternative texture for {textureModel.Owner}: Missing the ItemName, ItemId, CollectiveNames or CollectiveIds property found in the following path: {textureFolder.FullName}",
-                                    LogLevel.Trace
-                                );
-                                continue;
-                            }
-
-                            // Add the UniqueId to the top-level Keywords
-                            textureModel.Keywords.Add(contentPack.Manifest.UniqueID);
-
-                            // Add the top-level Keywords to any ManualVariations.Keywords
-                            foreach (var variation in textureModel.ManualVariations)
-                            {
-                                variation.Keywords.AddRange(textureModel.Keywords);
-                            }
-
-                            // Set the season (if any)
-                            textureModel.Season = seasons.Count == 0 ? String.Empty : seasons[s];
-
-                            // Set the ModelName and TextureId
-                            textureModel.ModelName = String.IsNullOrEmpty(textureModel.Season)
-                                ? String.Concat(textureModel.GetTextureType(), "_", textureModel.ItemName)
-                                : String.Concat(
-                                    textureModel.GetTextureType(),
-                                    "_",
-                                    textureModel.ItemName,
-                                    "_",
-                                    textureModel.Season
-                                );
-                            textureModel.TextureId = String.Concat(textureModel.Owner, ".", textureModel.ModelName);
-
-                            // Verify we are given a texture and if so, track it
-                            if (!File.Exists(Path.Combine(textureFolder.FullName, "texture.png")))
-                            {
-                                // No texture.png found, may be using split texture files (texture_1.png, texture_2.png, etc.)
-                                var textureFilePaths = Directory
-                                    .GetFiles(textureFolder.FullName, "texture_*.png")
-                                    .Select(t => Path.GetFileName(t))
-                                    .Where(t => t.Any(char.IsDigit))
-                                    .OrderBy(t => Int32.Parse(Regex.Match(t, @"\d+").Value));
-
-                                if (textureFilePaths.Count() == 0)
-                                {
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: No associated texture.png or split textures (texture_1.png, texture_2.png, etc.) given. See the log for additional details.",
-                                        LogLevel.Warn
-                                    );
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: No associated texture.png or split textures (texture_1.png, texture_2.png, etc.) found in the following path: {textureFolder.FullName}",
-                                        LogLevel.Trace
-                                    );
-                                    continue;
-                                }
-                                else if (textureModel.IsDecoration())
-                                {
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: Split textures (texture_1.png, texture_2.png, etc.) are not allowed for Decoration types (wallpapers / floors). See the log for additional details.",
-                                        LogLevel.Warn
-                                    );
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: Split textures (texture_1.png, texture_2.png, etc.) are not allowed for Decoration types (wallpapers / floors). Located in the following path: {textureFolder.FullName}",
-                                        LogLevel.Trace
-                                    );
-                                    continue;
-                                }
-
-                                if (textureModel.GetVariations() < textureFilePaths.Count())
-                                {
-                                    Monitor.Log(
-                                        $"Warning for alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: There are less variations specified in texture.json than split textures files. See the log for additional details.",
-                                        LogLevel.Warn
-                                    );
-                                    Monitor.Log(
-                                        $"Warning for alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: There are less variations specified in texture.json than split textures files found in the following path: {textureFolder.FullName}",
-                                        LogLevel.Trace
-                                    );
-                                }
-                                else if (textureModel.IsManualVariationsValid() is false)
-                                {
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: ManualVariations is used but does not start with ID == 0 (the propery should be zero-indexed). See the log for additional details.",
-                                        LogLevel.Warn
-                                    );
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: ManualVariations is used but does not start with ID == 0 (the propery should be zero-indexed). Adjust the ID order so that it starts with ID = 0. Located in the following path: {textureFolder.FullName}",
-                                        LogLevel.Trace
-                                    );
-                                    continue;
-                                }
-
-                                // Load in the first texture_#.png to get its dimensions for creating stitchedTexture
-                                if (
-                                    !StitchTexturesToModel(
-                                        textureModel,
-                                        contentPack,
-                                        Path.Combine(parentFolderName, textureFolder.Name),
-                                        textureFilePaths.Take(textureModel.GetVariations())
-                                    )
-                                )
-                                {
-                                    continue;
-                                }
-
-                                textureModel.TileSheetPath = contentPack
-                                    .ModContent.GetInternalAssetName(
-                                        Path.Combine(parentFolderName, textureFolder.Name, textureFilePaths.First())
-                                    )
-                                    .Name;
-                            }
-                            else
-                            {
-                                // Load in the single vertical texture
-                                textureModel.TileSheetPath = contentPack
-                                    .ModContent.GetInternalAssetName(
-                                        Path.Combine(parentFolderName, textureFolder.Name, "texture.png")
-                                    )
-                                    .Name;
-                                var singularTexture = contentPack.ModContent.Load<Texture2D>(
-                                    textureModel.TileSheetPath
-                                );
-                                if (singularTexture.Height >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT)
-                                {
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for {textureModel.Owner}: The texture {textureModel.TextureId} has a height larger than 16384!\nPlease split it into individual textures (e.g. texture_0.png, texture_1.png, etc.) to resolve this issue. See the log for additional details.",
-                                        LogLevel.Warn
-                                    );
-                                    Monitor.Log(
-                                        $"Unable to add alternative texture for {textureModel.Owner}: The texture {textureModel.TextureId} has a height larger than 16384!\nPlease split it into individual textures (e.g. texture_0.png, texture_1.png, etc.) to resolve this issue. Located in the following path: {textureFolder.FullName}",
-                                        LogLevel.Trace
-                                    );
-                                    continue;
-                                }
-                                else if (textureModel.IsDecoration())
-                                {
-                                    if (singularTexture.Width < 256)
-                                    {
-                                        Monitor.Log(
-                                            $"Unable to add alternative texture for {textureModel.ItemName} from {contentPack.Manifest.Name}: The required image width is 256 for Decoration types (wallpapers / floors). Please correct the image's width manually. See the log for additional details.",
-                                            LogLevel.Warn
-                                        );
-                                        Monitor.Log(
-                                            $"Unable to add alternative texture for {textureModel.ItemName} from {contentPack.Manifest.Name}: The required image width is 256 for Decoration types (wallpapers / floors). Please correct the image's width manually at the following path: {textureFolder.FullName}",
-                                            LogLevel.Trace
-                                        );
-                                        continue;
-                                    }
-
-                                    textureModel.Textures[0] = singularTexture;
-                                }
-                                else if (
-                                    !SplitVerticalTexturesToModel(
-                                        textureModel,
-                                        contentPack.Manifest.Name,
-                                        singularTexture
-                                    )
-                                )
-                                {
-                                    continue;
-                                }
-                            }
-
-                            // Track the texture model
-                            AlternativeTextures.textureManager.AddAlternativeTexture(textureModel);
-
-                            // Log it
-                            if (AlternativeTextures.modConfig.OutputTextureDataToLog)
-                            {
-                                Monitor.Log(textureModel.ToString(), LogLevel.Trace);
-                            }
-                        }
+                        Console.Log($"{matches.Count()} textures found for {matches.Key}");
                     }
                 }
             }
@@ -332,6 +72,8 @@ class ContentPackLoader(Mod mod)
                 $"[{contentPack.Manifest.Name}] finished loading in {Math.Round(individualLoadingStopwatch.ElapsedMilliseconds / 1000f, 2)} seconds",
                 LogLevel.Trace
             );
+
+            // AlternativeTextures.textureManager.AddAlternativeTexture(textureModel);
         }
 
         // Clear the wallpaper / flooring cache
@@ -344,105 +86,285 @@ class ContentPackLoader(Mod mod)
         );
     }
 
-    internal static bool SplitVerticalTexturesToModel(
-        AlternativeTextureModel textureModel,
-        string contentPackName,
-        Texture2D verticalTexture
-    )
+    internal static IEnumerable<AlternativeTextureModel> LoadPackContents(IContentPack contentPack)
     {
-        try
+        var texturesRootFolder = Path.Combine(contentPack.DirectoryPath, "Textures");
+        var textureFolders = new DirectoryInfo(texturesRootFolder).GetDirectories("*", SearchOption.AllDirectories);
+
+        if (textureFolders.Length == 0)
+            throw new ContentPackException("No folders found inside content pack");
+
+        var mutable_TextureModels = new List<AlternativeTextureModel>();
+
+        // Load in the alternative textures
+        foreach (var textureFolder in textureFolders)
         {
-            for (var v = 0; v < textureModel.GetVariations(); v++)
+            try
             {
-                var extractRectangle = new Rectangle(
-                    0,
-                    textureModel.TextureHeight * v,
-                    verticalTexture.Width,
-                    textureModel.TextureHeight
-                );
-                Color[] extractPixels = new Color[extractRectangle.Width * extractRectangle.Height];
-
-                if (verticalTexture.Bounds.Contains(extractRectangle) is false)
+                if (File.Exists(Path.Combine(textureFolder.FullName, "texture.json")) is false)
                 {
-                    var maxVariationsPossible = verticalTexture.Height / textureModel.TextureHeight;
+                    if (textureFolder.GetDirectories().Length == 0)
+                        throw new ContentPackException("Texture folder is missing texture.json");
 
-                    AlternativeTextures.monitor.Log(
-                        $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPackName}: More variations specified ({textureModel.GetVariations()}) than given ({maxVariationsPossible})",
-                        LogLevel.Warn
-                    );
-                    return false;
+                    continue;
                 }
 
-                // Get the required pixels
-                verticalTexture.GetData(0, extractRectangle, extractPixels, 0, extractPixels.Length);
+                /// TODO Just use textureFolder.FullName?
+                var relativeFolderName = textureFolder.FullName.Replace(contentPack.DirectoryPath, string.Empty)[1..];
+                // var textureFolderPath = Path.Combine(parentFolderName, textureFolder.Name);
 
-                // Set the required pixels
-                var extractedTexture = new Texture2D(
-                    Game1.graphics.GraphicsDevice,
-                    extractRectangle.Width,
-                    extractRectangle.Height
-                );
-                extractedTexture.SetData(extractPixels);
+                // Console.Log($"textureFolderPath: {relativeFolderName}");
+                // Console.Log($"textureFolder: {textureFolder.FullName}");
+                var modelPath = Path.Combine(textureFolder.FullName, "texture.json");
+                // Console.Log($"modelPath: {modelPath}");
 
-                textureModel.Textures[v] = extractedTexture;
+                var text = File.ReadAllText(modelPath);
+                var file =
+                    JsonConvert.DeserializeObject<AlternativeTextureFile>(text)
+                    ?? throw new ContentPackTextureException("Couldn't parse texture.json");
+                // Console.Log($"ok: {file}");
+
+                // var file =
+                //     contentPack.ReadJsonFile<AlternativeTextureFile>(relativeFolderName)
+                //     ?? throw new ContentPackTextureException("Couldn't parse texture.json");
+
+                var ids = file.ItemId is null ? file.CollectiveIds : [.. file.CollectiveIds, file.ItemId];
+                var names = file.ItemName is null ? file.CollectiveNames : [.. file.CollectiveNames, file.ItemName];
+
+                if (ids.Count is 0 && names.Count is 0)
+                    throw new ContentPackException("Texture has no ids or names");
+
+                if (
+                    file.ManualVariations.Any(v => v.Id == 0) is false
+                    && file.ManualVariations.Any(v => v.Id == 1) is true
+                )
+                    throw new ContentPackTextureException("ManualVariations contains an Id = 1, but not an Id = 0");
+
+                /// Name changes for backward compatibility
+                names = names
+                    .Select(name =>
+                        file switch
+                        {
+                            /// Backwards compatibility
+                            { Type: TextureType.Building }
+                                when name.Equals("Log Cabin", StringComparison.OrdinalIgnoreCase) => "Cabin",
+                            { Type: TextureType.Building }
+                                when name.Equals("Plank Cabin", StringComparison.OrdinalIgnoreCase) => "Cabin",
+                            { Type: TextureType.Building }
+                                when name.Equals("Stone Cabin", StringComparison.OrdinalIgnoreCase) => "Cabin",
+
+                            /// Something with forcing the item name to "Grass" for translations?
+                            /// Don't really know
+                            { Type: TextureType.Grass } => "Grass",
+
+                            _ => name,
+                        }
+                    )
+                    .ToList();
+
+                var type = file.Type switch
+                {
+                    /// Backwards compatible renaming
+                    TextureType.Craftable
+                        when names.Any(n => n.Equals("Artifact Spot", StringComparison.OrdinalIgnoreCase)) =>
+                        TextureType.ArtifactSpot,
+
+                    _ => file.Type,
+                };
+
+                List<ModelIdentifier> models =
+                [
+                    .. ids.Select(id => new ModelIdentifier
+                    {
+                        Type = type,
+                        String = id,
+                        IsName = false,
+                    }),
+                    .. names.Select(name => new ModelIdentifier
+                    {
+                        Type = type,
+                        String = name,
+                        IsName = true,
+                    }),
+                ];
+
+                var variations =
+                    file.ManualVariations.Count == 0
+                        ? Enumerable.Range(0, file.Variations).Select(index => new VariationFromFile() { Id = index })
+                        : file.ManualVariations;
+
+                var textureVariations = File.Exists(Path.Combine(textureFolder.FullName, "texture.png"))
+                    ? LoadTexturesFromSingleFile(contentPack, file, relativeFolderName)
+                    : LoadTexturesFromMultipleFiles(contentPack, file, relativeFolderName);
+
+                /// Not checking now if there are more `textureVariations` than there are `variations`,
+                /// but that might something we might want to add
+                var variationCombination = Enumerable.Zip(variations, textureVariations);
+
+                /// Add `null` as a Season when no season are defined
+                /// (Could also add all the seasons, but that feels a bit extreme)
+                var seasons =
+                    file.Seasons.Count == 0 ? [Season.Spring, Season.Summer, Season.Fall, Season.Winter] : file.Seasons;
+
+                foreach (var modelIdentifier in models)
+                {
+                    foreach (var (variation, texture) in variationCombination)
+                    {
+                        foreach (var season in seasons)
+                        {
+                            mutable_TextureModels.Add(
+                                new AlternativeTextureModel()
+                                {
+                                    PackManifest = contentPack.Manifest,
+                                    ForModel = modelIdentifier,
+                                    Variation = variation.Id,
+                                    Season = season,
+
+                                    Texture = texture,
+                                    TextureHeight = file.TextureHeight,
+                                    TextureWidth = file.TextureWidth,
+
+                                    DisplayName = variation.Name,
+                                    Keywords = [.. file.Keywords, .. variation.Keywords, contentPack.Manifest.UniqueID],
+
+                                    IgnoreBuildingColorMask = file.IgnoreBuildingColorMask,
+                                    // Animation = file.Animation,
+                                }
+                            );
+                        }
+                    }
+                }
             }
-        }
-        catch (Exception exception)
-        {
-            AlternativeTextures.monitor.Log(
-                $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPackName}: Unhandled framework error: {exception}",
-                LogLevel.Warn
-            );
-            return false;
-        }
-
-        return true;
-    }
-
-    bool StitchTexturesToModel(
-        AlternativeTextureModel textureModel,
-        IContentPack contentPack,
-        string rootPath,
-        IEnumerable<string> textureFilePaths
-    )
-    {
-        var baseTexture = contentPack.ModContent.Load<Texture2D>(Path.Combine(rootPath, textureFilePaths.First()));
-
-        // If there is only one split texture file, skip the rest of the logic to avoid issues
-        if (textureFilePaths.Count() == 1 || textureModel.GetVariations() == 1)
-        {
-            if (textureModel.GetVariations() == 1 && textureFilePaths.Count() > 1)
+            catch (Exception error)
             {
                 Monitor.Log(
-                    $"Detected more split textures ({textureFilePaths.Count()}) than specified variations ({textureModel.GetVariations()}) for {textureModel.TextureId} from {contentPack.Manifest.Name}",
-                    LogLevel.Warn
+                    $"[{contentPack.Manifest.Name}] Error loading texture {textureFolder}: {error}",
+                    LogLevel.Error
                 );
             }
-
-            textureModel.Textures[0] = baseTexture;
-            return true;
         }
 
-        try
-        {
-            var variation = 0;
-            foreach (var textureFilePath in textureFilePaths)
-            {
-                var splitTexture = contentPack.ModContent.Load<Texture2D>(Path.Combine(rootPath, textureFilePath));
-                textureModel.Textures[variation] = splitTexture;
+        return mutable_TextureModels;
+    }
 
-                variation++;
+    internal static IEnumerable<DrawableTexture> LoadTexturesFromSingleFile(
+        IContentPack contentPack,
+        AlternativeTextureFile textureFile,
+        string textureFolderPath
+    )
+    {
+        // Load in the single vertical texture
+        var tilesheetPath = contentPack
+            .ModContent.GetInternalAssetName(Path.Combine(textureFolderPath, "texture.png"))
+            .Name;
+        var texture = contentPack.ModContent.Load<Texture2D>(tilesheetPath);
+
+        if (texture.Height >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT)
+            throw new ContentPackTextureException("The texture has a height larger than 16384 pixels");
+
+        if (textureFile.Type == TextureType.Decoration)
+        {
+            if (texture.Width < 256)
+                throw new ContentPackTextureException(
+                    "The required image width is 256 for Decoration types (wallpapers / floors)"
+                );
+
+            yield return new DrawableTexture(texture);
+        }
+        else
+        {
+            /// We are going to split soley based on the given TextureWidth and TextureHeight
+            /// TODO I guess not, this seems to be part of the deal somehow...
+            // if (texture.Width != textureFile.TextureWidth)
+            //     throw new ContentPackTextureException(
+            //         $"Texture file has different width than provided TextureWidth (defined: {textureFile.TextureWidth}, actual: {texture.Width})"
+            //     );
+
+            if (texture.Height % textureFile.TextureHeight != 0)
+                throw new ContentPackTextureException(
+                    $"Texture file height is not a multiple of provided TextureHeight (defined: {textureFile.TextureHeight}, actual: {texture.Height})"
+                );
+
+            var variantionsInTexture = texture.Height / textureFile.TextureHeight;
+
+            foreach (var index in Enumerable.Range(0, variantionsInTexture))
+            {
+                var bestDrawable = new DrawableTexture()
+                {
+                    Texture = texture,
+                    SourceRect = new Rectangle()
+                    {
+                        X = 0,
+                        Y = textureFile.TextureHeight * index,
+                        // Width = textureFile.TextureWidth,
+                        Width = texture.Width,
+                        Height = textureFile.TextureHeight,
+                    },
+                };
+
+                /// TODO Don't flatten, once the rest of the code knows of DrawableTexture
+                var boringTexture = FlattenDrawableTexture(bestDrawable);
+                yield return new DrawableTexture()
+                {
+                    Texture = boringTexture,
+                    SourceRect = new Rectangle()
+                    {
+                        X = 0,
+                        Y = 0,
+                        Width = boringTexture.Width,
+                        Height = boringTexture.Height,
+                    },
+                };
             }
         }
-        catch (Exception exception)
-        {
-            Monitor.Log(
-                $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPack.Manifest.Name}: Unhandled framework error: {exception}",
-                LogLevel.Warn
-            );
-            return false;
-        }
+    }
 
-        return true;
+    internal static IEnumerable<DrawableTexture> LoadTexturesFromMultipleFiles(
+        IContentPack contentPack,
+        AlternativeTextureFile textureFile,
+        string textureFolder
+    )
+    {
+        var textureFileNames = Directory
+            .GetFiles(Path.Combine(contentPack.DirectoryPath, textureFolder), "texture_*.png")
+            .Select(t => Path.GetFileName(t))
+            .Where(t => t.Any(char.IsDigit))
+            .OrderBy(t => Int32.Parse(Regex.Match(t, @"\d+").Value));
+
+        if (textureFileNames.Count() == 0)
+            throw new ContentPackTextureException(
+                "No associated texture.png or split textures (texture_1.png, texture_2.png, etc.)"
+            );
+
+        if (textureFile.Type is TextureType.Decoration)
+            throw new ContentPackTextureException(
+                "Split textures (texture_1.png, texture_2.png, etc.) are not allowed for Decoration types (wallpapers / floors)"
+            );
+
+        foreach (var textureFileName in textureFileNames)
+        {
+            var texture = contentPack.ModContent.Load<Texture2D>(Path.Combine(textureFolder, textureFileName));
+            yield return new DrawableTexture(texture);
+        }
+    }
+
+    public static Texture2D FlattenDrawableTexture(DrawableTexture source)
+    {
+        Color[] extractPixels = new Color[source.SourceRect.Width * source.SourceRect.Height];
+
+        if (source.Texture.Bounds.Contains(source.SourceRect) is false)
+            throw new ArgumentException("SourceRect is not fully inside actual texture bounds");
+
+        // Get the required pixels
+        source.Texture.GetData(0, source.SourceRect, extractPixels, 0, extractPixels.Length);
+
+        // Set the required pixels
+        var extractedTexture = new Texture2D(
+            Game1.graphics.GraphicsDevice,
+            source.SourceRect.Width,
+            source.SourceRect.Height
+        );
+        extractedTexture.SetData(extractPixels);
+        return extractedTexture;
     }
 }

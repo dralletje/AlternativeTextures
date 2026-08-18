@@ -25,7 +25,6 @@ internal class TextureManager(IMod mod)
         return ErrorTexture;
     });
 
-    private IMonitor _monitor = mod.Monitor;
     private IModHelper _helper = mod.Helper;
 
     private List<AlternativeTextureModel> _alternativeTextures = [];
@@ -36,17 +35,23 @@ internal class TextureManager(IMod mod)
 
     private string _variationRegexPattern = @"AlternativeTextures\/Textures\/.*(?<variation>\d+)$";
 
+    static int? FindIndexOrNull<T>(List<T> haystack, System.Predicate<T> findNeedle)
+    {
+        var result = haystack.FindIndex(findNeedle);
+        return result is -1 ? null : result;
+    }
+
+    public Dictionary<UniqueTextureIdentifier, AlternativeTextureModel> texturesByIdentifier = [];
+
     public void AddAlternativeTexture(AlternativeTextureModel model)
     {
-        if (_alternativeTextures.Any(t => t.GetId() == model.GetId()))
+        if (FindIndexOrNull(_alternativeTextures, t => t.UniqueIdentifier == model.UniqueIdentifier) is { } index)
         {
-            var replacementIndex = _alternativeTextures.IndexOf(
-                _alternativeTextures.First(t => t.GetId() == model.GetId())
-            );
-            _alternativeTextures[replacementIndex] = model;
+            _alternativeTextures[index] = model;
         }
         else
         {
+            texturesByIdentifier.Add(model.UniqueIdentifier, model);
             _alternativeTextures.Add(model);
             _textureIdsInsensitive.Add(model.GetId());
         }
@@ -90,6 +95,7 @@ internal class TextureManager(IMod mod)
         return _textureNames;
     }
 
+    [Obsolete("Don't even know.")]
     public bool DoesObjectHaveAlternativeTexture(string objectName, bool isItemId = false)
     {
         return _alternativeTextures.Any(t =>
@@ -98,6 +104,7 @@ internal class TextureManager(IMod mod)
         );
     }
 
+    [Obsolete("Don't even know.")]
     public bool DoesObjectHaveAlternativeTextureById(string objectId)
     {
         return _textureIdsInsensitive.Contains(objectId);
@@ -116,6 +123,7 @@ internal class TextureManager(IMod mod)
         return validTextures[Game1.random.Next(validTextures.Count)];
     }
 
+    [Obsolete("Use .GetTexture(identifier)")]
     public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
     {
         return !DoesObjectHaveAlternativeTextureById(textureId)
@@ -123,6 +131,7 @@ internal class TextureManager(IMod mod)
             : _alternativeTextures.First(t => string.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
     }
 
+    [Obsolete("String modelname")]
     public List<AlternativeTextureModel> GetAvailableTextureModels(string modelName, Season season)
     {
         var modelNameWithSeason = string.Concat(modelName, "_", season);
@@ -146,6 +155,22 @@ internal class TextureManager(IMod mod)
             )
         );
         return seasonalTextures;
+    }
+
+    public List<AlternativeTextureModel> GetTexturesForModel(ModelIdentifier modelIdentifier, Season season)
+    {
+        return _alternativeTextures
+            // .Where(t =>
+            //     t.IsUsingItemId() is false
+            //     && string.Equals(t.GetNameWithSeason(), modelNameWithSeason, StringComparison.OrdinalIgnoreCase)
+            // )
+            .Where(t => t.ForModel == modelIdentifier && t.Season == season)
+            .ToList();
+    }
+
+    public AlternativeTextureModel? GetTexture(UniqueTextureIdentifier identifier)
+    {
+        return texturesByIdentifier.GetValueOrDefault(identifier);
     }
 
     public List<AlternativeTextureModel> GetAvailableTextureModels(string itemId, string modelName, Season season)

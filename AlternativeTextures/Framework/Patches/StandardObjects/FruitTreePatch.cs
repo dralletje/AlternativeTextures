@@ -13,7 +13,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FruitTreePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
+internal class FruitTreePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(FruitTree);
 
@@ -57,11 +57,11 @@ internal class FruitTreePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
             }
             catch (Exception ex)
             {
-                _monitor.Log(
+                Monitor.Log(
                     $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                     LogLevel.Warn
                 );
-                _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
+                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
             }
         }
     }

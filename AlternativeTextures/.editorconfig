@@ -45,3 +45,5 @@ dotnet_diagnostic.CA1829.severity = warning
 
 # Unused variable
 dotnet_diagnostic.CS9113.severity = suggestion
+
+dotnet_diagnostic.IDE0305.severity = suggestion

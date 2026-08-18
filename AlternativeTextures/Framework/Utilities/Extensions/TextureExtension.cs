@@ -22,7 +22,7 @@ public static class TextureExtension
         }
         catch
         {
-            AlternativeTextures.monitor.Log(
+            Monitor.Log(
                 "Issue creating a selective texture copy, likely out of bounds for dimensions.",
                 StardewModdingAPI.LogLevel.Trace
             );

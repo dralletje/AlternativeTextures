@@ -87,10 +87,10 @@ internal class MonsterPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTe
         }
 
         if (
-            __instance.Sprite.textureName.Value.IndexOf("_dangerous", StringComparison.OrdinalIgnoreCase) >= 0
-            && __instance
+            __instance.Sprite.textureName.Value.Contains("_dangerous", StringComparison.OrdinalIgnoreCase)
+            && !__instance
                 .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                .IndexOf("_dangerous", StringComparison.OrdinalIgnoreCase) == -1
+                .Contains("_dangerous", StringComparison.OrdinalIgnoreCase)
         )
         {
             var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}_dangerous";

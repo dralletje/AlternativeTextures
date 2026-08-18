@@ -193,7 +193,8 @@ class ModConfigHolder(Mod mod)
                                 new
                                 {
                                     textureType = model.GetTextureType(),
-                                    season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
+                                    // season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
+                                    season = model.Season,
                                     variations = model.GetVariations(),
                                 }
                             )
@@ -204,7 +205,8 @@ class ModConfigHolder(Mod mod)
                         string variationText = Helper.Translation.Get("config.model_single.name", new { variation });
                         // Add general description label
                         var description =
-                            $"Type: {model.GetTextureType()}\nSeason(s): {(String.IsNullOrEmpty(model.Season) ? "All" : model.Season)}";
+                            // $"Type: {model.GetTextureType()}\nSeason(s): {(String.IsNullOrEmpty(model.Season) ? "All" : model.Season)}";
+                            $"Type: {model.GetTextureType()}\nSeason(s): {model.Season}";
                         configApi.AddSectionTitle(
                             ModManifest,
                             () => variationText,
@@ -214,7 +216,8 @@ class ModConfigHolder(Mod mod)
                                     new
                                     {
                                         textureType = model.GetTextureType(),
-                                        season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
+                                        season = model.Season,
+                                        // season = String.IsNullOrEmpty(model.Season) ? "All" : model.Season,
                                     }
                                 )
                         );

@@ -1,103 +1,162 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using AlternativeTextures.Framework.Enums;
+using ConsoleLog;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
 using StardewValley;
 
 namespace AlternativeTextures.Framework.Models;
 
-public class AlternativeTextureModel
+public readonly record struct UniqueTextureIdentifier(
+    string Owner,
+    ModelIdentifier ForModel,
+    int Variation,
+    Season Season
+)
 {
-    public string Owner { get; set; }
-    public string PackName { get; set; }
-    public string Author { get; set; }
-    public string ItemName
+    public static UniqueTextureIdentifier FromString(string name, int variation)
     {
-        get { return string.IsNullOrEmpty(field) ? ItemId : field; }
-        set;
+        var (ownerAndType, objectName, season) = name.Split("_", 3) switch
+        {
+            [var _ownerAndType, var _objectName] => (_ownerAndType, _objectName, Game1.currentLocation.GetSeason()),
+            [var _ownerAndType, var _objectName, var _seasonString]
+                when Enum.TryParse<Season>(_seasonString, out var _season) => (_ownerAndType, _objectName, _season),
+            _ => throw new ArgumentException($"Not a valid name '{name}'"),
+        };
+        var (owner, type) = ownerAndType.Split(".") switch
+        {
+            [.. var _owner, var _typeString] when Enum.TryParse<TextureType>(_typeString, out var _type) => (
+                string.Join(".", _owner),
+                _type
+            ),
+            _ => throw new ArgumentException($"Not a valid name '{name}' #2"),
+        };
+
+        return new()
+        {
+            ForModel = new()
+            {
+                Type = type,
+                IsName = true,
+                String = objectName,
+            },
+            Owner = owner,
+            Variation = variation,
+        };
     }
 
-    public string ItemId { get; set; }
-    public List<string> CollectiveNames { get; set; } = [];
-    public List<string> CollectiveIds { get; set; } = [];
-    public TextureType Type { get; set; }
-
-    [Obsolete("No longer used due SMAPI 3.14.0 allowing for passive invalidation checks.")]
-    public bool EnableContentPatcherCheck { get; set; }
-    public bool IgnoreBuildingColorMask { get; set; } // Only usable by Type == "Building"
-    public List<string> Keywords { get; set; } = [];
-    public List<string> Seasons { get; set; } = []; // For use by mod user to determine which seasons the texture is valid for
-    internal string Season { get; set; } // Used by framework to split the Seasons property into individual AlternativeTextureModel models
-    internal string TextureId { get; set; }
-    internal string ModelName { get; set; }
-    public int TextureWidth { get; set; }
-    public int TextureHeight { get; set; }
-    public int Variations { get; set; } = 1;
-    public int? DefaultVariation { get; set; }
-    internal int MaxVariationsPerTextures { get; set; } = -1;
-    internal string TileSheetPath { get; set; }
-    internal Dictionary<int, Texture2D> Textures { get; set; } = [];
-    public List<VariationModel> ManualVariations { get; set; } = [];
-    public List<AnimationModel> Animation { get; set; } = [];
-
-    public static int MAX_TEXTURE_HEIGHT
+    public static UniqueTextureIdentifier FromString(string name, string variationString)
     {
-        get { return 16384; }
+        return FromString(name, int.Parse(variationString));
+    }
+}
+
+/// Make this a distriminated as soon as you can
+public record ModelIdentifier
+{
+    public required TextureType Type;
+    public required bool IsName;
+    public required string String;
+
+    public override string ToString()
+    {
+        return $"{Type}_{String}";
     }
 
-    public AlternativeTextureModel ShallowCopy()
-    {
-        return (AlternativeTextureModel)this.MemberwiseClone();
-    }
+    public string Name => String;
 
-    public string GetTextureType()
+    /// TODO Make this work for IDs too?
+    public static ModelIdentifier? FromString(string modelIdentifierString)
     {
-        return Type.ToString();
+        return modelIdentifierString.Split("_", 2) switch
+        {
+            [var typeString, var name] => EnumUtil.ParseOrNull<TextureType>(typeString) switch
+            {
+                { } modelType => new ModelIdentifier()
+                {
+                    Type = modelType,
+                    IsName = true,
+                    String = name,
+                },
+                null => null,
+            },
+            _ => null,
+        };
     }
+}
 
-    public string GetId()
-    {
-        return TextureId;
-    }
+public record AlternativeTextureModel
+{
+    public required ModelIdentifier ForModel;
+    public required Season Season;
+    public required IManifest PackManifest;
+    public required int Variation;
 
-    public bool IsUsingItemId()
-    {
-        return string.IsNullOrEmpty(ItemId) is false;
-    }
+    public required string? DisplayName;
+    public required int TextureWidth;
+    public required int TextureHeight;
+    public required DrawableTexture Texture;
 
-    public string GetTokenId(int? variation = null)
-    {
-        var seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
-        var variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
-        return String.Concat(Owner, ".", ItemName, seasonSuffix, variationSuffix);
-    }
+    public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
+    public List<string> Keywords = [];
+    public int? DefaultVariation;
+    public List<AnimationModel> Animation = [];
 
-    public string GetNameWithSeason()
+    public string Owner => PackManifest.UniqueID;
+    public UniqueTextureIdentifier UniqueIdentifier => new(Owner, ForModel, Variation, Season);
+    public (string Owner, ModelIdentifier ForModel, int Variation) UniqueIdentifierWithoutSeason =>
+        (Owner, ForModel, Variation);
+
+    public TextureIdentifier TextureIdentifier =>
+        new()
+        {
+            Owner = Owner,
+            Name = TextureId,
+            Variation = Variation,
+        };
+
+    /////////////////////////////
+
+    // internal string ModelName
+    // {
+    //     get { return Season is null ? $"{Type}_{ItemName}" : $"{Type}_{ItemName}_{Season}"; }
+    // }
+
+    /// TODO Include variant?
+    internal string ModelName => $"{ForModel.Type}_{ForModel.String}";
+    internal string TextureId => $"{Owner}.{ForModel.Type}_{ForModel.String}";
+
+    public static int MAX_TEXTURE_HEIGHT = 16384;
+
+    /// TODO Make this use UniqueIdentifier?
+    public string GetId() => TextureId;
+
+    public bool IsUsingItemId() => ForModel.IsName;
+
+    public string? GetNameWithSeason()
     {
         return ModelName;
     }
 
     public int GetVariations()
     {
-        return ManualVariations.Where(v => v.Id >= 0).Count() > 0
-            ? ManualVariations.Where(v => v.Id >= 0).Count()
-            : Variations;
-    }
-
-    public bool IsManualVariationsValid()
-    {
-        return ManualVariations.Any(v => v.Id == 1) is false || ManualVariations.Any(v => v.Id == 0) is true;
+        return 1;
+        // var manualCount = ManualVariations.Count(v => v.Id >= 0);
+        // return manualCount > 0 ? manualCount : Variations;
     }
 
     public List<AnimationModel> GetAnimationData(int variation)
     {
-        var manualVariation = ManualVariations.FirstOrDefault(v => v.Id == variation && v.HasAnimation());
-        return manualVariation != null ? manualVariation.Animation : Animation;
+        return [];
+        // var manualVariation = ManualVariations.FirstOrDefault(v => v.Id == variation && v.HasAnimation());
+        // return manualVariation != null ? manualVariation.Animation : Animation;
     }
 
-    public AnimationModel GetAnimationDataAtIndex(int variation, int index)
+    public AnimationModel? GetAnimationDataAtIndex(int variation, int index)
     {
         var animationData = GetAnimationData(variation);
         if (animationData is null || animationData.Count == 0)
@@ -112,152 +171,307 @@ public class AlternativeTextureModel
         return animationData.ElementAt(index);
     }
 
-    public int GetNextValidFrameFromIndex(int variation, int index, bool isMachineActive)
-    {
-        var animationData = GetAnimationData(variation);
+    // public int GetNextValidFrameFromIndex(int variation, int index, bool isMachineActive)
+    // {
+    //     var animationData = GetAnimationData(variation);
 
-        index += 1;
-        if (index >= GetAnimationData(variation).Count)
-        {
-            index = 0;
-            return index;
-        }
+    //     index += 1;
+    //     if (index >= GetAnimationData(variation).Count)
+    //     {
+    //         index = 0;
+    //         return index;
+    //     }
 
-        return IsFrameValid(variation, index, isMachineActive)
-            ? index
-            : GetNextValidFrameFromIndex(variation, index, isMachineActive);
-    }
+    //     return IsFrameValid(variation, index, isMachineActive)
+    //         ? index
+    //         : GetNextValidFrameFromIndex(variation, index, isMachineActive);
+    // }
 
+    [Obsolete("Should get `.Texture` directly")]
     public Texture2D GetTexture(int variation)
     {
-        var texture = Textures.ContainsKey(variation) ? Textures[variation] : Textures[0];
-        if (texture.IsDisposed)
+        var identifier = new UniqueTextureIdentifier()
         {
-            AlternativeTextures.monitor.LogOnce(
+            ForModel = ForModel,
+            Owner = Owner,
+            Season = Season,
+            Variation = variation,
+        };
+        var texture =
+            AlternativeTextures.textureManager.GetTexture(identifier)
+            ?? throw new ArgumentException($"Can't found texture for {identifier}");
+
+        if (texture.Texture.Texture.IsDisposed)
+        {
+            Monitor.LogOnce(
                 $"Error drawing the texture {TextureId}: It was incorrectly disposed!",
                 StardewModdingAPI.LogLevel.Warn
             );
-            AlternativeTextures.monitor.LogOnce(this.ToString(), StardewModdingAPI.LogLevel.Trace);
+            Monitor.LogOnce(this.ToString(), StardewModdingAPI.LogLevel.Trace);
             return AlternativeTextures.textureManager.ErrorTexture;
         }
 
-        return texture;
+        return texture.Texture.Texture;
     }
 
-    public int GetTextureOffset(int variation)
-    {
-        return 0;
-    }
+    // public Color GetRandomTint(int variation)
+    // {
+    //     if (!HasTint(variation))
+    //     {
+    //         return Color.White;
+    //     }
 
-    public Color GetRandomTint(int variation)
-    {
-        if (!HasTint(variation))
-        {
-            return Color.White;
-        }
+    //     var tints = ManualVariations.First(v => v.Id == variation).Tints;
+    //     var selectedTint = tints[Game1.random.Next(tints.Count)];
+    //     return new Color(selectedTint[0], selectedTint[1], selectedTint[2], selectedTint[3]);
+    // }
 
-        var tints = ManualVariations.First(v => v.Id == variation).Tints;
-        var selectedTint = tints[Game1.random.Next(tints.Count)];
-        return new Color(selectedTint[0], selectedTint[1], selectedTint[2], selectedTint[3]);
-    }
+    // public bool HasKeyword(string variationString, string keyword)
+    // {
+    //     return int.TryParse(variationString, out var variation) && HasKeyword(variation, keyword);
+    // }
 
-    public bool IsDecoration()
-    {
-        return String.Equals(GetTextureType(), "Decoration", StringComparison.OrdinalIgnoreCase);
-    }
+    // public bool HasKeyword(int variation, string keyword)
+    // {
+    //     return ManualVariations.Any(v => v.Id == variation)
+    //         ? ManualVariations
+    //             .First(v => v.Id == variation)
+    //             .Keywords.Any(k => k.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+    //         : Keywords.Any(k => k.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+    // }
 
-    public bool HasKeyword(string variationString, string keyword)
-    {
-        return !Int32.TryParse(variationString, out var variation) ? false : HasKeyword(variation, keyword);
-    }
+    // public bool HasAnimation(int variation)
+    // {
+    //     return Animation.Count > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
+    // }
 
-    public bool HasKeyword(int variation, string keyword)
-    {
-        return ManualVariations.Any(v => v.Id == variation)
-            ? ManualVariations
-                .First(v => v.Id == variation)
-                .Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
-            : Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
-    }
+    [Obsolete("Variations are separate textures now")]
+    public int Variations => 1;
 
-    public bool HasAnimation(int variation)
-    {
-        return Animation.Count > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
-    }
+    [Obsolete("Variations are separate textures now.")]
+    public List<VariationModel> ManualVariations => [];
 
-    public bool HasTint(int variation)
-    {
-        return ManualVariations.Any(v => v.Id == variation && v.HasTint());
-    }
+    [Obsolete("Smakes Smo Smense.")]
+    public Dictionary<int, Texture2D> Textures => [];
 
-    internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive)
-    {
-        var animationData = GetAnimationDataAtIndex(variation, currentFrame);
-        return animationData is not null
-            && (animationData.Type is not FrameType.MachineActive || isMachineActive is true)
-            && (animationData.Type is not FrameType.MachineIdle || isMachineActive is false);
-    }
+    [Obsolete("Smakes Smo Smense!!!!")]
+    public int GetTextureOffset(int _) => 0;
 
-    internal List<string> HandleNameChanges()
-    {
-        List<string> changedNames = [];
-        if (CollectiveNames is not null)
-        {
-            for (var x = 0; x < CollectiveNames.Count; x++)
-            {
-                var changedName = AlternativeTextureModel.GetNameChange(Type, CollectiveNames[x]);
+    public string? ItemName => ForModel.IsName ? ForModel.String : null;
 
-                if (CollectiveNames[x] != changedName)
-                {
-                    changedNames.Add(changedName);
-                    CollectiveNames[x] = changedName;
-                }
-            }
-        }
+    public int GetNextValidFrameFromIndex(int variation, int index, bool isMachineActive) => 0;
 
-        return changedNames;
-    }
+    public Color GetRandomTint(int? variation) => Color.White;
 
-    private static string GetNameChange(TextureType type, string name)
-    {
-        if (type is TextureType.Building)
-        {
-            if (
-                name.Equals("Log Cabin", StringComparison.OrdinalIgnoreCase)
-                || name.Equals("Plank Cabin", StringComparison.OrdinalIgnoreCase)
-                || name.Equals("Stone Cabin", StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                return "Cabin";
-            }
-        }
+    public bool HasAnimation(int variation) => false;
 
-        return name;
-    }
+    public bool HasTint(int variation) => false;
 
-    internal bool HandleTypeChanges()
-    {
-        if (CollectiveNames is null)
-        {
-            return false;
-        }
+    public string GetTokenId(int? variation = null) => "";
 
-        if (
-            Type is TextureType.Craftable
-            && CollectiveNames.Any(n => n.Equals("Artifact Spot", StringComparison.OrdinalIgnoreCase))
-        )
-        {
-            Type = TextureType.ArtifactSpot;
-            return true;
-        }
+    internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive) => false;
 
-        return false;
-    }
+    [Obsolete("Use `.ForModel.Type")]
+    internal string GetTextureType() => ForModel.Type.ToString();
 
-    public override string ToString()
-    {
-        return $"\n[\n"
-            + $"\tOwner: {Owner} | ItemName: {ItemName} | ItemId: {ItemId} | Type: {Type} | Season: {Season}\n"
-            + $"\tTextureWidth x TextureHeight: [{TextureWidth}x{TextureHeight}] | Variations: {Variations}\n";
-    }
+    // public string GetTokenId(int? variation = null)
+    // {
+    //     var seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
+    //     var variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
+    //     return String.Concat(Owner, ".", ItemName, seasonSuffix, variationSuffix);
+    // }
+
+    // public bool HasTint(int variation)
+    // {
+    //     return ManualVariations.Any(v => v.Id == variation && v.HasTint());
+    // }
+
+    // internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive)
+    // {
+    //     var animationData = GetAnimationDataAtIndex(variation, currentFrame);
+    //     return animationData is not null
+    //         && (animationData.Type is not FrameType.MachineActive || isMachineActive is true)
+    //         && (animationData.Type is not FrameType.MachineIdle || isMachineActive is false);
+    // }
+
+    // public override string ToString()
+    // {
+    //     return $"\n[\n"
+    //         + $"\tOwner: {Owner} | ItemName: {ItemName} | ItemId: {ItemId} | Type: {Type} | Season: {Season}\n"
+    //         + $"\tTextureWidth x TextureHeight: [{TextureWidth}x{TextureHeight}] | Variations: {Variations}\n";
+    // }
 }
+
+
+// public class AlternativeTextureModel
+// {
+//     public string? Owner;
+//     public string? PackName;
+//     public string? Author;
+//     public string? ItemName
+//     {
+//         get { return string.IsNullOrEmpty(field) ? ItemId : field; }
+//         set;
+//     }
+
+//     public string? ItemId;
+//     public List<string> CollectiveNames = [];
+//     public List<string> CollectiveIds = [];
+
+//     public required TextureType Type;
+//     public required int TextureWidth;
+//     public required int TextureHeight;
+//     public required int Variations = 1;
+
+//     [Obsolete("No longer used due SMAPI 3.14.0 allowing for passive invalidation checks.")]
+//     public bool EnableContentPatcherCheck;
+
+//     public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
+//     public List<string> Keywords = [];
+//     public List<string> Seasons = []; // For use by mod user to determine which seasons the texture is valid for
+//     public int? DefaultVariation;
+//     public List<VariationModel> ManualVariations = [];
+//     public List<AnimationModel> Animation = [];
+
+//     internal string? Season; // Used by framework to split the Seasons property into individual AlternativeTextureModel models
+//     internal string? TileSheetPath;
+//     internal Dictionary<int, Texture2D> Textures = [];
+
+//     internal string ModelName
+//     {
+//         get { return Season is null ? $"{Type}_{ItemName}" : $"{Type}_{ItemName}_{Season}"; }
+//     }
+//     internal string TextureId
+//     {
+//         get { return $"{Owner}.{ModelName}"; }
+//     }
+
+//     public static int MAX_TEXTURE_HEIGHT
+//     {
+//         get { return 16384; }
+//     }
+
+//     public AlternativeTextureModel ShallowCopy()
+//     {
+//         return (AlternativeTextureModel)this.MemberwiseClone();
+//     }
+
+//     public string GetTextureType()
+//     {
+//         return Type.ToString();
+//     }
+
+//     public string GetId()
+//     {
+//         return TextureId;
+//     }
+
+//     public bool IsUsingItemId()
+//     {
+//         return string.IsNullOrEmpty(ItemId) is false;
+//     }
+
+//     public string GetTokenId(int? variation = null)
+//     {
+//         var seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
+//         var variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
+//         return String.Concat(Owner, ".", ItemName, seasonSuffix, variationSuffix);
+//     }
+
+//     public string? GetNameWithSeason()
+//     {
+//         return ModelName;
+//     }
+
+//     public int GetVariations()
+//     {
+//         var manualCount = ManualVariations.Count(v => v.Id >= 0);
+//         return manualCount > 0 ? manualCount : Variations;
+//     }
+
+//     public bool IsManualVariationsValid()
+//     {
+//         return ManualVariations.Any(v => v.Id == 1) is false || ManualVariations.Any(v => v.Id == 0) is true;
+//     }
+
+//     public List<AnimationModel> GetAnimationData(int variation)
+//     {
+//         var manualVariation = ManualVariations.FirstOrDefault(v => v.Id == variation && v.HasAnimation());
+//         return manualVariation != null ? manualVariation.Animation : Animation;
+//     }
+
+//     public AnimationModel? GetAnimationDataAtIndex(int variation, int index)
+//     {
+//         var animationData = GetAnimationData(variation);
+//         if (animationData is null || animationData.Count == 0)
+//         {
+//             return null;
+//         }
+//         else if (animationData.Count <= index)
+//         {
+//             index = 0;
+//         }
+
+//         return animationData.ElementAt(index);
+//     }
+
+//     public int GetNextValidFrameFromIndex(int variation, int index, bool isMachineActive)
+//     {
+//         var animationData = GetAnimationData(variation);
+
+//         index += 1;
+//         if (index >= GetAnimationData(variation).Count)
+//         {
+//             index = 0;
+//             return index;
+//         }
+
+//         return IsFrameValid(variation, index, isMachineActive)
+//             ? index
+//             : GetNextValidFrameFromIndex(variation, index, isMachineActive);
+//     }
+
+//     public Color GetRandomTint(int variation)
+//     {
+//         if (!HasTint(variation))
+//         {
+//             return Color.White;
+//         }
+
+//         var tints = ManualVariations.First(v => v.Id == variation).Tints;
+//         var selectedTint = tints[Game1.random.Next(tints.Count)];
+//         return new Color(selectedTint[0], selectedTint[1], selectedTint[2], selectedTint[3]);
+//     }
+
+//     public bool HasKeyword(string variationString, string keyword)
+//     {
+//         return int.TryParse(variationString, out var variation) && HasKeyword(variation, keyword);
+//     }
+
+//     public bool HasKeyword(int variation, string keyword)
+//     {
+//         return ManualVariations.Any(v => v.Id == variation)
+//             ? ManualVariations
+//                 .First(v => v.Id == variation)
+//                 .Keywords.Any(k => k.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+//             : Keywords.Any(k => k.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+//     }
+
+//     public bool HasAnimation(int variation)
+//     {
+//         return Animation.Count > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
+//     }
+
+//     public bool HasTint(int variation)
+//     {
+//         return ManualVariations.Any(v => v.Id == variation && v.HasTint());
+//     }
+
+//     internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive)
+//     {
+//         var animationData = GetAnimationDataAtIndex(variation, currentFrame);
+//         return animationData is not null
+//             && (animationData.Type is not FrameType.MachineActive || isMachineActive is true)
+//             && (animationData.Type is not FrameType.MachineIdle || isMachineActive is false);
+//     }
+// }

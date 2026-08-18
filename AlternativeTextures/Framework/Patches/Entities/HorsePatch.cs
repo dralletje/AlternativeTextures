@@ -12,7 +12,7 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class HorsePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
+internal class HorsePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Horse);
 
@@ -70,10 +70,7 @@ internal class HorsePatch(IMonitor _monitor, IModHelper modHelper) : PatchTempla
         }
         catch (Exception e)
         {
-            AlternativeTextures.monitor.Log(
-                $"There was an issue modifying the instructions for Horse.draw: {e}",
-                LogLevel.Error
-            );
+            Monitor.Log($"There was an issue modifying the instructions for Horse.draw: {e}", LogLevel.Error);
             return instructions;
         }
     }

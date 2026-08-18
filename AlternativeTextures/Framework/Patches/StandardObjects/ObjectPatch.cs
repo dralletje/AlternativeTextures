@@ -1,6 +1,7 @@
 ﻿using System;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
+using ConsoleLog;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,7 +14,7 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class ObjectPatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
+internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Object);
 
@@ -102,11 +103,11 @@ internal class ObjectPatch(IMonitor _monitor, IModHelper modHelper) : PatchTempl
             }
             catch (Exception ex)
             {
-                _monitor.Log(
+                Monitor.Log(
                     $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                     LogLevel.Warn
                 );
-                _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
+                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
             }
         }
     }
@@ -118,6 +119,11 @@ internal class ObjectPatch(IMonitor _monitor, IModHelper modHelper) : PatchTempl
             var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
             );
+
+            Console.Log(
+                $" __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]: {__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]}"
+            );
+
             if (textureModel is null)
             {
                 return true;
@@ -157,7 +163,7 @@ internal class ObjectPatch(IMonitor _monitor, IModHelper modHelper) : PatchTempl
                     __instance.modData["AlternativeTextureFrameIndex"] = "0";
                     __instance.modData["AlternativeTextureFrameDuration"] = textureModel
                         .GetAnimationDataAtIndex(textureVariation, 0)
-                        .Duration.ToString(); // Animation.ElementAt(0).Duration.ToString();
+                        ?.Duration.ToString(); // Animation.ElementAt(0).Duration.ToString();
                     __instance.modData["AlternativeTextureElapsedDuration"] = "0";
                 }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework.External.GenericModConfigMenu;
-using AlternativeTextures.Framework.Interfaces.API;
 using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches;
@@ -14,6 +13,7 @@ using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.Patches.Tools;
 using AlternativeTextures.Framework.Utilities.Extensions;
 using AlternativeTextures.Tools;
+using ConsoleLog;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -45,6 +45,46 @@ public enum TextureType
     ArtifactSpot,
 }
 
+public static class TextureTypeExtensions
+{
+    public static ModelIdentifier WithName(this TextureType type, string name) =>
+        new()
+        {
+            Type = type,
+            IsName = true,
+            String = name,
+        };
+}
+
+static class Monitor
+{
+    public static IMonitor? monitor;
+
+    public static void Log(string message, LogLevel loglevel = LogLevel.Trace)
+    {
+        if (monitor is { } actual)
+        {
+            actual.Log(message, loglevel);
+        }
+        else
+        {
+            Console.WriteLine(message);
+        }
+    }
+
+    public static void LogOnce(string message, LogLevel loglevel = LogLevel.Trace)
+    {
+        if (monitor is { } actual)
+        {
+            actual.LogOnce(message, loglevel);
+        }
+        else
+        {
+            Console.WriteLine(message);
+        }
+    }
+}
+
 public class AlternativeTextures : Mod
 {
     internal const string PAINTPAIL = "(F)PeacefulEnd.AlternativeTexturesContentPatcher_PaintPail";
@@ -72,6 +112,7 @@ public class AlternativeTextures : Mod
     internal static IMonitor monitor;
     internal static IModHelper modHelper;
     internal static Multiplayer multiplayer;
+    internal static IManifest modManifest;
 
     static ModConfigHolder? modConfigHolder;
     internal static ModConfig modConfig
@@ -87,16 +128,17 @@ public class AlternativeTextures : Mod
     internal static MessageManager messageManager;
     internal static ApiManager apiManager;
 
-    // Utilities
-    internal static Api _api;
-
     private CustomToolPlugin? customToolPlugin;
 
     public override void Entry(IModHelper helper)
     {
         // Set up the monitor, helper and multiplayer
         monitor = Monitor;
+
+        global::AlternativeTextures.Monitor.monitor = Monitor;
+
         modHelper = helper;
+        modManifest = ModManifest;
         multiplayer = helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 
         modConfigHolder = new ModConfigHolder(this);
@@ -104,11 +146,7 @@ public class AlternativeTextures : Mod
 
         // Setup our managers
         textureManager = new TextureManager(this);
-        messageManager = new MessageManager(monitor, helper, ModManifest.UniqueID);
-        apiManager = new ApiManager(monitor);
-
-        // Setup our utilities
-        _api = new Api(this);
+        messageManager = new MessageManager(helper, ModManifest.UniqueID);
 
         this.customToolPlugin = new CustomToolPlugin(helper);
 
@@ -123,20 +161,20 @@ public class AlternativeTextures : Mod
 
             // Apply texture override related patches
             new GameLocationPatch(monitor, helper).Apply(harmony);
-            new ObjectPatch(monitor, helper).Apply(harmony);
-            new FencePatch(monitor, helper).Apply(harmony);
+            new ObjectPatch(helper).Apply(harmony);
+            new FencePatch(helper).Apply(harmony);
             new HoeDirtPatch(monitor, helper).Apply(harmony);
-            new CropPatch(monitor, helper).Apply(harmony);
-            new GiantCropPatch(monitor, helper).Apply(harmony);
+            new CropPatch(helper).Apply(harmony);
+            new GiantCropPatch(helper).Apply(harmony);
             new GrassPatch(monitor, helper).Apply(harmony);
             new TreePatch(monitor, helper).Apply(harmony);
-            new FruitTreePatch(monitor, helper).Apply(harmony);
+            new FruitTreePatch(helper).Apply(harmony);
             new ResourceClumpPatch(monitor, helper).Apply(harmony);
             new BushPatch(monitor, helper).Apply(harmony);
             new FlooringPatch(monitor, helper).Apply(harmony);
-            new FurniturePatch(monitor, helper).Apply(harmony);
-            new BedFurniturePatch(monitor, helper).Apply(harmony);
-            new FishTankFurniturePatch(monitor, helper).Apply(harmony);
+            new FurniturePatch(helper).Apply(harmony);
+            new BedFurniturePatch(helper).Apply(harmony);
+            new FishTankFurniturePatch(helper).Apply(harmony);
 
             // Start of special objects
             new ChestPatch(monitor, helper).Apply(harmony);
@@ -150,7 +188,7 @@ public class AlternativeTextures : Mod
             new CharacterPatch(monitor, helper).Apply(harmony);
             new ChildPatch(monitor, helper).Apply(harmony);
             new FarmAnimalPatch(monitor, helper).Apply(harmony);
-            new HorsePatch(monitor, helper).Apply(harmony);
+            new HorsePatch(helper).Apply(harmony);
             new PetPatch(monitor, helper).Apply(harmony);
             new MonsterPatch(monitor, helper).Apply(harmony);
 
@@ -162,7 +200,7 @@ public class AlternativeTextures : Mod
             new GameLocationPatch(monitor, helper).Apply(harmony);
 
             // Paint tool related patches
-            new ToolPatch(monitor, helper).Apply(harmony);
+            new ToolPatch(helper).Apply(harmony);
         }
         catch (Exception e)
         {
@@ -230,7 +268,9 @@ public class AlternativeTextures : Mod
                 foreach (
                     var textureModel in textureManager
                         .GetAllTextures()
-                        .Where(t => t.IsDecoration() && !moddedDecorations.Any(d => d.Id == t.GetId()))
+                        .Where(t =>
+                            t.ForModel.Type is TextureType.Decoration && !moddedDecorations.Any(d => d.Id == t.GetId())
+                        )
                 )
                 {
                     var decoration = new ModWallpaperOrFlooring()
@@ -260,11 +300,6 @@ public class AlternativeTextures : Mod
                 ToolPatch.UseTextureCatalogue(Game1.player);
             }
         }
-    }
-
-    public override object GetApi()
-    {
-        return _api;
     }
 
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)

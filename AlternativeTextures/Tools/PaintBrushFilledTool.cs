@@ -32,8 +32,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         {
             var modelIdentifierString = tool.modData.GetValueOrDefault(MODDATA_MODEL_KEY);
             /// TODO Should not hit "Craftable_Chest", but would still like a more thoughtout fallback
-            return ModelIdentifier.FromString(modelIdentifierString)
-                ?? new ModelIdentifier() { Type = TextureType.Craftable, Name = "Chest" };
+            return ModelIdentifier.FromString(modelIdentifierString) ?? TextureType.Craftable.WithName("Chest");
         }
     }
     TextureIdentifier Texture
@@ -104,7 +103,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             clonedModData.CopyFrom(floor.modData); // Or populate as needed
             var paintable = new PaintableFromModData(clonedModData)
             {
-                ModelIdentifier = new() { Type = TextureType.Unknown, Name = "" },
+                ModelIdentifier = TextureType.Unknown.WithName(""),
                 Related = null,
             };
             paintable.ApplyTexture(texture);

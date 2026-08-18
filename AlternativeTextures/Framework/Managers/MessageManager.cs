@@ -9,9 +9,8 @@ using StardewValley.Buildings;
 
 namespace AlternativeTextures.Framework.Managers;
 
-internal class MessageManager(IMonitor monitor, IModHelper helper, string modID)
+internal class MessageManager(IModHelper helper, string modID)
 {
-    private IMonitor _monitor = monitor;
     private IModHelper _helper = helper;
     private string _modID = modID;
 
@@ -33,7 +32,7 @@ internal class MessageManager(IMonitor monitor, IModHelper helper, string modID)
     {
         if (Enum.TryParse<MessageType>(e.Type, out var type) is false)
         {
-            _monitor.LogOnce($"Failed to handle incoming message with type {e.Type}", LogLevel.Trace);
+            Monitor.LogOnce($"Failed to handle incoming message with type {e.Type}", LogLevel.Trace);
             return;
         }
 

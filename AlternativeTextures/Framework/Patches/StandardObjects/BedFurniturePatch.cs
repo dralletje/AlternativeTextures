@@ -10,7 +10,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class BedFurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
+internal class BedFurniturePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(BedFurniture);
 
@@ -47,11 +47,11 @@ internal class BedFurniturePatch(IMonitor _monitor, IModHelper modHelper) : Patc
             }
             catch (Exception ex)
             {
-                _monitor.Log(
+                Monitor.Log(
                     $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                     LogLevel.Warn
                 );
-                _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
+                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
             }
         }
     }

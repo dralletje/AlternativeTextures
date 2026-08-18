@@ -357,8 +357,14 @@ internal class PatchTemplate()
 
         var textureModel = new AlternativeTextureModel()
         {
-            Owner = AlternativeTextures.DEFAULT_OWNER,
-            Season = trackSeason ? Game1.GetSeasonForLocation(Game1.currentLocation).ToString() : String.Empty,
+            DisplayName = "",
+            Texture = null!,
+            ForModel = ModelIdentifier.FromString(modelName)!,
+            TextureWidth = 16,
+            TextureHeight = 16,
+            Variation = 1,
+            PackManifest = AlternativeTextures.modManifest,
+            Season = Game1.GetSeasonForLocation(Game1.currentLocation),
         };
         switch (type)
         {
@@ -387,63 +393,66 @@ internal class PatchTemplate()
 
     internal static bool AssignModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
     {
-        if (HasCachedTextureName(type) || IsTextureRandomnessEnabled(type) is false)
-        {
-            return false;
-        }
-
-        var textureModel = AlternativeTextures.textureManager.GetRandomTextureModel(modelName);
-
-        var selectedVariation = Game1.random.Next(-1, textureModel.Variations);
-        if (textureModel.DefaultVariation is not null)
-        {
-            selectedVariation = textureModel.DefaultVariation.Value;
-        }
-        else if (textureModel.ManualVariations.Count > 0)
-        {
-            var weightedSelection = textureModel
-                .ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble())
-                .ToList();
-            if (weightedSelection.Count > 0)
-            {
-                var randomWeightedSelection = Game1.random.Next(
-                    !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
-                    weightedSelection.Count
-                );
-                selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
-            }
-            else
-            {
-                return AssignDefaultModData<T>(type, modelName, trackSeason, trackSheetId);
-            }
-        }
-
-        switch (type)
-        {
-            case Object obj:
-                AssignObjectModData(obj, modelName, textureModel, selectedVariation, trackSeason, trackSheetId);
-                return true;
-            case TerrainFeature terrain:
-                AssignTerrainFeatureModData(terrain, modelName, textureModel, selectedVariation, trackSeason);
-                return true;
-            case Character character:
-                AssignCharacterModData(character, modelName, textureModel, selectedVariation, trackSeason);
-                return true;
-            case Building building:
-                AssignBuildingModData(building, modelName, textureModel, selectedVariation, trackSeason);
-                return true;
-            case DecoratableLocation decoratableLocation:
-                AssignDecoratableLocationModData(
-                    decoratableLocation,
-                    modelName,
-                    textureModel,
-                    selectedVariation,
-                    trackSeason
-                );
-                return true;
-        }
-
         return false;
+
+        /// IMMEDIATE TODO
+        // if (HasCachedTextureName(type) || IsTextureRandomnessEnabled(type) is false)
+        // {
+        //     return false;
+        // }
+
+        // var textureModel = AlternativeTextures.textureManager.GetRandomTextureModel(modelName);
+
+        // var selectedVariation = Game1.random.Next(-1, textureModel.Variations);
+        // if (textureModel.DefaultVariation is not null)
+        // {
+        //     selectedVariation = textureModel.DefaultVariation.Value;
+        // }
+        // else if (textureModel.ManualVariations.Count > 0)
+        // {
+        //     var weightedSelection = textureModel
+        //         .ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble())
+        //         .ToList();
+        //     if (weightedSelection.Count > 0)
+        //     {
+        //         var randomWeightedSelection = Game1.random.Next(
+        //             !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
+        //             weightedSelection.Count
+        //         );
+        //         selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
+        //     }
+        //     else
+        //     {
+        //         return AssignDefaultModData<T>(type, modelName, trackSeason, trackSheetId);
+        //     }
+        // }
+
+        // switch (type)
+        // {
+        //     case Object obj:
+        //         AssignObjectModData(obj, modelName, textureModel, selectedVariation, trackSeason, trackSheetId);
+        //         return true;
+        //     case TerrainFeature terrain:
+        //         AssignTerrainFeatureModData(terrain, modelName, textureModel, selectedVariation, trackSeason);
+        //         return true;
+        //     case Character character:
+        //         AssignCharacterModData(character, modelName, textureModel, selectedVariation, trackSeason);
+        //         return true;
+        //     case Building building:
+        //         AssignBuildingModData(building, modelName, textureModel, selectedVariation, trackSeason);
+        //         return true;
+        //     case DecoratableLocation decoratableLocation:
+        //         AssignDecoratableLocationModData(
+        //             decoratableLocation,
+        //             modelName,
+        //             textureModel,
+        //             selectedVariation,
+        //             trackSeason
+        //         );
+        //         return true;
+        // }
+
+        // return false;
     }
 
     private static void AssignObjectModData(
@@ -458,7 +467,7 @@ internal class PatchTemplate()
         obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
         obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(Game1.currentLocation)
@@ -484,7 +493,7 @@ internal class PatchTemplate()
         terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
         terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             terrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(terrain.Location)
@@ -505,7 +514,7 @@ internal class PatchTemplate()
         character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
         character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(character.currentLocation)
@@ -526,7 +535,7 @@ internal class PatchTemplate()
         building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
         building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(Game1.currentLocation)
@@ -551,7 +560,7 @@ internal class PatchTemplate()
             modelName
         );
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(Game1.currentLocation)
@@ -572,7 +581,7 @@ internal class PatchTemplate()
         gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
         gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
-        if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
+        if (trackSeason)
         {
             gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
                 .GetSeasonForLocation(Game1.currentLocation)

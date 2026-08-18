@@ -3,9 +3,8 @@ using StardewModdingAPI;
 
 namespace AlternativeTextures.Framework.Managers;
 
-internal class ApiManager(IMonitor monitor)
+internal class ApiManager()
 {
-    private IMonitor _monitor = monitor;
     private IMoreGiantCropsApi? _moreGiantCropsApi;
     private IDynamicGameAssetsApi? _dynamicGameAssetsApi;
 
@@ -15,11 +14,11 @@ internal class ApiManager(IMonitor monitor)
 
         if (_moreGiantCropsApi is null)
         {
-            _monitor.Log("Failed to hook into spacechase0.MoreGiantCrops.", LogLevel.Error);
+            Monitor.Log("Failed to hook into spacechase0.MoreGiantCrops.", LogLevel.Error);
             return false;
         }
 
-        _monitor.Log("Successfully hooked into spacechase0.MoreGiantCrops.", LogLevel.Debug);
+        Monitor.Log("Successfully hooked into spacechase0.MoreGiantCrops.", LogLevel.Debug);
         return true;
     }
 
@@ -29,11 +28,11 @@ internal class ApiManager(IMonitor monitor)
 
         if (_dynamicGameAssetsApi is null)
         {
-            _monitor.Log("Failed to hook into spacechase0.DynamicGameAssets.", LogLevel.Error);
+            Monitor.Log("Failed to hook into spacechase0.DynamicGameAssets.", LogLevel.Error);
             return false;
         }
 
-        _monitor.Log("Successfully hooked into spacechase0.DynamicGameAssets.", LogLevel.Debug);
+        Monitor.Log("Successfully hooked into spacechase0.DynamicGameAssets.", LogLevel.Debug);
         return true;
     }
 

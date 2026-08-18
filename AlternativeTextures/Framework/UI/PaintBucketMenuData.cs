@@ -121,14 +121,14 @@ static class PaintBucketMenuData
     {
         switch (modelIdentifier)
         {
-            case { Type: TextureType.Decoration, Name: "Floor" }:
+            case { Type: TextureType.Decoration, IsName: true, String: "Floor" }:
                 foreach (var thing in VanillaFloorDecorations())
                 {
                     yield return thing;
                 }
                 break;
 
-            case { Type: TextureType.Decoration, Name: "Wallpaper" }:
+            case { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" }:
                 foreach (var thing in VanillaWallpaperDecorations())
                 {
                     yield return thing;
@@ -146,32 +146,13 @@ static class PaintBucketMenuData
 
     public static IEnumerable<TextureInfo> GetTexturesFor(ModelIdentifier modelIdentifier)
     {
-        var availableModels = AlternativeTextures.textureManager.GetAvailableTextureModels(
-            "",
-            modelIdentifier.ToString(),
+        var availableModels = AlternativeTextures.textureManager.GetTexturesForModel(
+            modelIdentifier,
             Game1.GetSeasonForLocation(Game1.currentLocation)
         );
         foreach (var model in availableModels)
         {
-            var manualVariations = model.ManualVariations.Where(v => v.Id != -1).ToList();
-            if (manualVariations.Count > 0)
-            {
-                foreach (var manualVariation in manualVariations)
-                {
-                    yield return new TextureInfo()
-                    {
-                        TextureIdentifier = new(model, manualVariation.Id.ToString()),
-                        DisplayName = manualVariation.Name,
-                    };
-                }
-            }
-            else
-            {
-                foreach (var variation in Enumerable.Range(0, model.Variations))
-                {
-                    yield return new TextureInfo() { TextureIdentifier = new(model, variation.ToString()) };
-                }
-            }
+            yield return new() { TextureIdentifier = model.TextureIdentifier, DisplayName = model.DisplayName };
         }
     }
 }

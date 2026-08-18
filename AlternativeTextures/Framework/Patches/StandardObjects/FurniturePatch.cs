@@ -15,7 +15,7 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
+internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Furniture);
 
@@ -37,23 +37,23 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
             ),
             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
         );
-        harmony.Patch(
-            AccessTools.Method(
-                _object,
-                nameof(Furniture.drawInMenu),
-                [
-                    typeof(SpriteBatch),
-                    typeof(Vector2),
-                    typeof(float),
-                    typeof(float),
-                    typeof(float),
-                    typeof(StackDrawType),
-                    typeof(Color),
-                    typeof(bool),
-                ]
-            ),
-            prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
-        );
+        // harmony.Patch(
+        //     AccessTools.Method(
+        //         _object,
+        //         nameof(Furniture.drawInMenu),
+        //         [
+        //             typeof(SpriteBatch),
+        //             typeof(Vector2),
+        //             typeof(float),
+        //             typeof(float),
+        //             typeof(float),
+        //             typeof(StackDrawType),
+        //             typeof(Color),
+        //             typeof(bool),
+        //         ]
+        //     ),
+        //     prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+        // );
 
         if (PatchTemplate.IsDGAUsed())
         {
@@ -81,23 +81,23 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
                         ),
                         prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                     );
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaFurnitureType,
-                            nameof(Furniture.drawInMenu),
-                            [
-                                typeof(SpriteBatch),
-                                typeof(Vector2),
-                                typeof(float),
-                                typeof(float),
-                                typeof(float),
-                                typeof(StackDrawType),
-                                typeof(Color),
-                                typeof(bool),
-                            ]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
-                    );
+                    // harmony.Patch(
+                    //     AccessTools.Method(
+                    //         dgaFurnitureType,
+                    //         nameof(Furniture.drawInMenu),
+                    //         [
+                    //             typeof(SpriteBatch),
+                    //             typeof(Vector2),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(StackDrawType),
+                    //             typeof(Color),
+                    //             typeof(bool),
+                    //         ]
+                    //     ),
+                    //     prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+                    // );
                 }
 
                 if (
@@ -122,23 +122,23 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
                         ),
                         prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                     );
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaStorageFurnitureType,
-                            nameof(Furniture.drawInMenu),
-                            [
-                                typeof(SpriteBatch),
-                                typeof(Vector2),
-                                typeof(float),
-                                typeof(float),
-                                typeof(float),
-                                typeof(StackDrawType),
-                                typeof(Color),
-                                typeof(bool),
-                            ]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
-                    );
+                    // harmony.Patch(
+                    //     AccessTools.Method(
+                    //         dgaStorageFurnitureType,
+                    //         nameof(Furniture.drawInMenu),
+                    //         [
+                    //             typeof(SpriteBatch),
+                    //             typeof(Vector2),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(StackDrawType),
+                    //             typeof(Color),
+                    //             typeof(bool),
+                    //         ]
+                    //     ),
+                    //     prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+                    // );
                 }
 
                 if (
@@ -163,32 +163,32 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
                         ),
                         prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                     );
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaTVFurnitureType,
-                            nameof(Furniture.drawInMenu),
-                            [
-                                typeof(SpriteBatch),
-                                typeof(Vector2),
-                                typeof(float),
-                                typeof(float),
-                                typeof(float),
-                                typeof(StackDrawType),
-                                typeof(Color),
-                                typeof(bool),
-                            ]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
-                    );
+                    // harmony.Patch(
+                    //     AccessTools.Method(
+                    //         dgaTVFurnitureType,
+                    //         nameof(Furniture.drawInMenu),
+                    //         [
+                    //             typeof(SpriteBatch),
+                    //             typeof(Vector2),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(float),
+                    //             typeof(StackDrawType),
+                    //             typeof(Color),
+                    //             typeof(bool),
+                    //         ]
+                    //     ),
+                    //     prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
+                    // );
                 }
             }
             catch (Exception ex)
             {
-                _monitor.Log(
+                Monitor.Log(
                     $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
                     LogLevel.Warn
                 );
-                _monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
+                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
             }
         }
     }
@@ -719,63 +719,66 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
         return true;
     }
 
-    private static bool DrawInMenuPrefix(
-        Furniture __instance,
-        NetInt ___sourceIndexOffset,
-        SpriteBatch spriteBatch,
-        Vector2 location,
-        float scaleSize,
-        float transparency,
-        float layerDepth,
-        StackDrawType drawStackNumber,
-        Color color,
-        bool drawShadow
-    )
-    {
-        if (
-            (Game1.activeClickableMenu is PaintBucketMenu || Game1.activeClickableMenu is CatalogueMenu)
-            && !PatchTemplate.IsDGAObject(__instance)
-        )
-        {
-            var texture = ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).GetTexture();
-            var sourceRect =
-                __instance.rotations.Value > 1 ? __instance.sourceRect.Value : __instance.defaultSourceRect.Value;
+    // private static bool DrawInMenuPrefix(
+    //     Furniture __instance,
+    //     NetInt ___sourceIndexOffset,
+    //     SpriteBatch spriteBatch,
+    //     Vector2 location,
+    //     float scaleSize,
+    //     float transparency,
+    //     float layerDepth,
+    //     StackDrawType drawStackNumber,
+    //     Color color,
+    //     bool drawShadow
+    // )
+    // {
+    //     if (
+    //         (
+    //             Game1.activeClickableMenu is PaintBucketMenu
+    //         /// IMMEDIATE TODO
+    //         // ||  Game1.activeClickableMenu is CatalogueMenu
+    //         ) && !PatchTemplate.IsDGAObject(__instance)
+    //     )
+    //     {
+    //         var texture = ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).GetTexture();
+    //         var sourceRect =
+    //             __instance.rotations.Value > 1 ? __instance.sourceRect.Value : __instance.defaultSourceRect.Value;
 
-            if (
-                __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-                && AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                )
-                    is AlternativeTextureModel textureModel
-                && Int32.TryParse(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
-                    out var textureVariation
-                )
-                && textureVariation != -1
-            )
-            {
-                texture = textureModel.GetTexture(textureVariation);
-                sourceRect.X = Math.Max(0, __instance.sourceRect.X - __instance.defaultSourceRect.X);
-                sourceRect.Y = textureModel.GetTextureOffset(textureVariation);
-            }
+    //         if (
+    //             __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
+    //             && AlternativeTextures.textureManager.GetSpecificTextureModel(
+    //                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+    //             )
+    //                 is AlternativeTextureModel textureModel
+    //             && Int32.TryParse(
+    //                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
+    //                 out var textureVariation
+    //             )
+    //             && textureVariation != -1
+    //         )
+    //         {
+    //             texture = textureModel.GetTexture(textureVariation);
+    //             sourceRect.X = Math.Max(0, __instance.sourceRect.X - __instance.defaultSourceRect.X);
+    //             sourceRect.Y = textureModel.GetTextureOffset(textureVariation);
+    //         }
 
-            sourceRect.X += sourceRect.Width * ___sourceIndexOffset.Value;
-            spriteBatch.Draw(
-                texture,
-                location + new Vector2(32f, 32f),
-                sourceRect,
-                color * transparency,
-                0f,
-                new Vector2(sourceRect.Width / 2, sourceRect.Height / 2),
-                1f * GetScaleSize(sourceRect) * scaleSize,
-                __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                layerDepth
-            );
+    //         sourceRect.X += sourceRect.Width * ___sourceIndexOffset.Value;
+    //         spriteBatch.Draw(
+    //             texture,
+    //             location + new Vector2(32f, 32f),
+    //             sourceRect,
+    //             color * transparency,
+    //             0f,
+    //             new Vector2(sourceRect.Width / 2, sourceRect.Height / 2),
+    //             1f * GetScaleSize(sourceRect) * scaleSize,
+    //             __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+    //             layerDepth
+    //         );
 
-            return false;
-        }
-        return true;
-    }
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     private static float GetScaleSize(Rectangle sourceRect)
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Incubator;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -63,12 +64,15 @@ class DebugCommands(IMod mod)
             Monitor.Log($"Invalid count given for (QUANTITY)", LogLevel.Warn);
             return;
         }
-        Type monsterType = Type.GetType("StardewValley.Monsters." + args[0] + ",Stardew Valley");
+        if (Type.GetType($"StardewValley.Monsters.{args[0]},Stardew Valley") is not { } monsterType)
+            throw new UnreachableException();
 
         Monitor.Log(Game1.player.Tile.ToString(), LogLevel.Debug);
         for (var i = 0; i < amountToSpawn; i++)
         {
-            var monster = Activator.CreateInstance(monsterType, [Game1.player.Tile]) as Monster;
+            if (Activator.CreateInstance(monsterType, [Game1.player.Tile]) is not Monster monster)
+                throw new UnreachableException();
+
             monster.Position = Game1.player.Position;
             Game1.currentLocation.characters.Add(monster);
         }

@@ -11,19 +11,13 @@ namespace AlternativeTextures.Framework;
 
 static class SourceRects
 {
-    internal static Rectangle GetSourceRectangle(
-        AlternativeTextureModel textureModel,
-        Object target,
-        int textureWidth,
-        int textureHeight,
-        int variation
-    )
+    internal static Rectangle GetSourceRectangle(Object target, int variation, int textureWidth, int textureHeight)
     {
-        var textureOffset = variation > 0 ? textureModel.GetTextureOffset(variation) : 0;
+        var textureOffset = 0;
         var sourceRect = new Rectangle(0, textureOffset, textureWidth, textureHeight);
         if (target is Fence fence)
         {
-            sourceRect = SourceRects.GetFenceSourceRect(textureModel, fence, textureHeight, variation);
+            sourceRect = SourceRects.GetFenceSourceRect(fence, variation, textureHeight);
         }
         else if (target is Furniture furniture)
         {
@@ -39,15 +33,10 @@ static class SourceRects
         return sourceRect;
     }
 
-    public static Rectangle GetFenceSourceRect(
-        AlternativeTextureModel textureModel,
-        Fence fence,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetFenceSourceRect(Fence fence, int variation, int textureHeight)
     {
         var sourceRectPosition = 1;
-        var textureOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
+        var textureOffset = variation == -1 ? 0 : 0;
         if (fence.health.Value > 1f || fence.repairQueued.Value)
         {
             var drawSum = fence.getDrawSum();
@@ -120,12 +109,7 @@ static class SourceRects
         );
     }
 
-    public static Rectangle GetFlooringSourceRect(
-        AlternativeTextureModel textureModel,
-        Flooring flooring,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetFlooringSourceRect(Flooring flooring, int variation, int textureHeight)
     {
         byte drawSum = 0;
 
@@ -171,18 +155,11 @@ static class SourceRects
             );
         }
 
-        var sourceRectOffset = textureModel?.GetTextureOffset(variation) ?? 0;
-        return new Rectangle(sourceRectPosition % 16 * 16, (sourceRectPosition / 16 * 16) + sourceRectOffset, 16, 16);
+        return new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16, 16, 16);
     }
 
-    public static Rectangle GetTreeSourceRect(
-        AlternativeTextureModel textureModel,
-        Tree tree,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetTreeSourceRect(Tree tree, int variation, int textureHeight)
     {
-        var sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
         var source_rect = Tree.treeTopSourceRect;
 
         // TODO: Review if this code block is actually used
@@ -199,17 +176,10 @@ static class SourceRects
             }
         }
         */
-
-        source_rect.Y += sourceRectOffset;
         return source_rect;
     }
 
-    public static Rectangle GetFruitTreeSourceRect(
-        AlternativeTextureModel textureModel,
-        FruitTree fruitTree,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetFruitTreeSourceRect(FruitTree fruitTree, int variation, int textureHeight)
     {
         if (variation == -1)
         {
@@ -230,7 +200,7 @@ static class SourceRects
             );
         }
 
-        var sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
+        var sourceRectOffset = variation == -1 ? 0 : 0;
         Rectangle source_rect = new Rectangle(
             (
                 12
@@ -251,12 +221,7 @@ static class SourceRects
         return source_rect;
     }
 
-    public static Rectangle GetCropSourceRect(
-        AlternativeTextureModel textureModel,
-        Crop crop,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetCropSourceRect(Crop crop, int variation, int textureHeight)
     {
         if (variation == -1)
         {
@@ -270,12 +235,7 @@ static class SourceRects
         return source_rect;
     }
 
-    public static Rectangle GetGrassSourceRect(
-        AlternativeTextureModel textureModel,
-        Grass grass,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetGrassSourceRect(Grass grass, int variation, int textureHeight)
     {
         if (variation == -1)
         {
@@ -286,12 +246,7 @@ static class SourceRects
         return source_rect;
     }
 
-    public static Rectangle GetBushSourceRect(
-        AlternativeTextureModel textureModel,
-        Bush bush,
-        int textureHeight,
-        int variation
-    )
+    public static Rectangle GetBushSourceRect(Bush bush, int variation, int textureHeight)
     {
         if (variation == -1)
         {
@@ -320,14 +275,13 @@ static class SourceRects
     }
 
     public static Rectangle GetCharacterSourceRectangle(
-        AlternativeTextureModel textureModel,
         Character character,
+        int variation,
         int textureWidth,
-        int textureHeight,
-        int variation
+        int textureHeight
     )
     {
-        var sourceRectOffset = textureModel.GetTextureOffset(variation);
+        var sourceRectOffset = 0;
         var sourceRect = character.Sprite.sourceRect;
 
         sourceRect.Y =

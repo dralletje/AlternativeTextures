@@ -597,14 +597,14 @@ internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
         return texture2D;
     }
 
-    internal static Texture2D GetPaintedOverlay(
+    internal static Texture2D? GetPaintedOverlay(
         Building building,
         Texture2D base_texture,
         Texture2D paint_mask_texture,
         BuildingPaintColor color
     )
     {
-        List<List<int>> paint_indices = null;
+        List<List<int>>? paint_indices = null;
         try
         {
             Color[] mask_pixels = new Color[paint_mask_texture.Width * paint_mask_texture.Height];
