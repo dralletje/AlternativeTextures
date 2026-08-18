@@ -126,7 +126,6 @@ namespace AlternativeTextures.Framework.Managers
 
         public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
         {
-            var x = _alternativeTextures.Take(3);
             if (!DoesObjectHaveAlternativeTextureById(textureId))
             {
                 return null;

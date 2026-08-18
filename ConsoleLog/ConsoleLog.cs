@@ -202,10 +202,10 @@ public static class PrettyPrint
             var list = nongenericList.Cast<object>();
 
             if (!list.Any())
-                return $"{type.TechnicolorFullName()}{"[]".Grey()}";
+                return $"{type.TechnicolorFullName()}{"[]".BrightBlack()}";
             /// Hahahaha 1 items (Ask LLM later idc)
             if (depth >= maxdepth)
-                return $"{type.TechnicolorFullName()}{"[".Grey()} {$"{list.Count()} items...".BrightBlack()} {"]".Grey()}";
+                return $"{type.TechnicolorFullName()}{"[".BrightBlack()} {$"{list.Count()} items...".BrightBlack()} {"]".BrightBlack()}";
             return $"""
                 {type.TechnicolorFullName()}[
                 {string.Join(
@@ -222,14 +222,18 @@ public static class PrettyPrint
             var typePrefix = type.IsAnonymousType() ? "" : $"{type.TechnicolorFullName()} ";
 
             if (depth >= maxdepth)
-                return $"{typePrefix}{"{ ... }".Grey()}";
+                return $"{typePrefix}{"{ ... }".BrightBlack()}";
 
             /// Get the public properties of the object
             var properties = value
                 .GetType()
+                // .GetProperties(System.Reflection.BindingFlags.Instance)
                 .GetProperties()
                 .Where(p => p.GetIndexParameters().Length == 0)
+                .Where(p => p.GetMethod is { } getMethod && !getMethod.IsStatic)
+                .Where(p => p.GetMethod is { } getMethod && getMethod.IsPublic)
                 .ToList();
+
             /// Get the name and value of each property
             var propValues = properties
                 .Select(p =>
@@ -247,17 +251,43 @@ public static class PrettyPrint
                 .Select(x => x!)
                 .ToList();
 
-            if (properties.Count == 0)
-                return $"{typePrefix}${"{}".Grey()}";
+            var fields = value
+                .GetType()
+                // .GetProperties(System.Reflection.BindingFlags.Instance)
+                .GetFields()
+                .Where(p => p.IsPublic)
+                .ToList();
+
+            var fieldValues = fields
+                .Select(p =>
+                {
+                    try
+                    {
+                        return new { Name = p.Name, Value = p.GetValue(value) };
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                })
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList();
+
+            if (properties.Count == 0 && fieldValues.Count == 0)
+                return $"{typePrefix}{"{}".BrightBlack()}";
 
             var propStrings = propValues.Select(pv =>
                 $"{pv.Name.Magenta()}: {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
             );
-            var joinedProps = string.Join("\n", propStrings);
+            var fieldStrings = fieldValues.Select(pv =>
+                $"{pv.Name.Yellow()}: {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
+            );
+            var props = string.Join("\n", [.. fieldStrings, .. propStrings]);
             return $$"""
-                {{typePrefix}}{{"{".Grey()}}
-                {{joinedProps.Indent("  ")}}
-                {{"}".Grey()}}
+                {{typePrefix}}{{"{".BrightBlack()}}
+                {{props.Indent("  ")}}
+                {{"}".BrightBlack()}}
                 """;
         }
     }

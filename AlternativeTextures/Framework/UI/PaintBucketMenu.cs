@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.Incubator;
 using ConsoleLog;
 using DralGeometry;
 using Microsoft.Xna.Framework;
@@ -14,32 +15,7 @@ using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 
 namespace AlternativeTextures.Framework.UI;
 
-public static class PaddingExtensions
-{
-    extension(Rectangle rectangle)
-    {
-        public static Rectangle operator +(Rectangle rect, Padding padding) =>
-            (rect.ToSystemRectangle() + padding).ToXnaRectangle();
-
-        public static Rectangle operator -(Rectangle rect, Padding padding) => rect + (padding * -1);
-    }
-}
-
-public static class RectangleExtensions
-{
-    extension(Rectangle rectangle)
-    {
-        public System.Drawing.Rectangle ToSystemRectangle() =>
-            new(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
-    }
-
-    extension(System.Drawing.Rectangle rectangle)
-    {
-        public Rectangle ToXnaRectangle() => new(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
-    }
-}
-
-readonly struct PaintBucketMenuItem()
+internal readonly struct PaintBucketMenuItem()
 {
     public readonly required TextureIdentifier TextureIdentifier { get; init; }
     public readonly string? DisplayName
@@ -58,24 +34,12 @@ internal class PaintBucketMenu : IClickableMenu
 
     protected string _title;
 
-    protected int _startingRow = 0;
-    protected float _buildingScale = 3f;
+    protected Signal<int> rowsScrolled = new(0);
 
     GridSize gridSize = new(rows: 4, columns: 6);
 
-    private Dictionary<string, Texture2D> _skinIdToTextures = [];
-    private Dictionary<string, Texture2D> _breedIdToTextures = [];
-
-    private void setScrollBarToCurrentIndex()
-    {
-        if (menuItems.Count > 0)
-        {
-            var listProgress =
-                VirtualRows == 0 ? 0 : Math.Clamp((float)_startingRow / (VirtualRows - gridSize.Rows), 0, 1);
-            var moveableHeight = scrollBarRunner.Height - (scrollBar.bounds.Height * Game1.pixelZoom) - 8;
-            scrollBar.bounds.Y = (int)(scrollBarRunner.Top + (moveableHeight * listProgress));
-        }
-    }
+    // private Dictionary<string, Texture2D> _skinIdToTextures = [];
+    // private Dictionary<string, Texture2D> _breedIdToTextures = [];
 
     int VirtualRows
     {
@@ -90,8 +54,10 @@ internal class PaintBucketMenu : IClickableMenu
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
     readonly IPaintable target;
 
+    Computed<int> scrollbarY;
+
     /// IEnumerable<PaintBucketMenuItem> menuItems
-    public PaintBucketMenu(IPaintable target, string uiTitle = "Paint Bucket", int textureTileWidth = -1)
+    public PaintBucketMenu(IPaintable target, string uiTitle = "Paint Bucket")
         : base(0, 0, 832, 576, showUpperRightCloseButton: true)
     {
         this.target = target;
@@ -332,7 +298,6 @@ internal class PaintBucketMenu : IClickableMenu
 
         // _textureType = textureType;
 
-        var drawingScale = 4f;
         var _sourceRect = target.PreviewTexture(target.Texture ?? TextureIdentifier.Default)?.SourceRect;
         var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
 
@@ -392,18 +357,6 @@ internal class PaintBucketMenu : IClickableMenu
             case TextureType.Building:
                 gridSize = new(rows: 1, columns: 3);
                 sourceRect = new Rectangle(0, 0, 48, 160);
-
-                switch (textureTileWidth)
-                {
-                    case int w when w > 4 && w < 8:
-                        _buildingScale = 2f;
-                        break;
-                    case int w when w >= 8:
-                        _buildingScale = 1f;
-                        break;
-                }
-
-                drawingScale = _buildingScale;
                 break;
             case TextureType.Decoration:
                 gridSize = new(rows: 2, columns: 4);
@@ -411,14 +364,6 @@ internal class PaintBucketMenu : IClickableMenu
                 break;
         }
 
-        // var padding = new Padding
-        // {
-        //     // Top = 20,
-        //     Top = 40,
-        //     Bottom = -4,
-        //     Right = 16,
-        //     Left = 16,
-        // };
         var borderInset = new Padding(all: 16) { Top = 20, Right = 12 };
         var padding = new Padding(all: 16);
         var menuarea = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
@@ -477,15 +422,8 @@ internal class PaintBucketMenu : IClickableMenu
             leftNeighborID = 3546,
         };
 
-        var scrollbarHeight = height - 64 - upArrow.bounds.Height - 28;
         scrollBar = new ClickableTextureComponent(
-            new Rectangle(
-                upArrow.bounds.X + 12,
-                upArrow.bounds.Y + upArrow.bounds.Height + 4,
-                24,
-                scrollbarHeight / Math.Max(1, VirtualRows)
-            // 40
-            ),
+            new Rectangle(upArrow.bounds.X + 12, upArrow.bounds.Y + upArrow.bounds.Height + 4, 24, 40),
             VisualTheme.ScrollBarFrontTexture,
             VisualTheme.ScrollBarFrontSourceRect,
             4f
@@ -506,6 +444,15 @@ internal class PaintBucketMenu : IClickableMenu
             this.setCurrentlySnappedComponentTo(0);
             this.snapCursorToCurrentSnappedComponent();
         }
+
+        this.scrollbarY = new(() =>
+        {
+            var listProgress =
+                VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
+            var moveableHeight = scrollBarRunner.Height - scrollBar.bounds.Height;
+            return (int)(scrollBarRunner.Top + (moveableHeight * listProgress));
+        });
+        // this.scrollWatcher = new(this.setScrollBarToCurrentIndex);
     }
 
     protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
@@ -521,7 +468,6 @@ internal class PaintBucketMenu : IClickableMenu
             return;
         }
 
-        var maxScale = target.ModelIdentifier.Type == TextureType.Building ? _buildingScale : 4f;
         foreach (var (button, menuItem) in elementsOnScreen)
         {
             if (button.containsPoint(x, y))
@@ -534,11 +480,6 @@ internal class PaintBucketMenu : IClickableMenu
     public override void receiveKeyPress(Keys key)
     {
         PrettyPrint.Log("KeyPress", key);
-        // if (key == Keys.Escape)
-        // {
-        //     base.receiveKeyPress(key);
-        // }
-
         base.receiveKeyPress(key);
     }
 
@@ -555,7 +496,6 @@ internal class PaintBucketMenu : IClickableMenu
             if (!button.containsPoint(x, y))
                 continue;
 
-            Console.Log($"item: {item}");
             target.ApplyTexture(item.TextureIdentifier);
 
             // if (_textureType is TextureType.Character && PatchTemplate.GetCharacterAt(Game1.currentLocation, (int)_position.X, (int)_position.Y) is Character character && character != null)
@@ -691,12 +631,12 @@ internal class PaintBucketMenu : IClickableMenu
             return;
         }
 
-        if (downArrow.containsPoint(x, y) && _startingRow < Math.Max(0, VirtualRows - gridSize.Rows))
+        if (downArrow.containsPoint(x, y) && rowsScrolled < Math.Max(0, VirtualRows - gridSize.Rows))
         {
             downArrowPressed();
             Game1.playSound("shwip");
         }
-        else if (upArrow.containsPoint(x, y) && _startingRow > 0)
+        else if (upArrow.containsPoint(x, y) && rowsScrolled > 0)
         {
             upArrowPressed();
             Game1.playSound("shwip");
@@ -726,23 +666,21 @@ internal class PaintBucketMenu : IClickableMenu
     private void downArrowPressed()
     {
         downArrow.scale = downArrow.baseScale;
-        _startingRow++;
-        setScrollBarToCurrentIndex();
+        rowsScrolled.Value++;
         // updateSaleButtonNeighbors();
     }
 
     private void upArrowPressed()
     {
         upArrow.scale = upArrow.baseScale;
-        _startingRow--;
-        setScrollBarToCurrentIndex();
+        rowsScrolled.Value--;
         // updateSaleButtonNeighbors();
     }
 
     public override void leftClickHeld(int x, int y)
     {
         base.leftClickHeld(x, y);
-        Console.Log($"leftClickHeld.... {scrolling}");
+        // Console.Log($"leftClickHeld.... {scrolling}");
         if (scrolling)
         {
             int y2 = scrollBar.bounds.Y;
@@ -751,11 +689,10 @@ internal class PaintBucketMenu : IClickableMenu
                 Math.Max(y, yPositionOnScreen + upArrow.bounds.Height + 20)
             );
             float num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
-            _startingRow = Math.Min(
+            rowsScrolled.Value = Math.Min(
                 Math.Max(0, VirtualRows - gridSize.Rows),
                 Math.Max(0, (int)((float)VirtualRows * num))
             );
-            setScrollBarToCurrentIndex();
             //   updateSaleButtonNeighbors();
             if (y2 != scrollBar.bounds.Y)
             {
@@ -774,41 +711,46 @@ internal class PaintBucketMenu : IClickableMenu
     public override void receiveScrollWheelAction(int direction)
     {
         base.receiveScrollWheelAction(direction);
-        if (direction > 0 && _startingRow > 0)
+        if (direction > 0 && rowsScrolled > 0)
         {
-            _startingRow--;
+            rowsScrolled.Value--;
             Game1.playSound("shiny4");
         }
-        else if (direction < 0 && (gridSize.Rows + _startingRow) < VirtualRows)
+        else if (direction < 0 && (gridSize.Rows + rowsScrolled) < VirtualRows)
         {
-            _startingRow++;
+            rowsScrolled.Value++;
             Game1.playSound("shiny4");
         }
-
-        setScrollBarToCurrentIndex();
     }
 
     IEnumerable<(ClickableComponent, PaintBucketMenuItem)> elementsOnScreen
     {
         get
         {
-            var pageOffset = _startingRow * gridSize.Columns;
+            var pageOffset = rowsScrolled * gridSize.Columns;
             return Enumerable.Zip(this.itemGrid, this.menuItems.Skip(pageOffset));
         }
     }
 
-    public static Rectangle ScaleToFitCentered(Rectangle container, Rectangle fitting)
+    private int setScrollBarToCurrentIndex()
     {
-        float containerRatio = (float)container.Width / container.Height;
-        float fittingRatio = (float)fitting.Width / fitting.Height;
+        var listProgress = VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
+        var moveableHeight = scrollBarRunner.Height - scrollBar.bounds.Height;
+        var scrollbarY = (int)(scrollBarRunner.Top + (moveableHeight * listProgress));
 
-        float width = fittingRatio > containerRatio ? container.Width : container.Height * fittingRatio;
-        float height = fittingRatio > containerRatio ? container.Width / fittingRatio : container.Height;
+        // scrollBar.bounds.Y = scrollbarY;
+        return scrollbarY;
+    }
 
-        float x = container.X + (container.Width - width) / 2f;
-        float y = container.Y + (container.Height - height) / 2f;
+    public override void update(GameTime time)
+    {
+        base.update(time);
 
-        return new Rectangle((int)x, (int)y, (int)width, (int)height);
+        // if (!scrolling && this.scrollWatcher.HasChanges)
+        // {
+        //     Console.Log($"Running scroll updater!");
+        //     this.scrollWatcher.Run();
+        // }
     }
 
     public override void draw(SpriteBatch batch)
@@ -861,7 +803,7 @@ internal class PaintBucketMenu : IClickableMenu
 
                     var borderInset = new Padding(all: 12);
                     var littleInset = button.bounds - borderInset - new Padding(all: 4);
-                    var rectangle = ScaleToFitCentered(littleInset, drawableTexture.SourceRect);
+                    var rectangle = littleInset.FitInside(drawableTexture.SourceRect);
                     batch.Draw(
                         drawableTexture.Texture,
                         rectangle,
@@ -894,6 +836,8 @@ internal class PaintBucketMenu : IClickableMenu
                     Color.White,
                     4f
                 );
+
+                scrollBar.bounds.Y = scrollbarY;
                 scrollBar.draw(batch);
             }
         }

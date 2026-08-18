@@ -7,6 +7,7 @@ using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.UI;
 using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
+using DralGeometry;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -233,278 +234,198 @@ namespace AlternativeTextures.Framework.Patches.Tools
             return true;
         }
 
+        static GridSize gridSizeFor(IPaintable paintable)
+        {
+            var _sourceRect = paintable.PreviewTexture(paintable.Texture ?? TextureIdentifier.Default)?.SourceRect;
+            var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
+
+            // var sourceRect = SourceRects.GetSourceRectangle(availableModels.First(), target, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
+            switch (paintable.ModelIdentifier)
+            {
+                case { Type: TextureType.Craftable }:
+                    if (sourceRect.Height <= 16)
+                    {
+                        return new(rows: 8, columns: 6);
+                    }
+                    else
+                    {
+                        return new(rows: 4, columns: 6);
+                    }
+                case { Type: TextureType.Flooring }:
+                    return new(rows: 4, columns: 6);
+
+                case { Type: TextureType.Character }:
+                    return new(rows: 4, columns: 6);
+
+                case { Type: TextureType.Tree }:
+                    return new(rows: 2, columns: 6);
+
+                case { Type: TextureType.FruitTree }:
+                    return new(rows: 1, columns: 3);
+
+                case { Type: TextureType.Crop }:
+                    return new(rows: 4, columns: 1);
+
+                case { Type: TextureType.GiantCrop }:
+                    return new(rows: 2, columns: 3);
+
+                case { Type: TextureType.Grass }:
+                    return new(rows: 6, columns: 4);
+
+                case { Type: TextureType.Bush }:
+                    return new(rows: 6, columns: 4);
+
+                case { Type: TextureType.Furniture }:
+                    if (sourceRect.Height >= 64)
+                    {
+                        return new(rows: 2, columns: 6);
+                    }
+                    else if (sourceRect.Height >= 32)
+                    {
+                        return new(rows: 3, columns: 6);
+                    }
+                    else
+                    {
+                        return new(rows: 4, columns: 6);
+                    }
+                case { Type: TextureType.Building }:
+                    return new(rows: 1, columns: 3);
+                case { Type: TextureType.Decoration, Name: "Floor" }:
+                    return new(rows: 3, columns: 4);
+                case { Type: TextureType.Decoration, Name: "Wallpaper" }:
+                    return new(rows: 2, columns: 6);
+                default:
+                    return new(rows: 4, columns: 6);
+            }
+        }
+
         internal static bool UsePaintBucket(GameLocation location, int x, int y, Farmer who, bool isSprayCan = false)
         {
-            ////////////////////////////////////////////////////
-
             var paintables = IPaintable.OnTile(new(x / 64, y / 64));
             if (paintables.FirstOrDefault() is { } paintable)
             {
-                // var itemId = $"{paintable.Type}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-                // var modelName = paintable.Type;
+                var items = PaintBucketMenuData.GetTexturesFor(paintable.ModelIdentifier).ToList();
 
-                // if (targetedObject.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-                // {
-                //     itemId = GetModelNameWithoutSeason(itemId, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-                //     modelName = GetModelNameWithoutSeason(modelName, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-                // }
+                if (items.Count == 0)
+                {
+                    // Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
+                    // csharpier-ignore
+                    Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {paintable.ModelIdentifier.Name} ({paintable.ModelIdentifier.Type})"));
+                    return CancelUsing(who);
+                }
 
-                // if (AlternativeTextures.textureManager.GetAvailableTextureModels(itemId, modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-                // {
-                //     var instanceSeasonName = $"{GetTextureType(targetedObject)}_{GetObjectName(targetedObject)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-                //     AssignDefaultModData(targetedObject, instanceSeasonName, true);
-
-                //     modelName = targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-                //     if (targetedObject.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-                //     {
-                //         itemId = GetModelNameWithoutSeason(itemId, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-                //         modelName = GetModelNameWithoutSeason(modelName, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-                //     }
-
-                //     if (AlternativeTextures.textureManager.GetAvailableTextureModels(itemId, modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-                //     {
-                //         Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-                //         return CancelUsing(who);
-                //     }
-                // }
-
-                // Display texture menu
-                Game1.activeClickableMenu = new PaintBucketMenu(
-                    paintable,
-                    _helper.Translation.Get("tools.name.paint_bucket")
+                Game1.activeClickableMenu = new GridMenu(
+                    [
+                        .. PaintBucketMenuData
+                            .VanillaTexturesFor(paintable.ModelIdentifier)
+                            .Select(textureInfo => new TextureGridMenuItem()
+                            {
+                                Paintable = paintable,
+                                TextureIdentifier = textureInfo.TextureIdentifier,
+                                DisplayName = textureInfo.DisplayName,
+                            }),
+                        .. items.Select(textureInfo => new TextureGridMenuItem()
+                        {
+                            Paintable = paintable,
+                            TextureIdentifier = textureInfo.TextureIdentifier,
+                            DisplayName = textureInfo.DisplayName,
+                        }),
+                    ],
+                    gridSizeFor(paintable),
+                    uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                    onPress: (item) =>
+                    {
+                        if (item is TextureGridMenuItem betterItem)
+                        {
+                            betterItem.Paintable.ApplyTexture(betterItem.TextureIdentifier);
+                        }
+                    }
                 );
-
                 return CancelUsing(who);
             }
 
             ////////////////////////////////////////////////////
 
-            // var targetedObject = GetObjectAt(location, x, y);
-            // if (targetedObject != null)
-            // {
-            //     // Assign default data if none exists
-            //     if (!targetedObject.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            //     {
-            //         var instanceSeasonName = $"{GetTextureType(targetedObject)}_{GetObjectName(targetedObject)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //         AssignDefaultModData(targetedObject, instanceSeasonName, true);
-            //     }
+            if (location is DecoratableLocation decoratableLocation)
+            {
+                var tile = new Tile(x / 64, y / 64);
 
-            //     var itemId = $"{GetTextureType(targetedObject)}_{targetedObject.ItemId}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //     var modelName = targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
+                if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
+                {
+                    var wallpaperPaintable = new WallpaperDecorationPaintable(decoratableLocation, wallId);
 
-            //     Console.Log($"itemId: {itemId}");
-            //     Console.Log($"modelName: {modelName}");
+                    List<TextureInfo> items =
+                    [
+                        .. PaintBucketMenuData.VanillaWallpaperDecorations(),
+                        .. PaintBucketMenuData.GetTexturesFor(wallpaperPaintable.ModelIdentifier),
+                    ];
+                    if (items.Count == 1)
+                    {
+                        // csharpier-ignore
+                        Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {wallpaperPaintable.ModelIdentifier.Name} ({wallpaperPaintable.ModelIdentifier.Type})"));
+                        return CancelUsing(who);
+                    }
 
-            //     if (targetedObject.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //     {
-            //         itemId = GetModelNameWithoutSeason(itemId, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //         modelName = GetModelNameWithoutSeason(modelName, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //     }
+                    Game1.activeClickableMenu = new GridMenu(
+                        [
+                            .. items.Select(textureInfo => new TextureGridMenuItem()
+                            {
+                                DisplayName = textureInfo.DisplayName,
+                                TextureIdentifier = textureInfo.TextureIdentifier,
+                                Paintable = wallpaperPaintable,
+                            }),
+                        ],
+                        new(rows: 2, columns: 6),
+                        uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                        onPress: (item) =>
+                        {
+                            if (item is TextureGridMenuItem betterItem)
+                            {
+                                betterItem.Paintable.ApplyTexture(betterItem.TextureIdentifier);
+                            }
+                        }
+                    );
+                    return CancelUsing(who);
+                }
 
-            //     if (AlternativeTextures.textureManager.GetAvailableTextureModels(itemId, modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //     {
-            //         var instanceSeasonName = $"{GetTextureType(targetedObject)}_{GetObjectName(targetedObject)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //         AssignDefaultModData(targetedObject, instanceSeasonName, true);
+                if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
+                {
+                    var floorPaintable = new FloorDecorationPaintable(decoratableLocation, floorId);
 
-            //         modelName = targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            //         if (targetedObject.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //         {
-            //             itemId = GetModelNameWithoutSeason(itemId, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //             modelName = GetModelNameWithoutSeason(modelName, targetedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //         }
+                    List<TextureInfo> items =
+                    [
+                        .. PaintBucketMenuData.VanillaFloorDecorations(),
+                        .. PaintBucketMenuData.GetTexturesFor(floorPaintable.ModelIdentifier),
+                    ];
+                    if (items.Count == 1)
+                    {
+                        // csharpier-ignore
+                        Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {floorPaintable.ModelIdentifier.Name} ({floorPaintable.ModelIdentifier.Type})"));
+                        return CancelUsing(who);
+                    }
 
-            //         if (AlternativeTextures.textureManager.GetAvailableTextureModels(itemId, modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //         {
-            //             Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-            //             return CancelUsing(who);
-            //         }
-            //     }
-
-            //     // Display texture menu
-            //     // Game1.activeClickableMenu = GetMenu(targetedObject, new Vector2(x, y), GetTextureType(targetedObject), modelName, _helper.Translation.Get("tools.name.paint_bucket"), isSprayCan: isSprayCan);
-            //     Game1.activeClickableMenu = new PaintBucketMenu(target, position, textureType, modelName, uiName, textureTileWidth: textureTileWidth)
-
-            //     return CancelUsing(who);
-            // }
-
-            // var targetedResouceClump = GetResourceClumpAt(location, x, y);
-            // if (targetedResouceClump != null && targetedResouceClump is GiantCrop giantCrop)
-            // {
-            //     if (!giantCrop.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            //     {
-            //         GiantCropPatch.TryGetGiantCropName(giantCrop, out string instanceName);
-            //         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(giantCrop.Location)}";
-            //         AssignDefaultModData(targetedResouceClump, instanceSeasonName, true);
-            //     }
-
-            //     var modelName = targetedResouceClump.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{targetedResouceClump.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            //     if (targetedResouceClump.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedResouceClump.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //     {
-            //         modelName = GetModelNameWithoutSeason(modelName, targetedResouceClump.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //     }
-
-            //     if (AlternativeTextures.textureManager.GetAvailableTextureModels(modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //     {
-            //         Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-            //         return CancelUsing(who);
-            //     }
-
-            //     // Display texture menu
-            //     var terrainObj = new Object("100", 1, isRecipe: false, -1)
-            //     {
-            //         TileLocation = targetedResouceClump.Tile
-            //     };
-            //     terrainObj.modData.SetFromSerialization(targetedResouceClump.modData);
-
-            //     Game1.activeClickableMenu = GetMenu(terrainObj, terrainObj.TileLocation * 64f, GetTextureType(targetedResouceClump), modelName, _helper.Translation.Get("tools.name.paint_bucket"), isSprayCan: isSprayCan);
-
-            //     return CancelUsing(who);
-            // }
-
-            // var targetedTerrain = GetTerrainFeatureAt(location, x, y);
-            // if (targetedTerrain != null)
-            // {
-            //     if (targetedTerrain is HoeDirt hoeDirt && hoeDirt.crop is null)
-            //     {
-            //         return CancelUsing(who);
-            //     }
-
-            //     if (!targetedTerrain.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            //     {
-            //         if (targetedTerrain is Flooring flooring)
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Flooring}_{GetFlooringName(flooring)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else if (targetedTerrain is Tree tree)
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Tree}_{GetTreeTypeString(tree)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else if (targetedTerrain is FruitTree fruitTree)
-            //         {
-            //             Dictionary<int, string> data = Game1.content.Load<Dictionary<int, string>>("Data\\fruitTrees");
-            //             var saplingName = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value) ? Game1.objectData[fruitTree.treeId.Value].Name : String.Empty;
-
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.FruitTree}_{saplingName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else if (targetedTerrain is HoeDirt dirt && dirt.crop is not null)
-            //         {
-            //             var instanceName = Game1.objectData.ContainsKey(dirt.crop.netSeedIndex.Value) ? Game1.objectData[dirt.crop.netSeedIndex.Value].Name : String.Empty;
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Crop}_{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else if (targetedTerrain is Grass grass)
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Grass}_Grass_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else if (targetedTerrain is Bush bush)
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Bush}_{PatchTemplate.GetBushTypeString(bush)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //             AssignDefaultModData(targetedTerrain, instanceSeasonName, true);
-            //         }
-            //         else
-            //         {
-            //             return CancelUsing(who);
-            //         }
-            //     }
-
-            //     var modelName = targetedTerrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{targetedTerrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            //     if (targetedTerrain.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(targetedTerrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //     {
-            //         modelName = GetModelNameWithoutSeason(modelName, targetedTerrain.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //     }
-
-            //     if (AlternativeTextures.textureManager.GetAvailableTextureModels(modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //     {
-            //         Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-            //         return CancelUsing(who);
-            //     }
-
-            //     // Display texture menu
-            //     var terrainObj = new Object("100", 1, isRecipe: false, -1)
-            //     {
-            //         TileLocation = new Vector2(x, y) / 64f
-            //     };
-            //     terrainObj.modData.SetFromSerialization(targetedTerrain.modData);
-
-            //     Game1.activeClickableMenu = GetMenu(terrainObj, terrainObj.TileLocation * 64f, GetTextureType(targetedTerrain), modelName, _helper.Translation.Get("tools.name.paint_bucket"), isSprayCan: isSprayCan);
-
-            //     return CancelUsing(who);
-            // }
-
-            // ////////////////////////////////////
-
-            // if (location is DecoratableLocation decoratableLocation)
-            // {
-            //     Point tile = new Point(x / 64, y / 64);
-
-            //     var wallId = decoratableLocation.GetWallpaperID(tile.X, tile.Y);
-            //     if (string.IsNullOrEmpty(wallId) is false)
-            //     {
-            //         if (!decoratableLocation.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) || !decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains("Wallpaper"))
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Decoration}_Wallpaper_{Game1.GetSeasonForLocation(decoratableLocation)}";
-            //             AssignDefaultModData(decoratableLocation, instanceSeasonName, true);
-            //         }
-
-            //         var modelName = decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            //         if (decoratableLocation.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !string.IsNullOrEmpty(decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //         {
-            //             modelName = GetModelNameWithoutSeason(modelName, decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //         }
-
-            //         if (AlternativeTextures.textureManager.GetAvailableTextureModels(modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //         {
-            //             Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-            //             return CancelUsing(who);
-            //         }
-
-            //         // Display texture menu
-            //         var locationObj = new Object("100", 1, isRecipe: false, -1)
-            //         {
-            //             TileLocation = Utility.PointToVector2(tile)
-            //         };
-            //         locationObj.modData.SetFromSerialization(decoratableLocation.modData);
-            //         Game1.activeClickableMenu = GetMenu(locationObj, locationObj.TileLocation, GetTextureType(decoratableLocation), modelName, _helper.Translation.Get("tools.name.paint_bucket"), isSprayCan: isSprayCan);
-
-            //         return CancelUsing(who);
-            //     }
-
-            //     var floorId = decoratableLocation.GetFloorID(tile.X, tile.Y);
-            //     if (string.IsNullOrEmpty(floorId) is false)
-            //     {
-            //         if (!decoratableLocation.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) || !decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains("Floor"))
-            //         {
-            //             var instanceSeasonName = $"{AlternativeTextureModel.TextureType.Decoration}_Floor_{Game1.GetSeasonForLocation(decoratableLocation)}";
-            //             AssignDefaultModData(decoratableLocation, instanceSeasonName, true);
-            //         }
-
-            //         var modelName = decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Replace($"{decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            //         if (decoratableLocation.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON) && !String.IsNullOrEmpty(decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]))
-            //         {
-            //             modelName = GetModelNameWithoutSeason(modelName, decoratableLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]);
-            //         }
-
-            //         if (AlternativeTextures.textureManager.GetAvailableTextureModels(modelName, Game1.GetSeasonForLocation(Game1.currentLocation)).Count == 0)
-            //         {
-            //             Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-            //             return CancelUsing(who);
-            //         }
-
-            //         // Display texture menu
-            //         var locationObj = new Object("100", 1, isRecipe: false, -1)
-            //         {
-            //             TileLocation = Utility.PointToVector2(tile)
-            //         };
-            //         locationObj.modData.SetFromSerialization(decoratableLocation.modData);
-            //         Game1.activeClickableMenu = GetMenu(locationObj, locationObj.TileLocation, GetTextureType(decoratableLocation), modelName, _helper.Translation.Get("tools.name.paint_bucket"), isSprayCan: isSprayCan);
-
-            //         return CancelUsing(who);
-            //     }
-            // }
+                    Game1.activeClickableMenu = new GridMenu(
+                        [
+                            .. items.Select(textureInfo => new TextureGridMenuItem()
+                            {
+                                DisplayName = textureInfo.DisplayName,
+                                TextureIdentifier = textureInfo.TextureIdentifier,
+                                Paintable = floorPaintable,
+                            }),
+                        ],
+                        new(rows: 3, columns: 4),
+                        uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                        onPress: (item) =>
+                        {
+                            if (item is TextureGridMenuItem betterItem)
+                            {
+                                betterItem.Paintable.ApplyTexture(betterItem.TextureIdentifier);
+                            }
+                        }
+                    );
+                    return CancelUsing(who);
+                }
+            }
 
             ////////////////////////////////////////////////
 

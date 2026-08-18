@@ -141,21 +141,16 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             AssignDefaultModData(__instance, instanceSeasonName, true);
         }
 
-        private static string GetResourceClumpName(ResourceClump clump)
+        public static string GetResourceClumpName(ResourceClump clump)
         {
-            switch (clump.parentSheetIndex.Value)
+            return clump.parentSheetIndex.Value switch
             {
-                case 600:
-                    return "Stump";
-                case 602:
-                    return "Log";
-                case 622:
-                    return "Meteor";
-                case 672:
-                    return "Boulder";
-                default:
-                    return String.Empty;
-            }
+                600 => "Stump",
+                602 => "Log",
+                622 => "Meteor",
+                672 => "Boulder",
+                _ => String.Empty,
+            };
         }
     }
 }

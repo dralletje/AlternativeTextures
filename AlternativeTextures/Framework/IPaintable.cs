@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches;
@@ -36,6 +37,14 @@ readonly struct DrawableTexture()
     public required Rectangle SourceRect { get; init; }
 }
 
+static class Util
+{
+    public static T Do<T>(Func<T> function)
+    {
+        return function();
+    }
+}
+
 interface IPaintable
 {
     ModelIdentifier ModelIdentifier { get; }
@@ -68,7 +77,7 @@ interface IPaintable
             : string.Empty;
     }
 
-    static List<IPaintable> OnTile(Tile tile)
+    static IEnumerable<IPaintable> OnTile(Tile tile)
     {
         var location = Game1.currentLocation;
 
@@ -76,34 +85,46 @@ interface IPaintable
         var xTile = pixel.X;
         var yTile = pixel.Y;
 
-        var paintables = new List<IPaintable>();
-
         foreach (var placedObject in location.GetObjectsAtTile(tile))
         {
             var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
-            paintables.Add(
-                new PaintableFromModData(placedObject.modData)
+            yield return new PaintableFromModData(placedObject.modData)
+            {
+                ModelIdentifier = new()
                 {
-                    ModelIdentifier = new()
-                    {
-                        Type = modelType,
-                        ItemId = placedObject.ItemId,
-                        Name = PatchTemplate.GetObjectName(placedObject),
-                    },
-                    Related = placedObject,
-                }
-            );
+                    Type = modelType,
+                    ItemId = placedObject.ItemId,
+                    Name = PatchTemplate.GetObjectName(placedObject),
+                },
+                Related = placedObject,
+            };
         }
 
-        if (PatchTemplate.GetResourceClumpAt(location, xTile, yTile) is GiantCrop giantCrop)
+        IPaintable? maybeResourceClumpPaintable = PatchTemplate.GetResourceClumpAt(location, xTile, yTile) switch
         {
-            paintables.Add(
-                new PaintableFromModData(giantCrop.modData)
+            GiantCrop giantCrop => new PaintableFromModData(giantCrop.modData)
+            {
+                ModelIdentifier = new() { Type = TextureType.GiantCrop, Name = giantCrop.InternalName! },
+                Related = giantCrop,
+            },
+
+            ResourceClump clump => new PaintableFromModData(clump.modData)
+            {
+                ModelIdentifier = new()
                 {
-                    ModelIdentifier = new() { Type = TextureType.GiantCrop, Name = giantCrop.InternalName! },
-                    Related = giantCrop,
-                }
-            );
+                    Type = TextureType.ResourceClump,
+                    Name = ResourceClumpPatch.GetResourceClumpName(clump)!,
+                },
+                Related = clump,
+            },
+
+            /// DRAL TODO Distinguish between terrainFeature != null and no terrain at all?
+            // { } unknown => null,
+            null => null,
+        };
+        if (maybeResourceClumpPaintable is { } resourceClumpPaintable)
+        {
+            yield return resourceClumpPaintable;
         }
 
         IPaintable? maybeTerrainFeaturePaintable = location.GetTerrainFeatureAtTile(tile) switch
@@ -134,6 +155,25 @@ interface IPaintable
                 ModelIdentifier = new() { Type = TextureType.Grass, Name = PatchTemplate.GetBushTypeString(bush) },
                 Related = bush,
             },
+            Tree tree => new PaintableFromModData(tree.modData)
+            {
+                ModelIdentifier = new() { Type = TextureType.Tree, Name = PatchTemplate.GetTreeTypeString(tree) },
+                Related = tree,
+            },
+            FruitTree fruitTree => new PaintableFromModData(fruitTree.modData)
+            {
+                // Dictionary<int, string> data = Game1.content.Load<Dictionary<int, string>>("Data\\fruitTrees");
+                // var saplingName = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value) ? Game1.objectData[fruitTree.treeId.Value].Name : String.Empty;
+
+                ModelIdentifier = new()
+                {
+                    Type = TextureType.Tree,
+                    Name = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value)
+                        ? Game1.objectData[fruitTree.treeId.Value].Name
+                        : string.Empty,
+                },
+                Related = fruitTree,
+            },
 
             /// DRAL TODO Distinguish between terrainFeature != null and no terrain at all?
             { } unknown => null,
@@ -141,10 +181,8 @@ interface IPaintable
         };
         if (maybeTerrainFeaturePaintable is { } terrainFeaturePaintable)
         {
-            paintables.Add(terrainFeaturePaintable);
+            yield return terrainFeaturePaintable;
         }
-
-        return paintables;
     }
 }
 
@@ -180,6 +218,161 @@ static class ModDataToTexture
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER);
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION);
+        }
+    }
+}
+
+readonly struct WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+{
+    public readonly ModelIdentifier ModelIdentifier { get; } =
+        new() { Type = TextureType.Decoration, Name = "Wallpaper" };
+
+    public readonly object? Related { get; } = null;
+
+    public readonly TextureIdentifier? Texture
+    {
+        get
+        {
+            var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
+            return wallpaperId.Split(":", 2) switch
+            {
+                [var name, var variantString] when int.TryParse(variantString, out int variant) => new()
+                {
+                    Owner = "Is this even necessary?",
+                    Name = name,
+                    Variation = variant,
+                },
+                [var variantString] when int.TryParse(variantString, out int variant) => new()
+                {
+                    Owner = AlternativeTextures.DEFAULT_OWNER,
+                    Name = "Is this necessary in this case??",
+                    Variation = variant,
+                },
+                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
+            };
+        }
+    }
+
+    public void ApplyTexture(TextureIdentifier? maybeTextureToApply)
+    {
+        if (maybeTextureToApply is { } textureToApply)
+        {
+            var decorationKey = textureToApply.IsDefault
+                ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
+                : $"{textureToApply.Name}:{textureToApply.Variation}";
+            location.SetWallpaper(decorationKey, roomId);
+        }
+        else
+        {
+            location.SetWallpaper("0", roomId);
+        }
+    }
+
+    public DrawableTexture? PreviewTexture(TextureIdentifier textureIdentifier)
+    {
+        if (textureIdentifier.IsDefault)
+        {
+            var which = textureIdentifier.Variation;
+            return new()
+            {
+                Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
+                SourceRect = new Rectangle(which % 16 * 16, which / 16 * 48, 16, 48),
+            };
+        }
+        else
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            if (textureModel is null)
+                return null;
+
+            var decorationOffset = 16;
+            return new()
+            {
+                Texture = textureModel.GetTexture(textureIdentifier.Variation),
+                SourceRect = new Rectangle(
+                    (textureIdentifier.Variation % decorationOffset) * textureModel.TextureWidth,
+                    (textureIdentifier.Variation / decorationOffset) * textureModel.TextureHeight,
+                    textureModel.TextureWidth,
+                    textureModel.TextureHeight
+                ),
+            };
+        }
+    }
+}
+
+readonly struct FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+{
+    public readonly ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Floor" };
+
+    public readonly object? Related { get; } = null;
+
+    public readonly TextureIdentifier? Texture
+    {
+        get
+        {
+            var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
+            return wallpaperId.Split(":", 2) switch
+            {
+                [var name, var variantString] when int.TryParse(variantString, out int variant) => new()
+                {
+                    Owner = "Is this even necessary?",
+                    Name = name,
+                    Variation = variant,
+                },
+                [var variantString] when int.TryParse(variantString, out int variant) => new()
+                {
+                    Owner = AlternativeTextures.DEFAULT_OWNER,
+                    Name = "Is this necessary in this case??",
+                    Variation = variant,
+                },
+                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
+            };
+        }
+    }
+
+    public void ApplyTexture(TextureIdentifier? maybeTextureToApply)
+    {
+        if (maybeTextureToApply is { } textureToApply)
+        {
+            var decorationKey = textureToApply.IsDefault
+                ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
+                : $"{textureToApply.Name}:{textureToApply.Variation}";
+            location.SetFloor(decorationKey, roomId);
+        }
+        else
+        {
+            location.SetFloor("0", roomId);
+        }
+    }
+
+    public DrawableTexture? PreviewTexture(TextureIdentifier textureIdentifier)
+    {
+        if (textureIdentifier.IsDefault)
+        {
+            var which = textureIdentifier.Variation;
+            return new()
+            {
+                Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
+                SourceRect = new Rectangle(which % 8 * 32, 336 + which / 8 * 32, 32, 32),
+            };
+        }
+        else
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(textureIdentifier.Name);
+            if (textureModel is null)
+                return null;
+
+            var decorationOffset = 8;
+            return new()
+            {
+                Texture = textureModel.GetTexture(textureIdentifier.Variation),
+                SourceRect = new Rectangle(
+                    (textureIdentifier.Variation % decorationOffset) * textureModel.TextureWidth,
+                    (textureIdentifier.Variation / decorationOffset) * textureModel.TextureHeight,
+                    textureModel.TextureWidth,
+                    textureModel.TextureHeight
+                ),
+            };
         }
     }
 }
