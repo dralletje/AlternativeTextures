@@ -5,12 +5,9 @@ using StardewValley.Menus;
 
 namespace AlternativeTextures.Framework.UI;
 
-internal class FilterDropDown : OptionsDropDown
+internal class FilterDropDown(string label, int whichOption, int x = -1, int y = -1) : OptionsDropDown(label, whichOption, x, y)
 {
     public bool IsClicked { get; set; }
-
-    public FilterDropDown(string label, int whichOption, int x = -1, int y = -1)
-        : base(label, whichOption, x, y) { }
 
     public override void receiveKeyPress(Keys key)
     {

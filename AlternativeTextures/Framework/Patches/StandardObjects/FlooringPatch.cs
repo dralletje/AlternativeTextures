@@ -12,12 +12,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FlooringPatch : PatchTemplate
+internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate(modMonitor, modHelper)
 {
     private readonly Type _object = typeof(Flooring);
-
-    public FlooringPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

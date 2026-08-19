@@ -10,13 +10,10 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class GrassPatch : PatchTemplate
+internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate(modMonitor, modHelper)
 {
     private readonly Type _object = typeof(Grass);
     private const string NAME_PREFIX = "Grass";
-
-    public GrassPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

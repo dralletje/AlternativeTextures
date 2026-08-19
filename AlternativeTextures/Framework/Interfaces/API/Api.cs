@@ -27,14 +27,9 @@ public interface IApi
     public void ClearTextureForObject(Object obj);
 }
 
-public class Api : IApi
+public class Api(AlternativeTextures alternativeTexturesMod) : IApi
 {
-    private readonly AlternativeTextures _framework;
-
-    public Api(AlternativeTextures alternativeTexturesMod)
-    {
-        _framework = alternativeTexturesMod;
-    }
+    private readonly AlternativeTextures _framework = alternativeTexturesMod;
 
     public void AddAlternativeTexture(AlternativeTextureModel model, string owner, Texture2D texture)
     {

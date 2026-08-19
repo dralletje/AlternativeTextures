@@ -9,11 +9,11 @@ using StardewValley.Buildings;
 
 namespace AlternativeTextures.Framework.Managers;
 
-internal class MessageManager
+internal class MessageManager(IMonitor monitor, IModHelper helper, string modID)
 {
-    private IMonitor _monitor;
-    private IModHelper _helper;
-    private string _modID;
+    private IMonitor _monitor = monitor;
+    private IModHelper _helper = helper;
+    private string _modID = modID;
 
     internal enum MessageType
     {
@@ -27,13 +27,6 @@ internal class MessageManager
         public Guid BuildingID { get; set; }
         public string TextureName { get; set; }
         public string TextureVariation { get; set; }
-    }
-
-    public MessageManager(IMonitor monitor, IModHelper helper, string modID)
-    {
-        _monitor = monitor;
-        _helper = helper;
-        _modID = modID;
     }
 
     public void HandleIncomingMessage(ModMessageReceivedEventArgs e)

@@ -28,12 +28,10 @@ internal static class ReactiveContext
     }
 }
 
-public class Signal<T> : ISignal<T>
+public class Signal<T>(T initialValue) : ISignal<T>
 {
-    private T _value;
+    private T _value = initialValue;
     private readonly Dictionary<object, Action> _subscribers = [];
-
-    public Signal(T initialValue) => _value = initialValue;
 
     public T Value
     {
@@ -59,15 +57,13 @@ public class Signal<T> : ISignal<T>
     public static implicit operator T(Signal<T> w) => w.Value;
 }
 
-public class Computed<T> : ISignal<T>
+public class Computed<T>(Func<T> compute) : ISignal<T>
 {
-    private readonly Func<T> _compute;
+    private readonly Func<T> _compute = compute;
     private readonly Dictionary<object, Action> _subscribers = [];
     private readonly HashSet<ISignalBase> _deps = [];
     private T _value = default!;
     private bool _stale = true;
-
-    public Computed(Func<T> compute) => _compute = compute;
 
     public T Value
     {
@@ -134,21 +130,16 @@ public class Watcher<T>
     }
 }
 
-public class Watcher
+public class Watcher(Action action)
 {
-    private readonly Watcher<bool> watcher;
-    public bool HasChanges
-    {
-        get { return watcher.HasChanges; }
-    }
-
-    public Watcher(Action action)
-    {
-        watcher = new(() =>
+    private readonly Watcher<bool> watcher = new(() =>
         {
             action();
             return true;
         });
+    public bool HasChanges
+    {
+        get { return watcher.HasChanges; }
     }
 
     public void Run()

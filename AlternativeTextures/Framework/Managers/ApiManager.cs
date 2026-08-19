@@ -3,18 +3,13 @@ using StardewModdingAPI;
 
 namespace AlternativeTextures.Framework.Managers;
 
-internal class ApiManager
+internal class ApiManager(IMonitor monitor)
 {
-    private IMonitor _monitor;
+    private IMonitor _monitor = monitor;
     private IMoreGiantCropsApi _moreGiantCropsApi;
     private IDynamicGameAssetsApi _dynamicGameAssetsApi;
     private IContentPatcherApi _contentPatcherApi;
     private IGenericModConfigMenuApi _genericModConfigMenuApi;
-
-    public ApiManager(IMonitor monitor)
-    {
-        _monitor = monitor;
-    }
 
     internal bool HookIntoMoreGiantCrops(IModHelper helper)
     {
