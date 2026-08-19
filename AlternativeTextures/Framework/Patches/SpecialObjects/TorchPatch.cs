@@ -88,10 +88,10 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     );
                     sourceRect.Y += 8;
                     sourceRect.Height /= 2;
-                    Vector2 position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
+                    var position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
                     Rectangle? sourceRectangle = sourceRect;
-                    Color white = Color.White;
-                    Vector2 zero = Vector2.Zero;
+                    var white = Color.White;
+                    var zero = Vector2.Zero;
 
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
@@ -182,7 +182,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return false;
                 }
 
-                if (__instance.ParentSheetIndex == 146 || __instance.ParentSheetIndex == 278)
+                if (__instance.ParentSheetIndex is 146 or 278)
                 {
                     spriteBatch.Draw(
                         Game1.mouseCursors,

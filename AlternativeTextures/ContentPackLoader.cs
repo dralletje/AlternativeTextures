@@ -128,7 +128,7 @@ class ContentPackLoader(Mod mod)
                         foreach (var textureData in collectedCollective)
                         {
                             // Parse the model and assign it the content pack's owner
-                            AlternativeTextureModel textureModel = baseModel.ShallowCopy();
+                            var textureModel = baseModel.ShallowCopy();
 
                             // Set the ItemName or ItemId depending on IsId flag
                             if (textureData.IsId is true)
@@ -266,7 +266,7 @@ class ContentPackLoader(Mod mod)
                                         Path.Combine(parentFolderName, textureFolder.Name, "texture.png")
                                     )
                                     .Name;
-                                Texture2D singularTexture = contentPack.ModContent.Load<Texture2D>(
+                                var singularTexture = contentPack.ModContent.Load<Texture2D>(
                                     textureModel.TileSheetPath
                                 );
                                 if (singularTexture.Height >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT)
@@ -406,7 +406,7 @@ class ContentPackLoader(Mod mod)
         IEnumerable<string> textureFilePaths
     )
     {
-        Texture2D baseTexture = contentPack.ModContent.Load<Texture2D>(
+        var baseTexture = contentPack.ModContent.Load<Texture2D>(
             Path.Combine(rootPath, textureFilePaths.First())
         );
 

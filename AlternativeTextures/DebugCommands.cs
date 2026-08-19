@@ -91,11 +91,11 @@ class DebugCommands(IMod mod)
             return;
         }
 
-        GameLocation gameLocation = Game1.currentLocation;
+        var gameLocation = Game1.currentLocation;
 
         foreach (var tile in gameLocation.terrainFeatures.Pairs.Where(t => t.Value is HoeDirt))
         {
-            Crop crop = (tile.Value as HoeDirt).crop;
+            var crop = (tile.Value as HoeDirt).crop;
 
             if (crop is null || crop.indexOfHarvest.Value != args[0])
             {
@@ -104,13 +104,13 @@ class DebugCommands(IMod mod)
 
             if (crop.TryGetGiantCrops(out var giantCrops))
             {
-                Vector2 vector = crop.tilePosition;
-                Point point = Utility.Vector2ToPoint(vector);
+                var vector = crop.tilePosition;
+                var point = Utility.Vector2ToPoint(vector);
 
-                foreach (KeyValuePair<string, GiantCropData> item in giantCrops)
+                foreach (var item in giantCrops)
                 {
                     var key = item.Key;
-                    GiantCropData value = item.Value;
+                    var value = item.Value;
                     var flag = true;
 
                     for (var i = point.Y; i < point.Y + value.TileSize.Y; i++)
@@ -120,7 +120,7 @@ class DebugCommands(IMod mod)
                             Vector2 key2 = new(j, i);
 
                             if (
-                                !gameLocation.terrainFeatures.TryGetValue(key2, out TerrainFeature terrainFeature)
+                                !gameLocation.terrainFeatures.TryGetValue(key2, out var terrainFeature)
                                 || terrainFeature is not HoeDirt hoeDirt2
                                 || hoeDirt2.crop?.indexOfHarvest.Value != crop.indexOfHarvest.Value
                             )

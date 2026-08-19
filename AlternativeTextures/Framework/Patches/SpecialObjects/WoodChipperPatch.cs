@@ -64,9 +64,9 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 {
                     return false;
                 }
-                Vector2 scale_factor = Vector2.One;
+                var scale_factor = Vector2.One;
                 scale_factor *= 4f;
-                Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+                var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 Rectangle destination = new Rectangle(
                     (int)(position.X - scale_factor.X / 2f)
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -107,8 +107,8 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 if (___depositedItem.Value != null && __instance.shakeTimer > 0 && ____isAnimatingChip)
                 {
                     var completion = 1f - (float)__instance.shakeTimer / 1000f;
-                    Vector2 end_position = position + new Vector2(32f, 32f);
-                    Vector2 start_position = end_position + new Vector2(0f, -16f);
+                    var end_position = position + new Vector2(32f, 32f);
+                    var start_position = end_position + new Vector2(0f, -16f);
                     Vector2 draw_position = default(Vector2);
                     draw_position.X = Utility.Lerp(start_position.X, end_position.X, completion);
                     draw_position.Y = Utility.Lerp(start_position.Y, end_position.Y, completion);

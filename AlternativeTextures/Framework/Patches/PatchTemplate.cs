@@ -240,7 +240,7 @@ namespace AlternativeTextures.Framework.Patches
                 }
             }
 
-            foreach (var specialCharacter in location.characters.Where(c => c is Horse || c is Pet))
+            foreach (var specialCharacter in location.characters.Where(c => c is Horse or Pet))
             {
                 if (specialCharacter is Horse horse && horse.GetBoundingBox().Intersects(rectangle))
                 {

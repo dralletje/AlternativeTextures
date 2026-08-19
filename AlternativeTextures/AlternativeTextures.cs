@@ -206,7 +206,7 @@ public class AlternativeTextures : Mod
         {
             e.Edit(asset =>
             {
-                List<ModWallpaperOrFlooring> moddedDecorations = asset.GetData<List<ModWallpaperOrFlooring>>();
+                var moddedDecorations = asset.GetData<List<ModWallpaperOrFlooring>>();
 
                 foreach (
                     var textureModel in textureManager

@@ -61,11 +61,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
 
-                FloorPathData data = __instance.GetData();
-                Texture2D texture = textureModel.GetTexture(textureVariation);
-                Point corner = __instance.GetTextureCorner();
+                var data = __instance.GetData();
+                var texture = textureModel.GetTexture(textureVariation);
+                var corner = __instance.GetTextureCorner();
                 var cornerSortOffset = 1f;
                 switch (data.ConnectType)
                 {
@@ -267,7 +267,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         break;
                     case FloorPathShadowType.Contoured:
                         {
-                            Color shadowColor = Color.Black;
+                            var shadowColor = Color.Black;
                             shadowColor.A = (byte)((float)(int)shadowColor.A * 0.33f);
                             spriteBatch.Draw(
                                 texture,
@@ -346,9 +346,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
                 var sourceRectPosition = 1;
                 byte drawSum = 0;
-                Vector2 surroundingLocations = tileLocation;
+                var surroundingLocations = tileLocation;
                 surroundingLocations.X += 1f;
-                GameLocation location = __instance.Location;
+                var location = __instance.Location;
                 if (
                     location.terrainFeatures.ContainsKey(surroundingLocations)
                     && location.terrainFeatures[surroundingLocations] is Flooring

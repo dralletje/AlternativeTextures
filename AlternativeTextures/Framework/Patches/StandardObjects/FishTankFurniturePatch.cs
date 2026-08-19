@@ -90,10 +90,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
-                Vector2 shake = Vector2.Zero;
+                var shake = Vector2.Zero;
                 if (!__instance.isTemporarilyInvisible)
                 {
-                    Vector2 draw_position = ___drawPosition.Value;
+                    var draw_position = ___drawPosition.Value;
                     if (!Furniture.isDrawingLocationFurniture)
                     {
                         draw_position = new Vector2(x, y) * 64f;
@@ -128,7 +128,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         var hatsDrawn = 0;
                         for (var i = 0; i < __instance.tankFish.Count; i++)
                         {
-                            TankFish fish = __instance.tankFish[i];
+                            var fish = __instance.tankFish[i];
                             var fish_layer = Utility.Lerp(
                                 __instance.GetFishSortRegion().Y,
                                 __instance.GetFishSortRegion().X,
@@ -141,7 +141,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 continue;
                             }
                             var hatsSoFar = 0;
-                            foreach (Item h in __instance.heldItems)
+                            foreach (var h in __instance.heldItems)
                             {
                                 if (h is Hat)
                                 {
@@ -169,9 +169,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         {
                             if (__instance.floorDecorations[j].HasValue)
                             {
-                                KeyValuePair<Rectangle, Vector2> decoration = __instance.floorDecorations[j].Value;
-                                Vector2 decoration_position = decoration.Value;
-                                Rectangle decoration_source_rect = decoration.Key;
+                                var decoration = __instance.floorDecorations[j].Value;
+                                var decoration_position = decoration.Value;
+                                var decoration_source_rect = decoration.Key;
                                 var decoration_layer =
                                     Utility.Lerp(
                                         __instance.GetFishSortRegion().Y,
@@ -196,7 +196,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 );
                             }
                         }
-                        foreach (Vector4 bubble in __instance.bubbles)
+                        foreach (var bubble in __instance.bubbles)
                         {
                             var layer =
                                 Utility.Lerp(

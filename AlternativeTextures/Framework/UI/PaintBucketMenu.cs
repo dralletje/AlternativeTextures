@@ -68,14 +68,14 @@ internal class PaintBucketMenu : IClickableMenu
 
         // Set up menu structure
         if (
-            LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.ko
-            || LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.fr
+            LocalizedContentManager.CurrentLanguageCode is LocalizedContentManager.LanguageCode.ko
+            or LocalizedContentManager.LanguageCode.fr
         )
         {
             base.height += 64;
         }
 
-        Vector2 topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
+        var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
         base.xPositionOnScreen = (int)topLeft.X;
         base.yPositionOnScreen = (int)topLeft.Y;
 

@@ -139,8 +139,8 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
                 if (__instance.IsEmoting)
                 {
-                    Vector2 localPosition = __instance.getLocalPosition(Game1.viewport);
-                    Point point = __instance.GetPetData()?.EmoteOffset ?? Point.Zero;
+                    var localPosition = __instance.getLocalPosition(Game1.viewport);
+                    var point = __instance.GetPetData()?.EmoteOffset ?? Point.Zero;
                     b.Draw(
                         Game1.emoteSpriteSheet,
                         new Vector2(localPosition.X + 32f + (float)point.X, localPosition.Y - 96f + (float)point.Y),

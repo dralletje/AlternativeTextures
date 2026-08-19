@@ -72,12 +72,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     return true;
                 }
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
 
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
                 if (__instance.growthStage.Value < 5)
                 {
-                    Rectangle sourceRect = Rectangle.Empty;
+                    var sourceRect = Rectangle.Empty;
                     switch (__instance.growthStage.Value)
                     {
                         case 0:
@@ -134,7 +134,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                             1E-06f
                         );
-                        Rectangle source_rect = Tree.treeTopSourceRect;
+                        var source_rect = Tree.treeTopSourceRect;
 
                         // TODO: Review if this code block is actually used
                         /*
@@ -237,7 +237,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         );
                     }
                 }
-                foreach (Leaf i in ___leaves)
+                foreach (var i in ___leaves)
                 {
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),

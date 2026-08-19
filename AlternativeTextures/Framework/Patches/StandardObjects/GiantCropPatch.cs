@@ -65,7 +65,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
 
                 var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]

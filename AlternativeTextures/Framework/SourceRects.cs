@@ -162,7 +162,7 @@ static class SourceRects
 
         if (variation == -1)
         {
-            Point textureCorner = flooring.GetTextureCorner();
+            var textureCorner = flooring.GetTextureCorner();
             return new Rectangle(
                 textureCorner.X + sourceRectPosition % 16 * 16,
                 textureCorner.Y + sourceRectPosition / 16 * 16,
@@ -183,7 +183,7 @@ static class SourceRects
     )
     {
         var sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
-        Rectangle source_rect = Tree.treeTopSourceRect;
+        var source_rect = Tree.treeTopSourceRect;
 
         // TODO: Review if this code block is actually used
         /*

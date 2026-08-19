@@ -50,9 +50,9 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 }
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
-                Vector2 scaleFactor = __instance.getScale();
+                var scaleFactor = __instance.getScale();
                 scaleFactor *= 4f;
-                Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+                var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 Rectangle destination = new Rectangle(
                     (int)(position.X - scaleFactor.X / 2f)
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -81,7 +81,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
 
                 if (__instance.hoeDirt.Value.fertilizer.Value != "0")
                 {
-                    Rectangle fertilizer_rect = __instance.hoeDirt.Value.GetFertilizerSourceRect();
+                    var fertilizer_rect = __instance.hoeDirt.Value.GetFertilizerSourceRect();
                     fertilizer_rect.Width = 13;
                     fertilizer_rect.Height = 13;
                     spriteBatch.Draw(

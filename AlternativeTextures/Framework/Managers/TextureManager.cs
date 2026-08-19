@@ -153,7 +153,7 @@ internal class TextureManager(IMod mod)
 
     public List<AlternativeTextureModel> GetAvailableTextureModels(string itemId, string modelName, Season season)
     {
-        List<AlternativeTextureModel> textureModels = GetAvailableTextureModels(modelName, season);
+        var textureModels = GetAvailableTextureModels(modelName, season);
 
         var itemIdWithSeason = string.Concat(itemId, "_", season);
         if (

@@ -262,7 +262,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     //building.drawShadow(b, x, y);
                     //b.Draw(texture, new Vector2(x, y), building.getSourceRect(), Color.White, 0f, new Vector2(0f, 0f), scale, SpriteEffects.None, 0.89f);
 
-                    BuildingData data = building.GetData();
+                    var data = building.GetData();
                     if (data != null)
                     {
                         x += (int)(data.DrawOffset.X * 4f);
@@ -279,7 +279,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     {
                         //building.drawShadow(b, x, y);
                     }
-                    Rectangle mainSourceRect = GetSourceRectReversePatch(building);
+                    var mainSourceRect = GetSourceRectReversePatch(building);
                     b.Draw(
                         texture,
                         new Vector2(x, y),
@@ -295,7 +295,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     {
                         return;
                     }
-                    foreach (BuildingDrawLayer drawLayer in data.DrawLayers)
+                    foreach (var drawLayer in data.DrawLayers)
                     {
                         if (drawLayer.OnlyDrawIfChestHasContents == null)
                         {
@@ -306,11 +306,11 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                                 sortY = 0f;
                             }
                             sortY /= 10000f;
-                            Rectangle sourceRect = drawLayer.GetSourceRect(
+                            var sourceRect = drawLayer.GetSourceRect(
                                 (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                             );
                             sourceRect = building.ApplySourceRectOffsets(sourceRect);
-                            Texture2D layerTexture = texture;
+                            var layerTexture = texture;
                             if (drawLayer.Texture != null)
                             {
                                 layerTexture = Game1.content.Load<Texture2D>(drawLayer.Texture);
@@ -423,7 +423,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             // Handle Greenhouse logic
             if (__instance.buildingType.Value == "Greenhouse")
             {
-                Farm farm = Game1.getFarm();
+                var farm = Game1.getFarm();
                 if (farm is not null && farm.greenhouseUnlocked.Value is false)
                 {
                     yOffset -= buildingData.SourceRect.Height;
@@ -496,7 +496,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 && __instance.GetParentLocation().modData.ContainsKey("AlternativeTextureName.Mailbox")
             )
             {
-                BuildingData data = __instance.GetData();
+                var data = __instance.GetData();
                 if (data is null)
                 {
                     return true;
@@ -697,7 +697,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
         {
             foreach (var index in indices)
             {
-                Color color = pixels[index];
+                var color = pixels[index];
                 Utility.RGBtoHSL(color.R, color.G, color.B, out var h, out var s, out var i);
                 h += (double)h_shift;
                 s += (double)s_shift / 100.0;

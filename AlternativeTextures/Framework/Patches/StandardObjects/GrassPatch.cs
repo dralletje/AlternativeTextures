@@ -66,11 +66,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
                 for (var i = 0; i < __instance.numberOfWeeds.Value; i++)
                 {
-                    Vector2 pos = (
+                    var pos = (
                         (i != 4)
                             ? (
                                 tileLocation * 64f

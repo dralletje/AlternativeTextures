@@ -92,7 +92,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     if (Furniture.isDrawingLocationFurniture)
                     {
-                        Rectangle sourceRect = __instance.sourceRect.Value;
+                        var sourceRect = __instance.sourceRect.Value;
                         sourceRect.X -= __instance.defaultSourceRect.X;
                         sourceRect.Y = textureOffset;
 

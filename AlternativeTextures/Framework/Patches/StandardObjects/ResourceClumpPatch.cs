@@ -57,7 +57,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return true;
                 }
 
-                Vector2 position = __instance.Tile * 64f;
+                var position = __instance.Tile * 64f;
                 if (___shakeTimer > 0f)
                 {
                     position.X += (float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 4f;

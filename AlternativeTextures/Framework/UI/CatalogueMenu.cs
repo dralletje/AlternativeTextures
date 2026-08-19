@@ -73,14 +73,14 @@ namespace AlternativeTextures.Framework.UI
 
             // Set up menu structure
             if (
-                LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.ko
-                || LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.fr
+                LocalizedContentManager.CurrentLanguageCode is LocalizedContentManager.LanguageCode.ko
+                or LocalizedContentManager.LanguageCode.fr
             )
             {
                 base.height += 64;
             }
 
-            Vector2 topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
+            var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
             base.xPositionOnScreen = (int)topLeft.X;
             base.yPositionOnScreen = (int)topLeft.Y;
 
@@ -89,7 +89,7 @@ namespace AlternativeTextures.Framework.UI
             _currentlyDisplayedObjects = [];
 
             var allFurniture = ItemQueryResolver.TryResolve("ALL_ITEMS (F)", context: null);
-            foreach (Object item in allFurniture.Where(f => f.Item is Furniture).Select(f => f.Item as Object))
+            foreach (var item in allFurniture.Where(f => f.Item is Furniture).Select(f => f.Item as Object))
             {
                 // Set the stack based on the amount of available textures for the item
                 var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{item.ItemId}";
@@ -276,10 +276,10 @@ namespace AlternativeTextures.Framework.UI
 
         private void UpdateSaleButtonNeighbors()
         {
-            ClickableComponent lastValidButton = _objectButtons[0];
+            var lastValidButton = _objectButtons[0];
             for (var i = 0; i < _objectButtons.Count; i++)
             {
-                ClickableComponent button = _objectButtons[i];
+                var button = _objectButtons[i];
                 button.upNeighborImmutable = true;
                 button.downNeighborImmutable = true;
                 button.upNeighborID = ((i > 0) ? (i + 3546 - 1) : (-7777));
@@ -820,7 +820,7 @@ namespace AlternativeTextures.Framework.UI
             }
 
             var maxScale = 2f;
-            foreach (ClickableTextureComponent c in _alternativeTextureButtons)
+            foreach (var c in _alternativeTextureButtons)
             {
                 if (c.containsPoint(x, y))
                 {
@@ -844,7 +844,7 @@ namespace AlternativeTextures.Framework.UI
                                 $"Display Name: {c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME]}";
                         }
 
-                        List<string> keywords = alternativeTextureModel.Keywords;
+                        var keywords = alternativeTextureModel.Keywords;
                         if (
                             int.TryParse(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION], out var variation)
                             && alternativeTextureModel.ManualVariations.Any(v => v.Id == variation)
@@ -1003,10 +1003,10 @@ namespace AlternativeTextures.Framework.UI
             else
             {
                 // Draw the display objects
-                Texture2D purchaseTexture = Game1.mouseCursors;
+                var purchaseTexture = Game1.mouseCursors;
                 Rectangle purchaseTextureRectangle = new Rectangle(384, 396, 15, 15);
                 Rectangle purchaseTextureBackground = new Rectangle(296, 363, 18, 18);
-                Color purchaseTextColor = Color.Wheat;
+                var purchaseTextColor = Color.Wheat;
                 for (var k = 0; k < _objectButtons.Count; k++)
                 {
                     if (_currentlyDisplayedObjects.Count == 0)
@@ -1032,7 +1032,7 @@ namespace AlternativeTextures.Framework.UI
                         4f,
                         drawShadow: false
                     );
-                    Object item = _currentlyDisplayedObjects[_currentObjectIndex + k];
+                    var item = _currentlyDisplayedObjects[_currentObjectIndex + k];
 
                     var displayName = item.DisplayName;
                     if (item.ShouldDrawIcon())

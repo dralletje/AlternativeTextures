@@ -70,7 +70,7 @@ namespace AlternativeTextures.Framework.Interfaces.API
                 }
 
                 // Parse the model and assign it the content pack's owner
-                AlternativeTextureModel textureModel = model.ShallowCopy();
+                var textureModel = model.ShallowCopy();
 
                 // Override Grass Alternative Texture pack ItemNames to always be Grass, in order to be compatible with translations
                 textureModel.ItemName = textureModel.GetTextureType() == "Grass" ? "Grass" : textureModel.ItemName;
@@ -129,7 +129,7 @@ namespace AlternativeTextures.Framework.Interfaces.API
                 {
                     // Load in the single vertical texture
                     textureModel.TileSheetPath = String.Empty;
-                    Texture2D singularTexture = textures.First();
+                    var singularTexture = textures.First();
                     if (singularTexture.Height >= AlternativeTextureModel.MAX_TEXTURE_HEIGHT)
                     {
                         _framework.Monitor.Log(

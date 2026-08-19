@@ -283,7 +283,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     actualSourceIndexOffset = 0;
                 }
 
-                Rectangle sourceRect = __instance.sourceRect.Value;
+                var sourceRect = __instance.sourceRect.Value;
                 sourceRect.X -= __instance.defaultSourceRect.X;
                 sourceRect.X += (actualSourceIndexOffset * sourceRect.Width) + (xTileOffset * sourceRect.Width);
                 sourceRect.Y = textureOffset;
@@ -379,9 +379,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                         __instance.boundingBox.Value.Bottom
                                         - (
                                             (
-                                                __instance.furniture_type.Value == 6
-                                                || __instance.furniture_type.Value == 17
-                                                || __instance.furniture_type.Value == 13
+                                                __instance.furniture_type.Value is 6
+                                                or 17
+                                                or 13
                                             )
                                                 ? 48
                                                 : 8
@@ -417,9 +417,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     __instance.boundingBox.Value.Bottom
                                     - (
                                         (
-                                            __instance.furniture_type.Value == 6
-                                            || __instance.furniture_type.Value == 17
-                                            || __instance.furniture_type.Value == 13
+                                            __instance.furniture_type.Value is 6
+                                            or 17
+                                            or 13
                                         )
                                             ? 48
                                             : 8
@@ -463,7 +463,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         )
                     )
                     {
-                        ParsedItemData heldItemData = ItemRegistry.GetDataOrErrorItem(
+                        var heldItemData = ItemRegistry.GetDataOrErrorItem(
                             __instance.heldObject.Value.QualifiedItemId
                         );
                         spriteBatch.Draw(
@@ -716,7 +716,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
                 // Replicate the base draw
-                Rectangle sourceRect = __instance.sourceRect.Value;
+                var sourceRect = __instance.sourceRect.Value;
                 sourceRect.X -= __instance.defaultSourceRect.X;
                 sourceRect.Y = textureOffset;
                 spriteBatch.Draw(

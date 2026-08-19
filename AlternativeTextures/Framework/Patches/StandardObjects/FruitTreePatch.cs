@@ -101,7 +101,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     return true;
                 }
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
 
                 var season = Game1.GetSeasonForLocation(__instance.Location).ToString();
                 if (__instance.GreenHouseTileTree)
@@ -122,7 +122,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
                 if (__instance.growthStage.Value < 4)
                 {
-                    Vector2 positionOffset =
+                    var positionOffset =
                         new Vector2(
                             (float)
                                 Math.Max(
@@ -135,7 +135,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     Math.Min(64.0, Math.Sin((double)(tileLocation.X * 200f) / (Math.PI * 2.0)) * -16.0)
                                 )
                         ) / 2f;
-                    Rectangle sourceRect = Rectangle.Empty;
+                    var sourceRect = Rectangle.Empty;
                     switch (__instance.growthStage.Value)
                     {
                         case 0:
@@ -172,7 +172,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 else
                 {
-                    Rectangle boundingBox = __instance.getBoundingBox();
+                    var boundingBox = __instance.getBoundingBox();
                     if (!__instance.stump.Value || ___falling.Value)
                     {
                         var ignoreSeason = __instance.IgnoresSeasonsHere();
@@ -254,13 +254,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     }
                     for (var i = 0; i < __instance.fruit.Count; i++)
                     {
-                        ParsedItemData obj = (
+                        var obj = (
                             (__instance.struckByLightningCountdown.Value > 0)
                                 ? ItemRegistry.GetDataOrErrorItem("(O)382")
                                 : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId)
                         );
-                        Texture2D texture = obj.GetTexture();
-                        Rectangle sourceRect = obj.GetSourceRect();
+                        var texture = obj.GetTexture();
+                        var sourceRect = obj.GetSourceRect();
                         switch (i)
                         {
                             case 0:
@@ -323,7 +323,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         }
                     }
                 }
-                foreach (Leaf j in ___leaves)
+                foreach (var j in ___leaves)
                 {
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),

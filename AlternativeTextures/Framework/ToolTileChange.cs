@@ -24,8 +24,8 @@ public class ToolTileChange
         if (!Context.IsWorldReady || !Context.IsPlayerFree)
             return;
 
-        Vector2 playerTile = Game1.player.Tile;
-        Vector2 mouseTile = _helper.Input.GetCursorPosition().GrabTile;
+        var playerTile = Game1.player.Tile;
+        var mouseTile = _helper.Input.GetCursorPosition().GrabTile;
 
         var tileChanged = playerTile != _lastPlayerTile || mouseTile != _lastMouseTile;
 

@@ -203,8 +203,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 if (__instance.bigCraftable.Value)
                 {
                     // Get required draw values
-                    Vector2 scaleFactor = __instance.getScale() * 4f;
-                    Vector2 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+                    var scaleFactor = __instance.getScale() * 4f;
+                    var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                     Rectangle destination = new Rectangle(
                         (int)(position.X - scaleFactor.X / 2f)
                             + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -216,7 +216,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
 
                     // Handle outliers for draw
-                    if (__instance.ParentSheetIndex == 105 || __instance.ParentSheetIndex == 264)
+                    if (__instance.ParentSheetIndex is 105 or 264)
                     {
                         draw_layer = Math.Max(0f, (float)((y + 1) * 64 + 2) / 10000f) + (float)x / 1000000f;
                     }
@@ -316,14 +316,14 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     if (__instance.ParentSheetIndex == 590)
                     {
-                        Vector2 position2 = Game1.GlobalToLocal(
+                        var position2 = Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
                                 x * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                                 y * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                             )
                         );
-                        Color color = Color.White * alpha;
+                        var color = Color.White * alpha;
                         Vector2 origin = new Vector2(8f, 8f);
 
                         var artifactOffset = (
@@ -363,9 +363,9 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         );
                     }
 
-                    Color color2 = Color.White * alpha;
+                    var color2 = Color.White * alpha;
                     Vector2 origin2 = new Vector2(8f, 8f);
-                    Vector2 position3 = Game1.GlobalToLocal(
+                    var position3 = Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
                             x * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
@@ -434,10 +434,10 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return false;
                 }
 
-                ParsedItemData heldItemData = ItemRegistry.GetDataOrErrorItem(
+                var heldItemData = ItemRegistry.GetDataOrErrorItem(
                     __instance.heldObject.Value.QualifiedItemId
                 );
-                Texture2D texture = heldItemData.GetTexture();
+                var texture = heldItemData.GetTexture();
                 ColoredObject coloredObj = __instance.heldObject.Value as ColoredObject;
                 if (coloredObj != null)
                 {

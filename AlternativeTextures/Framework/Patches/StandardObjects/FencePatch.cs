@@ -236,7 +236,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 else if (__instance.heldObject.Value != null)
                 {
-                    Vector2 offset2 = Vector2.Zero;
+                    var offset2 = Vector2.Zero;
                     switch (drawSum)
                     {
                         case 10:

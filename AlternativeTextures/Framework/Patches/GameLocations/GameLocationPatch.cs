@@ -70,7 +70,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 )
             )
             {
-                Vector2 position = (
+                var position = (
                     (!Game1.wasMouseVisibleThisFrame)
                         ? Game1.player.GetToolLocation()
                         : new Vector2(Game1.getOldMouseX() + Game1.viewport.X, Game1.getOldMouseY() + Game1.viewport.Y)
@@ -117,7 +117,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 return;
             }
 
-            Season season = __instance.GetSeason();
+            var season = __instance.GetSeason();
             if (__instance.objects != null)
             {
                 for (var k = __instance.objects.Count() - 1; k >= 0; k--)

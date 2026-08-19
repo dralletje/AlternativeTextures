@@ -167,8 +167,8 @@ internal class ToolPatch : PatchTemplate
         }
 
         if (
-            __instance.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
-            || __instance.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+            __instance.QualifiedItemId is AlternativeTextures.PAINT_BRUSH_FILLED_ID
+            or AlternativeTextures.PAINT_BRUSH_EMPTY_ID
         )
         {
             __result = true;

@@ -78,7 +78,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         )
         {
             if (
-                Game1.currentLocation.terrainFeatures.TryGetValue(tileLocation, out TerrainFeature hoeDirt)
+                Game1.currentLocation.terrainFeatures.TryGetValue(tileLocation, out var hoeDirt)
                 && hoeDirt is HoeDirt
                 && hoeDirt.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
             )
@@ -102,7 +102,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
-                Vector2 position = Game1.GlobalToLocal(Game1.viewport, ___drawPosition);
+                var position = Game1.GlobalToLocal(Game1.viewport, ___drawPosition);
 
                 // Handle drawing forages
                 if (__instance.forageCrop.Value)
@@ -151,7 +151,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
 
                 // Handle the crops / flowers
-                SpriteEffects effect = (__instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
+                var effect = (__instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
                 var layerDepth =
                     (
                         tileLocation.Y * 64f
@@ -182,7 +182,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 );
 
                 // Handle the tinted colors for flowers
-                Color tintColor = __instance.tintColor.Value;
+                var tintColor = __instance.tintColor.Value;
                 if (
                     (!tintColor.Equals(Color.White) || textureModel.HasTint(textureVariation))
                     && __instance.currentPhase.Value == __instance.phaseDays.Count - 1
@@ -280,7 +280,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return false;
                 }
 
-                Color tintColor = __instance.tintColor.Value;
+                var tintColor = __instance.tintColor.Value;
                 b.Draw(
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(

@@ -63,7 +63,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     return true;
                 }
-                Vector2 tileLocation = __instance.Tile;
+                var tileLocation = __instance.Tile;
 
                 var effectiveSize = getEffectiveSize(__instance.size.Value);
                 if (__instance.drawShadow.Value)
