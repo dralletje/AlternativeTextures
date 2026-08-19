@@ -136,22 +136,13 @@ internal class FruitTreePatch : PatchTemplate
                             )
                     ) / 2f;
                 var sourceRect = Rectangle.Empty;
-                switch (__instance.growthStage.Value)
+                sourceRect = __instance.growthStage.Value switch
                 {
-                    case 0:
-                        sourceRect = new Rectangle(0, textureOffset * 5 * 16, 48, 80);
-                        break;
-                    case 1:
-                        sourceRect = new Rectangle(48, textureOffset * 5 * 16, 48, 80);
-                        break;
-                    case 2:
-                        sourceRect = new Rectangle(96, textureOffset * 5 * 16, 48, 80);
-                        break;
-                    default:
-                        sourceRect = new Rectangle(144, textureOffset * 5 * 16, 48, 80);
-                        break;
-                }
-
+                    0 => new Rectangle(0, textureOffset * 5 * 16, 48, 80),
+                    1 => new Rectangle(48, textureOffset * 5 * 16, 48, 80),
+                    2 => new Rectangle(96, textureOffset * 5 * 16, 48, 80),
+                    _ => new Rectangle(144, textureOffset * 5 * 16, 48, 80),
+                };
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(

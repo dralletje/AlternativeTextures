@@ -263,77 +263,50 @@ internal class PatchTemplate
 
     internal static string GetTreeTypeString(Tree tree)
     {
-        switch (tree.treeType.Value)
+        return tree.treeType.Value switch
         {
-            case Tree.bushyTree:
-                return "Oak";
-            case Tree.leafyTree:
-                return "Maple";
-            case Tree.pineTree:
-                return "Pine";
-            case Tree.mahoganyTree:
-                return "Mahogany";
-            case Tree.mushroomTree:
-                return "Mushroom";
-            case Tree.palmTree:
-                return "Palm_1";
-            case Tree.palmTree2:
-                return "Palm_2";
-            default:
-                return tree.treeType.Value;
-        }
+            Tree.bushyTree => "Oak",
+            Tree.leafyTree => "Maple",
+            Tree.pineTree => "Pine",
+            Tree.mahoganyTree => "Mahogany",
+            Tree.mushroomTree => "Mushroom",
+            Tree.palmTree => "Palm_1",
+            Tree.palmTree2 => "Palm_2",
+            _ => tree.treeType.Value,
+        };
     }
 
     internal static string GetBushTypeString(Bush bush)
     {
-        switch (bush.size.Value)
+        return bush.size.Value switch
         {
-            case 0:
-                return "Small";
-            case 1:
-                return bush.townBush.Value ? "Town" : "Medium";
-            case 2:
-                return "Large";
-            case 3:
-                return "Tea";
-            case 4:
-                return "Walnut";
-            default:
-                return String.Empty;
-        }
+            0 => "Small",
+            1 => bush.townBush.Value ? "Town" : "Medium",
+            2 => "Large",
+            3 => "Tea",
+            4 => "Walnut",
+            _ => String.Empty,
+        };
     }
 
     internal static TextureType GetTextureType(object obj)
     {
-        switch (obj)
+        return obj switch
         {
-            case Character character:
-                return TextureType.Character;
-            case Flooring floor:
-                return TextureType.Flooring;
-            case Tree tree:
-                return TextureType.Tree;
-            case FruitTree fruitTree:
-                return TextureType.FruitTree;
-            case Grass grass:
-                return TextureType.Grass;
-            case Bush bush:
-                return TextureType.Bush;
-            case ResourceClump resourceClump:
-                return TextureType.GiantCrop;
-            case TerrainFeature hoeDirt:
-                return TextureType.Crop;
-            case Building building:
-                return TextureType.Building;
-            case Furniture furniture:
-                return TextureType.Furniture;
-            case Object craftable:
-                return TextureType.Craftable;
-            case DecoratableLocation location:
-                return TextureType.Decoration;
-            default:
-                return TextureType.Unknown;
-        }
+            Character character => TextureType.Character,
+            Flooring floor => TextureType.Flooring,
+            Tree tree => TextureType.Tree,
+            FruitTree fruitTree => TextureType.FruitTree,
+            Grass grass => TextureType.Grass,
+            Bush bush => TextureType.Bush,
+            ResourceClump resourceClump => TextureType.GiantCrop,
+            TerrainFeature hoeDirt => TextureType.Crop,
+            Building building => TextureType.Building,
+            Furniture furniture => TextureType.Furniture,
+            Object craftable => TextureType.Craftable,
+            DecoratableLocation location => TextureType.Decoration,
+            _ => TextureType.Unknown,
+        };
     }
 
     internal static bool HasCachedTextureName<T>(T type, bool probe = false)

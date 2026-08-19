@@ -438,8 +438,7 @@ internal class ObjectPatch : PatchTemplate
                 __instance.heldObject.Value.QualifiedItemId
             );
             var texture = heldItemData.GetTexture();
-            ColoredObject coloredObj = __instance.heldObject.Value as ColoredObject;
-            if (coloredObj != null)
+            if (__instance.heldObject.Value is ColoredObject coloredObj)
             {
                 coloredObj.drawInMenu(
                     spriteBatch,

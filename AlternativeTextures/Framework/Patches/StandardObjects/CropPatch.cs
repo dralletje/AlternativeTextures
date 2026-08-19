@@ -231,9 +231,7 @@ internal class CropPatch : PatchTemplate
         Vector2 offset
     )
     {
-        var gardenPot =
-            Game1.currentLocation.getObjectAtTile((int)tileLocation.X, (int)tileLocation.Y) as IndoorPot;
-        if (gardenPot is null)
+        if (Game1.currentLocation.getObjectAtTile((int)tileLocation.X, (int)tileLocation.Y) is not IndoorPot gardenPot)
         {
             return true;
         }

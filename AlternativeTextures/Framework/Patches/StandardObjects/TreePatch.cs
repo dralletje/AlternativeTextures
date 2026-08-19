@@ -78,21 +78,13 @@ internal class TreePatch : PatchTemplate
             if (__instance.growthStage.Value < 5)
             {
                 var sourceRect = Rectangle.Empty;
-                switch (__instance.growthStage.Value)
+                sourceRect = __instance.growthStage.Value switch
                 {
-                    case 0:
-                        sourceRect = new Rectangle(32, 128, 16, 16);
-                        break;
-                    case 1:
-                        sourceRect = new Rectangle(0, 128, 16, 16);
-                        break;
-                    case 2:
-                        sourceRect = new Rectangle(16, 128, 16, 16);
-                        break;
-                    default:
-                        sourceRect = new Rectangle(0, 96, 16, 32);
-                        break;
-                }
+                    0 => new Rectangle(32, 128, 16, 16),
+                    1 => new Rectangle(0, 128, 16, 16),
+                    2 => new Rectangle(16, 128, 16, 16),
+                    _ => new Rectangle(0, 96, 16, 32),
+                };
                 sourceRect.Y += textureOffset;
 
                 spriteBatch.Draw(
