@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Fence.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -31,7 +31,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Fence.performObjectDropInAction),
-                    new[] { typeof(Item), typeof(bool), typeof(Farmer), typeof(bool) }
+                    [typeof(Item), typeof(bool), typeof(Farmer), typeof(bool)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(PerformObjectDropInActionPostfix))
             );

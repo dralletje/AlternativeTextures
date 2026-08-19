@@ -20,11 +20,11 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Monster.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Monster.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Monster.update), new[] { typeof(GameTime), typeof(GameLocation) }),
+                AccessTools.Method(_entity, nameof(Monster.update), [typeof(GameTime), typeof(GameLocation)]),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
             harmony.Patch(
@@ -32,7 +32,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 postfix: new HarmonyMethod(GetType(), nameof(ReloadSpritePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(Vector2), typeof(int) }),
+                AccessTools.Constructor(_entity, [typeof(string), typeof(Vector2), typeof(int)]),
                 postfix: new HarmonyMethod(GetType(), nameof(MonsterPostfix))
             );
         }

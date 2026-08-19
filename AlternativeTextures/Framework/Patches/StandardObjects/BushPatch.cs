@@ -21,17 +21,17 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Bush.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(Bush.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Bush.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(_object, nameof(Bush.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(
                 AccessTools.Constructor(
                     typeof(Bush),
-                    new[] { typeof(Vector2), typeof(int), typeof(GameLocation), typeof(int) }
+                    [typeof(Vector2), typeof(int), typeof(GameLocation), typeof(int)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(BushPostfix))
             );

@@ -82,11 +82,7 @@ namespace AlternativeTextures.Framework.Managers
                 TextureName = building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                 TextureVariation = building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
             };
-            _helper.Multiplayer.SendMessage(
-                message,
-                MessageType.BuildingTextureUpdate.ToString(),
-                modIDs: new[] { _modID }
-            );
+            _helper.Multiplayer.SendMessage(message, MessageType.BuildingTextureUpdate.ToString(), modIDs: [_modID]);
         }
     }
 }

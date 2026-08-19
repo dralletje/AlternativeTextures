@@ -18,7 +18,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(ShippingBin.Update), new[] { typeof(GameTime) }),
+                AccessTools.Method(_entity, nameof(ShippingBin.Update), [typeof(GameTime)]),
                 prefix: new HarmonyMethod(GetType(), nameof(UpdatePrefix))
             );
             harmony.Patch(

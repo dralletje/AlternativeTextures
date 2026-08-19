@@ -25,7 +25,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Building.Update), new[] { typeof(GameTime) }),
+                AccessTools.Method(_entity, nameof(Building.Update), [typeof(GameTime)]),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
             harmony.Patch(
@@ -37,12 +37,12 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 postfix: new HarmonyMethod(GetType(), nameof(GetSourceRectPostfix))
             );
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Building.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Building.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
 
             harmony.Patch(
-                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(Vector2) }),
+                AccessTools.Constructor(_entity, [typeof(string), typeof(Vector2)]),
                 postfix: new HarmonyMethod(GetType(), nameof(BuildingPostfix))
             );
 

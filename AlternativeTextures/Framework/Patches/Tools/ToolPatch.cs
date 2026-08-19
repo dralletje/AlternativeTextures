@@ -62,7 +62,7 @@ internal class ToolPatch : PatchTemplate
             AccessTools.Method(
                 _object,
                 nameof(GenericTool.beginUsing),
-                new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }
+                [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
             ),
             prefix: new HarmonyMethod(GetType(), nameof(BeginUsingPrefix))
         );
@@ -294,8 +294,8 @@ internal class ToolPatch : PatchTemplate
             if (items.Count == 1)
             {
                 // Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
-                    // csharpier-ignore
-                    Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {paintable.ModelIdentifier.Name} ({paintable.ModelIdentifier.Type})"));
+                // csharpier-ignore
+                Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {paintable.ModelIdentifier.Name} ({paintable.ModelIdentifier.Type})"));
                 return CancelUsing(who);
             }
 
@@ -347,7 +347,7 @@ internal class ToolPatch : PatchTemplate
                 if (items.Count == 1)
                 {
                     // csharpier-ignore
-                        Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {wallpaperPaintable.ModelIdentifier.Name} ({wallpaperPaintable.ModelIdentifier.Type})"));
+                    Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {wallpaperPaintable.ModelIdentifier.Name} ({wallpaperPaintable.ModelIdentifier.Type})"));
                     return CancelUsing(who);
                 }
 
@@ -392,7 +392,7 @@ internal class ToolPatch : PatchTemplate
                 if (items.Count == 1)
                 {
                     // csharpier-ignore
-                        Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {floorPaintable.ModelIdentifier.Name} ({floorPaintable.ModelIdentifier.Type})"));
+                    Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {floorPaintable.ModelIdentifier.Name} ({floorPaintable.ModelIdentifier.Type})"));
                     return CancelUsing(who);
                 }
 

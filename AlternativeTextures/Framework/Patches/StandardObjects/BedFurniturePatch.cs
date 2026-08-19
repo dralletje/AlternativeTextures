@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(BedFurniture.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -42,7 +42,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaBedFurnitureType,
                                 nameof(BedFurniture.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );

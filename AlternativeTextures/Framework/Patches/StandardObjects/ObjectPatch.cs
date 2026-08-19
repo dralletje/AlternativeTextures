@@ -26,7 +26,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Object.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -34,7 +34,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Object.drawPlacementBounds),
-                    new[] { typeof(SpriteBatch), typeof(GameLocation) }
+                    [typeof(SpriteBatch), typeof(GameLocation)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPlacementBoundsPrefix))
             );
@@ -50,16 +50,13 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Object.placementAction),
-                    new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }
+                    [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
             );
 
             harmony.Patch(
-                AccessTools.Constructor(
-                    _object,
-                    new[] { typeof(string), typeof(int), typeof(bool), typeof(int), typeof(int) }
-                ),
+                AccessTools.Constructor(_object, [typeof(string), typeof(int), typeof(bool), typeof(int), typeof(int)]),
                 postfix: new HarmonyMethod(GetType(), nameof(ObjectPostfix))
             );
 
@@ -76,7 +73,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaObjectType,
                                 nameof(Object.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -84,7 +81,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaObjectType,
                                 nameof(Object.placementAction),
-                                new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }
+                                [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
                             ),
                             postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
                         );
@@ -100,7 +97,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaCraftableType,
                                 nameof(Object.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );

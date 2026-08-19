@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 AccessTools.Method(
                     _object,
                     nameof(Chest.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -31,7 +31,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 AccessTools.Method(
                     _object,
                     nameof(Chest.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float), typeof(bool) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float), typeof(bool)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawRecolorPrefix))
             );

@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Crop.draw),
-                    new[] { typeof(SpriteBatch), typeof(Vector2), typeof(Color), typeof(float) }
+                    [typeof(SpriteBatch), typeof(Vector2), typeof(Color), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -31,7 +31,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Crop.drawWithOffset),
-                    new[] { typeof(SpriteBatch), typeof(Vector2), typeof(Color), typeof(float), typeof(Vector2) }
+                    [typeof(SpriteBatch), typeof(Vector2), typeof(Color), typeof(float), typeof(Vector2)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawWithOffsetPrefix))
             );
@@ -61,7 +61,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
         }
 
-        [HarmonyBefore(new string[] { "spacechase0.DynamicGameAssets" })]
+        [HarmonyBefore(["spacechase0.DynamicGameAssets"])]
         private static bool DrawPrefix(
             Crop __instance,
             Vector2 ___origin,
@@ -217,7 +217,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             return true;
         }
 
-        [HarmonyBefore(new string[] { "spacechase0.DynamicGameAssets" })]
+        [HarmonyBefore(["spacechase0.DynamicGameAssets"])]
         private static bool DrawWithOffsetPrefix(
             Crop __instance,
             Vector2 ___origin,

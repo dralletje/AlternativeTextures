@@ -22,7 +22,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 AccessTools.Method(
                     _object,
                     nameof(Torch.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -30,7 +30,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 AccessTools.Method(
                     _object,
                     nameof(Torch.placementAction),
-                    new[] { typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer) }
+                    [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
             );

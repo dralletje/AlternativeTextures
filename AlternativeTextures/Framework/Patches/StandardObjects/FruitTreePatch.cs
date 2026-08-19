@@ -23,11 +23,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(FruitTree.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(FruitTree.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_object, nameof(FruitTree.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(_object, nameof(FruitTree.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(
@@ -35,7 +35,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 postfix: new HarmonyMethod(GetType(), nameof(FruitTreePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(typeof(FruitTree), new[] { typeof(string), typeof(int) }),
+                AccessTools.Constructor(typeof(FruitTree), [typeof(string), typeof(int)]),
                 postfix: new HarmonyMethod(GetType(), nameof(FruitTreePostfix))
             );
 
@@ -52,12 +52,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaCropType,
                                 nameof(FruitTree.draw),
-                                new[] { typeof(SpriteBatch), typeof(Vector2) }
+                                [typeof(SpriteBatch), typeof(Vector2)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
                         harmony.Patch(
-                            AccessTools.Method(dgaCropType, nameof(FruitTree.seasonUpdate), new[] { typeof(bool) }),
+                            AccessTools.Method(dgaCropType, nameof(FruitTree.seasonUpdate), [typeof(bool)]),
                             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
                         );
                     }

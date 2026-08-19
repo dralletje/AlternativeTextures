@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 AccessTools.Method(
                     _object,
                     nameof(GameLocation.checkAction),
-                    new[] { typeof(xTile.Dimensions.Location), typeof(xTile.Dimensions.Rectangle), typeof(Farmer) }
+                    [typeof(xTile.Dimensions.Location), typeof(xTile.Dimensions.Rectangle), typeof(Farmer)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(CheckActionPrefix))
             );
@@ -31,20 +31,16 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
                 AccessTools.Method(
                     _object,
                     nameof(GameLocation.LowPriorityLeftClick),
-                    new[] { typeof(int), typeof(int), typeof(Farmer) }
+                    [typeof(int), typeof(int), typeof(Farmer)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(LowPriorityLeftClickPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(GameLocation.leftClick),
-                    new[] { typeof(int), typeof(int), typeof(Farmer) }
-                ),
+                AccessTools.Method(_object, nameof(GameLocation.leftClick), [typeof(int), typeof(int), typeof(Farmer)]),
                 prefix: new HarmonyMethod(GetType(), nameof(LowPriorityLeftClickPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_object, nameof(GameLocation.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(_object, nameof(GameLocation.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
         }

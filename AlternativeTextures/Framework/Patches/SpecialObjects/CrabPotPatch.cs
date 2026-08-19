@@ -23,7 +23,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 AccessTools.Method(
                     _object,
                     nameof(CrabPot.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );

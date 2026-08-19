@@ -21,11 +21,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(GiantCrop.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(GiantCrop.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Constructor(typeof(GiantCrop), new[] { typeof(string), typeof(Vector2) }),
+                AccessTools.Constructor(typeof(GiantCrop), [typeof(string), typeof(Vector2)]),
                 postfix: new HarmonyMethod(GetType(), nameof(GiantCropPostfix))
             );
 
@@ -43,7 +43,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaGiantCropType,
                                 nameof(GiantCrop.draw),
-                                new[] { typeof(SpriteBatch), typeof(Vector2) }
+                                [typeof(SpriteBatch), typeof(Vector2)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -60,7 +60,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
             }
         }
 
-        [HarmonyBefore(new string[] { "spacechase0.JsonAssets", "spacechase0.MoreGiantCrops" })]
+        [HarmonyBefore(["spacechase0.JsonAssets", "spacechase0.MoreGiantCrops"])]
         private static bool DrawPrefix(GiantCrop __instance, float ___shakeTimer, SpriteBatch spriteBatch)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))

@@ -28,7 +28,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Furniture.draw),
-                    new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
@@ -36,7 +36,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Furniture.drawAtNonTileSpot),
-                    new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
+                    [typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float)]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
             );
@@ -44,8 +44,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 AccessTools.Method(
                     _object,
                     nameof(Furniture.drawInMenu),
-                    new[]
-                    {
+                    [
                         typeof(SpriteBatch),
                         typeof(Vector2),
                         typeof(float),
@@ -54,7 +53,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         typeof(StackDrawType),
                         typeof(Color),
                         typeof(bool),
-                    }
+                    ]
                 ),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
             );
@@ -73,7 +72,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFurnitureType,
                                 nameof(Furniture.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -81,7 +80,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
+                                [typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -89,8 +88,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaFurnitureType,
                                 nameof(Furniture.drawInMenu),
-                                new[]
-                                {
+                                [
                                     typeof(SpriteBatch),
                                     typeof(Vector2),
                                     typeof(float),
@@ -99,7 +97,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     typeof(StackDrawType),
                                     typeof(Color),
                                     typeof(bool),
-                                }
+                                ]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
                         );
@@ -115,7 +113,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaStorageFurnitureType,
                                 nameof(Furniture.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -123,7 +121,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaStorageFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
+                                [typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -131,8 +129,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaStorageFurnitureType,
                                 nameof(Furniture.drawInMenu),
-                                new[]
-                                {
+                                [
                                     typeof(SpriteBatch),
                                     typeof(Vector2),
                                     typeof(float),
@@ -141,7 +138,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     typeof(StackDrawType),
                                     typeof(Color),
                                     typeof(bool),
-                                }
+                                ]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
                         );
@@ -157,7 +154,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaTVFurnitureType,
                                 nameof(Furniture.draw),
-                                new[] { typeof(SpriteBatch), typeof(int), typeof(int), typeof(float) }
+                                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                         );
@@ -165,7 +162,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaTVFurnitureType,
                                 nameof(Furniture.drawAtNonTileSpot),
-                                new[] { typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float) }
+                                [typeof(SpriteBatch), typeof(Vector2), typeof(float), typeof(float)]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawAtNonTileSpotPrefix))
                         );
@@ -173,8 +170,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             AccessTools.Method(
                                 dgaTVFurnitureType,
                                 nameof(Furniture.drawInMenu),
-                                new[]
-                                {
+                                [
                                     typeof(SpriteBatch),
                                     typeof(Vector2),
                                     typeof(float),
@@ -183,7 +179,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                     typeof(StackDrawType),
                                     typeof(Color),
                                     typeof(bool),
-                                }
+                                ]
                             ),
                             prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
                         );

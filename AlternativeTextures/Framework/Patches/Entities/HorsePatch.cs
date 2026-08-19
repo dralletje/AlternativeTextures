@@ -22,16 +22,16 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Horse.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
                 postfix: new HarmonyMethod(GetType(), nameof(DrawPostfix))
             );
 
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Horse.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
                 transpiler: new HarmonyMethod(typeof(HorsePatch), nameof(AdjustForVariationTranspiler))
             );
             harmony.Patch(
-                AccessTools.Constructor(_entity, new[] { typeof(Guid), typeof(int), typeof(int) }),
+                AccessTools.Constructor(_entity, [typeof(Guid), typeof(int), typeof(int)]),
                 postfix: new HarmonyMethod(GetType(), nameof(HorsePostfix))
             );
         }
@@ -56,11 +56,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                             i + 2,
                             new CodeInstruction(
                                 OpCodes.Call,
-                                AccessTools.Method(
-                                    typeof(HorsePatch),
-                                    nameof(HandleVariations),
-                                    new[] { typeof(Horse) }
-                                )
+                                AccessTools.Method(typeof(HorsePatch), nameof(HandleVariations), [typeof(Horse)])
                             )
                         );
                     }
@@ -70,11 +66,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                         list.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
                         list[i + 1] = new CodeInstruction(
                             OpCodes.Call,
-                            AccessTools.Method(
-                                typeof(HorsePatch),
-                                nameof(GetHeadTextureYOffset),
-                                new[] { typeof(Horse) }
-                            )
+                            AccessTools.Method(typeof(HorsePatch), nameof(GetHeadTextureYOffset), [typeof(Horse)])
                         );
                     }
                 }
@@ -152,7 +144,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
                 );
         }
 
-        [HarmonyBefore(new string[] { "Goldenrevolver.HorseOverhaul" })]
+        [HarmonyBefore(["Goldenrevolver.HorseOverhaul"])]
         private static void DrawPostfix(Horse __instance, SpriteBatch b)
         {
             if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))

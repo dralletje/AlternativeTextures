@@ -1,0 +1,2 @@
+csharp_style_var_for_built_in_types = true
+csharp_style_var_elsewhere = true

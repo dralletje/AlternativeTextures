@@ -20,17 +20,17 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(ResourceClump.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(ResourceClump.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(typeof(TerrainFeature), nameof(TerrainFeature.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(typeof(TerrainFeature), nameof(TerrainFeature.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(
                 AccessTools.Constructor(
                     typeof(ResourceClump),
-                    new[] { typeof(int), typeof(int), typeof(int), typeof(Vector2), typeof(int), typeof(string) }
+                    [typeof(int), typeof(int), typeof(int), typeof(Vector2), typeof(int), typeof(string)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(ResourceClumpPostfix))
             );

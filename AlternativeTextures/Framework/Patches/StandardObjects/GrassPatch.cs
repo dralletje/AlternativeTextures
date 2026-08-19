@@ -21,11 +21,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Grass.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(Grass.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Grass.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(_object, nameof(Grass.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(

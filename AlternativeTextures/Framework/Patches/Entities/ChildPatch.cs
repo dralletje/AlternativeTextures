@@ -17,7 +17,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(bool), typeof(bool), typeof(Farmer) }),
+                AccessTools.Constructor(_entity, [typeof(string), typeof(bool), typeof(bool), typeof(Farmer)]),
                 postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix))
             );
         }

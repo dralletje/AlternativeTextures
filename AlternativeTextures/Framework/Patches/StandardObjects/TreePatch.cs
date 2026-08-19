@@ -22,19 +22,19 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Tree.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_object, nameof(Tree.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_object, nameof(Tree.seasonUpdate), new[] { typeof(bool) }),
+                AccessTools.Method(_object, nameof(Tree.seasonUpdate), [typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(typeof(Tree), new[] { typeof(string) }),
+                AccessTools.Constructor(typeof(Tree), [typeof(string)]),
                 postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(typeof(Tree), new[] { typeof(string), typeof(int), typeof(bool) }),
+                AccessTools.Constructor(typeof(Tree), [typeof(string), typeof(int), typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
             );
         }

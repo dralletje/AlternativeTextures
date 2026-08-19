@@ -23,17 +23,17 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Character.update), new[] { typeof(GameTime), typeof(GameLocation) }),
+                AccessTools.Method(_entity, nameof(Character.update), [typeof(GameTime), typeof(GameLocation)]),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Character.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Character.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
 
             harmony
                 .CreateReversePatcher(
-                    AccessTools.Method(_entity, nameof(Character.draw), new[] { typeof(SpriteBatch) }),
+                    AccessTools.Method(_entity, nameof(Character.draw), [typeof(SpriteBatch)]),
                     new HarmonyMethod(GetType(), nameof(DrawReversePatch))
                 )
                 .Patch();

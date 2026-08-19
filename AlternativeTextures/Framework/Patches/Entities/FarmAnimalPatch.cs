@@ -19,19 +19,19 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(FarmAnimal.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(FarmAnimal.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
                 AccessTools.Method(
                     _entity,
                     nameof(FarmAnimal.updateWhenCurrentLocation),
-                    new[] { typeof(GameTime), typeof(GameLocation) }
+                    [typeof(GameTime), typeof(GameLocation)]
                 ),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdateWhenCurrentLocationPostfix))
             );
             harmony.Patch(
-                AccessTools.Constructor(_entity, new[] { typeof(string), typeof(long), typeof(long) }),
+                AccessTools.Constructor(_entity, [typeof(string), typeof(long), typeof(long)]),
                 postfix: new HarmonyMethod(GetType(), nameof(FarmAnimalPostfix))
             );
         }

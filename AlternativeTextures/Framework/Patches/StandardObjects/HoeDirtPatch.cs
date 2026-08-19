@@ -17,11 +17,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(HoeDirt.plant),
-                    new[] { typeof(string), typeof(Farmer), typeof(bool) }
-                ),
+                AccessTools.Method(_object, nameof(HoeDirt.plant), [typeof(string), typeof(Farmer), typeof(bool)]),
                 postfix: new HarmonyMethod(GetType(), nameof(PlantPostfix))
             );
         }

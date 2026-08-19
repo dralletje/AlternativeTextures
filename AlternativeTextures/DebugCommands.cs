@@ -68,7 +68,7 @@ class DebugCommands(IMod mod)
         Monitor.Log(Game1.player.Tile.ToString(), LogLevel.Debug);
         for (int i = 0; i < amountToSpawn; i++)
         {
-            var monster = Activator.CreateInstance(monsterType, new object[] { Game1.player.Tile }) as Monster;
+            var monster = Activator.CreateInstance(monsterType, [Game1.player.Tile]) as Monster;
             monster.Position = Game1.player.Position;
             Game1.currentLocation.characters.Add(monster);
         }

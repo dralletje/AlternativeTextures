@@ -20,19 +20,16 @@ namespace AlternativeTextures.Framework.Patches.Entities
         internal void Apply(Harmony harmony)
         {
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Pet.draw), new[] { typeof(SpriteBatch) }),
+                AccessTools.Method(_entity, nameof(Pet.draw), [typeof(SpriteBatch)]),
                 prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
             );
             harmony.Patch(
-                AccessTools.Method(_entity, nameof(Pet.update), new[] { typeof(GameTime), typeof(GameLocation) }),
+                AccessTools.Method(_entity, nameof(Pet.update), [typeof(GameTime), typeof(GameLocation)]),
                 postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
             );
 
             harmony.Patch(
-                AccessTools.Constructor(
-                    typeof(Pet),
-                    new[] { typeof(int), typeof(int), typeof(string), typeof(string) }
-                ),
+                AccessTools.Constructor(typeof(Pet), [typeof(int), typeof(int), typeof(string), typeof(string)]),
                 postfix: new HarmonyMethod(GetType(), nameof(PetPostfix))
             );
         }
