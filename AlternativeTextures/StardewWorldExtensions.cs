@@ -21,13 +21,11 @@ public static class StardewWorldExtensions
             {
                 return feature;
             }
-            else if (location.largeTerrainFeatures is { } largeTerrainFeatures)
-            {
-                return largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tileVector);
-            }
             else
             {
-                return null;
+                return location.largeTerrainFeatures is { } largeTerrainFeatures
+                    ? largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tileVector)
+                    : (TerrainFeature?)null;
             }
         }
 
@@ -81,14 +79,9 @@ public static class StardewWorldExtensions
         {
             get
             {
-                if (giantCrop.GetData() is GiantCropData giantCropData)
-                {
-                    return ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? string.Empty;
-                }
-                else
-                {
-                    return null;
-                }
+                return giantCrop.GetData() is GiantCropData giantCropData
+                    ? ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? string.Empty
+                    : null;
             }
         }
     }

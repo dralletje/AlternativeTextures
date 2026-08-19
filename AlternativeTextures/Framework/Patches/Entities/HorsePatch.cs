@@ -95,15 +95,11 @@ internal class HorsePatch(IMonitor _monitor, IModHelper modHelper) : PatchTempla
         }
 
         var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-        if (
+        return
             textureVariation == -1
             || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-        )
-        {
-            return yOffset;
-        }
-
-        return yOffset + textureModel.GetTextureOffset(textureVariation);
+            ? yOffset
+            : yOffset + textureModel.GetTextureOffset(textureVariation);
     }
 
     private static void HandleVariations(Horse horse)

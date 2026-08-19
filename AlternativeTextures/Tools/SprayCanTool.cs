@@ -33,14 +33,10 @@ class SprayCanTool : ICustomTool
             var tile = Game1.player.ActiveTargetTile;
             return OpenMenu(tile);
         }
-        else if (e.Button is SButton.MouseLeft)
-        {
-            return false;
-            // LeftClickSprayCan(tool, xTile, yTile)
-        }
         else
         {
-            return false;
+            return e.Button is SButton.MouseLeft ? false : false;
+            // LeftClickSprayCan(tool, xTile, yTile)
         }
     }
 
@@ -209,14 +205,7 @@ class SprayCanTool : ICustomTool
     {
         if (tool is GenericTool genericTool)
         {
-            if (tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG))
-            {
-                return new SprayCanTool(genericTool);
-            }
-            else
-            {
-                return null;
-            }
+            return tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG) ? new SprayCanTool(genericTool) : null;
         }
         else
         {

@@ -118,12 +118,9 @@ internal class TextureManager(IMod mod)
 
     public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
     {
-        if (!DoesObjectHaveAlternativeTextureById(textureId))
-        {
-            return null;
-        }
-
-        return _alternativeTextures.First(t => string.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
+        return !DoesObjectHaveAlternativeTextureById(textureId)
+            ? null
+            : _alternativeTextures.First(t => string.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
     }
 
     public List<AlternativeTextureModel> GetAvailableTextureModels(string modelName, Season season)
@@ -197,22 +194,14 @@ internal class TextureManager(IMod mod)
 
     public Texture2D? GetTextureByToken(string token)
     {
-        if (String.IsNullOrEmpty(token) || _tokenToTextures.ContainsKey(token) is false)
-        {
-            return null;
-        }
-
-        return _tokenToTextures[token];
+        return String.IsNullOrEmpty(token) || _tokenToTextures.ContainsKey(token) is false
+            ? null
+            : _tokenToTextures[token];
     }
 
     public TokenModel? GetModelByToken(string token)
     {
-        if (String.IsNullOrEmpty(token) || _tokenToModel.ContainsKey(token) is false)
-        {
-            return null;
-        }
-
-        return _tokenToModel[token];
+        return String.IsNullOrEmpty(token) || _tokenToModel.ContainsKey(token) is false ? null : _tokenToModel[token];
     }
 
     public void UpdateTokenCache(string token)

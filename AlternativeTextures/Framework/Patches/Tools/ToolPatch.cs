@@ -207,27 +207,16 @@ internal class ToolPatch(IMonitor _monitor, IModHelper _helper) : PatchTemplate(
         switch (paintable.ModelIdentifier)
         {
             case { Type: TextureType.Craftable }:
-                if (sourceRect.Height <= 16)
-                {
-                    return new(rows: 4, columns: 6);
-                }
-                else
-                {
-                    return new(rows: 3, columns: 6);
-                }
+                return sourceRect.Height <= 16 ? new(rows: 4, columns: 6) : new(rows: 3, columns: 6);
 
             case { Type: TextureType.Furniture }:
                 if (sourceRect.Height >= 64)
                 {
                     return new(rows: 2, columns: 6);
                 }
-                else if (sourceRect.Height >= 32)
-                {
-                    return new(rows: 3, columns: 6);
-                }
                 else
                 {
-                    return new(rows: 4, columns: 6);
+                    return sourceRect.Height >= 32 ? new(rows: 3, columns: 6) : new(rows: 4, columns: 6);
                 }
 
             case { Type: TextureType.Flooring }:

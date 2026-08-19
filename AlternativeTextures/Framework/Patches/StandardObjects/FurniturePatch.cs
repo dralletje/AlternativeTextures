@@ -805,10 +805,6 @@ internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTe
         {
             return 1.5f;
         }
-        if (tilesWide <= 4)
-        {
-            return 1f;
-        }
-        return 0.1f;
+        return tilesWide <= 4 ? 1f : 0.1f;
     }
 }

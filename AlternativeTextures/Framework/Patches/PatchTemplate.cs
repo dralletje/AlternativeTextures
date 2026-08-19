@@ -47,31 +47,16 @@ internal class PatchTemplate()
 
         if (obj.bigCraftable.Value)
         {
-            if (!Game1.bigCraftableData.ContainsKey(obj.ItemId))
-            {
-                return obj.name;
-            }
-
-            return Game1.bigCraftableData[obj.ItemId].Name;
+            return !Game1.bigCraftableData.ContainsKey(obj.ItemId) ? obj.name : Game1.bigCraftableData[obj.ItemId].Name;
         }
         else if (obj is Furniture)
         {
             var dataSheet = Game1.content.Load<Dictionary<string, string>>("Data\\Furniture");
-            if (!dataSheet.ContainsKey(obj.ItemId))
-            {
-                return obj.name;
-            }
-
-            return dataSheet[obj.ItemId].Split('/')[0];
+            return !dataSheet.ContainsKey(obj.ItemId) ? obj.name : dataSheet[obj.ItemId].Split('/')[0];
         }
         else
         {
-            if (!Game1.objectData.ContainsKey(obj.ItemId))
-            {
-                return obj.name;
-            }
-
-            return Game1.objectData[obj.ItemId].Name;
+            return !Game1.objectData.ContainsKey(obj.ItemId) ? obj.name : Game1.objectData[obj.ItemId].Name;
         }
     }
 
@@ -79,11 +64,9 @@ internal class PatchTemplate()
     {
         if (character is Child child)
         {
-            if (child.Age >= 3)
-            {
-                return $"{CharacterPatch.TODDLER_NAME_PREFIX}_{(child.Gender == 0 ? "Male" : "Female")}_{(child.darkSkinned.Value ? "Dark" : "Light")}";
-            }
-            return $"{CharacterPatch.BABY_NAME_PREFIX}_{(child.darkSkinned.Value ? "Dark" : "Light")}";
+            return child.Age >= 3
+                ? $"{CharacterPatch.TODDLER_NAME_PREFIX}_{(child.Gender == 0 ? "Male" : "Female")}_{(child.darkSkinned.Value ? "Dark" : "Light")}"
+                : $"{CharacterPatch.BABY_NAME_PREFIX}_{(child.darkSkinned.Value ? "Dark" : "Light")}";
         }
 
         if (character is FarmAnimal animal)
@@ -107,20 +90,10 @@ internal class PatchTemplate()
         if (character is Horse horse)
         {
             // Tractor mod compatibility: -794739 is the ID used by Tractor Mod for determining if a Stable is really a garage
-            if (horse.modData.ContainsKey("Pathoschild.TractorMod"))
-            {
-                return "Tractor";
-            }
-
-            return "Horse";
+            return horse.modData.ContainsKey("Pathoschild.TractorMod") ? "Tractor" : "Horse";
         }
 
-        if (character is Pet pet)
-        {
-            return pet.petType.Value;
-        }
-
-        return character.Name;
+        return character is Pet pet ? pet.petType.Value : character.Name;
     }
 
     internal static string GetBuildingName(Building building)
@@ -161,23 +134,15 @@ internal class PatchTemplate()
         // Replicating GameLocation.getObjectAt, but doing objects before rugs
         // Doing this so the object on top of rugs are given instead of the latter
         var tile = new Vector2(x / 64, y / 64);
-        if (location.objects.ContainsKey(tile))
-        {
-            return location.objects[tile];
-        }
-
-        return location.getObjectAt(x, y);
+        return location.objects.ContainsKey(tile) ? location.objects[tile] : location.getObjectAt(x, y);
     }
 
     internal static Building? GetBuildingAt(GameLocation location, int x, int y)
     {
         var tile = new Vector2(x / 64, y / 64);
-        if (location.buildings.FirstOrDefault(b => b.occupiesTile(tile)) is Building building && building != null)
-        {
-            return building;
-        }
-
-        return null;
+        return location.buildings.FirstOrDefault(b => b.occupiesTile(tile)) is Building building && building != null
+            ? building
+            : null;
     }
 
     internal static TerrainFeature? GetTerrainFeatureAt(GameLocation location, int x, int y)
@@ -185,11 +150,9 @@ internal class PatchTemplate()
         var tile = new Vector2(x / 64, y / 64);
         if (!location.terrainFeatures.ContainsKey(tile))
         {
-            if (location.largeTerrainFeatures is not null)
-            {
-                return location.largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tile);
-            }
-            return null;
+            return location.largeTerrainFeatures is not null
+                ? location.largeTerrainFeatures.FirstOrDefault(t => t is not null && t.Tile == tile)
+                : (TerrainFeature?)null;
         }
 
         return location.terrainFeatures[tile];
@@ -198,12 +161,9 @@ internal class PatchTemplate()
     internal static ResourceClump? GetResourceClumpAt(GameLocation location, int x, int y)
     {
         Vector2 tile = new Vector2(x / 64, y / 64);
-        if (!location.resourceClumps.Any(r => r.occupiesTile((int)tile.X, (int)tile.Y)))
-        {
-            return null;
-        }
-
-        return location.resourceClumps.First(r => r.occupiesTile((int)tile.X, (int)tile.Y));
+        return !location.resourceClumps.Any(r => r.occupiesTile((int)tile.X, (int)tile.Y))
+            ? null
+            : location.resourceClumps.First(r => r.occupiesTile((int)tile.X, (int)tile.Y));
     }
 
     internal static Character GetCharacterAt(GameLocation location, int x, int y)

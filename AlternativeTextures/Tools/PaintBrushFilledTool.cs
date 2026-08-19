@@ -273,13 +273,8 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     public static PaintBrushFilledTool? From(IModHelper helper, Tool? tool)
     {
-        if (tool is GenericTool { QualifiedItemId: AlternativeTextures.PAINT_BRUSH_FILLED_ID } genericTool)
-        {
-            return new PaintBrushFilledTool(helper, genericTool);
-        }
-        else
-        {
-            return null;
-        }
+        return tool is GenericTool { QualifiedItemId: AlternativeTextures.PAINT_BRUSH_FILLED_ID } genericTool
+            ? new PaintBrushFilledTool(helper, genericTool)
+            : null;
     }
 }

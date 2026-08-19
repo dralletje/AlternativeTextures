@@ -88,23 +88,13 @@ public class AlternativeTextureModel
 
     public bool IsManualVariationsValid()
     {
-        if (ManualVariations.Any(v => v.Id == 1) is true && ManualVariations.Any(v => v.Id == 0) is false)
-        {
-            return false;
-        }
-
-        return true;
+        return ManualVariations.Any(v => v.Id == 1) is false || ManualVariations.Any(v => v.Id == 0) is true;
     }
 
     public List<AnimationModel> GetAnimationData(int variation)
     {
         var manualVariation = ManualVariations.FirstOrDefault(v => v.Id == variation && v.HasAnimation());
-        if (manualVariation != null)
-        {
-            return manualVariation.Animation;
-        }
-
-        return Animation;
+        return manualVariation != null ? manualVariation.Animation : Animation;
     }
 
     public AnimationModel GetAnimationDataAtIndex(int variation, int index)
@@ -178,24 +168,16 @@ public class AlternativeTextureModel
 
     public bool HasKeyword(string variationString, string keyword)
     {
-        if (!Int32.TryParse(variationString, out var variation))
-        {
-            return false;
-        }
-
-        return HasKeyword(variation, keyword);
+        return !Int32.TryParse(variationString, out var variation) ? false : HasKeyword(variation, keyword);
     }
 
     public bool HasKeyword(int variation, string keyword)
     {
-        if (ManualVariations.Any(v => v.Id == variation))
-        {
-            return ManualVariations
+        return ManualVariations.Any(v => v.Id == variation)
+            ? ManualVariations
                 .First(v => v.Id == variation)
-                .Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
-        }
-
-        return Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+                .Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+            : Keywords.Any(k => k.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
     }
 
     public bool HasAnimation(int variation)
@@ -211,16 +193,9 @@ public class AlternativeTextureModel
     internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive)
     {
         var animationData = GetAnimationDataAtIndex(variation, currentFrame);
-        if (
-            animationData is null
-            || (animationData.Type is FrameType.MachineActive && isMachineActive is false)
-            || (animationData.Type is FrameType.MachineIdle && isMachineActive is true)
-        )
-        {
-            return false;
-        }
-
-        return true;
+        return animationData is not null
+            && (animationData.Type is not FrameType.MachineActive || isMachineActive is true)
+            && (animationData.Type is not FrameType.MachineIdle || isMachineActive is false);
     }
 
     internal List<string> HandleNameChanges()

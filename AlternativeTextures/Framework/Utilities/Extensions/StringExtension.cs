@@ -8,11 +8,6 @@ public static class StringExtension
     {
         var index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
 
-        if (index == -1)
-        {
-            return source;
-        }
-
-        return source.Remove(index, target.Length).Insert(index, replacement);
+        return index == -1 ? source : source.Remove(index, target.Length).Insert(index, replacement);
     }
 }

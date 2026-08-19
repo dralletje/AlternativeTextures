@@ -28,17 +28,10 @@ public class ModConfig
 
     internal bool IsTextureVariationDisabled(string textureId, int variation)
     {
-        if (
-            DisabledTextures.Any(t =>
-                t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
-                && t.DisabledVariations.Contains(variation)
-            )
-        )
-        {
-            return true;
-        }
-
-        return false;
+        return DisabledTextures.Any(t =>
+            t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
+            && t.DisabledVariations.Contains(variation)
+        );
     }
 
     internal void SetTextureStatus(string textureId, int variation, bool isEnabled)

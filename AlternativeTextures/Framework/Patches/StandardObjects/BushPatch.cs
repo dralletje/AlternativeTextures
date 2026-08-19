@@ -159,12 +159,7 @@ internal class BushPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTempl
         {
             return 0;
         }
-        if (size == 4)
-        {
-            return 1;
-        }
-
-        return size;
+        return size == 4 ? 1 : size;
     }
 
     private static void SeasonUpdatePostfix(Bush __instance, bool onLoad)
