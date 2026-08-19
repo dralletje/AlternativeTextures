@@ -216,11 +216,13 @@ static class SourceRects
             return new Rectangle(
                 (
                     12
-                    + ((
-                        fruitTree.IgnoresSeasonsHere()
-                            ? 1
-                            : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
-                    ) * 3)
+                    + (
+                        (
+                            fruitTree.IgnoresSeasonsHere()
+                                ? 1
+                                : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
+                        ) * 3
+                    )
                 ) * 16,
                 fruitTree.GetSpriteRowNumber() * 5 * 16,
                 48,
@@ -232,11 +234,13 @@ static class SourceRects
         Rectangle source_rect = new Rectangle(
             (
                 12
-                + ((
-                    fruitTree.IgnoresSeasonsHere()
-                        ? 1
-                        : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
-                ) * 3)
+                + (
+                    (
+                        fruitTree.IgnoresSeasonsHere()
+                            ? 1
+                            : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
+                    ) * 3
+                )
             ) * 16,
             0,
             48,

@@ -73,8 +73,9 @@ internal class CatalogueMenu : IClickableMenu
 
         // Set up menu structure
         if (
-            LocalizedContentManager.CurrentLanguageCode is LocalizedContentManager.LanguageCode.ko
-            or LocalizedContentManager.LanguageCode.fr
+            LocalizedContentManager.CurrentLanguageCode
+            is LocalizedContentManager.LanguageCode.ko
+                or LocalizedContentManager.LanguageCode.fr
         )
         {
             base.height += 64;
@@ -243,12 +244,7 @@ internal class CatalogueMenu : IClickableMenu
         {
             dropDownDisplayOptions = options,
             dropDownOptions = options,
-            bounds = new Rectangle(
-                _searchBox.X + _searchBox.Width + 16,
-                _searchBox.Y - 1,
-                256,
-                48
-            )
+            bounds = new Rectangle(_searchBox.X + _searchBox.Width + 16, _searchBox.Y - 1, 256, 48),
         };
         _searchFilterOptions.RecalculateBounds();
 
@@ -283,9 +279,7 @@ internal class CatalogueMenu : IClickableMenu
             button.upNeighborImmutable = true;
             button.downNeighborImmutable = true;
             button.upNeighborID = (i > 0) ? (i + 3546 - 1) : (-7777);
-            button.downNeighborID =
-                (i < 3 && i < _currentlyDisplayedObjects.Count - 1) ? (i + 3546 + 1) : (-7777)
-            ;
+            button.downNeighborID = (i < 3 && i < _currentlyDisplayedObjects.Count - 1) ? (i + 3546 + 1) : (-7777);
 
             if (i >= _currentlyDisplayedObjects.Count)
             {
@@ -337,22 +331,27 @@ internal class CatalogueMenu : IClickableMenu
             switch (Enum.Parse(typeof(Filter), _tabButtons[_currentTabIndex].name))
             {
                 case Filter.None:
+                {
                     _currentlyDisplayedObjects.Add(item);
                     break;
+                }
                 case Filter.Tables:
+                {
                     if (
-                        item is Furniture
+                        item is Furniture furniture
                         && (
-                            (item as Furniture).furniture_type.Value == 5
-                            || (item as Furniture).furniture_type.Value == 4
-                            || (item as Furniture).furniture_type.Value == 11
+                            furniture.furniture_type.Value == 5
+                            || furniture.furniture_type.Value == 4
+                            || furniture.furniture_type.Value == 11
                         )
                     )
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
                     break;
+                }
                 case Filter.Chairs:
+                {
                     if (
                         item is Furniture
                         && (
@@ -366,7 +365,9 @@ internal class CatalogueMenu : IClickableMenu
                         _currentlyDisplayedObjects.Add(item);
                     }
                     break;
+                }
                 case Filter.Pictures:
+                {
                     if (
                         item is Furniture
                         && (
@@ -378,28 +379,33 @@ internal class CatalogueMenu : IClickableMenu
                         _currentlyDisplayedObjects.Add(item);
                     }
                     break;
+                }
                 case Filter.Rugs:
-                    if (item is Furniture && (item as Furniture).furniture_type.Value == 12)
+                {
+                    if (item is Furniture furniture && furniture.furniture_type.Value == 12)
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
                     break;
+                }
                 case Filter.Decorations:
+                {
                     if (
-                        item is Furniture
+                        item is Furniture furniture
                         && (
-                            (item as Furniture).furniture_type.Value == 7
-                            || (item as Furniture).furniture_type.Value == 17
-                            || (item as Furniture).furniture_type.Value == 10
-                            || (item as Furniture).furniture_type.Value == 8
-                            || (item as Furniture).furniture_type.Value == 9
-                            || (item as Furniture).furniture_type.Value == 14
+                            furniture.furniture_type.Value == 7
+                            || furniture.furniture_type.Value == 17
+                            || furniture.furniture_type.Value == 10
+                            || furniture.furniture_type.Value == 8
+                            || furniture.furniture_type.Value == 9
+                            || furniture.furniture_type.Value == 14
                         )
                     )
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
                     break;
+                }
             }
         }
     }
@@ -414,43 +420,43 @@ internal class CatalogueMenu : IClickableMenu
             {
                 case 0:
                 case 3:
-                    _currentlyDisplayedTextures = [.. _displayableTextures
-                        .Where(i =>
-                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                                .Contains(AlternativeTextures.DEFAULT_OWNER)
+                    _currentlyDisplayedTextures =
+                    [
+                        .. _displayableTextures.Where(i =>
+                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(AlternativeTextures.DEFAULT_OWNER)
                             && AlternativeTextures.textureManager.GetSpecificTextureModel(
                                 i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                             )
                                 is AlternativeTextureModel model
-                            && model.HasKeyword(
-                                i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
-                                _searchBox.Text
-                            )
-                        )];
+                            && model.HasKeyword(i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION], _searchBox.Text)
+                        ),
+                    ];
                     break;
                 case 1:
-                    _currentlyDisplayedTextures = [.. _displayableTextures
-                        .Where(i =>
-                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                                .Contains(AlternativeTextures.DEFAULT_OWNER)
+                    _currentlyDisplayedTextures =
+                    [
+                        .. _displayableTextures.Where(i =>
+                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(AlternativeTextures.DEFAULT_OWNER)
                             && AlternativeTextures.textureManager.GetSpecificTextureModel(
                                 i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                             )
                                 is AlternativeTextureModel model
                             && model.Author.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
-                        )];
+                        ),
+                    ];
                     break;
                 case 2:
-                    _currentlyDisplayedTextures = [.. _displayableTextures
-                        .Where(i =>
-                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                                .Contains(AlternativeTextures.DEFAULT_OWNER)
+                    _currentlyDisplayedTextures =
+                    [
+                        .. _displayableTextures.Where(i =>
+                            !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(AlternativeTextures.DEFAULT_OWNER)
                             && AlternativeTextures.textureManager.GetSpecificTextureModel(
                                 i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                             )
                                 is AlternativeTextureModel model
                             && model.PackName.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
-                        )];
+                        ),
+                    ];
                     break;
             }
         }
@@ -683,10 +689,7 @@ internal class CatalogueMenu : IClickableMenu
         // Handle alternative texture buttons
         for (var i = 0; i < _alternativeTextureButtons.Count; i++)
         {
-            if (
-                _isDisplayingAlternativeTextures is false
-                || _alternativeTextureButtons[i].containsPoint(x, y) is false
-            )
+            if (_isDisplayingAlternativeTextures is false || _alternativeTextureButtons[i].containsPoint(x, y) is false)
             {
                 continue;
             }
@@ -695,8 +698,7 @@ internal class CatalogueMenu : IClickableMenu
             if (
                 _alternativeTextureButtons[i].item is null
                 || !_alternativeTextureButtons[i].item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-                || !_alternativeTextureButtons[i]
-                    .item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+                || !_alternativeTextureButtons[i].item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             )
             {
                 break;
@@ -715,9 +717,7 @@ internal class CatalogueMenu : IClickableMenu
                     is GenericTool tool
             )
             {
-                _paintBrushWarningText = AlternativeTextures.modHelper.Translation.Get(
-                    "ui.labels.paint_brush.copied"
-                );
+                _paintBrushWarningText = AlternativeTextures.modHelper.Translation.Get("ui.labels.paint_brush.copied");
 
                 /// TODO Looks like a cool feature, somehow?
                 // tool.modData[PaintBrushTool.PAINT_BRUSH_FLAG] =
@@ -857,9 +857,7 @@ internal class CatalogueMenu : IClickableMenu
 
                         if (keywordsTemp.Length > 24 || keywords.Last() == keyword)
                         {
-                            keywordsText += string.IsNullOrEmpty(keywordsText)
-                                ? keywordsTemp
-                                : $",\n {keywordsTemp}";
+                            keywordsText += string.IsNullOrEmpty(keywordsText) ? keywordsTemp : $",\n {keywordsTemp}";
                             keywordsTemp = string.Empty;
                         }
                     }
@@ -953,11 +951,15 @@ internal class CatalogueMenu : IClickableMenu
                             _alternativeTextureButtons[i].texture,
                             new Vector2(
                                 (float)_alternativeTextureButtons[i].bounds.X
-                                    + ((float)(_alternativeTextureButtons[i].sourceRect.Width / 2)
-                                        * _alternativeTextureButtons[i].baseScale),
+                                    + (
+                                        (float)(_alternativeTextureButtons[i].sourceRect.Width / 2)
+                                        * _alternativeTextureButtons[i].baseScale
+                                    ),
                                 (float)_alternativeTextureButtons[i].bounds.Y
-                                    + ((float)(_alternativeTextureButtons[i].sourceRect.Height / 2)
-                                        * _alternativeTextureButtons[i].baseScale)
+                                    + (
+                                        (float)(_alternativeTextureButtons[i].sourceRect.Height / 2)
+                                        * _alternativeTextureButtons[i].baseScale
+                                    )
                                     + offset
                             ),
                             _alternativeTextureButtons[i].sourceRect,

@@ -29,10 +29,7 @@ internal class BushPatch : PatchTemplate
             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
         );
         harmony.Patch(
-            AccessTools.Constructor(
-                typeof(Bush),
-                [typeof(Vector2), typeof(int), typeof(GameLocation), typeof(int)]
-            ),
+            AccessTools.Constructor(typeof(Bush), [typeof(Vector2), typeof(int), typeof(GameLocation), typeof(int)]),
             postfix: new HarmonyMethod(GetType(), nameof(BushPostfix))
         );
     }

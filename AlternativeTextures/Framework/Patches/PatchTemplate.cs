@@ -434,12 +434,7 @@ internal class PatchTemplate
         return false;
     }
 
-    internal static bool AssignModData<T>(
-        T type,
-        string modelName,
-        bool trackSeason = false,
-        bool trackSheetId = false
-    )
+    internal static bool AssignModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
     {
         if (HasCachedTextureName(type) || IsTextureRandomnessEnabled(type) is false)
         {
@@ -464,8 +459,7 @@ internal class PatchTemplate
                     !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
                     weightedSelection.Count()
                 );
-                selectedVariation =
-                    randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
+                selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
             }
             else
             {
@@ -625,11 +619,7 @@ internal class PatchTemplate
     )
     {
         gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = textureModel.Owner;
-        gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-            textureModel.Owner,
-            ".",
-            modelName
-        );
+        gameLocation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(textureModel.Owner, ".", modelName);
 
         if (trackSeason && !String.IsNullOrEmpty(textureModel.Season))
         {

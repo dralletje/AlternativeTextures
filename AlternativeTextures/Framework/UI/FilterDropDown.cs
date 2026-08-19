@@ -5,7 +5,8 @@ using StardewValley.Menus;
 
 namespace AlternativeTextures.Framework.UI;
 
-internal class FilterDropDown(string label, int whichOption, int x = -1, int y = -1) : OptionsDropDown(label, whichOption, x, y)
+internal class FilterDropDown(string label, int whichOption, int x = -1, int y = -1)
+    : OptionsDropDown(label, whichOption, x, y)
 {
     public bool IsClicked { get; set; }
 
@@ -33,8 +34,7 @@ internal class FilterDropDown(string label, int whichOption, int x = -1, int y =
             base.leftClickReleased(x, y);
 
             if (
-                base.dropDownBounds.Contains(x, y)
-                || (Game1.options.gamepadControls && !Game1.lastCursorMotionWasMouse)
+                base.dropDownBounds.Contains(x, y) || (Game1.options.gamepadControls && !Game1.lastCursorMotionWasMouse)
             )
             {
                 _ = base.selectedOption;

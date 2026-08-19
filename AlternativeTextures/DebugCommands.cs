@@ -207,7 +207,7 @@ class DebugCommands(IMod mod)
         var child = new Child("Test", isMale, hasDarkSkin, Game1.player)
         {
             Position = Game1.player.Position,
-            Age = age
+            Age = age,
         };
         Game1.currentLocation.characters.Add(child);
     }

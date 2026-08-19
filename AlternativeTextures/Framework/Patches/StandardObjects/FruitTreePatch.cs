@@ -49,11 +49,7 @@ internal class FruitTreePatch : PatchTemplate
                 )
                 {
                     harmony.Patch(
-                        AccessTools.Method(
-                            dgaCropType,
-                            nameof(FruitTree.draw),
-                            [typeof(SpriteBatch), typeof(Vector2)]
-                        ),
+                        AccessTools.Method(dgaCropType, nameof(FruitTree.draw), [typeof(SpriteBatch), typeof(Vector2)]),
                         prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
                     );
                     harmony.Patch(
@@ -248,8 +244,7 @@ internal class FruitTreePatch : PatchTemplate
                     var obj =
                         (__instance.struckByLightningCountdown.Value > 0)
                             ? ItemRegistry.GetDataOrErrorItem("(O)382")
-                            : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId)
-                    ;
+                            : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId);
                     var texture = obj.GetTexture();
                     var sourceRect = obj.GetSourceRect();
                     switch (i)

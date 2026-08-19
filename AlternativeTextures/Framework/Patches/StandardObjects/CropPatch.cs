@@ -281,10 +281,7 @@ internal class CropPatch : PatchTemplate
             var tintColor = __instance.tintColor.Value;
             b.Draw(
                 textureModel.GetTexture(textureVariation),
-                Game1.GlobalToLocal(
-                    Game1.viewport,
-                    offset + new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                ),
+                Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
                 new Rectangle(sourceX, textureOffset, 16, 32),
                 toTint,
                 rotation,

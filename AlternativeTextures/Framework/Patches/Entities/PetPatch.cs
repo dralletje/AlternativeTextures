@@ -177,8 +177,7 @@ internal class PetPatch : PatchTemplate
                 $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
-        var instanceSeasonName =
-            $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
         if (
             __instance is Pet pet
             && !String.Equals(
@@ -203,9 +202,7 @@ internal class PetPatch : PatchTemplate
                 && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
-                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                    .GetSeasonForLocation(location)
-                    .ToString();
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(location).ToString();
                 pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                     pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                     "_",

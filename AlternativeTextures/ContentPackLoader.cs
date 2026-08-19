@@ -406,9 +406,7 @@ class ContentPackLoader(Mod mod)
         IEnumerable<string> textureFilePaths
     )
     {
-        var baseTexture = contentPack.ModContent.Load<Texture2D>(
-            Path.Combine(rootPath, textureFilePaths.First())
-        );
+        var baseTexture = contentPack.ModContent.Load<Texture2D>(Path.Combine(rootPath, textureFilePaths.First()));
 
         // If there is only one split texture file, skip the rest of the logic to avoid issues
         if (textureFilePaths.Count() == 1 || textureModel.GetVariations() == 1)

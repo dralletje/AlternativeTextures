@@ -74,11 +74,7 @@ internal class FarmAnimalPatch : PatchTemplate
         return true;
     }
 
-    private static void UpdateWhenCurrentLocationPostfix(
-        FarmAnimal __instance,
-        GameTime time,
-        GameLocation location
-    )
+    private static void UpdateWhenCurrentLocationPostfix(FarmAnimal __instance, GameTime time, GameLocation location)
     {
         if (!__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
         {
@@ -92,8 +88,7 @@ internal class FarmAnimalPatch : PatchTemplate
                 $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
-        var instanceSeasonName =
-            $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
         if (
             !String.Equals(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],

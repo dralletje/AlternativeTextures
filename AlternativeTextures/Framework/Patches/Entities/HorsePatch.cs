@@ -36,9 +36,7 @@ internal class HorsePatch : PatchTemplate
         );
     }
 
-    private static IEnumerable<CodeInstruction> AdjustForVariationTranspiler(
-        IEnumerable<CodeInstruction> instructions
-    )
+    private static IEnumerable<CodeInstruction> AdjustForVariationTranspiler(IEnumerable<CodeInstruction> instructions)
     {
         try
         {

@@ -85,13 +85,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
             // Set the ModelName and TextureId
             textureModel.ModelName = String.IsNullOrEmpty(textureModel.Season)
                 ? String.Concat(textureModel.GetTextureType(), "_", textureModel.ItemName)
-                : String.Concat(
-                    textureModel.GetTextureType(),
-                    "_",
-                    textureModel.ItemName,
-                    "_",
-                    textureModel.Season
-                );
+                : String.Concat(textureModel.GetTextureType(), "_", textureModel.ItemName, "_", textureModel.Season);
             textureModel.TextureId = String.Concat(textureModel.Owner, ".", textureModel.ModelName);
 
             // Verify we are given a singular texture, if not then stitch them all together
@@ -107,8 +101,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
                 }
 
                 // Load in the first texture_#.png to get its dimensions for creating stitchedTexture
-                var maxVariationsPerTexture =
-                    AlternativeTextureModel.MAX_TEXTURE_HEIGHT / textureModel.TextureHeight;
+                var maxVariationsPerTexture = AlternativeTextureModel.MAX_TEXTURE_HEIGHT / textureModel.TextureHeight;
 
                 var variation = 0;
                 foreach (var splitTexture in textures)

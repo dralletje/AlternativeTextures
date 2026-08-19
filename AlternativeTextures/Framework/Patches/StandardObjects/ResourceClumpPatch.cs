@@ -108,8 +108,7 @@ internal class ResourceClumpPatch : PatchTemplate
 
     private static void ResourceClumpPostfix(ResourceClump __instance)
     {
-        var instanceName =
-            $"{AlternativeTextureModel.TextureType.ResourceClump}_{GetResourceClumpName(__instance)}";
+        var instanceName = $"{AlternativeTextureModel.TextureType.ResourceClump}_{GetResourceClumpName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

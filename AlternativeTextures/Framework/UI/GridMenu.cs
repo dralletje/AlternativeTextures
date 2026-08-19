@@ -63,8 +63,9 @@ internal class GridMenu : IClickableMenu
 
         // Set up menu structure
         if (
-            LocalizedContentManager.CurrentLanguageCode is LocalizedContentManager.LanguageCode.ko
-            or LocalizedContentManager.LanguageCode.fr
+            LocalizedContentManager.CurrentLanguageCode
+            is LocalizedContentManager.LanguageCode.ko
+                or LocalizedContentManager.LanguageCode.fr
         )
         {
             base.height += 64;

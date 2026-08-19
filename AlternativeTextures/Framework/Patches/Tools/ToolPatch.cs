@@ -167,8 +167,9 @@ internal class ToolPatch : PatchTemplate
         }
 
         if (
-            __instance.QualifiedItemId is AlternativeTextures.PAINT_BRUSH_FILLED_ID
-            or AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+            __instance.QualifiedItemId
+            is AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                or AlternativeTextures.PAINT_BRUSH_EMPTY_ID
         )
         {
             __result = true;
@@ -184,21 +185,21 @@ internal class ToolPatch : PatchTemplate
         return true;
     }
 
-    static QualifiedIdFor(ModelIdentifier modelIdentifier)
-    {
-        Dictionary<string, string> nameToIdMap = [];
-        foreach (var kvp in Game1.objectData)
-        {
-            var unqualifiedId = kvp.Key; // e.g., "128"
-            var internalName = kvp.Value.Name; // e.g., "Pufferfish"
+    // static QualifiedIdFor(ModelIdentifier modelIdentifier)
+    // {
+    //     Dictionary<string, string> nameToIdMap = [];
+    //     foreach (var kvp in Game1.objectData)
+    //     {
+    //         var unqualifiedId = kvp.Key; // e.g., "128"
+    //         var internalName = kvp.Value.Name; // e.g., "Pufferfish"
 
-            // Avoid crashing if two mods accidentally use the same name
-            if (!nameToIdMap.ContainsKey(internalName))
-            {
-                nameToIdMap[internalName] = $"(O){unqualifiedId}";
-            }
-        }
-    }
+    //         // Avoid crashing if two mods accidentally use the same name
+    //         if (!nameToIdMap.ContainsKey(internalName))
+    //         {
+    //             nameToIdMap[internalName] = $"(O){unqualifiedId}";
+    //         }
+    //     }
+    // }
 
     static GridSize gridSizeFor(IPaintable paintable)
     {
@@ -300,8 +301,8 @@ internal class ToolPatch : PatchTemplate
             }
 
             var gridMenu = new GridMenu(
-                [.. items
-                    .Select(textureInfo =>
+                [
+                    .. items.Select(textureInfo =>
                         (GridMenu.Item)
                             new TextureGridMenuItem()
                             {
@@ -309,7 +310,8 @@ internal class ToolPatch : PatchTemplate
                                 TextureIdentifier = textureInfo.TextureIdentifier,
                                 DisplayName = textureInfo.DisplayName,
                             }
-                    )],
+                    ),
+                ],
                 gridSizeFor(paintable),
                 uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
                 onPress: (item) =>

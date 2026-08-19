@@ -34,8 +34,7 @@ internal class GiantCropPatch : PatchTemplate
             try
             {
                 if (
-                    Type.GetType("DynamicGameAssets.Game.CustomGiantCrop, DynamicGameAssets")
-                        is Type dgaGiantCropType
+                    Type.GetType("DynamicGameAssets.Game.CustomGiantCrop, DynamicGameAssets") is Type dgaGiantCropType
                     && dgaGiantCropType != null
                 )
                 {
@@ -91,9 +90,7 @@ internal class GiantCropPatch : PatchTemplate
                     Game1.viewport,
                     (tileLocation * 64f)
                         - new Vector2(
-                            (___shakeTimer > 0f)
-                                ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 2f)
-                                : 0f,
+                            (___shakeTimer > 0f) ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 2f) : 0f,
                             64f
                         )
                 ),

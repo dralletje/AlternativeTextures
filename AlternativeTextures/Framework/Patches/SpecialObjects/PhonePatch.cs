@@ -54,10 +54,8 @@ internal class PhonePatch : PatchTemplate
             scaleFactor *= 4f;
             var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             Rectangle destination = new Rectangle(
-                (int)(position.X - (scaleFactor.X / 2f))
-                    + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                (int)(position.Y - (scaleFactor.Y / 2f))
-                    + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(position.X - (scaleFactor.X / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(position.Y - (scaleFactor.Y / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)(64f + scaleFactor.X),
                 (int)(128f + (scaleFactor.Y / 2f))
             );

@@ -54,10 +54,8 @@ internal class IndoorPotPatch : PatchTemplate
             scaleFactor *= 4f;
             var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             Rectangle destination = new Rectangle(
-                (int)(position.X - (scaleFactor.X / 2f))
-                    + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                (int)(position.Y - (scaleFactor.Y / 2f))
-                    + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(position.X - (scaleFactor.X / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(position.Y - (scaleFactor.Y / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)(64f + scaleFactor.X),
                 (int)(128f + (scaleFactor.Y / 2f))
             );
@@ -100,25 +98,25 @@ internal class IndoorPotPatch : PatchTemplate
                 );
             }
             __instance.hoeDirt.Value.crop?.drawWithOffset(
-                    spriteBatch,
-                    __instance.TileLocation,
-                    (
-                        __instance.hoeDirt.Value.state.Value == 1
-                        && __instance.hoeDirt.Value.crop.currentPhase.Value == 0
-                        && !__instance.hoeDirt.Value.crop.raisedSeeds.Value
-                    )
-                        ? (new Color(180, 100, 200) * 1f)
-                        : Color.White,
-                    __instance.hoeDirt.Value.getShakeRotation(),
-                    new Vector2(32f, 8f)
-                );
+                spriteBatch,
+                __instance.TileLocation,
+                (
+                    __instance.hoeDirt.Value.state.Value == 1
+                    && __instance.hoeDirt.Value.crop.currentPhase.Value == 0
+                    && !__instance.hoeDirt.Value.crop.raisedSeeds.Value
+                )
+                    ? (new Color(180, 100, 200) * 1f)
+                    : Color.White,
+                __instance.hoeDirt.Value.getShakeRotation(),
+                new Vector2(32f, 8f)
+            );
             __instance.heldObject.Value?.draw(
-                    spriteBatch,
-                    x * 64,
-                    (y * 64) - 48,
-                    ((__instance.TileLocation.Y + 0.66f) * 64f / 10000f) + ((float)x * 1E-05f),
-                    1f
-                );
+                spriteBatch,
+                x * 64,
+                (y * 64) - 48,
+                ((__instance.TileLocation.Y + 0.66f) * 64f / 10000f) + ((float)x * 1E-05f),
+                1f
+            );
             __instance.bush.Value?.draw(spriteBatch, -24f);
 
             return false;

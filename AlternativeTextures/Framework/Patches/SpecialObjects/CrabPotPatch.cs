@@ -122,9 +122,7 @@ internal class CrabPotPatch : PatchTemplate
                 if (elapsedDuration >= frameDuration)
                 {
                     frameIndex =
-                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count()
-                            ? 0
-                            : frameIndex + 1;
+                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count() ? 0 : frameIndex + 1;
 
                     var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                     currentFrame = animationData.Frame;
@@ -192,8 +190,7 @@ internal class CrabPotPatch : PatchTemplate
             if (__instance.readyForHarvest.Value && __instance.heldObject.Value != null)
             {
                 var yOffset =
-                    4f
-                    * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
+                    4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                 spriteBatch.Draw(
                     Game1.mouseCursors,
                     Game1.GlobalToLocal(

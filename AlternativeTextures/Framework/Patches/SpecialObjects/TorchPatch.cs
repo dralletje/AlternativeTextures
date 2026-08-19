@@ -131,15 +131,17 @@ internal class TorchPatch : PatchTemplate
 
                 sourceRect.X =
                     276
-                    + ((int)(
-                        (
-                            Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                            + (double)(x * 3204)
-                            + (double)(y * 49)
-                        )
-                        % 700.0
-                        / 100.0
-                    ) * 8);
+                    + (
+                        (int)(
+                            (
+                                Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                + (double)(x * 3204)
+                                + (double)(y * 49)
+                            )
+                            % 700.0
+                            / 100.0
+                        ) * 8
+                    );
                 sourceRect.Y = 1965;
                 sourceRect.Width = 8;
                 sourceRect.Height = 8;
@@ -189,15 +191,17 @@ internal class TorchPatch : PatchTemplate
                     Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 16 - 4, (y * 64) - 8)),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 3047)
-                                    + (double)(y * 88)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 3047)
+                                        + (double)(y * 88)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11
@@ -214,15 +218,17 @@ internal class TorchPatch : PatchTemplate
                     Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32 - 12, y * 64)),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 2047)
-                                    + (double)(y * 98)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 2047)
+                                        + (double)(y * 98)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11
@@ -239,15 +245,17 @@ internal class TorchPatch : PatchTemplate
                     Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32 - 20, (y * 64) + 12)),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 2077)
-                                    + (double)(y * 98)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 2077)
+                                        + (double)(y * 98)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11
@@ -272,15 +280,17 @@ internal class TorchPatch : PatchTemplate
                     Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 16 - 8, (y * 64) - 64 + 8)),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 3047)
-                                    + (double)(y * 88)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 3047)
+                                        + (double)(y * 88)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11

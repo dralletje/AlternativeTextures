@@ -417,8 +417,7 @@ internal class BuildingPatch : PatchTemplate
         var buildingData = __instance.GetData();
         var xOffset = buildingData is null ? 0 : buildingData.SourceRect.X;
         var yOffset =
-            textureModel.GetTextureOffset(textureVariation)
-            + (buildingData is null ? 0 : buildingData.SourceRect.Y);
+            textureModel.GetTextureOffset(textureVariation) + (buildingData is null ? 0 : buildingData.SourceRect.Y);
 
         // Handle Greenhouse logic
         if (__instance.buildingType.Value == "Greenhouse")
@@ -464,11 +463,7 @@ internal class BuildingPatch : PatchTemplate
                 return true;
             }
 
-            var paintedTexture = BuildingPatch.GetBuildingTextureWithPaint(
-                __instance,
-                textureModel,
-                textureVariation
-            );
+            var paintedTexture = BuildingPatch.GetBuildingTextureWithPaint(__instance, textureModel, textureVariation);
 
             __instance.drawShadow(b);
             b.Draw(

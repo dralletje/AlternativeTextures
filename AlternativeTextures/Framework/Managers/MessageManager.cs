@@ -46,9 +46,7 @@ internal class MessageManager(IMonitor monitor, IModHelper helper, string modID)
                 if (location is not null && location.buildings is not null)
                 {
                     foreach (
-                        var building in location.buildings.Where(b =>
-                            b is not null & b.id.Value == message.BuildingID
-                        )
+                        var building in location.buildings.Where(b => b is not null & b.id.Value == message.BuildingID)
                     )
                     {
                         BuildingPatch.ForceResetTexture(building, message.TextureName, message.TextureVariation);

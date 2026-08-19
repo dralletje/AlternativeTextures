@@ -175,11 +175,7 @@ internal class ObjectPatch : PatchTemplate
                     || textureModel.IsFrameValid(textureVariation, currentFrame, isMachineActive) is false
                 )
                 {
-                    frameIndex = textureModel.GetNextValidFrameFromIndex(
-                        textureVariation,
-                        frameIndex,
-                        isMachineActive
-                    );
+                    frameIndex = textureModel.GetNextValidFrameFromIndex(textureVariation, frameIndex, isMachineActive);
 
                     var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                     currentFrame = animationData.Frame;
@@ -250,12 +246,7 @@ internal class ObjectPatch : PatchTemplate
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     destination,
-                    new Rectangle(
-                        xTileOffset,
-                        textureOffset,
-                        textureModel.TextureWidth,
-                        textureModel.TextureHeight
-                    ),
+                    new Rectangle(xTileOffset, textureOffset, textureModel.TextureWidth, textureModel.TextureHeight),
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -329,8 +320,7 @@ internal class ObjectPatch : PatchTemplate
                     var artifactOffset =
                         (Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 1200.0 <= 400.0)
                             ? ((int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 400.0 / 100.0) * 16)
-                            : 0
-                    ;
+                            : 0;
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         position2,
@@ -381,12 +371,7 @@ internal class ObjectPatch : PatchTemplate
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     position3,
-                    new Rectangle(
-                        xTileOffset,
-                        textureOffset,
-                        textureModel.TextureWidth,
-                        textureModel.TextureHeight
-                    ),
+                    new Rectangle(xTileOffset, textureOffset, textureModel.TextureWidth, textureModel.TextureHeight),
                     color2,
                     0f,
                     origin2,
@@ -434,9 +419,7 @@ internal class ObjectPatch : PatchTemplate
                 return false;
             }
 
-            var heldItemData = ItemRegistry.GetDataOrErrorItem(
-                __instance.heldObject.Value.QualifiedItemId
-            );
+            var heldItemData = ItemRegistry.GetDataOrErrorItem(__instance.heldObject.Value.QualifiedItemId);
             var texture = heldItemData.GetTexture();
             if (__instance.heldObject.Value is ColoredObject coloredObj)
             {
@@ -497,11 +480,7 @@ internal class ObjectPatch : PatchTemplate
         return true;
     }
 
-    internal static bool DrawPlacementBoundsPrefix(
-        Object __instance,
-        SpriteBatch spriteBatch,
-        GameLocation location
-    )
+    internal static bool DrawPlacementBoundsPrefix(Object __instance, SpriteBatch spriteBatch, GameLocation location)
     {
         if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
         {
@@ -540,8 +519,7 @@ internal class ObjectPatch : PatchTemplate
                     != Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID])
             )
             {
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] =
-                    __instance.ParentSheetIndex.ToString();
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] = __instance.ParentSheetIndex.ToString();
             }
         }
     }
@@ -560,7 +538,7 @@ internal class ObjectPatch : PatchTemplate
         GameLocation location,
         int x,
         int y,
-        Farmer who = null
+        Farmer? who = null
     )
     {
         if (!__result)

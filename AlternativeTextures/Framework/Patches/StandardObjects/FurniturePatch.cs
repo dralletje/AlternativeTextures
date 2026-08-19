@@ -260,9 +260,7 @@ internal class FurniturePatch : PatchTemplate
                 if (elapsedDuration >= frameDuration)
                 {
                     frameIndex =
-                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count()
-                            ? 0
-                            : frameIndex + 1;
+                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count() ? 0 : frameIndex + 1;
 
                     var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                     currentFrame = animationData.Frame;
@@ -290,7 +288,7 @@ internal class FurniturePatch : PatchTemplate
 
             if (Furniture.isDrawingLocationFurniture)
             {
-                Texture2D frontTexture = null;
+                Texture2D? frontTexture = null;
                 if (__instance.HasSittingFarmers())
                 {
                     try
@@ -377,15 +375,7 @@ internal class FurniturePatch : PatchTemplate
                             : (
                                 (float)(
                                     __instance.boundingBox.Value.Bottom
-                                    - (
-                                        (
-                                            __instance.furniture_type.Value is 6
-                                            or 17
-                                            or 13
-                                        )
-                                            ? 48
-                                            : 8
-                                    )
+                                    - ((__instance.furniture_type.Value is 6 or 17 or 13) ? 48 : 8)
                                 ) / 10000f
                             )
                     );
@@ -415,15 +405,7 @@ internal class FurniturePatch : PatchTemplate
                         : (
                             (float)(
                                 __instance.boundingBox.Value.Bottom
-                                - (
-                                    (
-                                        __instance.furniture_type.Value is 6
-                                        or 17
-                                        or 13
-                                    )
-                                        ? 48
-                                        : 8
-                                )
+                                - ((__instance.furniture_type.Value is 6 or 17 or 13) ? 48 : 8)
                             ) / 10000f
                         )
                 );
@@ -463,9 +445,7 @@ internal class FurniturePatch : PatchTemplate
                     )
                 )
                 {
-                    var heldItemData = ItemRegistry.GetDataOrErrorItem(
-                        __instance.heldObject.Value.QualifiedItemId
-                    );
+                    var heldItemData = ItemRegistry.GetDataOrErrorItem(__instance.heldObject.Value.QualifiedItemId);
                     spriteBatch.Draw(
                         Game1.shadowTexture,
                         Game1.GlobalToLocal(
@@ -534,15 +514,17 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 3047)
-                                    + (double)(y * 88)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 3047)
+                                        + (double)(y * 88)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11
@@ -562,15 +544,17 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 2047)
-                                    + (double)(y * 98)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 2047)
+                                        + (double)(y * 98)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11
@@ -596,15 +580,17 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + ((int)(
-                                (
-                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                    + (double)(x * 3047)
-                                    + (double)(y * 88)
-                                )
-                                % 400.0
-                                / 100.0
-                            ) * 12),
+                            + (
+                                (int)(
+                                    (
+                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                        + (double)(x * 3047)
+                                        + (double)(y * 88)
+                                    )
+                                    % 400.0
+                                    / 100.0
+                                ) * 12
+                            ),
                         1985,
                         12,
                         11

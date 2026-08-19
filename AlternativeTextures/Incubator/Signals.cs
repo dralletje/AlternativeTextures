@@ -131,10 +131,10 @@ public class Watcher<T>
 public class Watcher(Action action)
 {
     private readonly Watcher<bool> watcher = new(() =>
-        {
-            action();
-            return true;
-        });
+    {
+        action();
+        return true;
+    });
     public bool HasChanges
     {
         get { return watcher.HasChanges; }

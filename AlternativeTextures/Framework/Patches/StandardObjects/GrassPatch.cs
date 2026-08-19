@@ -79,8 +79,7 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
                         : (
                             (tileLocation * 64f)
                             + new Vector2((float)(16 + (___offset1[i] * 4) - 4) + 30f, 16 + (___offset2[i] * 4) + 40)
-                        )
-                ;
+                        );
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(Game1.viewport, pos),

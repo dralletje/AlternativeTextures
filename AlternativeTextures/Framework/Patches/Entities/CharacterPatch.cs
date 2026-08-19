@@ -59,8 +59,7 @@ internal class CharacterPatch : PatchTemplate
                 $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
-        var instanceSeasonName =
-            $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
         if (
             __instance is Child child
             && !String.Equals(
@@ -85,9 +84,7 @@ internal class CharacterPatch : PatchTemplate
                 && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
-                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                    .GetSeasonForLocation(location)
-                    .ToString();
+                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(location).ToString();
                 child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                     child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                     "_",
@@ -121,9 +118,7 @@ internal class CharacterPatch : PatchTemplate
                 && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
-                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                    .GetSeasonForLocation(location)
-                    .ToString();
+                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(location).ToString();
                 horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                     horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                     "_",

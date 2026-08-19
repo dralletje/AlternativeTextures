@@ -111,7 +111,7 @@ internal class FishTankFurniturePatch : PatchTemplate
                     __instance.sourceRect.Value.Height
                 )
                 {
-                    Y = textureOffset
+                    Y = textureOffset,
                 };
 
                 spriteBatch.Draw(
@@ -224,15 +224,7 @@ internal class FishTankFurniturePatch : PatchTemplate
                         );
                     }
                 }
-                FurniturePatch.DrawPrefix(
-                    __instance,
-                    ___sourceIndexOffset,
-                    ___drawPosition,
-                    spriteBatch,
-                    x,
-                    y,
-                    alpha
-                );
+                FurniturePatch.DrawPrefix(__instance, ___sourceIndexOffset, ___drawPosition, spriteBatch, x, y, alpha);
             }
 
             return false;

@@ -73,8 +73,7 @@ internal class GameLocationPatch : PatchTemplate
             var position =
                 (!Game1.wasMouseVisibleThisFrame)
                     ? Game1.player.GetToolLocation()
-                    : new Vector2(Game1.getOldMouseX() + Game1.viewport.X, Game1.getOldMouseY() + Game1.viewport.Y)
-            ;
+                    : new Vector2(Game1.getOldMouseX() + Game1.viewport.X, Game1.getOldMouseY() + Game1.viewport.Y);
             tool.beginUsing(__instance, (int)position.X, (int)position.Y, who);
             __result = false;
             return false;
@@ -83,13 +82,7 @@ internal class GameLocationPatch : PatchTemplate
         return true;
     }
 
-    private static bool LowPriorityLeftClickPrefix(
-        GameLocation __instance,
-        ref bool __result,
-        int x,
-        int y,
-        Farmer who
-    )
+    private static bool LowPriorityLeftClickPrefix(GameLocation __instance, ref bool __result, int x, int y, Farmer who)
     {
         if (
             who.CurrentTool is GenericTool tool
@@ -158,7 +151,7 @@ internal class GameLocationPatch : PatchTemplate
             }
         }
 
-        if (__instance.characters != null)
+        if (__instance.characters is not null)
         {
             for (var k = __instance.characters.Count() - 1; k >= 0; k--)
             {
