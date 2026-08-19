@@ -65,10 +65,12 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
             if (
                 who.CurrentTool is GenericTool tool
                 && (
-                    tool.modData.ContainsKey(AlternativeTextures.PAINT_BUCKET_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.CATALOGUE_FLAG)
+                    tool.QualifiedItemId == AlternativeTextures.TOOL_ID_PAINT_BUCKET
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SCISSORS
+                    || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                    || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SPRAY_CAN
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_CATALOGUE
                 )
             )
             {
@@ -96,10 +98,12 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
             if (
                 who.CurrentTool is GenericTool tool
                 && (
-                    tool.modData.ContainsKey(AlternativeTextures.PAINT_BUCKET_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.SPRAY_CAN_FLAG)
-                    || tool.modData.ContainsKey(AlternativeTextures.CATALOGUE_FLAG)
+                    tool.QualifiedItemId == AlternativeTextures.TOOL_ID_PAINT_BUCKET
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SCISSORS
+                    || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                    || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SPRAY_CAN
+                    || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_CATALOGUE
                 )
             )
             {

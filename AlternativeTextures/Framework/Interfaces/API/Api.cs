@@ -160,7 +160,11 @@ namespace AlternativeTextures.Framework.Interfaces.API
                         textureModel.Textures[0] = singularTexture;
                     }
                     else if (
-                        !_framework.SplitVerticalTexturesToModel(textureModel, textureModel.TextureId, singularTexture)
+                        !ContentPackLoader.SplitVerticalTexturesToModel(
+                            textureModel,
+                            textureModel.TextureId,
+                            singularTexture
+                        )
                     )
                     {
                         continue;
@@ -273,7 +277,7 @@ namespace AlternativeTextures.Framework.Interfaces.API
         public void SetTextureForObject(
             Object obj,
             string texturePackId,
-            string optionalSeason = null,
+            string? optionalSeason = null,
             int optionalVariation = 0
         )
         {

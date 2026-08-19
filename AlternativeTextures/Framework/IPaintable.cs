@@ -19,7 +19,16 @@ namespace AlternativeTextures.Framework;
 
 using TextureType = AlternativeTextureModel.TextureType;
 
-readonly struct ModelIdentifier()
+public static class EnumUtil
+{
+    public static TEnum? ParseOrNull<TEnum>(string value, bool ignoreCase = false)
+        where TEnum : struct, Enum
+    {
+        return Enum.TryParse(value, ignoreCase, out TEnum result) ? result : null;
+    }
+}
+
+record ModelIdentifier()
 {
     public required TextureType Type { get; init; }
     public required string Name { get; init; }
@@ -29,9 +38,22 @@ readonly struct ModelIdentifier()
     {
         return $"{Type}_{Name}";
     }
+
+    public static ModelIdentifier? FromString(string modelIdentifierString)
+    {
+        return modelIdentifierString.Split("_", 2) switch
+        {
+            [var typeString, var name] => EnumUtil.ParseOrNull<TextureType>(typeString) switch
+            {
+                { } modelType => new ModelIdentifier() { Type = modelType, Name = name },
+                null => null,
+            },
+            _ => null,
+        };
+    }
 }
 
-readonly struct DrawableTexture()
+record DrawableTexture()
 {
     public required Texture2D Texture { get; init; }
     public required Rectangle SourceRect { get; init; }
@@ -40,6 +62,11 @@ readonly struct DrawableTexture()
 static class Function
 {
     public static T Tap<T>(Func<T> function)
+    {
+        return function();
+    }
+
+    public static T Run<T>(Func<T> function)
     {
         return function();
     }
@@ -222,14 +249,13 @@ static class ModDataToTexture
     }
 }
 
-readonly struct WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+record WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
 {
-    public readonly ModelIdentifier ModelIdentifier { get; } =
-        new() { Type = TextureType.Decoration, Name = "Wallpaper" };
+    public ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Wallpaper" };
 
-    public readonly object? Related { get; } = null;
+    public object? Related { get; } = null;
 
-    public readonly TextureIdentifier? Texture
+    public TextureIdentifier? Texture
     {
         get
         {
@@ -300,18 +326,18 @@ readonly struct WallpaperDecorationPaintable(DecoratableLocation location, strin
     }
 }
 
-readonly struct FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+record FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
 {
-    public readonly ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Floor" };
+    public ModelIdentifier ModelIdentifier { get; } = new() { Type = TextureType.Decoration, Name = "Floor" };
 
-    public readonly object? Related { get; } = null;
+    public object? Related { get; } = null;
 
-    public readonly TextureIdentifier? Texture
+    public TextureIdentifier? Texture
     {
         get
         {
-            var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
-            return wallpaperId.Split(":", 2) switch
+            var floorId = location.appliedFloor.GetValueOrDefault(roomId);
+            return floorId.Split(":", 2) switch
             {
                 [var name, var variantString] when int.TryParse(variantString, out int variant) => new()
                 {
@@ -325,7 +351,7 @@ readonly struct FloorDecorationPaintable(DecoratableLocation location, string ro
                     Name = AlternativeTextures.DEFAULT_OWNER,
                     Variation = variant,
                 },
-                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
+                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{floorId}'"),
             };
         }
     }
@@ -505,13 +531,13 @@ static class TextureHelper
     }
 }
 
-readonly struct PaintableFromModData(ModDataDictionary modData) : IPaintable
+record PaintableFromModData(ModDataDictionary modData) : IPaintable
 {
-    public readonly required ModelIdentifier ModelIdentifier { get; init; }
+    public required ModelIdentifier ModelIdentifier { get; init; }
 
-    public readonly required object? Related { get; init; }
+    public required object? Related { get; init; }
 
-    public readonly TextureIdentifier? Texture
+    public TextureIdentifier? Texture
     {
         get { return ModDataToTexture.GetTexture(modData); }
     }

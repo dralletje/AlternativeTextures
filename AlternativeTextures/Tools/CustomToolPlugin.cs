@@ -32,11 +32,11 @@ public class CustomToolPlugin(IModHelper helper)
         get { return currentCustomToolCache.Tool; }
     }
 
-    readonly struct CustomToolCache
+    record CustomToolCache
     {
-        public readonly Item? Item { get; init; }
-        public readonly ICustomTool? Tool { get; init; }
-        public readonly IDisposable? Disposable { get; init; }
+        public Item? Item { get; init; }
+        public ICustomTool? Tool { get; init; }
+        public IDisposable? Disposable { get; init; }
     }
 
     private CustomToolCache currentCustomToolCache = new();
@@ -52,7 +52,9 @@ public class CustomToolPlugin(IModHelper helper)
 
             var currentTool = Game1.player.CurrentTool;
             var nextCustomTool =
-                PaintBrushTool.From(helper, currentTool) as ICustomTool ?? SprayCanTool.From(helper, currentTool);
+                PaintBrushEmptyTool.From(helper, currentTool) as ICustomTool
+                ?? PaintBrushFilledTool.From(helper, currentTool) as ICustomTool
+                ?? SprayCanTool.From(helper, currentTool) as ICustomTool;
 
             currentCustomToolCache = new()
             {
@@ -65,12 +67,7 @@ public class CustomToolPlugin(IModHelper helper)
 
     //////////////////////////////////////
 
-    struct PressRoutine(ICustomTool tool, SButton button, IEnumerator<bool> routine)
-    {
-        public ICustomTool Tool = tool;
-        public SButton Button = button;
-        public IEnumerator<bool> Routine = routine;
-    }
+    record PressRoutine(ICustomTool Tool, SButton Button, IEnumerator<bool> Routine) { }
 
     private PressRoutine? currentPressRoutine;
 

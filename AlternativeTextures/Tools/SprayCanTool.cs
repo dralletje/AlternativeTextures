@@ -1,26 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Patches;
-using AlternativeTextures.Framework.Patches.Tools;
-using AlternativeTextures.Framework.Utilities;
-using ConsoleLog;
-using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Objects;
 using StardewValley.Tools;
 
 namespace AlternativeTextures.Tools;
 
-readonly struct SprayCanTool : ICustomTool
+class SprayCanTool : ICustomTool
 {
     internal const string SPRAY_CAN_FLAG = AlternativeTextures.SPRAY_CAN_FLAG;
     internal const string SPRAY_CAN_RADIUS = AlternativeTextures.SPRAY_CAN_RADIUS;
-    internal const string SPRAY_CAN_RARE = AlternativeTextures.SPRAY_CAN_RARE;
     internal const string ENABLED_SPRAY_CAN_TEXTURES = AlternativeTextures.ENABLED_SPRAY_CAN_TEXTURES;
 
     private readonly GenericTool tool;

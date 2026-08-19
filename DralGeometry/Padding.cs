@@ -2,12 +2,12 @@ using System.Drawing;
 
 namespace DralGeometry;
 
-public readonly struct Padding()
+public record Padding()
 {
-    public readonly int Top { get; init; } = 0;
-    public readonly int Bottom { get; init; } = 0;
-    public readonly int Left { get; init; } = 0;
-    public readonly int Right { get; init; } = 0;
+    public int Top { get; init; } = 0;
+    public int Bottom { get; init; } = 0;
+    public int Left { get; init; } = 0;
+    public int Right { get; init; } = 0;
 
     public Padding(int all)
         : this()

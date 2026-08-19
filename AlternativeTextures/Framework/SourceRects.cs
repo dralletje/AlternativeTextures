@@ -1,28 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Patches;
-using AlternativeTextures.Framework.Patches.Buildings;
-using AlternativeTextures.Framework.Utilities;
-using ConsoleLog;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Netcode;
-using Newtonsoft.Json;
 using StardewValley;
-using StardewValley.BellsAndWhistles;
-using StardewValley.Buildings;
-using StardewValley.Characters;
-using StardewValley.GameData.FloorsAndPaths;
-using StardewValley.GameData.GiantCrops;
-using StardewValley.Internal;
-using StardewValley.Locations;
-using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
-using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework;
@@ -146,36 +128,31 @@ static class SourceRects
     )
     {
         byte drawSum = 0;
-        Vector2 surroundingLocations = flooring.Tile;
-        surroundingLocations.X += 1f;
+
         if (
-            Game1.currentLocation.terrainFeatures.ContainsKey(surroundingLocations)
-            && Game1.currentLocation.terrainFeatures[surroundingLocations] is Flooring
+            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { X = flooring.Tile.X + 1f })
+            is Flooring
         )
         {
             drawSum = (byte)(drawSum + 2);
         }
-        surroundingLocations.X -= 2f;
         if (
-            Game1.currentLocation.terrainFeatures.ContainsKey(surroundingLocations)
-            && Game1.currentLocation.terrainFeatures[surroundingLocations] is Flooring
+            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { X = flooring.Tile.X - 1f })
+            is Flooring
         )
         {
             drawSum = (byte)(drawSum + 8);
         }
-        surroundingLocations.X += 1f;
-        surroundingLocations.Y += 1f;
         if (
-            Game1.currentLocation.terrainFeatures.ContainsKey(surroundingLocations)
-            && Game1.currentLocation.terrainFeatures[surroundingLocations] is Flooring
+            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { Y = flooring.Tile.Y + 1f })
+            is Flooring
         )
         {
             drawSum = (byte)(drawSum + 4);
         }
-        surroundingLocations.Y -= 2f;
         if (
-            Game1.currentLocation.terrainFeatures.ContainsKey(surroundingLocations)
-            && Game1.currentLocation.terrainFeatures[surroundingLocations] is Flooring
+            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { Y = flooring.Tile.Y - 1f })
+            is Flooring
         )
         {
             drawSum = (byte)(drawSum + 1);

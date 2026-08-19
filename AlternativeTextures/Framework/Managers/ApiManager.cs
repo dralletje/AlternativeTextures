@@ -44,36 +44,6 @@ namespace AlternativeTextures.Framework.Managers
             return true;
         }
 
-        internal bool HookIntoContentPatcher(IModHelper helper)
-        {
-            _contentPatcherApi = helper.ModRegistry.GetApi<IContentPatcherApi>("Pathoschild.ContentPatcher");
-
-            if (_contentPatcherApi is null)
-            {
-                _monitor.Log("Failed to hook into Pathoschild.ContentPatcher.", LogLevel.Error);
-                return false;
-            }
-
-            _monitor.Log("Successfully hooked into Pathoschild.ContentPatcher.", LogLevel.Debug);
-            return true;
-        }
-
-        internal bool HookIntoGenericModConfigMenu(IModHelper helper)
-        {
-            _genericModConfigMenuApi = helper.ModRegistry.GetApi<IGenericModConfigMenuApi>(
-                "spacechase0.GenericModConfigMenu"
-            );
-
-            if (_genericModConfigMenuApi is null)
-            {
-                _monitor.Log("Failed to hook into spacechase0.GenericModConfigMenu.", LogLevel.Error);
-                return false;
-            }
-
-            _monitor.Log("Successfully hooked into spacechase0.GenericModConfigMenu.", LogLevel.Debug);
-            return true;
-        }
-
         internal IMoreGiantCropsApi GetMoreGiantCropsApi()
         {
             return _moreGiantCropsApi;
@@ -82,16 +52,6 @@ namespace AlternativeTextures.Framework.Managers
         internal IDynamicGameAssetsApi GetDynamicGameAssetsApi()
         {
             return _dynamicGameAssetsApi;
-        }
-
-        public IContentPatcherApi GetContentPatcherApi()
-        {
-            return _contentPatcherApi;
-        }
-
-        public IGenericModConfigMenuApi GetGenericModConfigMenuApi()
-        {
-            return _genericModConfigMenuApi;
         }
     }
 }

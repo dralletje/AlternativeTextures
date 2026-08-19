@@ -4,6 +4,7 @@ using System.Linq;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches;
 using AlternativeTextures.Framework.Utilities;
+using AlternativeTextures.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -710,7 +711,11 @@ namespace AlternativeTextures.Framework.UI
                 if (
                     _owner is not null
                     && _owner.Items.FirstOrDefault(i =>
-                        i is GenericTool tool && tool.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG)
+                        i is GenericTool tool
+                        && (
+                            tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+                            || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                        )
                     )
                         is GenericTool tool
                 )
@@ -719,18 +724,18 @@ namespace AlternativeTextures.Framework.UI
                         "ui.labels.paint_brush.copied"
                     );
 
-                    tool.modData[AlternativeTextures.PAINT_BRUSH_FLAG] =
-                        $"{modelType}_{PatchTemplate.GetObjectName((Object)_alternativeTextureButtons[i].item)}";
-                    tool.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = 0.5f.ToString();
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = _alternativeTextureButtons[i].item.modData[
-                        ModDataKeys.ALTERNATIVE_TEXTURE_OWNER
-                    ];
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = _alternativeTextureButtons[i].item.modData[
-                        ModDataKeys.ALTERNATIVE_TEXTURE_NAME
-                    ];
-                    tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = _alternativeTextureButtons[i]
-                        .item
-                        .modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION];
+                    /// TODO Looks like a cool feature, somehow?
+                    // tool.modData[PaintBrushTool.PAINT_BRUSH_FLAG] =
+                    //     $"{modelType}_{PatchTemplate.GetObjectName((Object)_alternativeTextureButtons[i].item)}";
+                    // tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = _alternativeTextureButtons[i].item.modData[
+                    //     ModDataKeys.ALTERNATIVE_TEXTURE_OWNER
+                    // ];
+                    // tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = _alternativeTextureButtons[i].item.modData[
+                    //     ModDataKeys.ALTERNATIVE_TEXTURE_NAME
+                    // ];
+                    // tool.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = _alternativeTextureButtons[i]
+                    //     .item
+                    //     .modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION];
                 }
                 else
                 {

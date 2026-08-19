@@ -33,36 +33,6 @@ namespace AlternativeTextures.Framework.Patches
             _helper = modHelper;
         }
 
-        internal static GenericTool GetPaintBucketTool()
-        {
-            return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_PAINT_BUCKET);
-        }
-
-        internal static GenericTool GetScissorsTool()
-        {
-            return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_SCISSORS);
-        }
-
-        internal static GenericTool GetPaintBrushTool()
-        {
-            return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_PAINT_BRUSH);
-        }
-
-        internal static GenericTool GetSprayCanTool(bool isRare = false)
-        {
-            if (isRare || Game1.random.Next(100) <= 10)
-            {
-                return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_SPRAY_CAN_RARE);
-            }
-
-            return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_SPRAY_CAN);
-        }
-
-        internal static GenericTool GetCatalogueTool()
-        {
-            return ItemRegistry.Create<GenericTool>(ToolManager.TOOL_ID_CATALOGUE);
-        }
-
         internal static string GetModelNameWithoutSeason(string modelName, string season)
         {
             return modelName.ReplaceLastInstance($"_{season}", String.Empty);

@@ -3,10 +3,10 @@ using System.Drawing;
 
 namespace DralGeometry;
 
-public readonly struct GridSize(int rows, int columns)
+public record GridSize(int rows, int columns)
 {
-    public readonly int Rows { get; init; } = rows;
-    public readonly int Columns { get; init; } = columns;
+    public int Rows { get; init; } = rows;
+    public int Columns { get; init; } = columns;
 
     public int Count
     {

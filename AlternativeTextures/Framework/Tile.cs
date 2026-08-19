@@ -2,15 +2,12 @@ using Microsoft.Xna.Framework;
 
 namespace AlternativeTextures.Framework
 {
-    public struct Tile(int x, int y)
+    public record Tile(int X, int Y)
     {
-        public int X = x;
-        public int Y = y;
-
         public Tile(Vector2 vector)
             : this((int)vector.X, (int)vector.Y) { }
 
-        public readonly Vector2 ToVector2()
+        public Vector2 ToVector2()
         {
             return new Vector2(this.X, this.Y);
         }

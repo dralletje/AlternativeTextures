@@ -19,7 +19,7 @@ using TextureType = AlternativeTextureModel.TextureType;
 //     void Do();
 // }
 
-readonly struct TextureGridMenuItem : GridMenu.Item
+record TextureGridMenuItem : GridMenu.Item
 {
     public required IPaintable Paintable { get; init; }
     public required TextureIdentifier TextureIdentifier { get; init; }
@@ -59,7 +59,7 @@ readonly struct TextureGridMenuItem : GridMenu.Item
     }
 }
 
-readonly struct TextureInfo
+record TextureInfo
 {
     public required TextureIdentifier TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
@@ -119,23 +119,28 @@ static class PaintBucketMenuData
 
     public static IEnumerable<TextureInfo> VanillaTexturesFor(ModelIdentifier modelIdentifier)
     {
-        if (modelIdentifier is { Type: TextureType.Decoration, Name: "Floor" })
+        switch (modelIdentifier)
         {
-            foreach (var thing in VanillaFloorDecorations())
-            {
-                yield return thing;
-            }
-        }
-        else if (modelIdentifier is { Type: TextureType.Decoration, Name: "Wallpaper" })
-        {
-            foreach (var thing in VanillaWallpaperDecorations())
-            {
-                yield return thing;
-            }
-        }
-        else
-        {
-            yield return new TextureInfo() { TextureIdentifier = TextureIdentifier.Default, DisplayName = "Default" };
+            case { Type: TextureType.Decoration, Name: "Floor" }:
+                foreach (var thing in VanillaFloorDecorations())
+                {
+                    yield return thing;
+                }
+                break;
+
+            case { Type: TextureType.Decoration, Name: "Wallpaper" }:
+                foreach (var thing in VanillaWallpaperDecorations())
+                {
+                    yield return thing;
+                }
+                break;
+            default:
+                yield return new TextureInfo()
+                {
+                    TextureIdentifier = TextureIdentifier.Default,
+                    DisplayName = "Default",
+                };
+                break;
         }
     }
 

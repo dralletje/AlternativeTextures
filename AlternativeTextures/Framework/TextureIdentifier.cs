@@ -4,7 +4,7 @@ using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework;
 
-readonly record struct TextureIdentifier() : IEquatable<TextureIdentifier>
+sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
 {
     public required string Owner { get; init; }
     public required string Name { get; init; }
@@ -43,9 +43,9 @@ readonly record struct TextureIdentifier() : IEquatable<TextureIdentifier>
 
     public static TextureIdentifier Default = new(AlternativeTextures.DEFAULT_OWNER, "", -1);
 
-    public bool Equals(TextureIdentifier other)
+    public bool Equals(TextureIdentifier? other)
     {
-        return this.Name == other.Name && this.Variation == other.Variation;
+        return other is not null && this.Name == other.Name && this.Variation == other.Variation;
     }
 
     public override int GetHashCode()

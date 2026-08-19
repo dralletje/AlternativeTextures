@@ -15,10 +15,10 @@ using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 
 namespace AlternativeTextures.Framework.UI;
 
-internal readonly struct PaintBucketMenuItem()
+internal record PaintBucketMenuItem()
 {
-    public readonly required TextureIdentifier TextureIdentifier { get; init; }
-    public readonly string? DisplayName
+    public required TextureIdentifier TextureIdentifier { get; init; }
+    public string? DisplayName
     {
         get;
         init { field = string.IsNullOrWhiteSpace(value) ? null : value; }

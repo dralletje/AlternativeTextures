@@ -1,10 +1,130 @@
 {
   "Format": "2.0.0",
   "Changes": [
+    /// Paint Bucket
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/PaintBucket",
+      "FromFile": "Assets/PaintBucket.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_PaintBucket": {
+          "ClassName": "GenericTool",
+          "Name": "PaintBucket",
+          "DisplayName": "{{i18n:tools.name.paint_bucket}}",
+          "Description": "{{i18n:tools.description.paint_bucket}}",
+          "Texture": "Mods/{{ModId}}/PaintBucket"
+        }
+      }
+    },
+
+    /// Scissors
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/Scissors",
+      "FromFile": "Assets/Scissors.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_Scissors": {
+          "ClassName": "GenericTool",
+          "Name": "Scissors",
+          "DisplayName": "{{i18n:tools.name.scissors}}",
+          "Description": "{{i18n:tools.description.scissors}}",
+          "Texture": "Mods/{{ModId}}/Scissors"
+        }
+      }
+    },
+
+    /// Paintbrush
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/PaintBrushEmpty",
+      "FromFile": "Assets/PaintBrushEmpty.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_PaintBrush": {
+          "ClassName": "GenericTool",
+          "Name": "PaintBrush",
+          "DisplayName": "{{i18n:tools.name.paint_brush}}",
+          "Description": "{{i18n:tools.description.paint_brush}}",
+          "Texture": "Mods/{{ModId}}/PaintBrushEmpty"
+        }
+      }
+    },
+
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/PaintBrushFilled",
+      "FromFile": "Assets/PaintBrushFilled.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_PaintBrushFilled": {
+          "ClassName": "GenericTool",
+          "Name": "PaintBrush",
+          "DisplayName": "{{i18n:tools.name.paint_brush}}",
+          "Description": "{{i18n:tools.description.paint_brush}}",
+          "Texture": "Mods/{{ModId}}/PaintBrushFilled"
+        }
+      }
+    },
+
+    /// Spray Can
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/SprayCan",
+      "FromFile": "Assets/SprayCan.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_SprayCan": {
+          "ClassName": "GenericTool",
+          "Name": "SprayCan",
+          "DisplayName": "{{i18n:tools.name.spray_can}}",
+          "Description": "{{i18n:tools.description.spray_can}}",
+          "Texture": "Mods/{{ModId}}/SprayCan"
+        }
+      }
+    },
+
+    /// Scissors
+    {
+      "Action": "Load",
+      "Target": "Mods/{{ModId}}/Catalogue",
+      "FromFile": "Assets/Catalogue.png"
+    },
+    {
+      "Action": "EditData",
+      "Target": "Data/Tools",
+      "Entries": {
+        "PeacefulEnd.AlternativeTextures_Catalogue": {
+          "ClassName": "GenericTool",
+          "Name": "Catalogue",
+          "DisplayName": "{{i18n:tools.name.catalogue}}",
+          "Description": "{{i18n:tools.description.catalogue}}",
+          "Texture": "Mods/{{ModId}}/Catalogue"
+        }
+      }
+    },
+
+    /// Paint Pail
     {
       "Action": "Load",
       "Target": "{{ModId}}_PaintPail",
-      "FromFile": "assets/PaintPail.png"
+      "FromFile": "Assets/PaintPail.png"
     },
     {
       "Action": "EditData",
@@ -13,15 +133,42 @@
         "{{ModId}}_PaintPail": "Paint Pail/furniture/1 1/1 1/1/500/2/Paint Pail/0/{{ModId}}_PaintPail"
       }
     },
+
+    /// Add to the shops
     {
       "Action": "EditData",
       "Target": "Data/Shops",
       "TargetField": ["Carpenter", "Items"],
       "Entries": {
+        "(T)PeacefulEnd.AlternativeTextures_PaintBucket": {
+          "Id": "(T)PeacefulEnd.AlternativeTextures_PaintBucket",
+          "ItemId": "(T)PeacefulEnd.AlternativeTextures_PaintBucket",
+          "Price": 500
+        },
+        "(T)PeacefulEnd.AlternativeTextures_Scissors": {
+          "Id": "(T)PeacefulEnd.AlternativeTextures_Scissors",
+          "ItemId": "(T)PeacefulEnd.AlternativeTextures_Scissors",
+          "Price": 500
+        },
+        "(T)PeacefulEnd.AlternativeTextures_PaintBrush": {
+          "Id": "(T)PeacefulEnd.AlternativeTextures_PaintBrush",
+          "ItemId": "(T)PeacefulEnd.AlternativeTextures_PaintBrush",
+          "Price": 500
+        },
+        "(T)PeacefulEnd.AlternativeTextures_SprayCan": {
+          "Id": "(T)PeacefulEnd.AlternativeTextures_SprayCan",
+          "ItemId": "(T)PeacefulEnd.AlternativeTextures_SprayCan",
+          "Price": 500
+        },
+        "(T)PeacefulEnd.AlternativeTextures_Catalogue": {
+          "Id": "(T)PeacefulEnd.AlternativeTextures_Catalogue",
+          "ItemId": "(T)PeacefulEnd.AlternativeTextures_Catalogue",
+          "Price": 500
+        },
         "(F){{ModId}}_PaintPail": {
           "Id": "(F){{ModId}}_PaintPail",
           "ItemId": "(F){{ModId}}_PaintPail",
-          "Price": 0
+          "Price": 500
         }
       }
     }
