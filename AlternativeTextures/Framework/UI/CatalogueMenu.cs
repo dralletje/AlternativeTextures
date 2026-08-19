@@ -94,7 +94,7 @@ namespace AlternativeTextures.Framework.UI
                 // Set the stack based on the amount of available textures for the item
                 var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{item.ItemId}";
                 var instanceName = $"{AlternativeTextureModel.TextureType.Furniture}_{item.Name}";
-                int texturesAvailable = AlternativeTextures
+                var texturesAvailable = AlternativeTextures
                     .textureManager.GetAvailableTextureModels(
                         itemId,
                         instanceName,
@@ -118,7 +118,7 @@ namespace AlternativeTextures.Framework.UI
 
             // Establish the object buttons
             _objectButtons = [];
-            for (int i = 0; i < PAGE_SIZE; i++)
+            for (var i = 0; i < PAGE_SIZE; i++)
             {
                 _objectButtons.Add(
                     new ClickableComponent(
@@ -277,7 +277,7 @@ namespace AlternativeTextures.Framework.UI
         private void UpdateSaleButtonNeighbors()
         {
             ClickableComponent lastValidButton = _objectButtons[0];
-            for (int i = 0; i < _objectButtons.Count; i++)
+            for (var i = 0; i < _objectButtons.Count; i++)
             {
                 ClickableComponent button = _objectButtons[i];
                 button.upNeighborImmutable = true;
@@ -307,7 +307,7 @@ namespace AlternativeTextures.Framework.UI
 
         private void RepositionTabs()
         {
-            for (int i = 0; i < _tabButtons.Count; i++)
+            for (var i = 0; i < _tabButtons.Count; i++)
             {
                 if (i == _currentTabIndex)
                 {
@@ -488,8 +488,8 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Get the textures available
-            string itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.ItemId}";
-            string modelName = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.Name}";
+            var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.ItemId}";
+            var modelName = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.Name}";
             var availableModels = AlternativeTextures.textureManager.GetAvailableTextureModels(
                 itemId,
                 modelName,
@@ -498,12 +498,12 @@ namespace AlternativeTextures.Framework.UI
 
             _displayableTextures = [];
             _currentlyDisplayedTextures = [];
-            for (int m = 0; m < availableModels.Count; m++)
+            for (var m = 0; m < availableModels.Count; m++)
             {
                 var manualVariations = availableModels[m].ManualVariations.Where(v => v.Id != -1).ToList();
                 if (manualVariations.Count() > 0)
                 {
-                    for (int v = 0; v < manualVariations.Count(); v++)
+                    for (var v = 0; v < manualVariations.Count(); v++)
                     {
                         var objectWithVariation = selectedObject.getOne();
                         objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = availableModels[m].Owner;
@@ -537,7 +537,7 @@ namespace AlternativeTextures.Framework.UI
                 }
                 else
                 {
-                    for (int v = 0; v < availableModels[m].Variations; v++)
+                    for (var v = 0; v < availableModels[m].Variations; v++)
                     {
                         var objectWithVariation = selectedObject.getOne();
                         objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = availableModels[m].Owner;
@@ -589,9 +589,9 @@ namespace AlternativeTextures.Framework.UI
             {
                 sourceRect.Height = 32;
             }
-            for (int r = 0; r < _maxRows; r++)
+            for (var r = 0; r < _maxRows; r++)
             {
-                for (int c = 0; c < _texturesPerRow; c++)
+                for (var c = 0; c < _texturesPerRow; c++)
                 {
                     var componentId = c + r * _texturesPerRow;
                     _alternativeTextureButtons.Add(
@@ -648,7 +648,7 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Handle tab buttons
-            for (int k = 0; k < _tabButtons.Count; k++)
+            for (var k = 0; k < _tabButtons.Count; k++)
             {
                 if (_tabButtons[k].containsPoint(x, y))
                 {
@@ -669,7 +669,7 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Handle object buttons
-            for (int k = 0; k < _objectButtons.Count; k++)
+            for (var k = 0; k < _objectButtons.Count; k++)
             {
                 if (
                     _isDisplayingAlternativeTextures is true
@@ -686,7 +686,7 @@ namespace AlternativeTextures.Framework.UI
             }
 
             // Handle alternative texture buttons
-            for (int i = 0; i < _alternativeTextureButtons.Count; i++)
+            for (var i = 0; i < _alternativeTextureButtons.Count; i++)
             {
                 if (
                     _isDisplayingAlternativeTextures is false
@@ -786,7 +786,7 @@ namespace AlternativeTextures.Framework.UI
         {
             base.receiveScrollWheelAction(direction);
 
-            int offset = direction > 0 ? 1 : -1;
+            var offset = direction > 0 ? 1 : -1;
 
             _currentObjectIndex = Math.Max(0, _currentObjectIndex - offset);
             _currentObjectIndex = Math.Min(_currentObjectIndex, _currentlyDisplayedObjects.Count - PAGE_SIZE);
@@ -834,7 +834,7 @@ namespace AlternativeTextures.Framework.UI
                             is AlternativeTextureModel alternativeTextureModel
                     )
                     {
-                        string optionalDisplayName = string.Empty;
+                        var optionalDisplayName = string.Empty;
                         if (
                             c.item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME)
                             && !String.IsNullOrEmpty(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_DISPLAY_NAME])
@@ -846,7 +846,7 @@ namespace AlternativeTextures.Framework.UI
 
                         List<string> keywords = alternativeTextureModel.Keywords;
                         if (
-                            int.TryParse(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION], out int variation)
+                            int.TryParse(c.item.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION], out var variation)
                             && alternativeTextureModel.ManualVariations.Any(v => v.Id == variation)
                         )
                         {
@@ -854,9 +854,9 @@ namespace AlternativeTextures.Framework.UI
                         }
                         keywords = keywords.Distinct().ToList();
 
-                        string keywordsText = string.Empty;
-                        string keywordsTemp = string.Empty;
-                        foreach (string keyword in keywords)
+                        var keywordsText = string.Empty;
+                        var keywordsTemp = string.Empty;
+                        foreach (var keyword in keywords)
                         {
                             keywordsTemp += string.IsNullOrEmpty(keywordsTemp) ? keyword : $", {keyword}";
 
@@ -935,7 +935,7 @@ namespace AlternativeTextures.Framework.UI
             {
                 titleBarText = $"{titleBarText} > {_selectedObject.DisplayName}";
 
-                for (int i = 0; i < _alternativeTextureButtons.Count; i++)
+                for (var i = 0; i < _alternativeTextureButtons.Count; i++)
                 {
                     _alternativeTextureButtons[i].item = null;
                     _alternativeTextureButtons[i].texture = null;
@@ -1007,7 +1007,7 @@ namespace AlternativeTextures.Framework.UI
                 Rectangle purchaseTextureRectangle = new Rectangle(384, 396, 15, 15);
                 Rectangle purchaseTextureBackground = new Rectangle(296, 363, 18, 18);
                 Color purchaseTextColor = Color.Wheat;
-                for (int k = 0; k < _objectButtons.Count; k++)
+                for (var k = 0; k < _objectButtons.Count; k++)
                 {
                     if (_currentlyDisplayedObjects.Count == 0)
                     {
@@ -1034,7 +1034,7 @@ namespace AlternativeTextures.Framework.UI
                     );
                     Object item = _currentlyDisplayedObjects[_currentObjectIndex + k];
 
-                    string displayName = item.DisplayName;
+                    var displayName = item.DisplayName;
                     if (item.ShouldDrawIcon())
                     {
                         b.Draw(

@@ -103,7 +103,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 Vector2 tileLocation = __instance.Tile;
 
-                string season = Game1.GetSeasonForLocation(__instance.Location).ToString();
+                var season = Game1.GetSeasonForLocation(__instance.Location).ToString();
                 if (__instance.GreenHouseTileTree)
                 {
                     spriteBatch.Draw(
@@ -175,7 +175,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     Rectangle boundingBox = __instance.getBoundingBox();
                     if (!__instance.stump.Value || ___falling.Value)
                     {
-                        bool ignoreSeason = __instance.IgnoresSeasonsHere();
+                        var ignoreSeason = __instance.IgnoresSeasonsHere();
                         if (!___falling.Value)
                         {
                             spriteBatch.Draw(
@@ -252,7 +252,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 : (boundingBox.Bottom / 10000f - 0.001f - tileLocation.X / 1000000f)
                         );
                     }
-                    for (int i = 0; i < __instance.fruit.Count; i++)
+                    for (var i = 0; i < __instance.fruit.Count; i++)
                     {
                         ParsedItemData obj = (
                             (__instance.struckByLightningCountdown.Value > 0)
@@ -365,7 +365,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
         private static void FruitTreePostfix(FruitTree __instance)
         {
-            string id = __instance.treeId.Value;
+            var id = __instance.treeId.Value;
 
             if (string.IsNullOrEmpty(id))
             {

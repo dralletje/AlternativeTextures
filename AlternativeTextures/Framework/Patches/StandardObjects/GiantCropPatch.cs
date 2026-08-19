@@ -114,7 +114,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
         private static void GiantCropPostfix(GiantCrop __instance)
         {
-            if (!TryGetGiantCropName(__instance, out string instanceName))
+            if (!TryGetGiantCropName(__instance, out var instanceName))
             {
                 return;
             }

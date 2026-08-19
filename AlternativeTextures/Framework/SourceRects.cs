@@ -46,11 +46,11 @@ static class SourceRects
         int variation
     )
     {
-        int sourceRectPosition = 1;
+        var sourceRectPosition = 1;
         var textureOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
         if (fence.health.Value > 1f || fence.repairQueued.Value)
         {
-            int drawSum = fence.getDrawSum();
+            var drawSum = fence.getDrawSum();
             sourceRectPosition = Fence.fenceDrawGuide[drawSum];
 
             var gateOffset = fence.isGate.Value && variation != -1 ? 128 : 0;
@@ -158,7 +158,7 @@ static class SourceRects
             drawSum = (byte)(drawSum + 1);
         }
 
-        int sourceRectPosition = Flooring.drawGuide[drawSum];
+        var sourceRectPosition = Flooring.drawGuide[drawSum];
 
         if (variation == -1)
         {
@@ -171,7 +171,7 @@ static class SourceRects
             );
         }
 
-        int sourceRectOffset = textureModel?.GetTextureOffset(variation) ?? 0;
+        var sourceRectOffset = textureModel?.GetTextureOffset(variation) ?? 0;
         return new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16 + sourceRectOffset, 16, 16);
     }
 
@@ -182,7 +182,7 @@ static class SourceRects
         int variation
     )
     {
-        int sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
+        var sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
         Rectangle source_rect = Tree.treeTopSourceRect;
 
         // TODO: Review if this code block is actually used
@@ -228,7 +228,7 @@ static class SourceRects
             );
         }
 
-        int sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
+        var sourceRectOffset = variation == -1 ? 0 : textureModel.GetTextureOffset(variation);
         Rectangle source_rect = new Rectangle(
             (
                 12
@@ -323,7 +323,7 @@ static class SourceRects
         int variation
     )
     {
-        int sourceRectOffset = textureModel.GetTextureOffset(variation);
+        var sourceRectOffset = textureModel.GetTextureOffset(variation);
         var sourceRect = character.Sprite.sourceRect;
 
         sourceRect.Y =

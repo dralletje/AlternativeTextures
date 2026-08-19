@@ -6,7 +6,7 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
     {
         public static string ReplaceLastInstance(this string source, string target, string replacement)
         {
-            int index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
+            var index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
 
             if (index == -1)
             {

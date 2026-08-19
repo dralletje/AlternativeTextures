@@ -17,7 +17,7 @@ internal class TextureManager(IMod mod)
     {
         var ErrorTexture = new Texture2D(Game1.graphics.GraphicsDevice, 16, 16);
         Color[] data = new Color[16 * 16];
-        for (int i = 0; i < data.Length; i++)
+        for (var i = 0; i < data.Length; i++)
         {
             data[i] = Color.White;
         }
@@ -61,7 +61,7 @@ internal class TextureManager(IMod mod)
         _tokenToModel[token] = new TokenModel() { Id = token, AlternativeTexture = textureModel };
 
         _textureNames.Add(textureModel.GetTokenId());
-        foreach (int variation in textureModel.Textures.Keys)
+        foreach (var variation in textureModel.Textures.Keys)
         {
             _textureNames.Add(textureModel.GetTokenId(variation));
 
@@ -128,7 +128,7 @@ internal class TextureManager(IMod mod)
 
     public List<AlternativeTextureModel> GetAvailableTextureModels(string modelName, Season season)
     {
-        string modelNameWithSeason = string.Concat(modelName, "_", season);
+        var modelNameWithSeason = string.Concat(modelName, "_", season);
 
         if (!DoesObjectHaveAlternativeTexture(modelName) && !DoesObjectHaveAlternativeTexture(modelNameWithSeason))
         {
@@ -155,7 +155,7 @@ internal class TextureManager(IMod mod)
     {
         List<AlternativeTextureModel> textureModels = GetAvailableTextureModels(modelName, season);
 
-        string itemIdWithSeason = string.Concat(itemId, "_", season);
+        var itemIdWithSeason = string.Concat(itemId, "_", season);
         if (
             !DoesObjectHaveAlternativeTexture(itemId, isItemId: true)
             && !DoesObjectHaveAlternativeTexture(itemIdWithSeason, isItemId: true)
@@ -185,7 +185,7 @@ internal class TextureManager(IMod mod)
         var regex = new Regex(_variationRegexPattern);
         foreach (Match match in regex.Matches(token))
         {
-            if (Int32.TryParse(match.Groups["variation"].ToString(), out int variation))
+            if (Int32.TryParse(match.Groups["variation"].ToString(), out var variation))
             {
                 // Alert on failure
                 return variation;

@@ -62,7 +62,7 @@ namespace AlternativeTextures.Framework.Interfaces.API
             model.Owner = owner;
 
             var seasons = model.Seasons;
-            for (int s = 0; s < 4; s++)
+            for (var s = 0; s < 4; s++)
             {
                 if ((seasons.Count() == 0 && s > 0) || (seasons.Count() > 0 && s >= seasons.Count()))
                 {
@@ -112,10 +112,10 @@ namespace AlternativeTextures.Framework.Interfaces.API
                     }
 
                     // Load in the first texture_#.png to get its dimensions for creating stitchedTexture
-                    int maxVariationsPerTexture =
+                    var maxVariationsPerTexture =
                         AlternativeTextureModel.MAX_TEXTURE_HEIGHT / textureModel.TextureHeight;
 
-                    int variation = 0;
+                    var variation = 0;
                     foreach (var splitTexture in textures)
                     {
                         textureModel.Textures[variation] = splitTexture;

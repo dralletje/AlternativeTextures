@@ -57,7 +57,7 @@ class DebugCommands(IMod mod)
             return;
         }
 
-        int amountToSpawn = 1;
+        var amountToSpawn = 1;
         if (args.Length > 1 && int.TryParse(args[1], out amountToSpawn) is false)
         {
             Monitor.Log($"Invalid count given for (QUANTITY)", LogLevel.Warn);
@@ -66,7 +66,7 @@ class DebugCommands(IMod mod)
         Type monsterType = Type.GetType("StardewValley.Monsters." + args[0] + ",Stardew Valley");
 
         Monitor.Log(Game1.player.Tile.ToString(), LogLevel.Debug);
-        for (int i = 0; i < amountToSpawn; i++)
+        for (var i = 0; i < amountToSpawn; i++)
         {
             var monster = Activator.CreateInstance(monsterType, [Game1.player.Tile]) as Monster;
             monster.Position = Game1.player.Position;
@@ -109,13 +109,13 @@ class DebugCommands(IMod mod)
 
                 foreach (KeyValuePair<string, GiantCropData> item in giantCrops)
                 {
-                    string key = item.Key;
+                    var key = item.Key;
                     GiantCropData value = item.Value;
-                    bool flag = true;
+                    var flag = true;
 
-                    for (int i = point.Y; i < point.Y + value.TileSize.Y; i++)
+                    for (var i = point.Y; i < point.Y + value.TileSize.Y; i++)
                     {
-                        for (int j = point.X; j < point.X + value.TileSize.X; j++)
+                        for (var j = point.X; j < point.X + value.TileSize.X; j++)
                         {
                             Vector2 key2 = new(j, i);
 
@@ -138,9 +138,9 @@ class DebugCommands(IMod mod)
                     {
                         continue;
                     }
-                    for (int k = point.Y; k < point.Y + value.TileSize.Y; k++)
+                    for (var k = point.Y; k < point.Y + value.TileSize.Y; k++)
                     {
-                        for (int l = point.X; l < point.X + value.TileSize.X; l++)
+                        for (var l = point.X; l < point.X + value.TileSize.X; l++)
                         {
                             Vector2 key3 = new(l, k);
 

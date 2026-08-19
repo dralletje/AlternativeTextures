@@ -125,11 +125,11 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     );
                     if (Furniture.isDrawingLocationFurniture)
                     {
-                        int hatsDrawn = 0;
-                        for (int i = 0; i < __instance.tankFish.Count; i++)
+                        var hatsDrawn = 0;
+                        for (var i = 0; i < __instance.tankFish.Count; i++)
                         {
                             TankFish fish = __instance.tankFish[i];
-                            float fish_layer = Utility.Lerp(
+                            var fish_layer = Utility.Lerp(
                                 __instance.GetFishSortRegion().Y,
                                 __instance.GetFishSortRegion().X,
                                 fish.zPosition / 20f
@@ -140,7 +140,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                             {
                                 continue;
                             }
-                            int hatsSoFar = 0;
+                            var hatsSoFar = 0;
                             foreach (Item h in __instance.heldItems)
                             {
                                 if (h is Hat)
@@ -165,14 +165,14 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                                 }
                             }
                         }
-                        for (int j = 0; j < __instance.floorDecorations.Count; j++)
+                        for (var j = 0; j < __instance.floorDecorations.Count; j++)
                         {
                             if (__instance.floorDecorations[j].HasValue)
                             {
                                 KeyValuePair<Rectangle, Vector2> decoration = __instance.floorDecorations[j].Value;
                                 Vector2 decoration_position = decoration.Value;
                                 Rectangle decoration_source_rect = decoration.Key;
-                                float decoration_layer =
+                                var decoration_layer =
                                     Utility.Lerp(
                                         __instance.GetFishSortRegion().Y,
                                         __instance.GetFishSortRegion().X,
@@ -198,7 +198,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         }
                         foreach (Vector4 bubble in __instance.bubbles)
                         {
-                            float layer =
+                            var layer =
                                 Utility.Lerp(
                                     __instance.GetFishSortRegion().Y,
                                     __instance.GetFishSortRegion().X,

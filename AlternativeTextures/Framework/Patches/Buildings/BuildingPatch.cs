@@ -143,12 +143,12 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                         SpriteEffects.None,
                         1f
                     );
-                    for (int yWater = building.tileY.Value; yWater < building.tileY.Value + 5; yWater++)
+                    for (var yWater = building.tileY.Value; yWater < building.tileY.Value + 5; yWater++)
                     {
-                        for (int xWater = building.tileX.Value; xWater < building.tileX.Value + 4; xWater++)
+                        for (var xWater = building.tileX.Value; xWater < building.tileX.Value + 4; xWater++)
                         {
-                            bool num = yWater == building.tileY.Value + 4;
-                            bool topY = yWater == building.tileY.Value;
+                            var num = yWater == building.tileY.Value + 4;
+                            var topY = yWater == building.tileY.Value;
                             if (num)
                             {
                                 b.Draw(
@@ -269,7 +269,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                         y += (int)(data.DrawOffset.Y * 4f);
                     }
                     float baseSortY = building.tilesHigh.Value * 64;
-                    float sortY = baseSortY;
+                    var sortY = baseSortY;
                     if (data != null)
                     {
                         sortY -= data.SortTileOffset * 64f;
@@ -521,7 +521,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                     textureModel is null
                     || Game1.currentLocation.modData.TryGetValue(
                         "AlternativeTextureVariation.Mailbox",
-                        out string rawVariationIndex
+                        out var rawVariationIndex
                     )
                         is false
                 )
@@ -559,7 +559,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
             var baseTexture = textureModel.GetTexture(textureVariation);
 
             // Handle instances where required paint masks are missing but textureModel.IgnoreBuildingColorMask is false
-            bool canReallyBePainted =
+            var canReallyBePainted =
                 (building.CanBePainted() || canBePaintedOverride) && textureModel.IgnoreBuildingColorMask is false;
             var originalTexture = AlternativeTextures.modHelper.GameContent.Load<Texture2D>(building.textureName());
             if (originalTexture is not null)
@@ -618,11 +618,11 @@ namespace AlternativeTextures.Framework.Patches.Buildings
                 Color[] mask_pixels = new Color[paint_mask_texture.Width * paint_mask_texture.Height];
                 paint_mask_texture.GetData(mask_pixels);
                 paint_indices = [];
-                for (int j = 0; j < 3; j++)
+                for (var j = 0; j < 3; j++)
                 {
                     paint_indices.Add([]);
                 }
-                for (int i = 0; i < mask_pixels.Length; i++)
+                for (var i = 0; i < mask_pixels.Length; i++)
                 {
                     if (mask_pixels[i] == Color.Red)
                     {
@@ -695,7 +695,7 @@ namespace AlternativeTextures.Framework.Patches.Buildings
 
         private static void ApplyPaint(int h_shift, int s_shift, int l_shift, ref Color[] pixels, List<int> indices)
         {
-            foreach (int index in indices)
+            foreach (var index in indices)
             {
                 Color color = pixels[index];
                 Utility.RGBtoHSL(color.R, color.G, color.B, out var h, out var s, out var i);

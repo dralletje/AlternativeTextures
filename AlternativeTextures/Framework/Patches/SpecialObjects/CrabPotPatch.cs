@@ -191,7 +191,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
 
                 if (__instance.readyForHarvest.Value && __instance.heldObject.Value != null)
                 {
-                    float yOffset =
+                    var yOffset =
                         4f
                         * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                     spriteBatch.Draw(

@@ -155,7 +155,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                         (float)(__instance.GetBoundingBoxAt(x, y).Bottom + 1) / 10000f
                     );
 
-                    for (int i = 0; i < ___ashes.Length; i++)
+                    for (var i = 0; i < ___ashes.Length; i++)
                     {
                         spriteBatch.Draw(
                             Game1.objectSpriteSheet,
@@ -175,7 +175,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     return false;
                 }
                 ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
-                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
 
                 if (!__instance.IsOn)
                 {

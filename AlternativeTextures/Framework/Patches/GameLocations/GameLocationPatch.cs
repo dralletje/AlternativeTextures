@@ -120,7 +120,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
             Season season = __instance.GetSeason();
             if (__instance.objects != null)
             {
-                for (int k = __instance.objects.Count() - 1; k >= 0; k--)
+                for (var k = __instance.objects.Count() - 1; k >= 0; k--)
                 {
                     var obj = __instance.objects.Pairs.ElementAt(k).Value;
                     if (
@@ -160,7 +160,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
 
             if (__instance.characters != null)
             {
-                for (int k = __instance.characters.Count() - 1; k >= 0; k--)
+                for (var k = __instance.characters.Count() - 1; k >= 0; k--)
                 {
                     var character = __instance.characters.ElementAt(k);
                     if (
@@ -198,7 +198,7 @@ namespace AlternativeTextures.Framework.Patches.GameLocations
             if (__instance.animals != null)
             {
                 var animals = __instance.animals.Values;
-                for (int k = animals.Count() - 1; k >= 0; k--)
+                for (var k = animals.Count() - 1; k >= 0; k--)
                 {
                     var farmAnimal = animals.ElementAt(k);
                     if (

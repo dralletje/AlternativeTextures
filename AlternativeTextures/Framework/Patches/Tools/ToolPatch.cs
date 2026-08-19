@@ -189,8 +189,8 @@ internal class ToolPatch : PatchTemplate
         Dictionary<string, string> nameToIdMap = new Dictionary<string, string>();
         foreach (var kvp in Game1.objectData)
         {
-            string unqualifiedId = kvp.Key; // e.g., "128"
-            string internalName = kvp.Value.Name; // e.g., "Pufferfish"
+            var unqualifiedId = kvp.Key; // e.g., "128"
+            var internalName = kvp.Value.Name; // e.g., "Pufferfish"
 
             // Avoid crashing if two mods accidentally use the same name
             if (!nameToIdMap.ContainsKey(internalName))

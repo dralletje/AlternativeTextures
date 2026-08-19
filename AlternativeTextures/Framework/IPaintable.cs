@@ -262,13 +262,13 @@ record WallpaperDecorationPaintable(DecoratableLocation location, string roomId)
             var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
             return wallpaperId.Split(":", 2) switch
             {
-                [var name, var variantString] when int.TryParse(variantString, out int variant) => new()
+                [var name, var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = "Is this even necessary?",
                     Name = name,
                     Variation = variant,
                 },
-                [var variantString] when int.TryParse(variantString, out int variant) => new()
+                [var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
                     Name = AlternativeTextures.DEFAULT_OWNER,
@@ -339,13 +339,13 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
             var floorId = location.appliedFloor.GetValueOrDefault(roomId);
             return floorId.Split(":", 2) switch
             {
-                [var name, var variantString] when int.TryParse(variantString, out int variant) => new()
+                [var name, var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = "Is this even necessary?",
                     Name = name,
                     Variation = variant,
                 },
-                [var variantString] when int.TryParse(variantString, out int variant) => new()
+                [var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
                     Name = AlternativeTextures.DEFAULT_OWNER,

@@ -27,7 +27,7 @@ public class ToolTileChange
         Vector2 playerTile = Game1.player.Tile;
         Vector2 mouseTile = _helper.Input.GetCursorPosition().GrabTile;
 
-        bool tileChanged = playerTile != _lastPlayerTile || mouseTile != _lastMouseTile;
+        var tileChanged = playerTile != _lastPlayerTile || mouseTile != _lastMouseTile;
 
         _lastPlayerTile = playerTile;
         _lastMouseTile = mouseTile;

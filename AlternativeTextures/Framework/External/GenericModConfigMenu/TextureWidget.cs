@@ -22,9 +22,9 @@ namespace AlternativeTextures.Framework.External.GenericModConfigMenu
                 OptionsCheckbox.sourceRectChecked.Width * 4,
                 OptionsCheckbox.sourceRectChecked.Width * 4
             );
-            bool isHovering = bounds.Contains(Game1.getOldMouseX(), Game1.getOldMouseY());
+            var isHovering = bounds.Contains(Game1.getOldMouseX(), Game1.getOldMouseY());
 
-            bool isClicking = Game1.input.GetMouseState().LeftButton == ButtonState.Pressed;
+            var isClicking = Game1.input.GetMouseState().LeftButton == ButtonState.Pressed;
             if (isHovering && isClicking && !wasClicking)
             {
                 Enabled = !Enabled;

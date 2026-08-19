@@ -74,7 +74,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     draw_x = Utility.Lerp(__instance.localKickStartTile.Value.X, draw_x, __instance.kickProgress);
                     draw_y = Utility.Lerp(__instance.localKickStartTile.Value.Y, draw_y, __instance.kickProgress);
                 }
-                float base_sort_order = Math.Max(0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
+                var base_sort_order = Math.Max(0f, ((draw_y + 1f) * 64f - 24f) / 10000f) + draw_x * 1E-05f;
                 if (__instance.localKickStartTile.HasValue)
                 {
                     spriteBatch.Draw(

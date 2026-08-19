@@ -75,7 +75,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     (int)(64f + scale_factor.X),
                     (int)(128f + scale_factor.Y / 2f)
                 );
-                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     destination,
@@ -106,7 +106,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 }
                 if (___depositedItem.Value != null && __instance.shakeTimer > 0 && ____isAnimatingChip)
                 {
-                    float completion = 1f - (float)__instance.shakeTimer / 1000f;
+                    var completion = 1f - (float)__instance.shakeTimer / 1000f;
                     Vector2 end_position = position + new Vector2(32f, 32f);
                     Vector2 start_position = end_position + new Vector2(0f, -16f);
                     Vector2 draw_position = default(Vector2);
@@ -114,7 +114,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     draw_position.Y = Utility.Lerp(start_position.Y, end_position.Y, completion);
                     draw_position.X += Game1.random.Next(-1, 2) * 2;
                     draw_position.Y += Game1.random.Next(-1, 2) * 2;
-                    float draw_scale = Utility.Lerp(1f, 0.75f, completion);
+                    var draw_scale = Utility.Lerp(1f, 0.75f, completion);
                     spriteBatch.Draw(
                         Game1.objectSpriteSheet,
                         draw_position,
@@ -129,7 +129,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 }
                 if (___depositedItem.Value != null && __instance.MinutesUntilReady > 0)
                 {
-                    int frame = (int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 200.0) / 50;
+                    var frame = (int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 200.0) / 50;
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         position + new Vector2(6f, 17f) * 4f,
@@ -159,7 +159,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                 {
                     return false;
                 }
-                float yOffset =
+                var yOffset =
                     4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                 spriteBatch.Draw(
                     Game1.mouseCursors,

@@ -14,7 +14,7 @@ namespace AlternativeTextures.Framework.Utilities.Extensions
             Texture2D selectiveTexture = new Texture2D(device, selectionRect.Width, selectionRect.Height);
             try
             {
-                int dimensions = selectionRect.Width * selectionRect.Height;
+                var dimensions = selectionRect.Width * selectionRect.Height;
                 Color[] data = new Color[dimensions];
 
                 sourceTexture.GetData(0, selectionRect, data, 0, dimensions);

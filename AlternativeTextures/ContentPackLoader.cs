@@ -106,18 +106,18 @@ class ContentPackLoader(Mod mod)
 
                     // Combine the two collective lists
                     var collectedCollective = new List<dynamic>();
-                    foreach (string itemName in baseModel.CollectiveNames)
+                    foreach (var itemName in baseModel.CollectiveNames)
                     {
                         collectedCollective.Add(new { Name = itemName, IsId = false });
                     }
-                    foreach (string itemId in baseModel.CollectiveIds)
+                    foreach (var itemId in baseModel.CollectiveIds)
                     {
                         collectedCollective.Add(new { Name = itemId, IsId = true });
                     }
 
                     // Attempt to add an instance of each season
                     var seasons = baseModel.Seasons;
-                    for (int s = 0; s < 4; s++)
+                    for (var s = 0; s < 4; s++)
                     {
                         if ((seasons.Count() == 0 && s > 0) || (seasons.Count() > 0 && s >= seasons.Count()))
                         {
@@ -352,7 +352,7 @@ class ContentPackLoader(Mod mod)
     {
         try
         {
-            for (int v = 0; v < textureModel.GetVariations(); v++)
+            for (var v = 0; v < textureModel.GetVariations(); v++)
             {
                 var extractRectangle = new Rectangle(
                     0,
@@ -364,7 +364,7 @@ class ContentPackLoader(Mod mod)
 
                 if (verticalTexture.Bounds.Contains(extractRectangle) is false)
                 {
-                    int maxVariationsPossible = verticalTexture.Height / textureModel.TextureHeight;
+                    var maxVariationsPossible = verticalTexture.Height / textureModel.TextureHeight;
 
                     AlternativeTextures.monitor.Log(
                         $"Unable to add alternative texture for item {textureModel.ItemName} from {contentPackName}: More variations specified ({textureModel.GetVariations()}) than given ({maxVariationsPossible})",
@@ -427,7 +427,7 @@ class ContentPackLoader(Mod mod)
 
         try
         {
-            int variation = 0;
+            var variation = 0;
             foreach (var textureFilePath in textureFilePaths)
             {
                 var splitTexture = contentPack.ModContent.Load<Texture2D>(Path.Combine(rootPath, textureFilePath));

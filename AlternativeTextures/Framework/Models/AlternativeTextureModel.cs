@@ -88,8 +88,8 @@ namespace AlternativeTextures.Framework.Models
 
         public string GetTokenId(int? variation = null)
         {
-            string seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
-            string variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
+            var seasonSuffix = String.IsNullOrEmpty(Season) ? String.Empty : String.Concat("_", Season);
+            var variationSuffix = variation is null ? String.Empty : String.Concat("_", variation);
             return String.Concat(Owner, ".", ItemName, seasonSuffix, variationSuffix);
         }
 
@@ -247,7 +247,7 @@ namespace AlternativeTextures.Framework.Models
             List<string> changedNames = [];
             if (CollectiveNames is not null)
             {
-                for (int x = 0; x < CollectiveNames.Count; x++)
+                for (var x = 0; x < CollectiveNames.Count; x++)
                 {
                     var changedName = AlternativeTextureModel.GetNameChange(Type, CollectiveNames[x]);
 

@@ -43,7 +43,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
             try
             {
                 var list = instructions.ToList();
-                for (int i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++)
                 {
                     if (
                         list[i].opcode == OpCodes.Callvirt
@@ -82,7 +82,7 @@ namespace AlternativeTextures.Framework.Patches.Entities
 
         private static int GetHeadTextureYOffset(Horse horse)
         {
-            int yOffset = 96;
+            var yOffset = 96;
             if (!horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
                 return yOffset;

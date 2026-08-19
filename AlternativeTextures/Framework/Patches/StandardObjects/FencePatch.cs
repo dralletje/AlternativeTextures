@@ -81,8 +81,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 {
                     return true;
                 }
-                int sourceRectPosition = 1;
-                int drawSum = __instance.getDrawSum();
+                var sourceRectPosition = 1;
+                var drawSum = __instance.getDrawSum();
                 if ((float)__instance.health.Value > 1f || __instance.repairQueued.Value)
                 {
                     sourceRectPosition = Fence.fenceDrawGuide[drawSum];

@@ -234,7 +234,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
                 // Set xTileOffset if AlternativeTextureModel has an animation
                 var xTileOffset = 0;
-                int actualSourceIndexOffset = ___sourceIndexOffset.Value;
+                var actualSourceIndexOffset = ___sourceIndexOffset.Value;
                 if (textureModel.HasAnimation(textureVariation))
                 {
                     if (
@@ -766,7 +766,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         is AlternativeTextureModel textureModel
                     && Int32.TryParse(
                         __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
-                        out int textureVariation
+                        out var textureVariation
                     )
                     && textureVariation != -1
                 )
@@ -796,8 +796,8 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
         private static float GetScaleSize(Rectangle sourceRect)
         {
-            int tilesWide = sourceRect.Width / 16;
-            int tilesHigh = sourceRect.Height / 16;
+            var tilesWide = sourceRect.Width / 16;
+            var tilesHigh = sourceRect.Height / 16;
             if (tilesWide >= 7)
             {
                 return 0.5f;

@@ -23,14 +23,14 @@ public static class RectangleExtensions
 
         public Rectangle FitInside(Rectangle fitting)
         {
-            float containerRatio = (float)rectangle.Width / rectangle.Height;
-            float fittingRatio = (float)fitting.Width / fitting.Height;
+            var containerRatio = (float)rectangle.Width / rectangle.Height;
+            var fittingRatio = (float)fitting.Width / fitting.Height;
 
-            float width = fittingRatio > containerRatio ? rectangle.Width : rectangle.Height * fittingRatio;
-            float height = fittingRatio > containerRatio ? rectangle.Width / fittingRatio : rectangle.Height;
+            var width = fittingRatio > containerRatio ? rectangle.Width : rectangle.Height * fittingRatio;
+            var height = fittingRatio > containerRatio ? rectangle.Width / fittingRatio : rectangle.Height;
 
-            float x = rectangle.X + (rectangle.Width - width) / 2f;
-            float y = rectangle.Y + (rectangle.Height - height) / 2f;
+            var x = rectangle.X + (rectangle.Width - width) / 2f;
+            var y = rectangle.Y + (rectangle.Height - height) / 2f;
 
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }

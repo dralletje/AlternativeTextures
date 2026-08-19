@@ -199,7 +199,7 @@ class ModConfigHolder(Mod mod)
                             )
                     );
 
-                    for (int variation = 0; variation < model.GetVariations(); variation++)
+                    for (var variation = 0; variation < model.GetVariations(); variation++)
                     {
                         string variationText = Helper.Translation.Get("config.model_single.name", new { variation });
                         // Add general description label

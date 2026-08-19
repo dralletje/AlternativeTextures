@@ -169,7 +169,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     var frameDuration = Int32.Parse(__instance.modData["AlternativeTextureFrameDuration"]);
                     var elapsedDuration = Int32.Parse(__instance.modData["AlternativeTextureElapsedDuration"]);
 
-                    bool isMachineActive = __instance.MinutesUntilReady > 0;
+                    var isMachineActive = __instance.MinutesUntilReady > 0;
                     if (
                         elapsedDuration >= frameDuration
                         || textureModel.IsFrameValid(textureVariation, currentFrame, isMachineActive) is false
@@ -213,7 +213,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         (int)(64f + scaleFactor.X),
                         (int)(128f + scaleFactor.Y / 2f)
                     );
-                    float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                    var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
 
                     // Handle outliers for draw
                     if (__instance.ParentSheetIndex == 105 || __instance.ParentSheetIndex == 264)
@@ -326,7 +326,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         Color color = Color.White * alpha;
                         Vector2 origin = new Vector2(8f, 8f);
 
-                        int artifactOffset = (
+                        var artifactOffset = (
                             (Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 1200.0 <= 400.0)
                                 ? ((int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 400.0 / 100.0) * 16)
                                 : 0
@@ -411,12 +411,12 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                     return false;
                 }
 
-                float base_sort = (float)((y + 1) * 64) / 10000f + __instance.TileLocation.X / 50000f;
+                var base_sort = (float)((y + 1) * 64) / 10000f + __instance.TileLocation.X / 50000f;
                 if (__instance.IsTapper() || __instance.QualifiedItemId.Equals("(BC)MushroomLog"))
                 {
                     base_sort += 0.02f;
                 }
-                float yOffset =
+                var yOffset =
                     4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
                 spriteBatch.Draw(
                     Game1.mouseCursors,

@@ -329,12 +329,12 @@ internal class GridMenu : IClickableMenu
         base.leftClickHeld(x, y);
         if (scrolling)
         {
-            int y2 = scrollBar.bounds.Y;
+            var y2 = scrollBar.bounds.Y;
             scrollBar.bounds.Y = Math.Min(
                 yPositionOnScreen + height - 64 - 12 - scrollBar.bounds.Height,
                 Math.Max(y, yPositionOnScreen + upArrow.bounds.Height + 20)
             );
-            float num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
+            var num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
             rowsScrolled.Value = Math.Min(
                 Math.Max(0, VirtualRows - gridSize.Rows),
                 Math.Max(0, (int)((float)VirtualRows * num))

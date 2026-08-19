@@ -61,7 +61,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     (int)(64f + scaleFactor.X),
                     (int)(128f + scaleFactor.Y / 2f)
                 );
-                float draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     destination,
@@ -73,7 +73,7 @@ namespace AlternativeTextures.Framework.Patches.SpecialObjects
                     draw_layer
                 );
 
-                bool ringing = Phone.ringingTimer > 0 && Phone.ringingTimer < 600;
+                var ringing = Phone.ringingTimer > 0 && Phone.ringingTimer < 600;
                 position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
                 destination = new Rectangle(
                     (int)position.X + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),

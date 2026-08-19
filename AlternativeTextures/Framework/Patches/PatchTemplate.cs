@@ -354,7 +354,7 @@ namespace AlternativeTextures.Framework.Patches
 
         internal static bool IsPositionNearMailbox(GameLocation location, Point mailboxPosition, int x, int y)
         {
-            bool isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
+            var isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
             return isNearMailbox;
         }
 

@@ -66,187 +66,187 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 FloorPathData data = __instance.GetData();
                 Texture2D texture = textureModel.GetTexture(textureVariation);
                 Point corner = __instance.GetTextureCorner();
-                float cornerSortOffset = 1f;
+                var cornerSortOffset = 1f;
                 switch (data.ConnectType)
                 {
                     case FloorPathConnectType.CornerDecorated:
-                    {
-                        int border_size = data.CornerSize;
-                        if ((___neighborMask & 9) == 9 && (___neighborMask & 0x20) == 0)
                         {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                                ),
-                                new Rectangle(
-                                    64 - border_size + corner.X,
-                                    48 - border_size + corner.Y,
-                                    border_size,
-                                    border_size
-                                ),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
+                            var border_size = data.CornerSize;
+                            if ((___neighborMask & 9) == 9 && (___neighborMask & 0x20) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
+                                    ),
+                                    new Rectangle(
+                                        64 - border_size + corner.X,
+                                        48 - border_size + corner.Y,
+                                        border_size,
+                                        border_size
+                                    ),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f + 64f - (float)(border_size * 4),
+                                            tileLocation.Y * 64f
+                                        )
+                                    ),
+                                    new Rectangle(16 + corner.X, 48 - border_size + corner.Y, border_size, border_size),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f + 64f - (float)(border_size * 4),
+                                            tileLocation.Y * 64f + 64f - (float)(border_size * 4)
+                                        )
+                                    ),
+                                    new Rectangle(16 + corner.X, corner.Y, border_size, border_size),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f,
+                                            tileLocation.Y * 64f + 64f - (float)(border_size * 4)
+                                        )
+                                    ),
+                                    new Rectangle(64 - border_size + corner.X, corner.Y, border_size, border_size),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            break;
                         }
-                        if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(border_size * 4),
-                                        tileLocation.Y * 64f
-                                    )
-                                ),
-                                new Rectangle(16 + corner.X, 48 - border_size + corner.Y, border_size, border_size),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
-                            );
-                        }
-                        if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(border_size * 4),
-                                        tileLocation.Y * 64f + 64f - (float)(border_size * 4)
-                                    )
-                                ),
-                                new Rectangle(16 + corner.X, corner.Y, border_size, border_size),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
-                        }
-                        if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f,
-                                        tileLocation.Y * 64f + 64f - (float)(border_size * 4)
-                                    )
-                                ),
-                                new Rectangle(64 - border_size + corner.X, corner.Y, border_size, border_size),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
-                        }
-                        break;
-                    }
                     case FloorPathConnectType.Default:
-                    {
-                        int borderSize = data.CornerSize;
-                        if ((___neighborMask & 9) == 9 && (___neighborMask & 0x20) == 0)
                         {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
-                                ),
-                                new Rectangle(
-                                    64 - borderSize + corner.X,
-                                    48 - borderSize + corner.Y,
-                                    borderSize,
-                                    borderSize
-                                ),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
+                            var borderSize = data.CornerSize;
+                            if ((___neighborMask & 9) == 9 && (___neighborMask & 0x20) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)
+                                    ),
+                                    new Rectangle(
+                                        64 - borderSize + corner.X,
+                                        48 - borderSize + corner.Y,
+                                        borderSize,
+                                        borderSize
+                                    ),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f + 64f - (float)(borderSize * 4),
+                                            tileLocation.Y * 64f
+                                        )
+                                    ),
+                                    new Rectangle(16 + corner.X, 48 - borderSize + corner.Y, borderSize, borderSize),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f + 64f - (float)(borderSize * 4),
+                                            tileLocation.Y * 64f + 48f
+                                        )
+                                    ),
+                                    new Rectangle(16 + corner.X, corner.Y, borderSize, borderSize),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
+                            {
+                                spriteBatch.Draw(
+                                    texture,
+                                    Game1.GlobalToLocal(
+                                        Game1.viewport,
+                                        new Vector2(
+                                            tileLocation.X * 64f,
+                                            tileLocation.Y * 64f + 64f - (float)(borderSize * 4)
+                                        )
+                                    ),
+                                    new Rectangle(64 - borderSize + corner.X, corner.Y, borderSize, borderSize),
+                                    Color.White,
+                                    0f,
+                                    Vector2.Zero,
+                                    4f,
+                                    SpriteEffects.None,
+                                    (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                );
+                            }
+                            break;
                         }
-                        if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(borderSize * 4),
-                                        tileLocation.Y * 64f
-                                    )
-                                ),
-                                new Rectangle(16 + corner.X, 48 - borderSize + corner.Y, borderSize, borderSize),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
-                            );
-                        }
-                        if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(borderSize * 4),
-                                        tileLocation.Y * 64f + 48f
-                                    )
-                                ),
-                                new Rectangle(16 + corner.X, corner.Y, borderSize, borderSize),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
-                        }
-                        if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
-                        {
-                            spriteBatch.Draw(
-                                texture,
-                                Game1.GlobalToLocal(
-                                    Game1.viewport,
-                                    new Vector2(
-                                        tileLocation.X * 64f,
-                                        tileLocation.Y * 64f + 64f - (float)(borderSize * 4)
-                                    )
-                                ),
-                                new Rectangle(64 - borderSize + corner.X, corner.Y, borderSize, borderSize),
-                                Color.White,
-                                0f,
-                                Vector2.Zero,
-                                4f,
-                                SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
-                            );
-                        }
-                        break;
-                    }
                 }
 
-                byte drawSum = (byte)(___neighborMask & 0xFu);
-                int sourceRectPosition = Flooring.drawGuide[drawSum];
+                var drawSum = (byte)(___neighborMask & 0xFu);
+                var sourceRectPosition = Flooring.drawGuide[drawSum];
                 if (data.ConnectType == FloorPathConnectType.Random)
                 {
                     sourceRectPosition = Flooring.drawGuideList[__instance.whichView.Value];
@@ -266,28 +266,28 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                         );
                         break;
                     case FloorPathShadowType.Contoured:
-                    {
-                        Color shadowColor = Color.Black;
-                        shadowColor.A = (byte)((float)(int)shadowColor.A * 0.33f);
-                        spriteBatch.Draw(
-                            texture,
-                            Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f))
-                                + new Vector2(-4f, 4f),
-                            new Rectangle(
-                                corner.X + sourceRectPosition * 16 % 256,
-                                sourceRectPosition / 16 * 16 + corner.Y,
-                                16,
-                                16
-                            ),
-                            shadowColor,
-                            0f,
-                            Vector2.Zero,
-                            4f,
-                            SpriteEffects.None,
-                            1E-10f
-                        );
-                        break;
-                    }
+                        {
+                            Color shadowColor = Color.Black;
+                            shadowColor.A = (byte)((float)(int)shadowColor.A * 0.33f);
+                            spriteBatch.Draw(
+                                texture,
+                                Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f))
+                                    + new Vector2(-4f, 4f),
+                                new Rectangle(
+                                    corner.X + sourceRectPosition * 16 % 256,
+                                    sourceRectPosition / 16 * 16 + corner.Y,
+                                    16,
+                                    16
+                                ),
+                                shadowColor,
+                                0f,
+                                Vector2.Zero,
+                                4f,
+                                SpriteEffects.None,
+                                1E-10f
+                            );
+                            break;
+                        }
                 }
 
                 spriteBatch.Draw(
@@ -344,7 +344,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
                 }
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
 
-                int sourceRectPosition = 1;
+                var sourceRectPosition = 1;
                 byte drawSum = 0;
                 Vector2 surroundingLocations = tileLocation;
                 surroundingLocations.X += 1f;

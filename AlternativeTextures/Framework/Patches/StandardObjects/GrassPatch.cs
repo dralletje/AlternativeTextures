@@ -68,7 +68,7 @@ namespace AlternativeTextures.Framework.Patches.StandardObjects
 
                 Vector2 tileLocation = __instance.Tile;
                 var textureOffset = textureModel.GetTextureOffset(textureVariation);
-                for (int i = 0; i < __instance.numberOfWeeds.Value; i++)
+                for (var i = 0; i < __instance.numberOfWeeds.Value; i++)
                 {
                     Vector2 pos = (
                         (i != 4)
