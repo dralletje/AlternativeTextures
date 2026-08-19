@@ -82,7 +82,7 @@ internal class TextureManager(IMod mod)
 
     public List<string> GetValidTextureNames()
     {
-        return _alternativeTextures.Select(t => t.GetId()).ToList();
+        return [.. _alternativeTextures.Select(t => t.GetId())];
     }
 
     public List<string> GetValidTextureNamesWithSeason()
@@ -177,7 +177,7 @@ internal class TextureManager(IMod mod)
                 && string.Equals(t.GetNameWithSeason(), itemId, StringComparison.OrdinalIgnoreCase)
             )
         );
-        return textureModels.Concat(seasonalTextures).ToList();
+        return [.. textureModels, .. seasonalTextures];
     }
 
     public int GetVariationFromToken(string token)

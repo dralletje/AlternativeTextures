@@ -414,7 +414,7 @@ internal class CatalogueMenu : IClickableMenu
             {
                 case 0:
                 case 3:
-                    _currentlyDisplayedTextures = _displayableTextures
+                    _currentlyDisplayedTextures = [.. _displayableTextures
                         .Where(i =>
                             !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                                 .Contains(AlternativeTextures.DEFAULT_OWNER)
@@ -426,11 +426,10 @@ internal class CatalogueMenu : IClickableMenu
                                 i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
                                 _searchBox.Text
                             )
-                        )
-                        .ToList();
+                        )];
                     break;
                 case 1:
-                    _currentlyDisplayedTextures = _displayableTextures
+                    _currentlyDisplayedTextures = [.. _displayableTextures
                         .Where(i =>
                             !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                                 .Contains(AlternativeTextures.DEFAULT_OWNER)
@@ -439,11 +438,10 @@ internal class CatalogueMenu : IClickableMenu
                             )
                                 is AlternativeTextureModel model
                             && model.Author.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
-                        )
-                        .ToList();
+                        )];
                     break;
                 case 2:
-                    _currentlyDisplayedTextures = _displayableTextures
+                    _currentlyDisplayedTextures = [.. _displayableTextures
                         .Where(i =>
                             !i.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
                                 .Contains(AlternativeTextures.DEFAULT_OWNER)
@@ -452,8 +450,7 @@ internal class CatalogueMenu : IClickableMenu
                             )
                                 is AlternativeTextureModel model
                             && model.PackName.Contains(_searchBox.Text, StringComparison.OrdinalIgnoreCase)
-                        )
-                        .ToList();
+                        )];
                     break;
             }
         }
@@ -461,9 +458,7 @@ internal class CatalogueMenu : IClickableMenu
         {
             _currentlyDisplayedObjects = string.IsNullOrEmpty(text)
                 ? _currentlyDisplayedObjects
-                : _currentlyDisplayedObjects
-                    .Where(o => o.Name.Contains(text, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                : [.. _currentlyDisplayedObjects.Where(o => o.Name.Contains(text, StringComparison.OrdinalIgnoreCase))];
         }
     }
 
@@ -852,7 +847,7 @@ internal class CatalogueMenu : IClickableMenu
                     {
                         keywords.AddRange(alternativeTextureModel.ManualVariations[variation].Keywords);
                     }
-                    keywords = keywords.Distinct().ToList();
+                    keywords = [.. keywords.Distinct()];
 
                     var keywordsText = string.Empty;
                     var keywordsTemp = string.Empty;

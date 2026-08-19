@@ -279,7 +279,7 @@ internal class ToolPatch : PatchTemplate
         {
             if (location is DecoratableLocation loc && loc.GetWallpaperID(tile.X, tile.Y) is { } roomId)
             {
-                paintables = IPaintable.OnTile(tile with { Y = tile.Y - 1 }).ToList();
+                paintables = [.. IPaintable.OnTile(tile with { Y = tile.Y - 1 })];
             }
         }
 
@@ -300,7 +300,7 @@ internal class ToolPatch : PatchTemplate
             }
 
             var gridMenu = new GridMenu(
-                items
+                [.. items
                     .Select(textureInfo =>
                         (GridMenu.Item)
                             new TextureGridMenuItem()
@@ -309,8 +309,7 @@ internal class ToolPatch : PatchTemplate
                                 TextureIdentifier = textureInfo.TextureIdentifier,
                                 DisplayName = textureInfo.DisplayName,
                             }
-                    )
-                    .ToList(),
+                    )],
                 gridSizeFor(paintable),
                 uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
                 onPress: (item) =>
