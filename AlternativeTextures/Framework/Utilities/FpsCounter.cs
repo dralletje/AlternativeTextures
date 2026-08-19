@@ -74,7 +74,7 @@ class FpsCounter
             _lastFPSUpdate = DateTime.UtcNow;
 
             var averageRenderingTimePerFrame = _frameRenderingTime / _numFramesRendered;
-            _fpsString = $"{(1000 / averageRenderingTimePerFrame):F0}";
+            _fpsString = $"{1000 / averageRenderingTimePerFrame:F0}";
 
             _frameRenderingTime = 0;
             _numFramesRendered = 0;

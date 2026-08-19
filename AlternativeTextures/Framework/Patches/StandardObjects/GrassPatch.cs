@@ -67,20 +67,20 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
             var textureOffset = textureModel.GetTextureOffset(textureVariation);
             for (var i = 0; i < __instance.numberOfWeeds.Value; i++)
             {
-                var pos = (
+                var pos = 
                     (i != 4)
                         ? (
-                            tileLocation * 64f
+                            (tileLocation * 64f)
                             + new Vector2(
-                                (float)(i % 2 * 64 / 2 + ___offset3[i] * 4 - 4) + 30f,
-                                i / 2 * 64 / 2 + ___offset4[i] * 4 + 40
+                                (float)((i % 2 * 64 / 2) + (___offset3[i] * 4) - 4) + 30f,
+                                (i / 2 * 64 / 2) + (___offset4[i] * 4) + 40
                             )
                         )
                         : (
-                            tileLocation * 64f
-                            + new Vector2((float)(16 + ___offset1[i] * 4 - 4) + 30f, 16 + ___offset2[i] * 4 + 40)
+                            (tileLocation * 64f)
+                            + new Vector2((float)(16 + (___offset1[i] * 4) - 4) + 30f, 16 + (___offset2[i] * 4) + 40)
                         )
-                );
+                ;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(Game1.viewport, pos),
@@ -90,7 +90,7 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
                     new Vector2(7.5f, 17.5f),
                     4f,
                     ___flip[i] ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                    (pos.Y + 16f - 20f) / 10000f + pos.X / 1E+07f
+                    ((pos.Y + 16f - 20f) / 10000f) + (pos.X / 1E+07f)
                 );
             }
             return false;

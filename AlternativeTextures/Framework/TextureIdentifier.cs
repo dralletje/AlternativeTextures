@@ -50,6 +50,6 @@ sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
 
     public override int GetHashCode()
     {
-        return this.Name.GetHashCode() * 17 + this.Variation;
+        return (this.Name.GetHashCode() * 17) + this.Variation;
     }
 }

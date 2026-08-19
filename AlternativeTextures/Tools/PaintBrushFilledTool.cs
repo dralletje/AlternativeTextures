@@ -182,8 +182,8 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
                 e.SpriteBatch.Draw(
                     texture2d,
                     new Rectangle(
-                        (int)positionOnScreen.X + (Game1.tileSize - textureModel.TextureWidth * Game1.pixelZoom),
-                        (int)positionOnScreen.Y + (Game1.tileSize - textureModel.TextureHeight * Game1.pixelZoom),
+                        (int)positionOnScreen.X + (Game1.tileSize - (textureModel.TextureWidth * Game1.pixelZoom)),
+                        (int)positionOnScreen.Y + (Game1.tileSize - (textureModel.TextureHeight * Game1.pixelZoom)),
                         textureModel.TextureWidth * Game1.pixelZoom,
                         textureModel.TextureHeight * Game1.pixelZoom
                     ),

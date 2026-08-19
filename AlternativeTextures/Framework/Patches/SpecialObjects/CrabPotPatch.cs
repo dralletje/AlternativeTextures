@@ -69,7 +69,7 @@ internal class CrabPotPatch : PatchTemplate
             }
 
             ___yBob = (float)(
-                Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 500.0 + (double)(x * 64)) * 8.0
+                (Math.Sin((Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 500.0) + (double)(x * 64)) * 8.0)
                 + 8.0
             );
             if (___yBob <= 0.001f)
@@ -81,7 +81,7 @@ internal class CrabPotPatch : PatchTemplate
                         150f,
                         8,
                         0,
-                        __instance.directionOffset.Value + new Vector2(x * 64 + 4, y * 64 + 32),
+                        __instance.directionOffset.Value + new Vector2((x * 64) + 4, (y * 64) + 32),
                         flicker: false,
                         Game1.random.NextDouble() < 0.5,
                         0.001f,
@@ -149,7 +149,7 @@ internal class CrabPotPatch : PatchTemplate
                 textureModel.GetTexture(textureVariation),
                 Game1.GlobalToLocal(
                     Game1.viewport,
-                    __instance.directionOffset.Value + new Vector2(x * 64, y * 64 + (int)___yBob)
+                    __instance.directionOffset.Value + new Vector2(x * 64, (y * 64) + (int)___yBob)
                 ) + ___shake,
                 new Rectangle(
                     ((__instance.tileIndexToShow - 710) * textureModel.TextureWidth) + xTileOffset,
@@ -168,7 +168,7 @@ internal class CrabPotPatch : PatchTemplate
                 Game1.mouseCursors,
                 Game1.GlobalToLocal(
                     Game1.viewport,
-                    __instance.directionOffset.Value + new Vector2(x * 64 + 4, y * 64 + 48)
+                    __instance.directionOffset.Value + new Vector2((x * 64) + 4, (y * 64) + 48)
                 ) + ___shake,
                 new Rectangle(
                     Game1.currentLocation.waterAnimationIndex * 64,
@@ -199,7 +199,7 @@ internal class CrabPotPatch : PatchTemplate
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         __instance.directionOffset.Value
-                            + new Vector2(x * 64 - 8, (float)(y * 64 - 96 - 16) + yOffset)
+                            + new Vector2((x * 64) - 8, (float)((y * 64) - 96 - 16) + yOffset)
                     ),
                     new Rectangle(141, 465, 20, 24),
                     Color.White * 0.75f,
@@ -207,14 +207,14 @@ internal class CrabPotPatch : PatchTemplate
                     Vector2.Zero,
                     4f,
                     SpriteEffects.None,
-                    (float)((y + 1) * 64) / 10000f + 1E-06f + __instance.TileLocation.X / 10000f
+                    ((float)((y + 1) * 64) / 10000f) + 1E-06f + (__instance.TileLocation.X / 10000f)
                 );
                 spriteBatch.Draw(
                     Game1.objectSpriteSheet,
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         __instance.directionOffset.Value
-                            + new Vector2(x * 64 + 32, (float)(y * 64 - 64 - 8) + yOffset)
+                            + new Vector2((x * 64) + 32, (float)((y * 64) - 64 - 8) + yOffset)
                     ),
                     Game1.getSourceRectForStandardTileSheet(
                         Game1.objectSpriteSheet,
@@ -227,7 +227,7 @@ internal class CrabPotPatch : PatchTemplate
                     new Vector2(8f, 8f),
                     4f,
                     SpriteEffects.None,
-                    (float)((y + 1) * 64) / 10000f + 1E-05f + __instance.TileLocation.X / 10000f
+                    ((float)((y + 1) * 64) / 10000f) + 1E-05f + (__instance.TileLocation.X / 10000f)
                 );
             }
 

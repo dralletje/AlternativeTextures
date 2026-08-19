@@ -761,7 +761,7 @@ internal class PaintBucketMenu : IClickableMenu
             SpriteText.drawStringWithScrollCenteredAt(
                 batch,
                 _title,
-                base.xPositionOnScreen + base.width / 4,
+                base.xPositionOnScreen + (base.width / 4),
                 base.yPositionOnScreen - 64
             );
             IClickableMenu.drawTextureBox(

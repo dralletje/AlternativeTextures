@@ -98,7 +98,7 @@ internal class FencePatch : PatchTemplate
                     case 10:
                         b.Draw(
                             textureModel.GetTexture(textureVariation),
-                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 128)),
+                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2((x * 64) - 16, (y * 64) - 128)),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 24 : 0,
                                 textureOffset + (192 - gateOffset),
@@ -110,13 +110,13 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 + 32 + 1) / 10000f
+                            (float)((y * 64) + 32 + 1) / 10000f
                         );
                         return false;
                     case 100:
                         b.Draw(
                             textureModel.GetTexture(textureVariation),
-                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 128)),
+                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2((x * 64) - 16, (y * 64) - 128)),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 24 : 0,
                                 textureOffset + (240 - gateOffset),
@@ -128,7 +128,7 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 + 32 + 1) / 10000f
+                            (float)((y * 64) + 32 + 1) / 10000f
                         );
                         return false;
                     case 1000:
@@ -136,7 +136,7 @@ internal class FencePatch : PatchTemplate
                             textureModel.GetTexture(textureVariation),
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                offset + new Vector2(x * 64 + 20, y * 64 - 64 - 20)
+                                offset + new Vector2((x * 64) + 20, (y * 64) - 64 - 20)
                             ),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 24 : 0,
@@ -149,7 +149,7 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 - 32 + 2) / 10000f
+                            (float)((y * 64) - 32 + 2) / 10000f
                         );
                         return false;
                     case 500:
@@ -157,7 +157,7 @@ internal class FencePatch : PatchTemplate
                             textureModel.GetTexture(textureVariation),
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                offset + new Vector2(x * 64 + 20, y * 64 - 64 - 20)
+                                offset + new Vector2((x * 64) + 20, (y * 64) - 64 - 20)
                             ),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 24 : 0,
@@ -170,13 +170,13 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 + 96 - 1) / 10000f
+                            (float)((y * 64) + 96 - 1) / 10000f
                         );
                         return false;
                     case 110:
                         b.Draw(
                             textureModel.GetTexture(textureVariation),
-                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2(x * 64 - 16, y * 64 - 64)),
+                            Game1.GlobalToLocal(Game1.viewport, offset + new Vector2((x * 64) - 16, (y * 64) - 64)),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 24 : 0,
                                 textureOffset + (128 - gateOffset),
@@ -188,7 +188,7 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 + 32 + 1) / 10000f
+                            (float)((y * 64) + 32 + 1) / 10000f
                         );
                         return false;
                     case 1500:
@@ -196,7 +196,7 @@ internal class FencePatch : PatchTemplate
                             textureModel.GetTexture(textureVariation),
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                offset + new Vector2(x * 64 + 20, y * 64 - 64 - 20)
+                                offset + new Vector2((x * 64) + 20, (y * 64) - 64 - 20)
                             ),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 16 : 0,
@@ -209,13 +209,13 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 - 32 + 2) / 10000f
+                            (float)((y * 64) - 32 + 2) / 10000f
                         );
                         b.Draw(
                             textureModel.GetTexture(textureVariation),
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                offset + new Vector2(x * 64 + 20, y * 64 - 64 + 44)
+                                offset + new Vector2((x * 64) + 20, (y * 64) - 64 + 44)
                             ),
                             new Rectangle(
                                 (__instance.gatePosition.Value == 88) ? 16 : 0,
@@ -228,7 +228,7 @@ internal class FencePatch : PatchTemplate
                             Vector2.Zero,
                             4f,
                             SpriteEffects.None,
-                            (float)(y * 64 + 96 - 1) / 10000f
+                            (float)((y * 64) + 96 - 1) / 10000f
                         );
                         return false;
                 }
@@ -283,18 +283,18 @@ internal class FencePatch : PatchTemplate
 
                 __instance.heldObject.Value.draw(
                     b,
-                    x * 64 + (int)offset2.X,
-                    (y - 1) * 64 - 16 + (int)offset2.Y,
-                    (float)(y * 64 + 64) / 10000f,
+                    (x * 64) + (int)offset2.X,
+                    ((y - 1) * 64) - 16 + (int)offset2.Y,
+                    (float)((y * 64) + 64) / 10000f,
                     1f
                 );
             }
 
             b.Draw(
                 textureModel.GetTexture(textureVariation),
-                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64)),
+                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64)),
                 new Rectangle(
-                    (sourceRectPosition * Fence.fencePieceWidth % VANILLA_FENCE_TEXTURE_WIDTH),
+                    sourceRectPosition * Fence.fencePieceWidth % VANILLA_FENCE_TEXTURE_WIDTH,
                     textureOffset
                         + (
                             sourceRectPosition
@@ -310,7 +310,7 @@ internal class FencePatch : PatchTemplate
                 Vector2.Zero,
                 4f,
                 SpriteEffects.None,
-                (float)(y * 64 + 32) / 10000f
+                (float)((y * 64) + 32) / 10000f
             );
 
             return false;

@@ -316,8 +316,8 @@ record WallpaperDecorationPaintable(DecoratableLocation location, string roomId)
             {
                 Texture = textureModel.GetTexture(textureIdentifier.Variation),
                 SourceRect = new Rectangle(
-                    (textureIdentifier.Variation % decorationOffset) * textureModel.TextureWidth,
-                    (textureIdentifier.Variation / decorationOffset) * textureModel.TextureHeight,
+                    textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
+                    textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
                     textureModel.TextureWidth,
                     textureModel.TextureHeight
                 ),
@@ -379,7 +379,7 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
             return new()
             {
                 Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
-                SourceRect = new Rectangle(which % 8 * 32, 336 + which / 8 * 32, 32, 32),
+                SourceRect = new Rectangle(which % 8 * 32, 336 + (which / 8 * 32), 32, 32),
             };
         }
         else
@@ -393,8 +393,8 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
             {
                 Texture = textureModel.GetTexture(textureIdentifier.Variation),
                 SourceRect = new Rectangle(
-                    (textureIdentifier.Variation % decorationOffset) * textureModel.TextureWidth,
-                    (textureIdentifier.Variation / decorationOffset) * textureModel.TextureHeight,
+                    textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
+                    textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
                     textureModel.TextureWidth,
                     textureModel.TextureHeight
                 ),

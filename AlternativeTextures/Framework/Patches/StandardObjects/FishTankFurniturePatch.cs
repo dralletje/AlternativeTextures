@@ -97,7 +97,7 @@ internal class FishTankFurniturePatch : PatchTemplate
                 if (!Furniture.isDrawingLocationFurniture)
                 {
                     draw_position = new Vector2(x, y) * 64f;
-                    draw_position.Y -= __instance.sourceRect.Height * 4 - __instance.boundingBox.Height;
+                    draw_position.Y -= (__instance.sourceRect.Height * 4) - __instance.boundingBox.Height;
                 }
                 if (__instance.shakeTimer > 0)
                 {
@@ -182,8 +182,8 @@ internal class FishTankFurniturePatch : PatchTemplate
                                 __instance.GetAquariumTexture(),
                                 Game1.GlobalToLocal(
                                     new Vector2(
-                                        (float)__instance.GetTankBounds().Left + decoration_position.X * 4f,
-                                        (float)(__instance.GetTankBounds().Bottom - 4) - decoration_position.Y * 4f
+                                        (float)__instance.GetTankBounds().Left + (decoration_position.X * 4f),
+                                        (float)(__instance.GetTankBounds().Bottom - 4) - (decoration_position.Y * 4f)
                                     )
                                 ),
                                 decoration_source_rect,
@@ -209,7 +209,7 @@ internal class FishTankFurniturePatch : PatchTemplate
                             Game1.GlobalToLocal(
                                 new Vector2(
                                     (float)__instance.GetTankBounds().Left + bubble.X,
-                                    (float)(__instance.GetTankBounds().Bottom - 4) - bubble.Y - bubble.Z * 4f
+                                    (float)(__instance.GetTankBounds().Bottom - 4) - bubble.Y - (bubble.Z * 4f)
                                 )
                             ),
                             new Rectangle(0, 240, 16, 16),

@@ -75,8 +75,8 @@ internal class BushPatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                (tileLocation.X + ((effectiveSize == 1) ? 0.5f : 1f)) * 64f - 51f,
-                                tileLocation.Y * 64f - 16f + ___yDrawOffset
+                                ((tileLocation.X + ((effectiveSize == 1) ? 0.5f : 1f)) * 64f) - 51f,
+                                (tileLocation.Y * 64f) - 16f + ___yDrawOffset
                             )
                         ),
                         Bush.shadowSourceRect,
@@ -95,8 +95,8 @@ internal class BushPatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                tileLocation.X * 64f + 32f,
-                                tileLocation.Y * 64f + 64f - 4f + ___yDrawOffset
+                                (tileLocation.X * 64f) + 32f,
+                                (tileLocation.Y * 64f) + 64f - 4f + ___yDrawOffset
                             )
                         ),
                         Game1.shadowTexture.Bounds,
@@ -120,7 +120,7 @@ internal class BushPatch : PatchTemplate
             if (__instance.size.Value == Bush.greenTeaBush)
             {
                 sourceRect = new Rectangle(
-                    Math.Min(2, __instance.getAge() / 10) * 16 + __instance.tileSheetOffset.Value * 16,
+                    (Math.Min(2, __instance.getAge() / 10) * 16) + (__instance.tileSheetOffset.Value * 16),
                     textureOffset,
                     16,
                     32
@@ -131,8 +131,8 @@ internal class BushPatch : PatchTemplate
                 Game1.GlobalToLocal(
                     Game1.viewport,
                     new Vector2(
-                        tileLocation.X * 64f + (float)((effectiveSize + 1) * 64 / 2),
-                        (tileLocation.Y + 1f) * 64f
+                        (tileLocation.X * 64f) + (float)((effectiveSize + 1) * 64 / 2),
+                        ((tileLocation.Y + 1f) * 64f)
                             - (float)(
                                 (
                                     effectiveSize > 0
@@ -151,7 +151,7 @@ internal class BushPatch : PatchTemplate
                 new Vector2((effectiveSize + 1) * 16 / 2, 32f),
                 4f,
                 __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                (float)(__instance.getBoundingBox().Center.Y + 48) / 10000f - tileLocation.X / 1000000f
+                ((float)(__instance.getBoundingBox().Center.Y + 48) / 10000f) - (tileLocation.X / 1000000f)
             );
 
             return false;

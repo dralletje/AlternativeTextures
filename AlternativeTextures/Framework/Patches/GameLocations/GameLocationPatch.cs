@@ -70,11 +70,11 @@ internal class GameLocationPatch : PatchTemplate
             )
         )
         {
-            var position = (
+            var position = 
                 (!Game1.wasMouseVisibleThisFrame)
                     ? Game1.player.GetToolLocation()
                     : new Vector2(Game1.getOldMouseX() + Game1.viewport.X, Game1.getOldMouseY() + Game1.viewport.Y)
-            );
+            ;
             tool.beginUsing(__instance, (int)position.X, (int)position.Y, who);
             __result = false;
             return false;

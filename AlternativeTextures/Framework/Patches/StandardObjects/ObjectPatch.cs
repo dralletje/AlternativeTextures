@@ -204,28 +204,28 @@ internal class ObjectPatch : PatchTemplate
             {
                 // Get required draw values
                 var scaleFactor = __instance.getScale() * 4f;
-                var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+                var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
                 Rectangle destination = new Rectangle(
-                    (int)(position.X - scaleFactor.X / 2f)
+                    (int)(position.X - (scaleFactor.X / 2f))
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                    (int)(position.Y - scaleFactor.Y / 2f)
+                    (int)(position.Y - (scaleFactor.Y / 2f))
                         + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                     (int)(64f + scaleFactor.X),
-                    (int)(128f + scaleFactor.Y / 2f)
+                    (int)(128f + (scaleFactor.Y / 2f))
                 );
-                var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+                var draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f) + ((float)x * 1E-05f);
 
                 // Handle outliers for draw
                 if (__instance.ParentSheetIndex is 105 or 264)
                 {
-                    draw_layer = Math.Max(0f, (float)((y + 1) * 64 + 2) / 10000f) + (float)x / 1000000f;
+                    draw_layer = Math.Max(0f, (float)(((y + 1) * 64) + 2) / 10000f) + ((float)x / 1000000f);
                 }
                 if (__instance.ParentSheetIndex == 272)
                 {
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         destination,
-                        new Rectangle(16 + xTileOffset * 2, textureOffset, 16, 32),
+                        new Rectangle(16 + (xTileOffset * 2), textureOffset, 16, 32),
                         Color.White * alpha,
                         0f,
                         Vector2.Zero,
@@ -234,8 +234,8 @@ internal class ObjectPatch : PatchTemplate
                     );
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
-                        position + new Vector2(8.5f, 12f) * 4f,
-                        new Rectangle(32 + xTileOffset * 2, textureOffset, 16, 32),
+                        position + (new Vector2(8.5f, 12f) * 4f),
+                        new Rectangle(32 + (xTileOffset * 2), textureOffset, 16, 32),
                         Color.White * alpha,
                         (float)Game1.currentGameTime.TotalGameTime.TotalSeconds * -1.5f,
                         new Vector2(7.5f, 15.5f),
@@ -275,7 +275,7 @@ internal class ObjectPatch : PatchTemplate
                         new Vector2(8f, 8f),
                         4f,
                         SpriteEffects.None,
-                        Math.Max(0f, (float)((y + 1) * 64) / 10000f + 0.0001f + (float)x * 1E-05f)
+                        Math.Max(0f, ((float)((y + 1) * 64) / 10000f) + 0.0001f + ((float)x * 1E-05f))
                     );
                 }
                 if (__instance.isLamp.Value && Game1.isDarkOut(Game1.currentLocation))
@@ -289,14 +289,14 @@ internal class ObjectPatch : PatchTemplate
                         Vector2.Zero,
                         4f,
                         SpriteEffects.None,
-                        Math.Max(0f, (float)((y + 1) * 64 - 20) / 10000f) + (float)x / 1000000f
+                        Math.Max(0f, (float)(((y + 1) * 64) - 20) / 10000f) + ((float)x / 1000000f)
                     );
                 }
                 if (__instance.ParentSheetIndex == 126 && __instance.Quality != 0)
                 {
                     spriteBatch.Draw(
                         FarmerRenderer.hatsTexture,
-                        position + new Vector2(-3f, -6f) * 4f,
+                        position + (new Vector2(-3f, -6f) * 4f),
                         new Rectangle(
                             (__instance.Quality - 1) * 20 % FarmerRenderer.hatsTexture.Width,
                             (__instance.Quality - 1) * 20 / FarmerRenderer.hatsTexture.Width * 20 * 4,
@@ -308,7 +308,7 @@ internal class ObjectPatch : PatchTemplate
                         Vector2.Zero,
                         4f,
                         SpriteEffects.None,
-                        Math.Max(0f, (float)((y + 1) * 64 - 20) / 10000f) + (float)x * 1E-05f
+                        Math.Max(0f, (float)(((y + 1) * 64) - 20) / 10000f) + ((float)x * 1E-05f)
                     );
                 }
             }
@@ -319,18 +319,18 @@ internal class ObjectPatch : PatchTemplate
                     var position2 = Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
-                            x * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                            y * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
+                            (x * 64) + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                            (y * 64) + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                         )
                     );
                     var color = Color.White * alpha;
                     Vector2 origin = new Vector2(8f, 8f);
 
-                    var artifactOffset = (
+                    var artifactOffset = 
                         (Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 1200.0 <= 400.0)
                             ? ((int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 400.0 / 100.0) * 16)
                             : 0
-                    );
+                    ;
                     spriteBatch.Draw(
                         textureModel.GetTexture(textureVariation),
                         position2,
@@ -352,7 +352,7 @@ internal class ObjectPatch : PatchTemplate
                 {
                     spriteBatch.Draw(
                         Game1.shadowTexture,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32, y * 64 + 51 + 4)),
+                        Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32, (y * 64) + 51 + 4)),
                         Game1.shadowTexture.Bounds,
                         Color.White * alpha,
                         0f,
@@ -368,14 +368,14 @@ internal class ObjectPatch : PatchTemplate
                 var position3 = Game1.GlobalToLocal(
                     Game1.viewport,
                     new Vector2(
-                        x * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                        y * 64 + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
+                        (x * 64) + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                        (y * 64) + 32 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                     )
                 );
                 if (__instance.ParentSheetIndex == 746)
                 {
                     origin2 = Vector2.Zero;
-                    position3 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+                    position3 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
                 }
 
                 spriteBatch.Draw(
@@ -411,7 +411,7 @@ internal class ObjectPatch : PatchTemplate
                 return false;
             }
 
-            var base_sort = (float)((y + 1) * 64) / 10000f + __instance.TileLocation.X / 50000f;
+            var base_sort = ((float)((y + 1) * 64) / 10000f) + (__instance.TileLocation.X / 50000f);
             if (__instance.IsTapper() || __instance.QualifiedItemId.Equals("(BC)MushroomLog"))
             {
                 base_sort += 0.02f;
@@ -420,7 +420,7 @@ internal class ObjectPatch : PatchTemplate
                 4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
             spriteBatch.Draw(
                 Game1.mouseCursors,
-                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 - 8, (float)(y * 64 - 96 - 16) + yOffset)),
+                Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) - 8, (float)((y * 64) - 96 - 16) + yOffset)),
                 new Rectangle(141, 465, 20, 24),
                 Color.White * 0.75f,
                 0f,
@@ -452,7 +452,7 @@ internal class ObjectPatch : PatchTemplate
             }
             spriteBatch.Draw(
                 texture,
-                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32, (float)(y * 64 - 64 - 8) + yOffset)),
+                Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32, (float)((y * 64) - 64 - 8) + yOffset)),
                 heldItemData.GetSourceRect(),
                 Color.White * 0.75f,
                 0f,
@@ -467,7 +467,7 @@ internal class ObjectPatch : PatchTemplate
                     spriteBatch,
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        new Vector2(x * 64, (float)(y * 64 - 64 - 32) + yOffset - 4f)
+                        new Vector2(x * 64, (float)((y * 64) - 64 - 32) + yOffset - 4f)
                     ),
                     1f,
                     1f,
@@ -482,7 +482,7 @@ internal class ObjectPatch : PatchTemplate
                     spriteBatch,
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        new Vector2(x * 64, (float)(y * 64 - 64 - 32) + yOffset - 4f)
+                        new Vector2(x * 64, (float)((y * 64) - 64 - 32) + yOffset - 4f)
                     ),
                     1f,
                     1f,

@@ -75,7 +75,7 @@ internal class ResourceClumpPatch : PatchTemplate
                 Vector2.Zero,
                 4f,
                 SpriteEffects.None,
-                (__instance.Tile.Y + 1f) * 64f / 10000f + __instance.Tile.X / 100000f
+                ((__instance.Tile.Y + 1f) * 64f / 10000f) + (__instance.Tile.X / 100000f)
             );
 
             return false;

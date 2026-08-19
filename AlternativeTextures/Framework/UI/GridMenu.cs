@@ -198,7 +198,7 @@ internal class GridMenu : IClickableMenu
 
     protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
     {
-        var thisRow = (oldID) / gridSize.Columns;
+        var thisRow = oldID / gridSize.Columns;
         var isFirstRow = thisRow == 0;
         var isLastRow = thisRow + 1 == gridSize.Rows;
         if (direction is Direction.DOWN)
@@ -384,7 +384,7 @@ internal class GridMenu : IClickableMenu
             SpriteText.drawStringWithScrollCenteredAt(
                 batch,
                 _title,
-                base.xPositionOnScreen + base.width / 4,
+                base.xPositionOnScreen + (base.width / 4),
                 base.yPositionOnScreen - 64
             );
             IClickableMenu.drawTextureBox(

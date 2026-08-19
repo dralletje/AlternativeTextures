@@ -89,7 +89,7 @@ internal class GiantCropPatch : PatchTemplate
                 textureModel.GetTexture(textureVariation),
                 Game1.GlobalToLocal(
                     Game1.viewport,
-                    tileLocation * 64f
+                    (tileLocation * 64f)
                         - new Vector2(
                             (___shakeTimer > 0f)
                                 ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 2f)

@@ -114,11 +114,11 @@ internal class CropPatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                tileLocation.X * 64f
-                                    + ((tileLocation.X * 11f + tileLocation.Y * 7f) % 10f - 5f)
+                                (tileLocation.X * 64f)
+                                    + ((((tileLocation.X * 11f) + (tileLocation.Y * 7f)) % 10f) - 5f)
                                     + 32f,
-                                tileLocation.Y * 64f
-                                    + ((tileLocation.Y * 11f + tileLocation.X * 7f) % 10f - 5f)
+                                (tileLocation.Y * 64f)
+                                    + ((((tileLocation.Y * 11f) + (tileLocation.X * 7f)) % 10f) - 5f)
                                     + 64f
                             )
                         ),
@@ -128,7 +128,7 @@ internal class CropPatch : PatchTemplate
                         new Vector2(8f, 16f),
                         4f,
                         SpriteEffects.None,
-                        (tileLocation.Y * 64f + 32f + ((tileLocation.Y * 11f + tileLocation.X * 7f) % 10f - 5f))
+                        ((tileLocation.Y * 64f) + 32f + ((((tileLocation.Y * 11f) + (tileLocation.X * 7f)) % 10f) - 5f))
                             / 10000f
                     );
                 }
@@ -151,10 +151,10 @@ internal class CropPatch : PatchTemplate
             }
 
             // Handle the crops / flowers
-            var effect = (__instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None);
+            var effect = __instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
             var layerDepth =
                 (
-                    tileLocation.Y * 64f
+                    (tileLocation.Y * 64f)
                     + 32f
                     + (
                         (
@@ -162,7 +162,7 @@ internal class CropPatch : PatchTemplate
                             || __instance.currentPhase.Value >= __instance.phaseDays.Count - 1
                         )
                             ? 0f
-                            : ((tileLocation.Y * 11f + tileLocation.X * 7f) % 10f - 5f)
+                            : ((((tileLocation.Y * 11f) + (tileLocation.X * 7f)) % 10f) - 5f)
                     )
                 )
                 / 10000f
@@ -275,7 +275,7 @@ internal class CropPatch : PatchTemplate
                     new Vector2(8f, 8f),
                     4f,
                     SpriteEffects.None,
-                    (tileLocation.Y + 0.66f) * 64f / 10000f + tileLocation.X * 1E-05f
+                    ((tileLocation.Y + 0.66f) * 64f / 10000f) + (tileLocation.X * 1E-05f)
                 );
                 return false;
             }
@@ -293,7 +293,7 @@ internal class CropPatch : PatchTemplate
                 new Vector2(8f, 24f),
                 4f,
                 __instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                (tileLocation.Y + 0.66f) * 64f / 10000f + tileLocation.X * 1E-05f
+                ((tileLocation.Y + 0.66f) * 64f / 10000f) + (tileLocation.X * 1E-05f)
             );
             if (
                 (!tintColor.Equals(Color.White) || textureModel.HasTint(textureVariation))
@@ -323,7 +323,7 @@ internal class CropPatch : PatchTemplate
                     new Vector2(8f, 24f),
                     4f,
                     __instance.flip.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                    (tileLocation.Y + 0.67f) * 64f / 10000f + tileLocation.X * 1E-05f
+                    ((tileLocation.Y + 0.67f) * 64f / 10000f) + (tileLocation.X * 1E-05f)
                 );
             }
 

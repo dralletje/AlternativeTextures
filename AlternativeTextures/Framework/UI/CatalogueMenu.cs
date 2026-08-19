@@ -124,9 +124,9 @@ internal class CatalogueMenu : IClickableMenu
                 new ClickableComponent(
                     new Rectangle(
                         base.xPositionOnScreen + 16,
-                        base.yPositionOnScreen + 112 + i * ((base.height - 256) / 4 + 8),
+                        base.yPositionOnScreen + 112 + (i * (((base.height - 256) / 4) + 8)),
                         base.width - 32,
-                        (base.height - 256) / 4 + 12
+                        ((base.height - 256) / 4) + 12
                     ),
                     i.ToString() ?? ""
                 )
@@ -282,10 +282,10 @@ internal class CatalogueMenu : IClickableMenu
             var button = _objectButtons[i];
             button.upNeighborImmutable = true;
             button.downNeighborImmutable = true;
-            button.upNeighborID = ((i > 0) ? (i + 3546 - 1) : (-7777));
-            button.downNeighborID = (
+            button.upNeighborID = (i > 0) ? (i + 3546 - 1) : (-7777);
+            button.downNeighborID = 
                 (i < 3 && i < _currentlyDisplayedObjects.Count - 1) ? (i + 3546 + 1) : (-7777)
-            );
+            ;
 
             if (i >= _currentlyDisplayedObjects.Count)
             {
@@ -318,7 +318,7 @@ internal class CatalogueMenu : IClickableMenu
                 _tabButtons[i].bounds.X = base.xPositionOnScreen - 64;
             }
 
-            _tabButtons[i].bounds.Y = base.yPositionOnScreen + i * 16 * 4 + 16;
+            _tabButtons[i].bounds.Y = base.yPositionOnScreen + (i * 16 * 4) + 16;
         }
     }
 
@@ -588,18 +588,18 @@ internal class CatalogueMenu : IClickableMenu
         {
             for (var c = 0; c < _texturesPerRow; c++)
             {
-                var componentId = c + r * _texturesPerRow;
+                var componentId = c + (r * _texturesPerRow);
                 _alternativeTextureButtons.Add(
                     new ClickableTextureComponent(
                         new Rectangle(
                             base.xPositionOnScreen
                                 + IClickableMenu.borderWidth
                                 + 32
-                                + componentId % _texturesPerRow * 128,
+                                + (componentId % _texturesPerRow * 128),
                             base.yPositionOnScreen
                                 + sourceRect.Height
                                 + 128
-                                + componentId / _texturesPerRow * (4 * sourceRect.Height),
+                                + (componentId / _texturesPerRow * 4 * sourceRect.Height),
                             4 * sourceRect.Width,
                             4 * sourceRect.Height
                         ),
@@ -935,7 +935,7 @@ internal class CatalogueMenu : IClickableMenu
                 _alternativeTextureButtons[i].item = null;
                 _alternativeTextureButtons[i].texture = null;
 
-                var textureIndex = i + _startingRow * _texturesPerRow;
+                var textureIndex = i + (_startingRow * _texturesPerRow);
                 if (textureIndex < _currentlyDisplayedTextures.Count)
                 {
                     var textureObject = _currentlyDisplayedTextures[textureIndex];
@@ -953,11 +953,11 @@ internal class CatalogueMenu : IClickableMenu
                             _alternativeTextureButtons[i].texture,
                             new Vector2(
                                 (float)_alternativeTextureButtons[i].bounds.X
-                                    + (float)(_alternativeTextureButtons[i].sourceRect.Width / 2)
-                                        * _alternativeTextureButtons[i].baseScale,
+                                    + ((float)(_alternativeTextureButtons[i].sourceRect.Width / 2)
+                                        * _alternativeTextureButtons[i].baseScale),
                                 (float)_alternativeTextureButtons[i].bounds.Y
-                                    + (float)(_alternativeTextureButtons[i].sourceRect.Height / 2)
-                                        * _alternativeTextureButtons[i].baseScale
+                                    + ((float)(_alternativeTextureButtons[i].sourceRect.Height / 2)
+                                        * _alternativeTextureButtons[i].baseScale)
                                     + offset
                             ),
                             _alternativeTextureButtons[i].sourceRect,
@@ -1021,7 +1021,7 @@ internal class CatalogueMenu : IClickableMenu
                     _objectButtons[k].bounds.Y,
                     _objectButtons[k].bounds.Width,
                     _objectButtons[k].bounds.Height,
-                    (_objectButtons[k].containsPoint(Game1.getOldMouseX(), Game1.getOldMouseY()))
+                    _objectButtons[k].containsPoint(Game1.getOldMouseX(), Game1.getOldMouseY())
                         ? purchaseTextColor
                         : Color.White,
                     4f,
@@ -1085,7 +1085,7 @@ internal class CatalogueMenu : IClickableMenu
         SpriteText.drawStringWithScrollCenteredAt(
             b,
             titleBarText,
-            base.xPositionOnScreen + SpriteText.getWidthOfString(titleBarText) / 2,
+            base.xPositionOnScreen + (SpriteText.getWidthOfString(titleBarText) / 2),
             base.yPositionOnScreen - 64
         );
 

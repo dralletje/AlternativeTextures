@@ -232,8 +232,8 @@ class ModConfigHolder(Mod mod)
                                 var isFloor = model.ItemName.Equals("Floor", StringComparison.OrdinalIgnoreCase);
                                 var decorationOffset = isFloor ? 8 : 16;
                                 sourceRect = new Rectangle(
-                                    (variation % decorationOffset) * model.TextureWidth,
-                                    (variation / decorationOffset) * model.TextureHeight,
+                                    variation % decorationOffset * model.TextureWidth,
+                                    variation / decorationOffset * model.TextureHeight,
                                     model.TextureWidth,
                                     model.TextureHeight
                                 );

@@ -88,7 +88,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
@@ -98,7 +98,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(border_size * 4),
+                                        (tileLocation.X * 64f) + 64f - (float)(border_size * 4),
                                         tileLocation.Y * 64f
                                     )
                                 ),
@@ -108,7 +108,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f) + cornerSortOffset) / 20000f
                             );
                         }
                         if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
@@ -118,8 +118,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(border_size * 4),
-                                        tileLocation.Y * 64f + 64f - (float)(border_size * 4)
+                                        (tileLocation.X * 64f) + 64f - (float)(border_size * 4),
+                                        (tileLocation.Y * 64f) + 64f - (float)(border_size * 4)
                                     )
                                 ),
                                 new Rectangle(16 + corner.X, corner.Y, border_size, border_size),
@@ -128,7 +128,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
@@ -139,7 +139,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                     Game1.viewport,
                                     new Vector2(
                                         tileLocation.X * 64f,
-                                        tileLocation.Y * 64f + 64f - (float)(border_size * 4)
+                                        (tileLocation.Y * 64f) + 64f - (float)(border_size * 4)
                                     )
                                 ),
                                 new Rectangle(64 - border_size + corner.X, corner.Y, border_size, border_size),
@@ -148,7 +148,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         break;
@@ -175,7 +175,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         if ((___neighborMask & 3) == 3 && (___neighborMask & 0x10) == 0)
@@ -185,7 +185,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(borderSize * 4),
+                                        (tileLocation.X * 64f) + 64f - (float)(borderSize * 4),
                                         tileLocation.Y * 64f
                                     )
                                 ),
@@ -195,7 +195,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f + cornerSortOffset) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f) + cornerSortOffset) / 20000f
                             );
                         }
                         if ((___neighborMask & 6) == 6 && (___neighborMask & 0x40) == 0)
@@ -205,8 +205,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + 64f - (float)(borderSize * 4),
-                                        tileLocation.Y * 64f + 48f
+                                        (tileLocation.X * 64f) + 64f - (float)(borderSize * 4),
+                                        (tileLocation.Y * 64f) + 48f
                                     )
                                 ),
                                 new Rectangle(16 + corner.X, corner.Y, borderSize, borderSize),
@@ -215,7 +215,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         if ((___neighborMask & 0xC) == 12 && (___neighborMask & 0x80) == 0)
@@ -226,7 +226,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                     Game1.viewport,
                                     new Vector2(
                                         tileLocation.X * 64f,
-                                        tileLocation.Y * 64f + 64f - (float)(borderSize * 4)
+                                        (tileLocation.Y * 64f) + 64f - (float)(borderSize * 4)
                                     )
                                 ),
                                 new Rectangle(64 - borderSize + corner.X, corner.Y, borderSize, borderSize),
@@ -235,7 +235,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (tileLocation.Y * 64f + 2f + tileLocation.X / 10000f) / 20000f
+                                ((tileLocation.Y * 64f) + 2f + (tileLocation.X / 10000f)) / 20000f
                             );
                         }
                         break;
@@ -271,8 +271,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
                             Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f))
                                 + new Vector2(-4f, 4f),
                             new Rectangle(
-                                corner.X + sourceRectPosition * 16 % 256,
-                                sourceRectPosition / 16 * 16 + corner.Y,
+                                corner.X + (sourceRectPosition * 16 % 256),
+                                (sourceRectPosition / 16 * 16) + corner.Y,
                                 16,
                                 16
                             ),
@@ -382,13 +382,13 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             spriteBatch.Draw(
                 textureModel.GetTexture(textureVariation),
                 positionOnScreen,
-                new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16 + textureOffset, 16, 16),
+                new Rectangle(sourceRectPosition % 16 * 16, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
                 Color.White,
                 0f,
                 Vector2.Zero,
                 scale * 4f,
                 SpriteEffects.None,
-                layerDepth + positionOnScreen.Y / 20000f
+                layerDepth + (positionOnScreen.Y / 20000f)
             );
 
             return false;

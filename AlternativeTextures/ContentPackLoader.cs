@@ -384,7 +384,7 @@ class ContentPackLoader(Mod mod)
                 );
                 extractedTexture.SetData(extractPixels);
 
-                textureModel.Textures[v] = (extractedTexture);
+                textureModel.Textures[v] = extractedTexture;
             }
         }
         catch (Exception exception)

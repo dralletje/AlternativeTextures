@@ -29,8 +29,8 @@ public static class RectangleExtensions
             var width = fittingRatio > containerRatio ? rectangle.Width : rectangle.Height * fittingRatio;
             var height = fittingRatio > containerRatio ? rectangle.Width / fittingRatio : rectangle.Height;
 
-            var x = rectangle.X + (rectangle.Width - width) / 2f;
-            var y = rectangle.Y + (rectangle.Height - height) / 2f;
+            var x = rectangle.X + ((rectangle.Width - width) / 2f);
+            var y = rectangle.Y + ((rectangle.Height - height) / 2f);
 
             return new Rectangle((int)x, (int)y, (int)width, (int)height);
         }

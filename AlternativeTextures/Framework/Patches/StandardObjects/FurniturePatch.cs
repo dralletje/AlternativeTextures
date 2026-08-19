@@ -373,7 +373,7 @@ internal class FurniturePatch : PatchTemplate
                         4f,
                         __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                         (__instance.furniture_type.Value == 12)
-                            ? (2E-09f + __instance.TileLocation.Y / 100000f)
+                            ? (2E-09f + (__instance.TileLocation.Y / 100000f))
                             : (
                                 (float)(
                                     __instance.boundingBox.Value.Bottom
@@ -398,9 +398,9 @@ internal class FurniturePatch : PatchTemplate
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
-                            x * 64 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                            y * 64
-                                - (__instance.sourceRect.Height * 4 - __instance.boundingBox.Height)
+                            (x * 64) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                            (y * 64)
+                                - ((__instance.sourceRect.Height * 4) - __instance.boundingBox.Height)
                                 + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                         )
                     ),
@@ -411,7 +411,7 @@ internal class FurniturePatch : PatchTemplate
                     4f,
                     __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                     (__instance.furniture_type.Value == 12)
-                        ? (2E-09f + __instance.TileLocation.Y / 100000f)
+                        ? (2E-09f + (__instance.TileLocation.Y / 100000f))
                         : (
                             (float)(
                                 __instance.boundingBox.Value.Bottom
@@ -439,7 +439,7 @@ internal class FurniturePatch : PatchTemplate
                             new Vector2(
                                 __instance.boundingBox.Center.X - 32,
                                 __instance.boundingBox.Center.Y
-                                    - (__instance.heldObject.Value as Furniture).sourceRect.Height * 4
+                                    - ((__instance.heldObject.Value as Furniture).sourceRect.Height * 4)
                                     - (__instance.drawHeldObjectLow.Value ? (-16) : 16)
                             )
                         ),
@@ -534,7 +534,7 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 3047)
@@ -542,7 +542,7 @@ internal class FurniturePatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11
@@ -562,7 +562,7 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 2047)
@@ -570,7 +570,7 @@ internal class FurniturePatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11
@@ -596,7 +596,7 @@ internal class FurniturePatch : PatchTemplate
                     ),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 3047)
@@ -604,7 +604,7 @@ internal class FurniturePatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11

@@ -66,16 +66,16 @@ internal class WoodChipperPatch : PatchTemplate
             }
             var scale_factor = Vector2.One;
             scale_factor *= 4f;
-            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             Rectangle destination = new Rectangle(
-                (int)(position.X - scale_factor.X / 2f)
+                (int)(position.X - (scale_factor.X / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                (int)(position.Y - scale_factor.Y / 2f)
+                (int)(position.Y - (scale_factor.Y / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)(64f + scale_factor.X),
-                (int)(128f + scale_factor.Y / 2f)
+                (int)(128f + (scale_factor.Y / 2f))
             );
-            var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+            var draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f) + ((float)x * 1E-05f);
             spriteBatch.Draw(
                 textureModel.GetTexture(textureVariation),
                 destination,
@@ -106,7 +106,7 @@ internal class WoodChipperPatch : PatchTemplate
             }
             if (___depositedItem.Value != null && __instance.shakeTimer > 0 && ____isAnimatingChip)
             {
-                var completion = 1f - (float)__instance.shakeTimer / 1000f;
+                var completion = 1f - ((float)__instance.shakeTimer / 1000f);
                 var end_position = position + new Vector2(32f, 32f);
                 var start_position = end_position + new Vector2(0f, -16f);
                 Vector2 draw_position = default(Vector2);
@@ -132,8 +132,8 @@ internal class WoodChipperPatch : PatchTemplate
                 var frame = (int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 200.0) / 50;
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
-                    position + new Vector2(6f, 17f) * 4f,
-                    new Rectangle(32 + frame % 2 * 8, textureOffset + 16 + frame / 2 * 7, 8, 7),
+                    position + (new Vector2(6f, 17f) * 4f),
+                    new Rectangle(32 + (frame % 2 * 8), textureOffset + 16 + (frame / 2 * 7), 8, 7),
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -144,7 +144,7 @@ internal class WoodChipperPatch : PatchTemplate
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     position
-                        + new Vector2(3f, 9f) * 4f
+                        + (new Vector2(3f, 9f) * 4f)
                         + new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2)),
                     new Rectangle(3, textureOffset + 9, 10, 6),
                     Color.White * alpha,
@@ -163,16 +163,16 @@ internal class WoodChipperPatch : PatchTemplate
                 4f * (float)Math.Round(Math.Sin(Game1.currentGameTime.TotalGameTime.TotalMilliseconds / 250.0), 2);
             spriteBatch.Draw(
                 Game1.mouseCursors,
-                Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 - 8, (float)(y * 64 - 96 - 16) + yOffset)),
+                Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) - 8, (float)((y * 64) - 96 - 16) + yOffset)),
                 new Rectangle(141, 465, 20, 24),
                 Color.White * 0.75f,
                 0f,
                 Vector2.Zero,
                 4f,
                 SpriteEffects.None,
-                (float)((y + 1) * 64) / 10000f
+                ((float)((y + 1) * 64) / 10000f)
                     + 1E-06f
-                    + __instance.TileLocation.X / 10000f
+                    + (__instance.TileLocation.X / 10000f)
                     + ((__instance.ParentSheetIndex == 105) ? 0.0015f : 0f)
             );
             if (__instance.heldObject.Value != null)
@@ -181,7 +181,7 @@ internal class WoodChipperPatch : PatchTemplate
                     Game1.objectSpriteSheet,
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        new Vector2(x * 64 + 32, (float)(y * 64 - 64 - 8) + yOffset)
+                        new Vector2((x * 64) + 32, (float)((y * 64) - 64 - 8) + yOffset)
                     ),
                     Game1.getSourceRectForStandardTileSheet(
                         Game1.objectSpriteSheet,
@@ -194,9 +194,9 @@ internal class WoodChipperPatch : PatchTemplate
                     new Vector2(8f, 8f),
                     4f,
                     SpriteEffects.None,
-                    (float)((y + 1) * 64) / 10000f
+                    ((float)((y + 1) * 64) / 10000f)
                         + 1E-05f
-                        + __instance.TileLocation.X / 10000f
+                        + (__instance.TileLocation.X / 10000f)
                         + ((__instance.ParentSheetIndex == 105) ? 0.0015f : 0f)
                 );
                 if (__instance.heldObject.Value is ColoredObject)
@@ -205,7 +205,7 @@ internal class WoodChipperPatch : PatchTemplate
                         Game1.objectSpriteSheet,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(x * 64 + 32, (float)(y * 64 - 64 - 8) + yOffset)
+                            new Vector2((x * 64) + 32, (float)((y * 64) - 64 - 8) + yOffset)
                         ),
                         Game1.getSourceRectForStandardTileSheet(
                             Game1.objectSpriteSheet,
@@ -218,9 +218,9 @@ internal class WoodChipperPatch : PatchTemplate
                         new Vector2(8f, 8f),
                         4f,
                         SpriteEffects.None,
-                        (float)((y + 1) * 64) / 10000f
+                        ((float)((y + 1) * 64) / 10000f)
                             + 1E-05f
-                            + __instance.TileLocation.X / 10000f
+                            + (__instance.TileLocation.X / 10000f)
                             + ((__instance.ParentSheetIndex == 105) ? 0.0015f : 1E-05f)
                     );
                 }

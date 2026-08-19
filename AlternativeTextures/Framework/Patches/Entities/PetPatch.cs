@@ -155,7 +155,7 @@ internal class PetPatch : PatchTemplate
                     Vector2.Zero,
                     4f,
                     SpriteEffects.None,
-                    (float)__instance.StandingPixel.Y / 10000f + 0.0001f
+                    ((float)__instance.StandingPixel.Y / 10000f) + 0.0001f
                 );
             }
         }

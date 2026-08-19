@@ -88,7 +88,7 @@ internal class TorchPatch : PatchTemplate
                 );
                 sourceRect.Y += 8;
                 sourceRect.Height /= 2;
-                var position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
+                var position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) + 32));
                 Rectangle? sourceRectangle = sourceRect;
                 var white = Color.White;
                 var zero = Vector2.Zero;
@@ -106,7 +106,7 @@ internal class TorchPatch : PatchTemplate
                 );
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) + 32)),
                     new Rectangle(88, 1779, 30, 30),
                     Color.PaleGoldenrod * (Game1.currentLocation.IsOutdoors ? 0.35f : 0.43f),
                     0f,
@@ -131,7 +131,7 @@ internal class TorchPatch : PatchTemplate
 
                 sourceRect.X =
                     276
-                    + (int)(
+                    + ((int)(
                         (
                             Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                             + (double)(x * 3204)
@@ -139,13 +139,13 @@ internal class TorchPatch : PatchTemplate
                         )
                         % 700.0
                         / 100.0
-                    ) * 8;
+                    ) * 8);
                 sourceRect.Y = 1965;
                 sourceRect.Width = 8;
                 sourceRect.Height = 8;
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 + 4, y * 64 + 16 + 4)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32 + 4, (y * 64) + 16 + 4)),
                     sourceRect,
                     Color.White * 0.75f,
                     0f,
@@ -161,10 +161,10 @@ internal class TorchPatch : PatchTemplate
                         Game1.objectSpriteSheet,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2((float)(x * 64 + 32) + ___ashes[i].X, (float)(y * 64 + 32) + ___ashes[i].Y)
+                            new Vector2((float)((x * 64) + 32) + ___ashes[i].X, (float)((y * 64) + 32) + ___ashes[i].Y)
                         ),
-                        new Rectangle(344 + i % 3, 53, 1, 1),
-                        Color.White * 0.5f * ((-100f - ___ashes[i].Y / 2f) / -100f),
+                        new Rectangle(344 + (i % 3), 53, 1, 1),
+                        Color.White * 0.5f * ((-100f - (___ashes[i].Y / 2f)) / -100f),
                         0f,
                         Vector2.Zero,
                         3f,
@@ -175,7 +175,7 @@ internal class TorchPatch : PatchTemplate
                 return false;
             }
             ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
-            var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+            var draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f) + ((float)x * 1E-05f);
 
             if (!__instance.IsOn)
             {
@@ -186,10 +186,10 @@ internal class TorchPatch : PatchTemplate
             {
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 4, y * 64 - 8)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 16 - 4, (y * 64) - 8)),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 3047)
@@ -197,7 +197,7 @@ internal class TorchPatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11
@@ -211,10 +211,10 @@ internal class TorchPatch : PatchTemplate
                 );
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 12, y * 64)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32 - 12, y * 64)),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 2047)
@@ -222,7 +222,7 @@ internal class TorchPatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11
@@ -236,10 +236,10 @@ internal class TorchPatch : PatchTemplate
                 );
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 20, y * 64 + 12)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 32 - 20, (y * 64) + 12)),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 2077)
@@ -247,7 +247,7 @@ internal class TorchPatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11
@@ -269,10 +269,10 @@ internal class TorchPatch : PatchTemplate
             {
                 spriteBatch.Draw(
                     Game1.mouseCursors,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 8, y * 64 - 64 + 8)),
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2((x * 64) + 16 - 8, (y * 64) - 64 + 8)),
                     new Rectangle(
                         276
-                            + (int)(
+                            + ((int)(
                                 (
                                     Game1.currentGameTime.TotalGameTime.TotalMilliseconds
                                     + (double)(x * 3047)
@@ -280,7 +280,7 @@ internal class TorchPatch : PatchTemplate
                                 )
                                 % 400.0
                                 / 100.0
-                            ) * 12,
+                            ) * 12),
                         1985,
                         12,
                         11

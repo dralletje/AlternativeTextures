@@ -157,8 +157,8 @@ internal class FruitTreePatch : PatchTemplate
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
-                            tileLocation.X * 64f + 32f + positionOffset.X,
-                            tileLocation.Y * 64f - (float)sourceRect.Height + 128f + positionOffset.Y
+                            (tileLocation.X * 64f) + 32f + positionOffset.X,
+                            (tileLocation.Y * 64f) - (float)sourceRect.Height + 128f + positionOffset.Y
                         )
                     ),
                     sourceRect,
@@ -167,7 +167,7 @@ internal class FruitTreePatch : PatchTemplate
                     new Vector2(24f, 80f),
                     4f,
                     __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                    __instance.getBoundingBox().Bottom / 10000f - tileLocation.X / 1000000f
+                    (__instance.getBoundingBox().Bottom / 10000f) - (tileLocation.X / 1000000f)
                 );
             }
             else
@@ -182,11 +182,11 @@ internal class FruitTreePatch : PatchTemplate
                             textureModel.GetTexture(textureVariation),
                             Game1.GlobalToLocal(
                                 Game1.viewport,
-                                new Vector2(tileLocation.X * 64f + 32f, tileLocation.Y * 64f + 64f)
+                                new Vector2((tileLocation.X * 64f) + 32f, (tileLocation.Y * 64f) + 64f)
                             ),
                             new Rectangle(
-                                (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3) * 16,
-                                textureOffset * 5 * 16 + 64,
+                                (12 + ((ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3)) * 16,
+                                (textureOffset * 5 * 16) + 64,
                                 48,
                                 16
                             ),
@@ -204,10 +204,10 @@ internal class FruitTreePatch : PatchTemplate
                         textureModel.GetTexture(textureVariation),
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(tileLocation.X * 64f + 32f, tileLocation.Y * 64f + 64f)
+                            new Vector2((tileLocation.X * 64f) + 32f, (tileLocation.Y * 64f) + 64f)
                         ),
                         new Rectangle(
-                            (12 + (ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3) * 16,
+                            (12 + ((ignoreSeason ? 1 : Utility.getSeasonNumber(season)) * 3)) * 16,
                             textureOffset * 5 * 16,
                             48,
                             64
@@ -219,7 +219,7 @@ internal class FruitTreePatch : PatchTemplate
                         new Vector2(24f, 80f),
                         4f,
                         __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        boundingBox.Bottom / 10000f + 0.001f - tileLocation.X / 1000000f
+                        (boundingBox.Bottom / 10000f) + 0.001f - (tileLocation.X / 1000000f)
                     );
                 }
                 if (__instance.health.Value >= 1f || (!___falling.Value && __instance.health.Value > -99f))
@@ -229,17 +229,17 @@ internal class FruitTreePatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                tileLocation.X * 64f
+                                (tileLocation.X * 64f)
                                     + 32f
                                     + (
                                         (___shakeTimer > 0f)
                                             ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 2f)
                                             : 0f
                                     ),
-                                tileLocation.Y * 64f + 64f
+                                (tileLocation.Y * 64f) + 64f
                             )
                         ),
-                        new Rectangle(384, textureOffset * 5 * 16 + 48, 48, 32),
+                        new Rectangle(384, (textureOffset * 5 * 16) + 48, 48, 32),
                         (__instance.struckByLightningCountdown.Value > 0)
                             ? (Color.Gray * ___alpha)
                             : (Color.White * ___alpha),
@@ -249,16 +249,16 @@ internal class FruitTreePatch : PatchTemplate
                         __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                         (__instance.stump.Value && !___falling.Value)
                             ? (boundingBox.Bottom / 10000f)
-                            : (boundingBox.Bottom / 10000f - 0.001f - tileLocation.X / 1000000f)
+                            : ((boundingBox.Bottom / 10000f) - 0.001f - (tileLocation.X / 1000000f))
                     );
                 }
                 for (var i = 0; i < __instance.fruit.Count; i++)
                 {
-                    var obj = (
+                    var obj = 
                         (__instance.struckByLightningCountdown.Value > 0)
                             ? ItemRegistry.GetDataOrErrorItem("(O)382")
                             : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId)
-                    );
+                    ;
                     var texture = obj.GetTexture();
                     var sourceRect = obj.GetSourceRect();
                     switch (i)
@@ -269,8 +269,8 @@ internal class FruitTreePatch : PatchTemplate
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f - 64f + tileLocation.X * 200f % 64f / 2f,
-                                        tileLocation.Y * 64f - 192f - tileLocation.X % 64f / 3f
+                                        (tileLocation.X * 64f) - 64f + (tileLocation.X * 200f % 64f / 2f),
+                                        (tileLocation.Y * 64f) - 192f - (tileLocation.X % 64f / 3f)
                                     )
                                 ),
                                 sourceRect,
@@ -279,7 +279,7 @@ internal class FruitTreePatch : PatchTemplate
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
+                                ((float)boundingBox.Bottom / 10000f) + 0.002f - (tileLocation.X / 1000000f)
                             );
                             break;
                         case 1:
@@ -288,8 +288,8 @@ internal class FruitTreePatch : PatchTemplate
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + 32f,
-                                        tileLocation.Y * 64f - 256f + tileLocation.X * 232f % 64f / 3f
+                                        (tileLocation.X * 64f) + 32f,
+                                        (tileLocation.Y * 64f) - 256f + (tileLocation.X * 232f % 64f / 3f)
                                     )
                                 ),
                                 sourceRect,
@@ -298,7 +298,7 @@ internal class FruitTreePatch : PatchTemplate
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.None,
-                                (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
+                                ((float)boundingBox.Bottom / 10000f) + 0.002f - (tileLocation.X / 1000000f)
                             );
                             break;
                         case 2:
@@ -307,8 +307,8 @@ internal class FruitTreePatch : PatchTemplate
                                 Game1.GlobalToLocal(
                                     Game1.viewport,
                                     new Vector2(
-                                        tileLocation.X * 64f + tileLocation.X * 200f % 64f / 3f,
-                                        tileLocation.Y * 64f - 160f + tileLocation.X * 200f % 64f / 3f
+                                        (tileLocation.X * 64f) + (tileLocation.X * 200f % 64f / 3f),
+                                        (tileLocation.Y * 64f) - 160f + (tileLocation.X * 200f % 64f / 3f)
                                     )
                                 ),
                                 sourceRect,
@@ -317,7 +317,7 @@ internal class FruitTreePatch : PatchTemplate
                                 Vector2.Zero,
                                 4f,
                                 SpriteEffects.FlipHorizontally,
-                                (float)boundingBox.Bottom / 10000f + 0.002f - tileLocation.X / 1000000f
+                                ((float)boundingBox.Bottom / 10000f) + 0.002f - (tileLocation.X / 1000000f)
                             );
                             break;
                     }
@@ -334,7 +334,7 @@ internal class FruitTreePatch : PatchTemplate
                     Vector2.Zero,
                     4f,
                     SpriteEffects.None,
-                    __instance.getBoundingBox().Bottom / 10000f + 0.01f
+                    (__instance.getBoundingBox().Bottom / 10000f) + 0.01f
                 );
             }
 

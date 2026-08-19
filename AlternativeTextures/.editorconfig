@@ -7,3 +7,8 @@ dotnet_style_coalesce_expression = true:warning
 csharp_style_namespace_declarations = file_scoped:warning
 dotnet_style_prefer_collection_expression = true:warning
 csharp_style_prefer_primary_constructors = true:warning
+
+dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:warning
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:warning
+dotnet_style_parentheses_in_other_operators = never_if_unnecessary:warning
+dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:warning

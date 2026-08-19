@@ -154,8 +154,8 @@ internal class BuildingPatch : PatchTemplate
                             b.Draw(
                                 Game1.mouseCursors,
                                 new Vector2(
-                                    x + xWater * 64 + 32,
-                                    y + (yWater + 1) * 64 - (int)Game1.currentLocation.waterPosition - 32
+                                    x + (xWater * 64) + 32,
+                                    y + ((yWater + 1) * 64) - (int)Game1.currentLocation.waterPosition - 32
                                 ),
                                 new Rectangle(
                                     Game1.currentLocation.waterAnimationIndex * 64,
@@ -181,8 +181,8 @@ internal class BuildingPatch : PatchTemplate
                             b.Draw(
                                 Game1.mouseCursors,
                                 new Vector2(
-                                    x + xWater * 64 + 32,
-                                    y + yWater * 64 + 32 - (int)((!topY) ? Game1.currentLocation.waterPosition : 0f)
+                                    x + (xWater * 64) + 32,
+                                    y + (yWater * 64) + 32 - (int)((!topY) ? Game1.currentLocation.waterPosition : 0f)
                                 ),
                                 new Rectangle(
                                     Game1.currentLocation.waterAnimationIndex * 64,
@@ -299,7 +299,7 @@ internal class BuildingPatch : PatchTemplate
                 {
                     if (drawLayer.OnlyDrawIfChestHasContents == null)
                     {
-                        sortY = baseSortY - drawLayer.SortTileOffset * 64f;
+                        sortY = baseSortY - (drawLayer.SortTileOffset * 64f);
                         sortY += 1f;
                         if (drawLayer.DrawInBackground)
                         {
@@ -317,7 +317,7 @@ internal class BuildingPatch : PatchTemplate
                         }
                         b.Draw(
                             layerTexture,
-                            new Vector2(x, y) + drawLayer.DrawPosition * scale,
+                            new Vector2(x, y) + (drawLayer.DrawPosition * scale),
                             sourceRect,
                             Color.White,
                             0f,
@@ -477,7 +477,7 @@ internal class BuildingPatch : PatchTemplate
                     Game1.viewport,
                     new Vector2(
                         __instance.tileX.Value * 64,
-                        __instance.tileY.Value * 64 + __instance.tilesHigh.Value * 64
+                        (__instance.tileY.Value * 64) + (__instance.tilesHigh.Value * 64)
                     )
                 ),
                 paintedTexture.Bounds,

@@ -52,16 +52,16 @@ internal class PhonePatch : PatchTemplate
 
             var scaleFactor = __instance.getScale();
             scaleFactor *= 4f;
-            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             Rectangle destination = new Rectangle(
-                (int)(position.X - scaleFactor.X / 2f)
+                (int)(position.X - (scaleFactor.X / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                (int)(position.Y - scaleFactor.Y / 2f)
+                (int)(position.Y - (scaleFactor.Y / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)(64f + scaleFactor.X),
-                (int)(128f + scaleFactor.Y / 2f)
+                (int)(128f + (scaleFactor.Y / 2f))
             );
-            var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
+            var draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f) + ((float)x * 1E-05f);
             spriteBatch.Draw(
                 textureModel.GetTexture(textureVariation),
                 destination,
@@ -74,14 +74,14 @@ internal class PhonePatch : PatchTemplate
             );
 
             var ringing = Phone.ringingTimer is > 0 and < 600;
-            position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+            position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             destination = new Rectangle(
                 (int)position.X + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)position.Y + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 64,
                 128
             );
-            draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 20) / 10000f) + (float)x * 1E-05f;
+            draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 20) / 10000f) + ((float)x * 1E-05f);
             spriteBatch.Draw(
                 textureModel.GetTexture(textureVariation),
                 destination,

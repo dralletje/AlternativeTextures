@@ -100,9 +100,9 @@ internal class TreePatch : PatchTemplate
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
-                            tileLocation.X * 64f + 32f,
-                            tileLocation.Y * 64f
-                                - (float)(sourceRect.Height * 4 - 64)
+                            (tileLocation.X * 64f) + 32f,
+                            (tileLocation.Y * 64f)
+                                - (float)((sourceRect.Height * 4) - 64)
                                 + (float)((__instance.growthStage.Value >= 3) ? 128 : 64)
                         )
                     ),
@@ -124,10 +124,10 @@ internal class TreePatch : PatchTemplate
                         Game1.mouseCursors,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(tileLocation.X * 64f - 51f, tileLocation.Y * 64f - 16f)
+                            new Vector2((tileLocation.X * 64f) - 51f, (tileLocation.Y * 64f) - 16f)
                         ),
                         Tree.shadowSourceRect,
-                        Color.White * ((float)Math.PI / 2f - Math.Abs(___shakeRotation)),
+                        Color.White * (((float)Math.PI / 2f) - Math.Abs(___shakeRotation)),
                         0f,
                         Vector2.Zero,
                         4f,
@@ -159,7 +159,7 @@ internal class TreePatch : PatchTemplate
                         treeTexture,
                         Game1.GlobalToLocal(
                             Game1.viewport,
-                            new Vector2(tileLocation.X * 64f + 32f, tileLocation.Y * 64f + 64f)
+                            new Vector2((tileLocation.X * 64f) + 32f, (tileLocation.Y * 64f) + 64f)
                         ),
                         source_rect,
                         Color.White * ___alpha,
@@ -167,7 +167,7 @@ internal class TreePatch : PatchTemplate
                         new Vector2(24f, 96f),
                         4f,
                         __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        (float)(__instance.getBoundingBox().Bottom + 2) / 10000f - tileLocation.X / 1000000f
+                        ((float)(__instance.getBoundingBox().Bottom + 2) / 10000f) - (tileLocation.X / 1000000f)
                     );
                 }
 
@@ -188,13 +188,13 @@ internal class TreePatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                tileLocation.X * 64f
+                                (tileLocation.X * 64f)
                                     + (
                                         (___shakeTimer > 0f)
                                             ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
                                             : 0f
                                     ),
-                                tileLocation.Y * 64f - 64f
+                                (tileLocation.Y * 64f) - 64f
                             )
                         ),
                         stumpSource,
@@ -213,7 +213,7 @@ internal class TreePatch : PatchTemplate
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
-                                tileLocation.X * 64f
+                                (tileLocation.X * 64f)
                                     + (
                                         (___shakeTimer > 0f)
                                             ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
@@ -242,13 +242,13 @@ internal class TreePatch : PatchTemplate
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),
                     Game1.GlobalToLocal(Game1.viewport, i.position),
-                    new Rectangle(16 + i.type % 2 * 8, textureOffset + (112 + i.type / 2 * 8), 8, 8),
+                    new Rectangle(16 + (i.type % 2 * 8), textureOffset + 112 + (i.type / 2 * 8), 8, 8),
                     Color.White,
                     i.rotation,
                     Vector2.Zero,
                     4f,
                     SpriteEffects.None,
-                    (float)__instance.getBoundingBox().Bottom / 10000f + 0.01f
+                    ((float)__instance.getBoundingBox().Bottom / 10000f) + 0.01f
                 );
             }
             return false;

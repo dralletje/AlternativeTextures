@@ -107,7 +107,7 @@ static class SourceRects
         }
 
         return new Rectangle(
-            (sourceRectPosition * Fence.fencePieceWidth % fence.fenceTexture.Value.Bounds.Width),
+            sourceRectPosition * Fence.fencePieceWidth % fence.fenceTexture.Value.Bounds.Width,
             textureOffset
                 + (
                     sourceRectPosition
@@ -164,15 +164,15 @@ static class SourceRects
         {
             var textureCorner = flooring.GetTextureCorner();
             return new Rectangle(
-                textureCorner.X + sourceRectPosition % 16 * 16,
-                textureCorner.Y + sourceRectPosition / 16 * 16,
+                textureCorner.X + (sourceRectPosition % 16 * 16),
+                textureCorner.Y + (sourceRectPosition / 16 * 16),
                 16,
                 16
             );
         }
 
         var sourceRectOffset = textureModel?.GetTextureOffset(variation) ?? 0;
-        return new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16 + sourceRectOffset, 16, 16);
+        return new Rectangle(sourceRectPosition % 16 * 16, (sourceRectPosition / 16 * 16) + sourceRectOffset, 16, 16);
     }
 
     public static Rectangle GetTreeSourceRect(
@@ -216,11 +216,11 @@ static class SourceRects
             return new Rectangle(
                 (
                     12
-                    + (
+                    + ((
                         fruitTree.IgnoresSeasonsHere()
                             ? 1
                             : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
-                    ) * 3
+                    ) * 3)
                 ) * 16,
                 fruitTree.GetSpriteRowNumber() * 5 * 16,
                 48,
@@ -232,11 +232,11 @@ static class SourceRects
         Rectangle source_rect = new Rectangle(
             (
                 12
-                + (
+                + ((
                     fruitTree.IgnoresSeasonsHere()
                         ? 1
                         : Utility.getSeasonNumber(Game1.GetSeasonForLocation(Game1.currentLocation).ToString())
-                ) * 3
+                ) * 3)
             ) * 16,
             0,
             48,
@@ -298,7 +298,7 @@ static class SourceRects
         if (bush.size.Value == Bush.greenTeaBush)
         {
             return new Rectangle(
-                Math.Min(2, bush.getAge() / 10) * 16 + bush.tileSheetOffset.Value * 16,
+                (Math.Min(2, bush.getAge() / 10) * 16) + (bush.tileSheetOffset.Value * 16),
                 variation,
                 16,
                 32

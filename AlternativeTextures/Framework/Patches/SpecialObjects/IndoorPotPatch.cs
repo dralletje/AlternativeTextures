@@ -52,14 +52,14 @@ internal class IndoorPotPatch : PatchTemplate
 
             var scaleFactor = __instance.getScale();
             scaleFactor *= 4f;
-            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 - 64));
+            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
             Rectangle destination = new Rectangle(
-                (int)(position.X - scaleFactor.X / 2f)
+                (int)(position.X - (scaleFactor.X / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                (int)(position.Y - scaleFactor.Y / 2f)
+                (int)(position.Y - (scaleFactor.Y / 2f))
                     + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
                 (int)(64f + scaleFactor.X),
-                (int)(128f + scaleFactor.Y / 2f)
+                (int)(128f + (scaleFactor.Y / 2f))
             );
             spriteBatch.Draw(
                 textureModel.GetTexture(textureVariation),
@@ -74,9 +74,9 @@ internal class IndoorPotPatch : PatchTemplate
                 0f,
                 Vector2.Zero,
                 SpriteEffects.None,
-                Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f)
+                Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f)
                     + ((__instance.ParentSheetIndex == 105) ? 0.0035f : 0f)
-                    + (float)x * 1E-05f
+                    + ((float)x * 1E-05f)
             );
 
             if (__instance.hoeDirt.Value.fertilizer.Value != "0")
@@ -88,7 +88,7 @@ internal class IndoorPotPatch : PatchTemplate
                     Game1.mouseCursors,
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        new Vector2(__instance.TileLocation.X * 64f + 4f, __instance.TileLocation.Y * 64f - 12f)
+                        new Vector2((__instance.TileLocation.X * 64f) + 4f, (__instance.TileLocation.Y * 64f) - 12f)
                     ),
                     fertilizer_rect,
                     Color.White,
@@ -96,7 +96,7 @@ internal class IndoorPotPatch : PatchTemplate
                     Vector2.Zero,
                     4f,
                     SpriteEffects.None,
-                    (__instance.TileLocation.Y + 0.65f) * 64f / 10000f + (float)x * 1E-05f
+                    ((__instance.TileLocation.Y + 0.65f) * 64f / 10000f) + ((float)x * 1E-05f)
                 );
             }
             if (__instance.hoeDirt.Value.crop != null)
@@ -120,8 +120,8 @@ internal class IndoorPotPatch : PatchTemplate
                 __instance.heldObject.Value.draw(
                     spriteBatch,
                     x * 64,
-                    y * 64 - 48,
-                    (__instance.TileLocation.Y + 0.66f) * 64f / 10000f + (float)x * 1E-05f,
+                    (y * 64) - 48,
+                    ((__instance.TileLocation.Y + 0.66f) * 64f / 10000f) + ((float)x * 1E-05f),
                     1f
                 );
             }
