@@ -8,172 +8,171 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
 
-namespace AlternativeTextures.Framework.Patches.Entities
+namespace AlternativeTextures.Framework.Patches.Entities;
+
+internal class CharacterPatch : PatchTemplate
 {
-    internal class CharacterPatch : PatchTemplate
+    private readonly Type _entity = typeof(Character);
+
+    internal const string BABY_NAME_PREFIX = "Baby";
+    internal const string TODDLER_NAME_PREFIX = "Toddler";
+
+    internal CharacterPatch(IMonitor modMonitor, IModHelper modHelper)
+        : base(modMonitor, modHelper) { }
+
+    internal void Apply(Harmony harmony)
     {
-        private readonly Type _entity = typeof(Character);
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Character.update), [typeof(GameTime), typeof(GameLocation)]),
+            postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
+        );
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Character.draw), [typeof(SpriteBatch)]),
+            prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+        );
 
-        internal const string BABY_NAME_PREFIX = "Baby";
-        internal const string TODDLER_NAME_PREFIX = "Toddler";
-
-        internal CharacterPatch(IMonitor modMonitor, IModHelper modHelper)
-            : base(modMonitor, modHelper) { }
-
-        internal void Apply(Harmony harmony)
-        {
-            harmony.Patch(
-                AccessTools.Method(_entity, nameof(Character.update), [typeof(GameTime), typeof(GameLocation)]),
-                postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
-            );
-            harmony.Patch(
+        harmony
+            .CreateReversePatcher(
                 AccessTools.Method(_entity, nameof(Character.draw), [typeof(SpriteBatch)]),
-                prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+                new HarmonyMethod(GetType(), nameof(DrawReversePatch))
+            )
+            .Patch();
+    }
+
+    private static void UpdatePostfix(Character __instance, GameTime time, GameLocation location)
+    {
+        if (
+            !__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
+            || AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            )
+                is null
+        )
+        {
+            return;
+        }
+
+        var instanceName = String
+            .Concat(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
+                ".",
+                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
+            )
+            .ToLower();
+        var instanceSeasonName =
+            $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
+        if (
+            __instance is Child child
+            && !String.Equals(
+                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceName,
+                StringComparison.OrdinalIgnoreCase
+            )
+            && !String.Equals(
+                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceSeasonName,
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
+                ".",
+                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(child)}"
             );
-
-            harmony
-                .CreateReversePatcher(
-                    AccessTools.Method(_entity, nameof(Character.draw), [typeof(SpriteBatch)]),
-                    new HarmonyMethod(GetType(), nameof(DrawReversePatch))
-                )
-                .Patch();
-        }
-
-        private static void UpdatePostfix(Character __instance, GameTime time, GameLocation location)
-        {
             if (
-                !__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-                || AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                )
-                    is null
+                child.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
-                return;
-            }
-
-            var instanceName = String
-                .Concat(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-                    ".",
-                    $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
-                )
-                .ToLower();
-            var instanceSeasonName =
-                $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
-            if (
-                __instance is Child child
-                && !String.Equals(
-                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                    instanceName,
-                    StringComparison.OrdinalIgnoreCase
-                )
-                && !String.Equals(
-                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                    instanceSeasonName,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
-            {
+                child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(location)
+                    .ToString();
                 child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-                    ".",
-                    $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(child)}"
+                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                    "_",
+                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
                 );
-                if (
-                    child.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
-                )
-                {
-                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                        .GetSeasonForLocation(location)
-                        .ToString();
-                    child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                        child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                        "_",
-                        child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    );
-                }
-
-                __instance.Sprite.loadedTexture = String.Empty;
             }
+
+            __instance.Sprite.loadedTexture = String.Empty;
+        }
+        if (
+            __instance is Horse horse
+            && !String.Equals(
+                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceName,
+                StringComparison.OrdinalIgnoreCase
+            )
+            && !String.Equals(
+                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceSeasonName,
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
+                ".",
+                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(horse)}"
+            );
             if (
-                __instance is Horse horse
-                && !String.Equals(
-                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                    instanceName,
-                    StringComparison.OrdinalIgnoreCase
-                )
-                && !String.Equals(
-                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                    instanceSeasonName,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
+                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
+                    .GetSeasonForLocation(location)
+                    .ToString();
                 horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-                    ".",
-                    $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(horse)}"
+                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                    "_",
+                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
                 );
-                if (
-                    horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                    && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
-                )
-                {
-                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                        .GetSeasonForLocation(location)
-                        .ToString();
-                    horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                        horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
-                        "_",
-                        horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                    );
-                }
-
-                __instance.Sprite.loadedTexture = String.Empty;
             }
-        }
 
-        private static bool DrawPrefix(Character __instance, SpriteBatch b)
+            __instance.Sprite.loadedTexture = String.Empty;
+        }
+    }
+
+    private static bool DrawPrefix(Character __instance, SpriteBatch b)
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
         {
-            if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
             {
-                var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                );
-                if (textureModel is null)
-                {
-                    return true;
-                }
-
-                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-                if (
-                    textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-                )
-                {
-                    return true;
-                }
-                var textureOffset = textureModel.GetTextureOffset(textureVariation);
-
-                __instance.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
-                __instance.Sprite.sourceRect.Y =
-                    textureOffset
-                    + (
-                        __instance.Sprite.currentFrame
-                        * __instance.Sprite.SpriteWidth
-                        / __instance.Sprite.Texture.Width
-                        * __instance.Sprite.SpriteHeight
-                    );
+                return true;
             }
 
-            return true;
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return true;
+            }
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+
+            __instance.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
+            __instance.Sprite.sourceRect.Y =
+                textureOffset
+                + (
+                    __instance.Sprite.currentFrame
+                    * __instance.Sprite.SpriteWidth
+                    / __instance.Sprite.Texture.Width
+                    * __instance.Sprite.SpriteHeight
+                );
         }
 
-        public static void DrawReversePatch(Character __instance, SpriteBatch b)
-        {
-            new NotImplementedException("It's a stub!");
-        }
+        return true;
+    }
+
+    public static void DrawReversePatch(Character __instance, SpriteBatch b)
+    {
+        new NotImplementedException("It's a stub!");
     }
 }

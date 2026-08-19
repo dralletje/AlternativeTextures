@@ -10,198 +10,197 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
 
-namespace AlternativeTextures.Framework.Patches.Entities
+namespace AlternativeTextures.Framework.Patches.Entities;
+
+internal class HorsePatch : PatchTemplate
 {
-    internal class HorsePatch : PatchTemplate
+    private readonly Type _entity = typeof(Horse);
+
+    internal HorsePatch(IMonitor modMonitor, IModHelper modHelper)
+        : base(modMonitor, modHelper) { }
+
+    internal void Apply(Harmony harmony)
     {
-        private readonly Type _entity = typeof(Horse);
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
+            postfix: new HarmonyMethod(GetType(), nameof(DrawPostfix))
+        );
 
-        internal HorsePatch(IMonitor modMonitor, IModHelper modHelper)
-            : base(modMonitor, modHelper) { }
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
+            transpiler: new HarmonyMethod(typeof(HorsePatch), nameof(AdjustForVariationTranspiler))
+        );
+        harmony.Patch(
+            AccessTools.Constructor(_entity, [typeof(Guid), typeof(int), typeof(int)]),
+            postfix: new HarmonyMethod(GetType(), nameof(HorsePostfix))
+        );
+    }
 
-        internal void Apply(Harmony harmony)
+    private static IEnumerable<CodeInstruction> AdjustForVariationTranspiler(
+        IEnumerable<CodeInstruction> instructions
+    )
+    {
+        try
         {
-            harmony.Patch(
-                AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
-                postfix: new HarmonyMethod(GetType(), nameof(DrawPostfix))
-            );
-
-            harmony.Patch(
-                AccessTools.Method(_entity, nameof(Horse.draw), [typeof(SpriteBatch)]),
-                transpiler: new HarmonyMethod(typeof(HorsePatch), nameof(AdjustForVariationTranspiler))
-            );
-            harmony.Patch(
-                AccessTools.Constructor(_entity, [typeof(Guid), typeof(int), typeof(int)]),
-                postfix: new HarmonyMethod(GetType(), nameof(HorsePostfix))
-            );
-        }
-
-        private static IEnumerable<CodeInstruction> AdjustForVariationTranspiler(
-            IEnumerable<CodeInstruction> instructions
-        )
-        {
-            try
+            var list = instructions.ToList();
+            for (var i = 0; i < list.Count; i++)
             {
-                var list = instructions.ToList();
-                for (var i = 0; i < list.Count; i++)
-                {
-                    if (
-                        list[i].opcode == OpCodes.Callvirt
-                        && list[i].operand is not null
-                        && list[i].operand.ToString().Contains("updatesourcerect", StringComparison.OrdinalIgnoreCase)
-                    )
-                    {
-                        list.Insert(i + 1, new CodeInstruction(OpCodes.Ldarg_0));
-                        list.Insert(
-                            i + 2,
-                            new CodeInstruction(
-                                OpCodes.Call,
-                                AccessTools.Method(typeof(HorsePatch), nameof(HandleVariations), [typeof(Horse)])
-                            )
-                        );
-                    }
-
-                    if (list[i].opcode == OpCodes.Ldc_I4_S && (sbyte)list[i].operand == 96)
-                    {
-                        list.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
-                        list[i + 1] = new CodeInstruction(
-                            OpCodes.Call,
-                            AccessTools.Method(typeof(HorsePatch), nameof(GetHeadTextureYOffset), [typeof(Horse)])
-                        );
-                    }
-                }
-
-                return list;
-            }
-            catch (Exception e)
-            {
-                _monitor.Log($"There was an issue modifying the instructions for Horse.draw: {e}", LogLevel.Error);
-                return instructions;
-            }
-        }
-
-        private static int GetHeadTextureYOffset(Horse horse)
-        {
-            var yOffset = 96;
-            if (!horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            {
-                return yOffset;
-            }
-
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return yOffset;
-            }
-
-            var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
-                return yOffset;
-            }
-
-            return yOffset + textureModel.GetTextureOffset(textureVariation);
-        }
-
-        private static void HandleVariations(Horse horse)
-        {
-            if (!horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            {
-                return;
-            }
-
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return;
-            }
-
-            var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
-                return;
-            }
-
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
-            horse.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
-            horse.Sprite.sourceRect.Y =
-                textureOffset
-                + (
-                    horse.Sprite.currentFrame
-                    * horse.Sprite.SpriteWidth
-                    / horse.Sprite.Texture.Width
-                    * horse.Sprite.SpriteHeight
-                );
-        }
-
-        [HarmonyBefore(["Goldenrevolver.HorseOverhaul"])]
-        private static void DrawPostfix(Horse __instance, SpriteBatch b)
-        {
-            if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            {
-                var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                );
-                if (textureModel is null)
-                {
-                    return;
-                }
-
-                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
                 if (
-                    textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                    list[i].opcode == OpCodes.Callvirt
+                    && list[i].operand is not null
+                    && list[i].operand.ToString().Contains("updatesourcerect", StringComparison.OrdinalIgnoreCase)
                 )
                 {
-                    return;
+                    list.Insert(i + 1, new CodeInstruction(OpCodes.Ldarg_0));
+                    list.Insert(
+                        i + 2,
+                        new CodeInstruction(
+                            OpCodes.Call,
+                            AccessTools.Method(typeof(HorsePatch), nameof(HandleVariations), [typeof(Horse)])
+                        )
+                    );
                 }
 
-                __instance.Sprite.UpdateSourceRect();
+                if (list[i].opcode == OpCodes.Ldc_I4_S && (sbyte)list[i].operand == 96)
+                {
+                    list.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+                    list[i + 1] = new CodeInstruction(
+                        OpCodes.Call,
+                        AccessTools.Method(typeof(HorsePatch), nameof(GetHeadTextureYOffset), [typeof(Horse)])
+                    );
+                }
             }
+
+            return list;
+        }
+        catch (Exception e)
+        {
+            _monitor.Log($"There was an issue modifying the instructions for Horse.draw: {e}", LogLevel.Error);
+            return instructions;
+        }
+    }
+
+    private static int GetHeadTextureYOffset(Horse horse)
+    {
+        var yOffset = 96;
+        if (!horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            return yOffset;
         }
 
-        private static void HorsePostfix(Horse __instance, Guid horseId, int xTile, int yTile)
+        var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+            horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+        );
+        if (textureModel is null)
         {
-            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+            return yOffset;
+        }
 
-            if (
-                AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-            )
+        var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+        if (
+            textureVariation == -1
+            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+        )
+        {
+            return yOffset;
+        }
+
+        return yOffset + textureModel.GetTextureOffset(textureVariation);
+    }
+
+    private static void HandleVariations(Horse horse)
+    {
+        if (!horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            return;
+        }
+
+        var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+            horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+        );
+        if (textureModel is null)
+        {
+            return;
+        }
+
+        var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+        if (
+            textureVariation == -1
+            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+        )
+        {
+            return;
+        }
+
+        var textureOffset = textureModel.GetTextureOffset(textureVariation);
+        horse.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
+        horse.Sprite.sourceRect.Y =
+            textureOffset
+            + (
+                horse.Sprite.currentFrame
+                * horse.Sprite.SpriteWidth
+                / horse.Sprite.Texture.Width
+                * horse.Sprite.SpriteHeight
+            );
+    }
+
+    [HarmonyBefore(["Goldenrevolver.HorseOverhaul"])]
+    private static void DrawPostfix(Horse __instance, SpriteBatch b)
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
             {
-                var result =
-                    Game1.random.Next(2) > 0
-                        ? AssignModData(__instance, instanceSeasonName, true)
-                        : AssignModData(__instance, instanceName, false);
                 return;
             }
-            else
-            {
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-                {
-                    AssignModData(__instance, instanceName, false);
-                    return;
-                }
 
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-                {
-                    AssignModData(__instance, instanceSeasonName, true);
-                    return;
-                }
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return;
             }
 
-            AssignDefaultModData(__instance, instanceSeasonName, true);
+            __instance.Sprite.UpdateSourceRect();
         }
+    }
+
+    private static void HorsePostfix(Horse __instance, Guid horseId, int xTile, int yTile)
+    {
+        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
+
+        if (
+            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
+            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
+        )
+        {
+            var result =
+                Game1.random.Next(2) > 0
+                    ? AssignModData(__instance, instanceSeasonName, true)
+                    : AssignModData(__instance, instanceName, false);
+            return;
+        }
+        else
+        {
+            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
+            {
+                AssignModData(__instance, instanceName, false);
+                return;
+            }
+
+            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
+            {
+                AssignModData(__instance, instanceSeasonName, true);
+                return;
+            }
+        }
+
+        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 }

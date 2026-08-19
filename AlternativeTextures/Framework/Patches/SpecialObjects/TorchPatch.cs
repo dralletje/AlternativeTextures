@@ -7,308 +7,307 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 
-namespace AlternativeTextures.Framework.Patches.SpecialObjects
+namespace AlternativeTextures.Framework.Patches.SpecialObjects;
+
+internal class TorchPatch : PatchTemplate
 {
-    internal class TorchPatch : PatchTemplate
+    private readonly Type _object = typeof(Torch);
+
+    internal TorchPatch(IMonitor modMonitor, IModHelper modHelper)
+        : base(modMonitor, modHelper) { }
+
+    internal void Apply(Harmony harmony)
     {
-        private readonly Type _object = typeof(Torch);
+        harmony.Patch(
+            AccessTools.Method(
+                _object,
+                nameof(Torch.draw),
+                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
+            ),
+            prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+        );
+        harmony.Patch(
+            AccessTools.Method(
+                _object,
+                nameof(Torch.placementAction),
+                [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
+            ),
+            postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
+        );
+    }
 
-        internal TorchPatch(IMonitor modMonitor, IModHelper modHelper)
-            : base(modMonitor, modHelper) { }
-
-        internal void Apply(Harmony harmony)
+    private static bool DrawPrefix(
+        Torch __instance,
+        Vector2[] ___ashes,
+        SpriteBatch spriteBatch,
+        int x,
+        int y,
+        float alpha = 1f
+    )
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
         {
-            harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(Torch.draw),
-                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
-                ),
-                prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
             );
-            harmony.Patch(
-                AccessTools.Method(
-                    _object,
-                    nameof(Torch.placementAction),
-                    [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
-                ),
-                postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
-            );
-        }
-
-        private static bool DrawPrefix(
-            Torch __instance,
-            Vector2[] ___ashes,
-            SpriteBatch spriteBatch,
-            int x,
-            int y,
-            float alpha = 1f
-        )
-        {
-            if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+            if (textureModel is null)
             {
-                var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+                return true;
+            }
+
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return true;
+            }
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+
+            if (
+                Game1.eventUp
+                && (
+                    Game1.currentLocation == null
+                    || Game1.currentLocation.currentEvent == null
+                    || !Game1.currentLocation.currentEvent.showGroundObjects
+                )
+                && !Game1.currentLocation.IsFarm
+            )
+            {
+                return false;
+            }
+
+            if (!__instance.bigCraftable.Value)
+            {
+                Rectangle sourceRect = new Rectangle(
+                    0,
+                    textureOffset,
+                    textureModel.TextureWidth,
+                    textureModel.TextureHeight
                 );
-                if (textureModel is null)
-                {
-                    return true;
-                }
+                sourceRect.Y += 8;
+                sourceRect.Height /= 2;
+                var position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
+                Rectangle? sourceRectangle = sourceRect;
+                var white = Color.White;
+                var zero = Vector2.Zero;
 
-                var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-                if (
-                    textureVariation == -1
-                    || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-                )
-                {
-                    return true;
-                }
-                var textureOffset = textureModel.GetTextureOffset(textureVariation);
+                spriteBatch.Draw(
+                    textureModel.GetTexture(textureVariation),
+                    position2,
+                    sourceRectangle,
+                    white,
+                    0f,
+                    zero,
+                    (__instance.scale.Y > 1f) ? __instance.getScale().Y : 4f,
+                    SpriteEffects.None,
+                    (float)__instance.GetBoundingBoxAt(x, y).Bottom / 10000f
+                );
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32)),
+                    new Rectangle(88, 1779, 30, 30),
+                    Color.PaleGoldenrod * (Game1.currentLocation.IsOutdoors ? 0.35f : 0.43f),
+                    0f,
+                    new Vector2(15f, 15f),
+                    4f
+                        + (float)(
+                            64.0
+                            * Math.Sin(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 64 * 777)
+                                    + (double)(y * 64 * 9746)
+                                )
+                                    % 3140.0
+                                    / 1000.0
+                            )
+                            / 50.0
+                        ),
+                    SpriteEffects.None,
+                    1f
+                );
 
-                if (
-                    Game1.eventUp
-                    && (
-                        Game1.currentLocation == null
-                        || Game1.currentLocation.currentEvent == null
-                        || !Game1.currentLocation.currentEvent.showGroundObjects
-                    )
-                    && !Game1.currentLocation.IsFarm
-                )
-                {
-                    return false;
-                }
+                sourceRect.X =
+                    276
+                    + (int)(
+                        (
+                            Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                            + (double)(x * 3204)
+                            + (double)(y * 49)
+                        )
+                        % 700.0
+                        / 100.0
+                    ) * 8;
+                sourceRect.Y = 1965;
+                sourceRect.Width = 8;
+                sourceRect.Height = 8;
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 + 4, y * 64 + 16 + 4)),
+                    sourceRect,
+                    Color.White * 0.75f,
+                    0f,
+                    new Vector2(4f, 4f),
+                    3f,
+                    SpriteEffects.None,
+                    (float)(__instance.GetBoundingBoxAt(x, y).Bottom + 1) / 10000f
+                );
 
-                if (!__instance.bigCraftable.Value)
+                for (var i = 0; i < ___ashes.Length; i++)
                 {
-                    Rectangle sourceRect = new Rectangle(
-                        0,
-                        textureOffset,
-                        textureModel.TextureWidth,
-                        textureModel.TextureHeight
-                    );
-                    sourceRect.Y += 8;
-                    sourceRect.Height /= 2;
-                    var position2 = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32));
-                    Rectangle? sourceRectangle = sourceRect;
-                    var white = Color.White;
-                    var zero = Vector2.Zero;
-
                     spriteBatch.Draw(
-                        textureModel.GetTexture(textureVariation),
-                        position2,
-                        sourceRectangle,
-                        white,
+                        Game1.objectSpriteSheet,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2((float)(x * 64 + 32) + ___ashes[i].X, (float)(y * 64 + 32) + ___ashes[i].Y)
+                        ),
+                        new Rectangle(344 + i % 3, 53, 1, 1),
+                        Color.White * 0.5f * ((-100f - ___ashes[i].Y / 2f) / -100f),
                         0f,
-                        zero,
-                        (__instance.scale.Y > 1f) ? __instance.getScale().Y : 4f,
+                        Vector2.Zero,
+                        3f,
                         SpriteEffects.None,
                         (float)__instance.GetBoundingBoxAt(x, y).Bottom / 10000f
                     );
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 32)),
-                        new Rectangle(88, 1779, 30, 30),
-                        Color.PaleGoldenrod * (Game1.currentLocation.IsOutdoors ? 0.35f : 0.43f),
-                        0f,
-                        new Vector2(15f, 15f),
-                        4f
-                            + (float)(
-                                64.0
-                                * Math.Sin(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 64 * 777)
-                                        + (double)(y * 64 * 9746)
-                                    )
-                                        % 3140.0
-                                        / 1000.0
-                                )
-                                / 50.0
-                            ),
-                        SpriteEffects.None,
-                        1f
-                    );
-
-                    sourceRect.X =
-                        276
-                        + (int)(
-                            (
-                                Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                + (double)(x * 3204)
-                                + (double)(y * 49)
-                            )
-                            % 700.0
-                            / 100.0
-                        ) * 8;
-                    sourceRect.Y = 1965;
-                    sourceRect.Width = 8;
-                    sourceRect.Height = 8;
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 + 4, y * 64 + 16 + 4)),
-                        sourceRect,
-                        Color.White * 0.75f,
-                        0f,
-                        new Vector2(4f, 4f),
-                        3f,
-                        SpriteEffects.None,
-                        (float)(__instance.GetBoundingBoxAt(x, y).Bottom + 1) / 10000f
-                    );
-
-                    for (var i = 0; i < ___ashes.Length; i++)
-                    {
-                        spriteBatch.Draw(
-                            Game1.objectSpriteSheet,
-                            Game1.GlobalToLocal(
-                                Game1.viewport,
-                                new Vector2((float)(x * 64 + 32) + ___ashes[i].X, (float)(y * 64 + 32) + ___ashes[i].Y)
-                            ),
-                            new Rectangle(344 + i % 3, 53, 1, 1),
-                            Color.White * 0.5f * ((-100f - ___ashes[i].Y / 2f) / -100f),
-                            0f,
-                            Vector2.Zero,
-                            3f,
-                            SpriteEffects.None,
-                            (float)__instance.GetBoundingBoxAt(x, y).Bottom / 10000f
-                        );
-                    }
-                    return false;
                 }
-                ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
-                var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
-
-                if (!__instance.IsOn)
-                {
-                    return false;
-                }
-
-                if (__instance.ParentSheetIndex is 146 or 278)
-                {
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 4, y * 64 - 8)),
-                        new Rectangle(
-                            276
-                                + (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 3047)
-                                        + (double)(y * 88)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12,
-                            1985,
-                            12,
-                            11
-                        ),
-                        Color.White,
-                        0f,
-                        Vector2.Zero,
-                        3f,
-                        SpriteEffects.None,
-                        draw_layer + 0.0008f
-                    );
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 12, y * 64)),
-                        new Rectangle(
-                            276
-                                + (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 2047)
-                                        + (double)(y * 98)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12,
-                            1985,
-                            12,
-                            11
-                        ),
-                        Color.White,
-                        0f,
-                        Vector2.Zero,
-                        3f,
-                        SpriteEffects.None,
-                        draw_layer + 0.0009f
-                    );
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 20, y * 64 + 12)),
-                        new Rectangle(
-                            276
-                                + (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 2077)
-                                        + (double)(y * 98)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12,
-                            1985,
-                            12,
-                            11
-                        ),
-                        Color.White,
-                        0f,
-                        Vector2.Zero,
-                        3f,
-                        SpriteEffects.None,
-                        draw_layer + 0.001f
-                    );
-
-                    if (__instance.ParentSheetIndex == 278)
-                    {
-                        ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
-                    }
-                }
-                else
-                {
-                    spriteBatch.Draw(
-                        Game1.mouseCursors,
-                        Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 8, y * 64 - 64 + 8)),
-                        new Rectangle(
-                            276
-                                + (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 3047)
-                                        + (double)(y * 88)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12,
-                            1985,
-                            12,
-                            11
-                        ),
-                        Color.White,
-                        0f,
-                        Vector2.Zero,
-                        4f,
-                        SpriteEffects.None,
-                        draw_layer + 0.0008f
-                    );
-                }
-
                 return false;
             }
-            return true;
-        }
+            ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
+            var draw_layer = Math.Max(0f, (float)((y + 1) * 64 - 24) / 10000f) + (float)x * 1E-05f;
 
-        internal static void PlacementActionPostfix(
-            Torch __instance,
-            bool __result,
-            GameLocation location,
-            int x,
-            int y,
-            Farmer who
-        )
-        {
-            ObjectPatch.PlacementActionPostfix(__instance, __result, location, x, y, who);
+            if (!__instance.IsOn)
+            {
+                return false;
+            }
+
+            if (__instance.ParentSheetIndex is 146 or 278)
+            {
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 4, y * 64 - 8)),
+                    new Rectangle(
+                        276
+                            + (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 3047)
+                                    + (double)(y * 88)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12,
+                        1985,
+                        12,
+                        11
+                    ),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    3f,
+                    SpriteEffects.None,
+                    draw_layer + 0.0008f
+                );
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 12, y * 64)),
+                    new Rectangle(
+                        276
+                            + (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 2047)
+                                    + (double)(y * 98)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12,
+                        1985,
+                        12,
+                        11
+                    ),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    3f,
+                    SpriteEffects.None,
+                    draw_layer + 0.0009f
+                );
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 32 - 20, y * 64 + 12)),
+                    new Rectangle(
+                        276
+                            + (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 2077)
+                                    + (double)(y * 98)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12,
+                        1985,
+                        12,
+                        11
+                    ),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    3f,
+                    SpriteEffects.None,
+                    draw_layer + 0.001f
+                );
+
+                if (__instance.ParentSheetIndex == 278)
+                {
+                    ObjectPatch.DrawPrefix(__instance, spriteBatch, x, y, alpha);
+                }
+            }
+            else
+            {
+                spriteBatch.Draw(
+                    Game1.mouseCursors,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + 16 - 8, y * 64 - 64 + 8)),
+                    new Rectangle(
+                        276
+                            + (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 3047)
+                                    + (double)(y * 88)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12,
+                        1985,
+                        12,
+                        11
+                    ),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    4f,
+                    SpriteEffects.None,
+                    draw_layer + 0.0008f
+                );
+            }
+
+            return false;
         }
+        return true;
+    }
+
+    internal static void PlacementActionPostfix(
+        Torch __instance,
+        bool __result,
+        GameLocation location,
+        int x,
+        int y,
+        Farmer who
+    )
+    {
+        ObjectPatch.PlacementActionPostfix(__instance, __result, location, x, y, who);
     }
 }

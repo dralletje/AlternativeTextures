@@ -30,65 +30,64 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace AlternativeTextures.Framework.Utilities
+namespace AlternativeTextures.Framework.Utilities;
+
+class FpsCounter
 {
-    class FpsCounter
+    /// <summary>
+    /// The number of frames rendered since _lastRenderingCall
+    /// </summary>
+    private int _numFramesRendered = 0;
+
+    /// <summary>
+    /// The rendering time in milliseconds since _lastRenderingCall
+    /// </summary>
+    private double _frameRenderingTime = 0;
+
+    /// <summary>
+    /// The currently displayed FPS string
+    /// </summary>
+    private string _fpsString = "-";
+
+    /// <summary>
+    /// The date and time when the last rendering call was invoked.
+    /// </summary>
+    private DateTime _lastRenderingCall = DateTime.UtcNow;
+
+    /// <summary>
+    /// The date and time when the FPS string was last updated.
+    /// </summary>
+    private DateTime _lastFPSUpdate = DateTime.UtcNow;
+
+    internal void OnRendered(object? sender, RenderedEventArgs e)
     {
-        /// <summary>
-        /// The number of frames rendered since _lastRenderingCall
-        /// </summary>
-        private int _numFramesRendered = 0;
+        var millisecondsSinceLastCall = DateTime.UtcNow.Subtract(_lastRenderingCall).TotalMilliseconds;
+        _lastRenderingCall = DateTime.UtcNow;
 
-        /// <summary>
-        /// The rendering time in milliseconds since _lastRenderingCall
-        /// </summary>
-        private double _frameRenderingTime = 0;
+        _numFramesRendered++;
+        _frameRenderingTime += millisecondsSinceLastCall;
 
-        /// <summary>
-        /// The currently displayed FPS string
-        /// </summary>
-        private string _fpsString = "-";
-
-        /// <summary>
-        /// The date and time when the last rendering call was invoked.
-        /// </summary>
-        private DateTime _lastRenderingCall = DateTime.UtcNow;
-
-        /// <summary>
-        /// The date and time when the FPS string was last updated.
-        /// </summary>
-        private DateTime _lastFPSUpdate = DateTime.UtcNow;
-
-        internal void OnRendered(object? sender, RenderedEventArgs e)
+        // Check if the last FPS update was more than a second ago. If so,
+        // recalculate the FPS and update the FPS string.
+        if (DateTime.UtcNow.Subtract(_lastFPSUpdate).TotalSeconds >= 1)
         {
-            var millisecondsSinceLastCall = DateTime.UtcNow.Subtract(_lastRenderingCall).TotalMilliseconds;
-            _lastRenderingCall = DateTime.UtcNow;
+            _lastFPSUpdate = DateTime.UtcNow;
 
-            _numFramesRendered++;
-            _frameRenderingTime += millisecondsSinceLastCall;
+            var averageRenderingTimePerFrame = _frameRenderingTime / _numFramesRendered;
+            _fpsString = $"{(1000 / averageRenderingTimePerFrame):F0}";
 
-            // Check if the last FPS update was more than a second ago. If so,
-            // recalculate the FPS and update the FPS string.
-            if (DateTime.UtcNow.Subtract(_lastFPSUpdate).TotalSeconds >= 1)
-            {
-                _lastFPSUpdate = DateTime.UtcNow;
-
-                var averageRenderingTimePerFrame = _frameRenderingTime / _numFramesRendered;
-                _fpsString = $"{(1000 / averageRenderingTimePerFrame):F0}";
-
-                _frameRenderingTime = 0;
-                _numFramesRendered = 0;
-            }
-
-            Utility.drawTextWithColoredShadow(
-                e.SpriteBatch,
-                $"{_fpsString} FPS",
-                Game1.smallFont,
-                new Vector2(10, 10),
-                Color.LawnGreen,
-                Color.Black,
-                1
-            );
+            _frameRenderingTime = 0;
+            _numFramesRendered = 0;
         }
+
+        Utility.drawTextWithColoredShadow(
+            e.SpriteBatch,
+            $"{_fpsString} FPS",
+            Game1.smallFont,
+            new Vector2(10, 10),
+            Color.LawnGreen,
+            Color.Black,
+            1
+        );
     }
 }

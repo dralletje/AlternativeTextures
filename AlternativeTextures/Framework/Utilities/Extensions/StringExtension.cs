@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace AlternativeTextures.Framework.Utilities.Extensions
+namespace AlternativeTextures.Framework.Utilities.Extensions;
+
+public static class StringExtension
 {
-    public static class StringExtension
+    public static string ReplaceLastInstance(this string source, string target, string replacement)
     {
-        public static string ReplaceLastInstance(this string source, string target, string replacement)
+        var index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
+
+        if (index == -1)
         {
-            var index = source.LastIndexOf(target, StringComparison.OrdinalIgnoreCase);
-
-            if (index == -1)
-            {
-                return source;
-            }
-
-            return source.Remove(index, target.Length).Insert(index, replacement);
+            return source;
         }
+
+        return source.Remove(index, target.Length).Insert(index, replacement);
     }
 }

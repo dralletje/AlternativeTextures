@@ -1,9 +1,8 @@
-﻿namespace AlternativeTextures.Framework.Enums
+﻿namespace AlternativeTextures.Framework.Enums;
+
+public enum FrameType
 {
-    public enum FrameType
-    {
-        Default,
-        MachineIdle,
-        MachineActive,
-    }
+    Default,
+    MachineIdle,
+    MachineActive,
 }

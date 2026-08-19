@@ -1,7 +1,6 @@
-﻿namespace AlternativeTextures.Framework.Interfaces
+﻿namespace AlternativeTextures.Framework.Interfaces;
+
+public interface IDynamicGameAssetsApi
 {
-    public interface IDynamicGameAssetsApi
-    {
-        string GetDGAItemId(object item);
-    }
+    string GetDGAItemId(object item);
 }

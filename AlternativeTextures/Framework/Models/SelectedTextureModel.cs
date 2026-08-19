@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace AlternativeTextures.Framework.Models
+namespace AlternativeTextures.Framework.Models;
+
+public class SelectedTextureModel
 {
-    public class SelectedTextureModel
-    {
-        public string Owner { get; set; }
-        public string TextureName { get; set; }
-        public List<int> Variations { get; set; } = [];
-    }
+    public string Owner { get; set; }
+    public string TextureName { get; set; }
+    public List<int> Variations { get; set; } = [];
 }

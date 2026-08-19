@@ -5,55 +5,54 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
 
-namespace AlternativeTextures.Framework.Patches.Entities
+namespace AlternativeTextures.Framework.Patches.Entities;
+
+internal class ChildPatch : PatchTemplate
 {
-    internal class ChildPatch : PatchTemplate
+    private readonly Type _entity = typeof(Child);
+
+    internal ChildPatch(IMonitor modMonitor, IModHelper modHelper)
+        : base(modMonitor, modHelper) { }
+
+    internal void Apply(Harmony harmony)
     {
-        private readonly Type _entity = typeof(Child);
+        harmony.Patch(
+            AccessTools.Constructor(_entity, [typeof(string), typeof(bool), typeof(bool), typeof(Farmer)]),
+            postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix))
+        );
+    }
 
-        internal ChildPatch(IMonitor modMonitor, IModHelper modHelper)
-            : base(modMonitor, modHelper) { }
+    private static void ChildPostfix(Child __instance, string name, bool isMale, bool isDarkSkinned, Farmer parent)
+    {
+        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
-        internal void Apply(Harmony harmony)
+        if (
+            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
+            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
+        )
         {
-            harmony.Patch(
-                AccessTools.Constructor(_entity, [typeof(string), typeof(bool), typeof(bool), typeof(Farmer)]),
-                postfix: new HarmonyMethod(GetType(), nameof(ChildPostfix))
-            );
+            var result =
+                Game1.random.Next(2) > 0
+                    ? AssignModData(__instance, instanceSeasonName, true)
+                    : AssignModData(__instance, instanceName, false);
+            return;
         }
-
-        private static void ChildPostfix(Child __instance, string name, bool isMale, bool isDarkSkinned, Farmer parent)
+        else
         {
-            var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
-            var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
-
-            if (
-                AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-                && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-            )
+            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
             {
-                var result =
-                    Game1.random.Next(2) > 0
-                        ? AssignModData(__instance, instanceSeasonName, true)
-                        : AssignModData(__instance, instanceName, false);
+                AssignModData(__instance, instanceName, false);
                 return;
             }
-            else
+
+            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
             {
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-                {
-                    AssignModData(__instance, instanceName, false);
-                    return;
-                }
-
-                if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-                {
-                    AssignModData(__instance, instanceSeasonName, true);
-                    return;
-                }
+                AssignModData(__instance, instanceSeasonName, true);
+                return;
             }
-
-            AssignDefaultModData(__instance, instanceSeasonName, true);
         }
+
+        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 }

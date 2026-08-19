@@ -1,9 +1,8 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace AlternativeTextures.Framework.Interfaces
+namespace AlternativeTextures.Framework.Interfaces;
+
+public interface IMoreGiantCropsApi
 {
-    public interface IMoreGiantCropsApi
-    {
-        Texture2D GetTexture(int productIndex);
-    }
+    Texture2D GetTexture(int productIndex);
 }

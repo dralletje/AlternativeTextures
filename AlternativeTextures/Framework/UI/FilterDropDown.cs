@@ -3,58 +3,57 @@ using Microsoft.Xna.Framework.Input;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace AlternativeTextures.Framework.UI
+namespace AlternativeTextures.Framework.UI;
+
+internal class FilterDropDown : OptionsDropDown
 {
-    internal class FilterDropDown : OptionsDropDown
+    public bool IsClicked { get; set; }
+
+    public FilterDropDown(string label, int whichOption, int x = -1, int y = -1)
+        : base(label, whichOption, x, y) { }
+
+    public override void receiveKeyPress(Keys key)
     {
-        public bool IsClicked { get; set; }
+        base.receiveKeyPress(key);
+    }
 
-        public FilterDropDown(string label, int whichOption, int x = -1, int y = -1)
-            : base(label, whichOption, x, y) { }
+    public override void receiveLeftClick(int x, int y)
+    {
+        base.receiveLeftClick(x, y);
 
-        public override void receiveKeyPress(Keys key)
+        IsClicked = true;
+    }
+
+    public override void leftClickHeld(int x, int y)
+    {
+        base.leftClickHeld(x, y);
+    }
+
+    public override void leftClickReleased(int x, int y)
+    {
+        if (!base.greyedOut && base.dropDownOptions.Count > 0)
         {
-            base.receiveKeyPress(key);
-        }
+            base.leftClickReleased(x, y);
 
-        public override void receiveLeftClick(int x, int y)
-        {
-            base.receiveLeftClick(x, y);
-
-            IsClicked = true;
-        }
-
-        public override void leftClickHeld(int x, int y)
-        {
-            base.leftClickHeld(x, y);
-        }
-
-        public override void leftClickReleased(int x, int y)
-        {
-            if (!base.greyedOut && base.dropDownOptions.Count > 0)
+            if (
+                base.dropDownBounds.Contains(x, y)
+                || (Game1.options.gamepadControls && !Game1.lastCursorMotionWasMouse)
+            )
             {
-                base.leftClickReleased(x, y);
-
-                if (
-                    base.dropDownBounds.Contains(x, y)
-                    || (Game1.options.gamepadControls && !Game1.lastCursorMotionWasMouse)
-                )
-                {
-                    _ = base.selectedOption;
-                }
-                else
-                {
-                    base.selectedOption = base.startingSelected;
-                }
-                OptionsDropDown.selected = null;
+                _ = base.selectedOption;
             }
-
-            IsClicked = false;
+            else
+            {
+                base.selectedOption = base.startingSelected;
+            }
+            OptionsDropDown.selected = null;
         }
 
-        public override void draw(SpriteBatch b, int slotX, int slotY, IClickableMenu context = null)
-        {
-            base.draw(b, slotX, slotY, context);
-        }
+        IsClicked = false;
+    }
+
+    public override void draw(SpriteBatch b, int slotX, int slotY, IClickableMenu context = null)
+    {
+        base.draw(b, slotX, slotY, context);
     }
 }

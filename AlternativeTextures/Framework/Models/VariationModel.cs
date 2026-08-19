@@ -1,25 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace AlternativeTextures.Framework.Models
+namespace AlternativeTextures.Framework.Models;
+
+public class VariationModel
 {
-    public class VariationModel
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public float ChanceWeight { get; set; } = 1f;
+    public List<string> Keywords { get; set; } = [];
+    public List<AnimationModel> Animation { get; set; } = [];
+    public List<int[]> Tints { get; set; } = [];
+
+    public bool HasAnimation()
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public float ChanceWeight { get; set; } = 1f;
-        public List<string> Keywords { get; set; } = [];
-        public List<AnimationModel> Animation { get; set; } = [];
-        public List<int[]> Tints { get; set; } = [];
+        return Animation.Count() > 0;
+    }
 
-        public bool HasAnimation()
-        {
-            return Animation.Count() > 0;
-        }
-
-        public bool HasTint()
-        {
-            return Tints.Count() > 0;
-        }
+    public bool HasTint()
+    {
+        return Tints.Count() > 0;
     }
 }
