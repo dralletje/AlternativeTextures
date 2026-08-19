@@ -14,11 +14,11 @@ public class VariationModel
 
     public bool HasAnimation()
     {
-        return Animation.Count() > 0;
+        return Animation.Count > 0;
     }
 
     public bool HasTint()
     {
-        return Tints.Count() > 0;
+        return Tints.Count > 0;
     }
 }

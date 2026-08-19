@@ -146,7 +146,7 @@ public class AlternativeTextureModel
         var animationData = GetAnimationData(variation);
 
         index += 1;
-        if (index >= GetAnimationData(variation).Count())
+        if (index >= GetAnimationData(variation).Count)
         {
             index = 0;
             return index;
@@ -186,7 +186,7 @@ public class AlternativeTextureModel
         }
 
         var tints = ManualVariations.First(v => v.Id == variation).Tints;
-        var selectedTint = tints[Game1.random.Next(tints.Count())];
+        var selectedTint = tints[Game1.random.Next(tints.Count)];
         return new Color(selectedTint[0], selectedTint[1], selectedTint[2], selectedTint[3]);
     }
 
@@ -219,7 +219,7 @@ public class AlternativeTextureModel
 
     public bool HasAnimation(int variation)
     {
-        return Animation.Count() > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
+        return Animation.Count > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
     }
 
     public bool HasTint(int variation)

@@ -448,7 +448,7 @@ internal class PatchTemplate
         {
             selectedVariation = textureModel.DefaultVariation.Value;
         }
-        else if (textureModel.ManualVariations.Count() > 0)
+        else if (textureModel.ManualVariations.Count > 0)
         {
             var weightedSelection = textureModel
                 .ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble())
@@ -457,7 +457,7 @@ internal class PatchTemplate
             {
                 var randomWeightedSelection = Game1.random.Next(
                     !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
-                    weightedSelection.Count()
+                    weightedSelection.Count
                 );
                 selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
             }

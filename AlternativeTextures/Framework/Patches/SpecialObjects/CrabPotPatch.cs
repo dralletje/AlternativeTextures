@@ -122,7 +122,7 @@ internal class CrabPotPatch : PatchTemplate
                 if (elapsedDuration >= frameDuration)
                 {
                     frameIndex =
-                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count() ? 0 : frameIndex + 1;
+                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count ? 0 : frameIndex + 1;
 
                     var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
                     currentFrame = animationData.Frame;

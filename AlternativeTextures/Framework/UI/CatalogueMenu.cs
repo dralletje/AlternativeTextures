@@ -474,9 +474,9 @@ internal class CatalogueMenu : IClickableMenu
         for (var m = 0; m < availableModels.Count; m++)
         {
             var manualVariations = availableModels[m].ManualVariations.Where(v => v.Id != -1).ToList();
-            if (manualVariations.Count() > 0)
+            if (manualVariations.Count > 0)
             {
-                for (var v = 0; v < manualVariations.Count(); v++)
+                for (var v = 0; v < manualVariations.Count; v++)
                 {
                     var objectWithVariation = selectedObject.getOne();
                     objectWithVariation.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = availableModels[m].Owner;

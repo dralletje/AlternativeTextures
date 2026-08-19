@@ -46,7 +46,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
             return;
         }
 
-        if (textures.Count() == 0)
+        if (textures.Count == 0)
         {
             _framework.Monitor.Log(
                 $"Unable to add AlternativeTextureModel {model.GetNameWithSeason()}: Textures property is empty."
@@ -59,7 +59,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
         var seasons = model.Seasons;
         for (var s = 0; s < 4; s++)
         {
-            if ((seasons.Count() == 0 && s > 0) || (seasons.Count() > 0 && s >= seasons.Count()))
+            if ((seasons.Count == 0 && s > 0) || (seasons.Count > 0 && s >= seasons.Count))
             {
                 continue;
             }
@@ -80,7 +80,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
             }
 
             // Set the season (if any)
-            textureModel.Season = seasons.Count() == 0 ? String.Empty : seasons[s];
+            textureModel.Season = seasons.Count == 0 ? String.Empty : seasons[s];
 
             // Set the ModelName and TextureId
             textureModel.ModelName = String.IsNullOrEmpty(textureModel.Season)
@@ -89,7 +89,7 @@ public class Api(AlternativeTextures alternativeTexturesMod) : IApi
             textureModel.TextureId = String.Concat(textureModel.Owner, ".", textureModel.ModelName);
 
             // Verify we are given a singular texture, if not then stitch them all together
-            if (textures.Count() > 1)
+            if (textures.Count > 1)
             {
                 if (textureModel.IsDecoration())
                 {

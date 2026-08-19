@@ -113,7 +113,7 @@ internal class TextureManager(IMod mod)
         var validTextures = _alternativeTextures
             .Where(t => string.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase))
             .ToList();
-        return validTextures[Game1.random.Next(validTextures.Count())];
+        return validTextures[Game1.random.Next(validTextures.Count)];
     }
 
     public AlternativeTextureModel? GetSpecificTextureModel(string textureId)

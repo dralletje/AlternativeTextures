@@ -39,3 +39,6 @@ csharp_style_prefer_extended_property_pattern = true:warning # Default: true:sug
 csharp_style_prefer_not_pattern = true:warning # Default: true:suggestion
 csharp_style_prefer_pattern_matching = true:warning # Default: true:silent
 csharp_style_prefer_switch_expression = true:warning # Default: true:suggestion
+
+# Use .Count instead of Enumerable.Count()
+dotnet_diagnostic.CA1829.severity = warning

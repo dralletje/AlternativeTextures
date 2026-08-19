@@ -153,7 +153,7 @@ internal class GameLocationPatch : PatchTemplate
 
         if (__instance.characters is not null)
         {
-            for (var k = __instance.characters.Count() - 1; k >= 0; k--)
+            for (var k = __instance.characters.Count - 1; k >= 0; k--)
             {
                 var character = __instance.characters.ElementAt(k);
                 if (

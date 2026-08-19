@@ -36,7 +36,7 @@ class ContentPackLoader(Mod mod)
                 var textureFolders = new DirectoryInfo(
                     Path.Combine(contentPack.DirectoryPath, "Textures")
                 ).GetDirectories("*", SearchOption.AllDirectories);
-                if (textureFolders.Count() == 0)
+                if (textureFolders.Length == 0)
                 {
                     Monitor.Log(
                         $"No sub-folders found under Textures for the content pack {contentPack.Manifest.Name}!",
@@ -50,7 +50,7 @@ class ContentPackLoader(Mod mod)
                 {
                     if (!File.Exists(Path.Combine(textureFolder.FullName, "texture.json")))
                     {
-                        if (textureFolder.GetDirectories().Count() == 0)
+                        if (textureFolder.GetDirectories().Length == 0)
                         {
                             Monitor.Log(
                                 $"Content pack {contentPack.Manifest.Name} is missing a texture.json under {textureFolder.Name}!",
@@ -119,7 +119,7 @@ class ContentPackLoader(Mod mod)
                     var seasons = baseModel.Seasons;
                     for (var s = 0; s < 4; s++)
                     {
-                        if ((seasons.Count() == 0 && s > 0) || (seasons.Count() > 0 && s >= seasons.Count()))
+                        if ((seasons.Count == 0 && s > 0) || (seasons.Count > 0 && s >= seasons.Count))
                         {
                             continue;
                         }
@@ -143,7 +143,7 @@ class ContentPackLoader(Mod mod)
                             }
 
                             // Verify that ItemName or ItemNames is given
-                            if (collectedCollective.Count() == 0)
+                            if (collectedCollective.Count == 0)
                             {
                                 Monitor.Log(
                                     $"Unable to add alternative texture for {textureModel.Owner}: Missing the ItemName, ItemId, CollectiveNames or CollectiveIds property! See the log for additional details.",
@@ -166,7 +166,7 @@ class ContentPackLoader(Mod mod)
                             }
 
                             // Set the season (if any)
-                            textureModel.Season = seasons.Count() == 0 ? String.Empty : seasons[s];
+                            textureModel.Season = seasons.Count == 0 ? String.Empty : seasons[s];
 
                             // Set the ModelName and TextureId
                             textureModel.ModelName = String.IsNullOrEmpty(textureModel.Season)
