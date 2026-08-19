@@ -337,14 +337,7 @@ internal class CatalogueMenu : IClickableMenu
                 }
                 case Filter.Tables:
                 {
-                    if (
-                        item is Furniture furniture
-                        && (
-                            furniture.furniture_type.Value == 5
-                            || furniture.furniture_type.Value == 4
-                            || furniture.furniture_type.Value == 11
-                        )
-                    )
+                    if (item is Furniture furniture && (furniture.furniture_type.Value is 5 or 4 or 11))
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
@@ -352,15 +345,7 @@ internal class CatalogueMenu : IClickableMenu
                 }
                 case Filter.Chairs:
                 {
-                    if (
-                        item is Furniture
-                        && (
-                            (item as Furniture).furniture_type.Value == 0
-                            || (item as Furniture).furniture_type.Value == 1
-                            || (item as Furniture).furniture_type.Value == 2
-                            || (item as Furniture).furniture_type.Value == 3
-                        )
-                    )
+                    if (item is Furniture furniture && (furniture.furniture_type.Value is 0 or 1 or 2 or 3))
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
@@ -368,13 +353,7 @@ internal class CatalogueMenu : IClickableMenu
                 }
                 case Filter.Pictures:
                 {
-                    if (
-                        item is Furniture
-                        && (
-                            (item as Furniture).furniture_type.Value == 6
-                            || (item as Furniture).furniture_type.Value == 13
-                        )
-                    )
+                    if (item is Furniture furniture && (furniture.furniture_type.Value is 6 or 13))
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
@@ -382,7 +361,7 @@ internal class CatalogueMenu : IClickableMenu
                 }
                 case Filter.Rugs:
                 {
-                    if (item is Furniture furniture && furniture.furniture_type.Value == 12)
+                    if (item is Furniture furniture && (furniture.furniture_type.Value is 12))
                     {
                         _currentlyDisplayedObjects.Add(item);
                     }
@@ -392,14 +371,7 @@ internal class CatalogueMenu : IClickableMenu
                 {
                     if (
                         item is Furniture furniture
-                        && (
-                            furniture.furniture_type.Value == 7
-                            || furniture.furniture_type.Value == 17
-                            || furniture.furniture_type.Value == 10
-                            || furniture.furniture_type.Value == 8
-                            || furniture.furniture_type.Value == 9
-                            || furniture.furniture_type.Value == 14
-                        )
+                        && (furniture.furniture_type.Value is 7 or 8 or 9 or 10 or 14 or 17)
                     )
                     {
                         _currentlyDisplayedObjects.Add(item);
