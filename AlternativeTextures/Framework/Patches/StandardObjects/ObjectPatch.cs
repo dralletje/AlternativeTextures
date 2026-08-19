@@ -326,7 +326,7 @@ internal class ObjectPatch : PatchTemplate
                     var color = Color.White * alpha;
                     Vector2 origin = new Vector2(8f, 8f);
 
-                    var artifactOffset = 
+                    var artifactOffset =
                         (Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 1200.0 <= 400.0)
                             ? ((int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 400.0 / 100.0) * 16)
                             : 0

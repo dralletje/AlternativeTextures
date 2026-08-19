@@ -30,7 +30,6 @@ internal static class ReactiveContext
 
 public class Signal<T>(T initialValue) : ISignal<T>
 {
-    private T _value = initialValue;
     private readonly Dictionary<object, Action> _subscribers = [];
 
     public T Value
@@ -38,17 +37,17 @@ public class Signal<T>(T initialValue) : ISignal<T>
         get
         {
             ReactiveContext.Track(this);
-            return _value;
+            return field;
         }
         set
         {
-            if (EqualityComparer<T>.Default.Equals(_value, value))
+            if (EqualityComparer<T>.Default.Equals(field, value))
                 return;
-            _value = value;
+            field = value;
             foreach (var sub in new List<Action>(_subscribers.Values))
                 sub();
         }
-    }
+    } = initialValue;
 
     public void Subscribe(object owner, Action cb) => _subscribers[owner] = cb;
 
@@ -62,7 +61,6 @@ public class Computed<T>(Func<T> compute) : ISignal<T>
     private readonly Func<T> _compute = compute;
     private readonly Dictionary<object, Action> _subscribers = [];
     private readonly HashSet<ISignalBase> _deps = [];
-    private T _value = default!;
     private bool _stale = true;
 
     public T Value
@@ -78,13 +76,13 @@ public class Computed<T>(Func<T> compute) : ISignal<T>
 
                 var prev = ReactiveContext.Current;
                 ReactiveContext.Current = (this, MarkStale, _deps);
-                _value = _compute();
+                field = _compute();
                 ReactiveContext.Current = prev;
                 _stale = false;
             }
-            return _value;
+            return field;
         }
-    }
+    } = default!;
 
     private void MarkStale()
     {

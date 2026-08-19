@@ -99,9 +99,7 @@ internal class IndoorPotPatch : PatchTemplate
                     ((__instance.TileLocation.Y + 0.65f) * 64f / 10000f) + ((float)x * 1E-05f)
                 );
             }
-            if (__instance.hoeDirt.Value.crop != null)
-            {
-                __instance.hoeDirt.Value.crop.drawWithOffset(
+            __instance.hoeDirt.Value.crop?.drawWithOffset(
                     spriteBatch,
                     __instance.TileLocation,
                     (
@@ -114,21 +112,14 @@ internal class IndoorPotPatch : PatchTemplate
                     __instance.hoeDirt.Value.getShakeRotation(),
                     new Vector2(32f, 8f)
                 );
-            }
-            if (__instance.heldObject.Value != null)
-            {
-                __instance.heldObject.Value.draw(
+            __instance.heldObject.Value?.draw(
                     spriteBatch,
                     x * 64,
                     (y * 64) - 48,
                     ((__instance.TileLocation.Y + 0.66f) * 64f / 10000f) + ((float)x * 1E-05f),
                     1f
                 );
-            }
-            if (__instance.bush.Value != null)
-            {
-                __instance.bush.Value.draw(spriteBatch, -24f);
-            }
+            __instance.bush.Value?.draw(spriteBatch, -24f);
 
             return false;
         }

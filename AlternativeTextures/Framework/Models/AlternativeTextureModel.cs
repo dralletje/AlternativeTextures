@@ -15,10 +15,10 @@ public class AlternativeTextureModel
     public string Author { get; set; }
     public string ItemName
     {
-        get { return string.IsNullOrEmpty(_itemName) ? ItemId : _itemName; }
-        set { _itemName = value; }
+        get { return string.IsNullOrEmpty(field) ? ItemId : field; }
+        set;
     }
-    private string _itemName;
+
     public string ItemId { get; set; }
     public List<string> CollectiveNames { get; set; } = [];
     public List<string> CollectiveIds { get; set; } = [];

@@ -109,8 +109,10 @@ internal class FishTankFurniturePatch : PatchTemplate
                     __instance.sourceRect.Value.Y,
                     __instance.sourceRect.Value.Width,
                     __instance.sourceRect.Value.Height
-                );
-                sourceRect.Y = textureOffset;
+                )
+                {
+                    Y = textureOffset
+                };
 
                 spriteBatch.Draw(
                     textureModel.GetTexture(textureVariation),

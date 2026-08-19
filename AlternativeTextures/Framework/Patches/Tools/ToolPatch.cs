@@ -186,7 +186,7 @@ internal class ToolPatch : PatchTemplate
 
     static QualifiedIdFor(ModelIdentifier modelIdentifier)
     {
-        Dictionary<string, string> nameToIdMap = new Dictionary<string, string>();
+        Dictionary<string, string> nameToIdMap = [];
         foreach (var kvp in Game1.objectData)
         {
             var unqualifiedId = kvp.Key; // e.g., "128"

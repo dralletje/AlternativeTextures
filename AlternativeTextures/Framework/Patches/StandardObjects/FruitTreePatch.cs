@@ -254,7 +254,7 @@ internal class FruitTreePatch : PatchTemplate
                 }
                 for (var i = 0; i < __instance.fruit.Count; i++)
                 {
-                    var obj = 
+                    var obj =
                         (__instance.struckByLightningCountdown.Value > 0)
                             ? ItemRegistry.GetDataOrErrorItem("(O)382")
                             : ItemRegistry.GetDataOrErrorItem(__instance.fruit[i].QualifiedItemId)

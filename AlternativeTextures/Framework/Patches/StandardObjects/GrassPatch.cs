@@ -67,7 +67,7 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
             var textureOffset = textureModel.GetTextureOffset(textureVariation);
             for (var i = 0; i < __instance.numberOfWeeds.Value; i++)
             {
-                var pos = 
+                var pos =
                     (i != 4)
                         ? (
                             (tileLocation * 64f)

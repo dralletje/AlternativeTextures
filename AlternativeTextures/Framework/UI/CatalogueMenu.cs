@@ -243,13 +243,13 @@ internal class CatalogueMenu : IClickableMenu
         {
             dropDownDisplayOptions = options,
             dropDownOptions = options,
+            bounds = new Rectangle(
+                _searchBox.X + _searchBox.Width + 16,
+                _searchBox.Y - 1,
+                256,
+                48
+            )
         };
-        _searchFilterOptions.bounds = new Rectangle(
-            _searchBox.X + _searchBox.Width + 16,
-            _searchBox.Y - 1,
-            256,
-            48
-        );
         _searchFilterOptions.RecalculateBounds();
 
         Game1.keyboardDispatcher.Subscriber = this._searchBox;
@@ -283,7 +283,7 @@ internal class CatalogueMenu : IClickableMenu
             button.upNeighborImmutable = true;
             button.downNeighborImmutable = true;
             button.upNeighborID = (i > 0) ? (i + 3546 - 1) : (-7777);
-            button.downNeighborID = 
+            button.downNeighborID =
                 (i < 3 && i < _currentlyDisplayedObjects.Count - 1) ? (i + 3546 + 1) : (-7777)
             ;
 
