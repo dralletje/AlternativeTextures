@@ -10,12 +10,9 @@ using StardewValley.Monsters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class MonsterPatch : PatchTemplate
+internal class MonsterPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Monster);
-
-    internal MonsterPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -37,7 +34,7 @@ internal class MonsterPatch : PatchTemplate
         );
     }
 
-    private static void SetTexture(Monster monster, AlternativeTextureModel textureModel)
+    private static void SetTexture(Monster monster, AlternativeTextureModel? textureModel)
     {
         if (textureModel is null)
         {
@@ -96,8 +93,7 @@ internal class MonsterPatch : PatchTemplate
                 .IndexOf("_dangerous", StringComparison.OrdinalIgnoreCase) == -1
         )
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}_dangerous";
+            var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}_dangerous";
             var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
             if (
@@ -169,7 +165,7 @@ internal class MonsterPatch : PatchTemplate
 
     private static void MonsterPostfix(Monster __instance, string name, Vector2 position, int facingDir)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
         if (

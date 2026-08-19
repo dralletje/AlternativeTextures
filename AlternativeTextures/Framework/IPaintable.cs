@@ -17,7 +17,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework;
 
-using TextureType = AlternativeTextureModel.TextureType;
+using TextureType = TextureType;
 
 public static class EnumUtil
 {

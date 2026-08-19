@@ -11,12 +11,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class GiantCropPatch : PatchTemplate
+internal class GiantCropPatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(GiantCrop);
-
-    internal GiantCropPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -152,7 +149,7 @@ internal class GiantCropPatch : PatchTemplate
         if (giantCrop.GetData() is not GiantCropData giantCropData)
             return false;
         instanceName = ItemRegistry.GetData(giantCropData.FromItemId)?.InternalName ?? String.Empty;
-        instanceName = $"{AlternativeTextureModel.TextureType.GiantCrop}_{instanceName}";
+        instanceName = $"{TextureType.GiantCrop}_{instanceName}";
         return true;
     }
 }

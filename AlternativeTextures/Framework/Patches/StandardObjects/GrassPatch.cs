@@ -10,7 +10,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate(modMonitor, modHelper)
+internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Grass);
     private const string NAME_PREFIX = "Grass";
@@ -111,14 +111,14 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Grass}_{NAME_PREFIX}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
+                $"{TextureType.Grass}_{NAME_PREFIX}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
             );
         }
     }
 
     private static void GrassPostfix(Grass __instance)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Grass}_{NAME_PREFIX}";
+        var instanceName = $"{TextureType.Grass}_{NAME_PREFIX}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

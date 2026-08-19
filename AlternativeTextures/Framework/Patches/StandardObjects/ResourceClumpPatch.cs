@@ -10,12 +10,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class ResourceClumpPatch : PatchTemplate
+internal class ResourceClumpPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(ResourceClump);
-
-    internal ResourceClumpPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -100,7 +97,7 @@ internal class ResourceClumpPatch : PatchTemplate
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                     ".",
-                    $"{AlternativeTextureModel.TextureType.ResourceClump}_{GetResourceClumpName(resourceClump)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
+                    $"{TextureType.ResourceClump}_{GetResourceClumpName(resourceClump)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
                 );
             }
         }
@@ -108,7 +105,7 @@ internal class ResourceClumpPatch : PatchTemplate
 
     private static void ResourceClumpPostfix(ResourceClump __instance)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.ResourceClump}_{GetResourceClumpName(__instance)}";
+        var instanceName = $"{TextureType.ResourceClump}_{GetResourceClumpName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

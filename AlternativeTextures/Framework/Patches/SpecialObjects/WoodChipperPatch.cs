@@ -11,12 +11,9 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.SpecialObjects;
 
-internal class WoodChipperPatch : PatchTemplate
+internal class WoodChipperPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(WoodChipper);
-
-    internal WoodChipperPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

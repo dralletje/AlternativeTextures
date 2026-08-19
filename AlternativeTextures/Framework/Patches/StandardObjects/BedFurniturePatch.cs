@@ -10,12 +10,9 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class BedFurniturePatch : PatchTemplate
+internal class BedFurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(BedFurniture);
-
-    internal BedFurniturePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

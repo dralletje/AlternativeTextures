@@ -1,4 +1,6 @@
-﻿using StardewModdingAPI;
+﻿#pragma warning disable
+
+using StardewModdingAPI;
 
 namespace AlternativeTextures.Framework.Interfaces;
 

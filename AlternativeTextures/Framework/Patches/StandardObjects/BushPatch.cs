@@ -11,12 +11,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class BushPatch : PatchTemplate
+internal class BushPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Bush);
-
-    internal BushPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -184,14 +181,14 @@ internal class BushPatch : PatchTemplate
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Bush}_{GetBushTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
+                $"{TextureType.Bush}_{GetBushTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
             );
         }
     }
 
     private static void BushPostfix(Bush __instance)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Bush}_{GetBushTypeString(__instance)}";
+        var instanceName = $"{TextureType.Bush}_{GetBushTypeString(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

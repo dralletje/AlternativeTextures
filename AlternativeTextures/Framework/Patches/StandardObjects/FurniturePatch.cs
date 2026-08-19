@@ -15,12 +15,9 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FurniturePatch : PatchTemplate
+internal class FurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Furniture);
-
-    internal FurniturePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -412,16 +409,16 @@ internal class FurniturePatch : PatchTemplate
             }
             if (__instance.heldObject.Value != null)
             {
-                if (__instance.heldObject.Value is Furniture)
+                if (__instance.heldObject.Value is Furniture furniture)
                 {
-                    (__instance.heldObject.Value as Furniture).drawAtNonTileSpot(
+                    furniture.drawAtNonTileSpot(
                         spriteBatch,
                         Game1.GlobalToLocal(
                             Game1.viewport,
                             new Vector2(
                                 __instance.boundingBox.Center.X - 32,
                                 __instance.boundingBox.Center.Y
-                                    - ((__instance.heldObject.Value as Furniture).sourceRect.Height * 4)
+                                    - (furniture.sourceRect.Height * 4)
                                     - (__instance.drawHeldObjectLow.Value ? (-16) : 16)
                             )
                         ),

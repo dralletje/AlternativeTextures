@@ -37,7 +37,7 @@ internal class CatalogueMenu : IClickableMenu
     private int _texturesPerRow = 6;
     private int _maxRows = 4;
 
-    private Object _selectedObject;
+    private Object? _selectedObject;
     private string _hoverText;
 
     private string _paintBrushWarningText;
@@ -93,8 +93,8 @@ internal class CatalogueMenu : IClickableMenu
         foreach (var item in allFurniture.Where(f => f.Item is Furniture).Select(f => f.Item as Object))
         {
             // Set the stack based on the amount of available textures for the item
-            var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{item.ItemId}";
-            var instanceName = $"{AlternativeTextureModel.TextureType.Furniture}_{item.Name}";
+            var itemId = $"{TextureType.Furniture}_{item.ItemId}";
+            var instanceName = $"{TextureType.Furniture}_{item.Name}";
             var texturesAvailable = AlternativeTextures
                 .textureManager.GetAvailableTextureModels(
                     itemId,
@@ -440,7 +440,7 @@ internal class CatalogueMenu : IClickableMenu
         }
     }
 
-    private void SetSelectedObjected(Object selectedObject)
+    private void SetSelectedObjected(Object? selectedObject)
     {
         _startingRow = 0;
         _selectedObject = selectedObject;
@@ -461,8 +461,8 @@ internal class CatalogueMenu : IClickableMenu
         }
 
         // Get the textures available
-        var itemId = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.ItemId}";
-        var modelName = $"{AlternativeTextureModel.TextureType.Furniture}_{_selectedObject.Name}";
+        var itemId = $"{TextureType.Furniture}_{_selectedObject.ItemId}";
+        var modelName = $"{TextureType.Furniture}_{_selectedObject.Name}";
         var availableModels = AlternativeTextures.textureManager.GetAvailableTextureModels(
             itemId,
             modelName,
@@ -666,7 +666,7 @@ internal class CatalogueMenu : IClickableMenu
                 continue;
             }
 
-            var modelType = AlternativeTextureModel.TextureType.Furniture;
+            var modelType = TextureType.Furniture;
             if (
                 _alternativeTextureButtons[i].item is null
                 || !_alternativeTextureButtons[i].item.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)

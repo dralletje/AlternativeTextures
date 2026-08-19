@@ -13,12 +13,9 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class ObjectPatch : PatchTemplate
+internal class ObjectPatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Object);
-
-    internal ObjectPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -555,7 +552,7 @@ internal class ObjectPatch : PatchTemplate
             {
                 flooring.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] = __instance.ParentSheetIndex.ToString();
 
-                var flooringName = $"{AlternativeTextureModel.TextureType.Flooring}_{GetFlooringName(flooring)}";
+                var flooringName = $"{TextureType.Flooring}_{GetFlooringName(flooring)}";
                 var flooringSeasonName = $"{flooringName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
                 if (
                     AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(flooringName)
@@ -588,10 +585,7 @@ internal class ObjectPatch : PatchTemplate
             return;
         }
 
-        var modelType =
-            placedObject is Furniture
-                ? AlternativeTextureModel.TextureType.Furniture
-                : AlternativeTextureModel.TextureType.Craftable;
+        var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
         var instanceName = $"{modelType}_{GetObjectName(placedObject)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
@@ -643,7 +637,7 @@ internal class ObjectPatch : PatchTemplate
             return;
         }
 
-        var instanceName = $"{AlternativeTextureModel.TextureType.ArtifactSpot}_{GetObjectName(__instance)}";
+        var instanceName = $"{TextureType.ArtifactSpot}_{GetObjectName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
         if (

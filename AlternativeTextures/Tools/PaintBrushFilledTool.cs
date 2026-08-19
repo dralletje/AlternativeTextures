@@ -33,7 +33,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             var modelIdentifierString = tool.modData.GetValueOrDefault(MODDATA_MODEL_KEY);
             /// TODO Should not hit "Craftable_Chest", but would still like a more thoughtout fallback
             return ModelIdentifier.FromString(modelIdentifierString)
-                ?? new ModelIdentifier() { Type = AlternativeTextureModel.TextureType.Craftable, Name = "Chest" };
+                ?? new ModelIdentifier() { Type = TextureType.Craftable, Name = "Chest" };
         }
     }
     TextureIdentifier Texture
@@ -61,8 +61,6 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             helper.Events.Display.RenderedWorld -= OnRenderedWorld;
         });
     }
-
-    private bool is_dragging = false;
 
     static readonly AccessTools.FieldRef<TerrainFeature, ModDataDictionary> modDataRef = AccessTools.FieldRefAccess<
         TerrainFeature,
@@ -106,7 +104,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             clonedModData.CopyFrom(floor.modData); // Or populate as needed
             var paintable = new PaintableFromModData(clonedModData)
             {
-                ModelIdentifier = new() { Type = AlternativeTextureModel.TextureType.Unknown, Name = "" },
+                ModelIdentifier = new() { Type = TextureType.Unknown, Name = "" },
                 Related = null,
             };
             paintable.ApplyTexture(texture);
@@ -149,7 +147,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             //         {
             //             ModelIdentifier = new()
             //             {
-            //                 Type = AlternativeTextureModel.TextureType.Unknown,
+            //                 Type = TextureType.Unknown,
             //                 Name = "",
             //             },
             //             Related = null,
@@ -168,7 +166,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
             // var data = ItemRegistry.GetData(justtexture.Name);
 
-            if (ModelIdentifier.Type == AlternativeTextureModel.TextureType.Flooring)
+            if (ModelIdentifier.Type == TextureType.Flooring)
             {
                 e.SpriteBatch.Draw(
                     texture2d,
@@ -221,18 +219,10 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             }
             else
             {
-                this.is_dragging = true;
-                try
+                while (true)
                 {
-                    while (true)
-                    {
-                        DoApplyTexture(Game1.player.ActiveTargetTile);
-                        yield return true;
-                    }
-                }
-                finally
-                {
-                    this.is_dragging = false;
+                    DoApplyTexture(Game1.player.ActiveTargetTile);
+                    yield return true;
                 }
             }
         }

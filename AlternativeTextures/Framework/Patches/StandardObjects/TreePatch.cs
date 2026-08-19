@@ -12,12 +12,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class TreePatch : PatchTemplate
+internal class TreePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Tree);
-
-    internal TreePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -262,14 +259,14 @@ internal class TreePatch : PatchTemplate
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Tree}_{GetTreeTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
+                $"{TextureType.Tree}_{GetTreeTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
             );
         }
     }
 
     private static void TreePostfix(Tree __instance)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Tree}_{GetTreeTypeString(__instance)}";
+        var instanceName = $"{TextureType.Tree}_{GetTreeTypeString(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

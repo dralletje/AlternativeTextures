@@ -10,12 +10,9 @@ using StardewValley.Tools;
 
 namespace AlternativeTextures.Framework.Patches.GameLocations;
 
-internal class GameLocationPatch : PatchTemplate
+internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(GameLocation);
-
-    internal GameLocationPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -130,7 +127,7 @@ internal class GameLocationPatch : PatchTemplate
                     var seasonalName = String.Concat(
                         obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                         ".",
-                        $"{AlternativeTextureModel.TextureType.Craftable}_{instanceName}_{season}"
+                        $"{TextureType.Craftable}_{instanceName}_{season}"
                     );
                     if (
                         (
@@ -166,7 +163,7 @@ internal class GameLocationPatch : PatchTemplate
                     var seasonalName = String.Concat(
                         character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                         ".",
-                        $"{AlternativeTextureModel.TextureType.Character}_{instanceName}_{season}"
+                        $"{TextureType.Character}_{instanceName}_{season}"
                     );
                     if (
                         (
@@ -204,7 +201,7 @@ internal class GameLocationPatch : PatchTemplate
                     var seasonalName = String.Concat(
                         farmAnimal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                         ".",
-                        $"{AlternativeTextureModel.TextureType.Character}_{instanceName}_{season}"
+                        $"{TextureType.Character}_{instanceName}_{season}"
                     );
                     if (
                         (
@@ -240,7 +237,7 @@ internal class GameLocationPatch : PatchTemplate
             var instanceName = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Building}_{buildingType}"
+                $"{TextureType.Building}_{buildingType}"
             );
             var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
@@ -260,7 +257,7 @@ internal class GameLocationPatch : PatchTemplate
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                     __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                     ".",
-                    $"{AlternativeTextureModel.TextureType.Building}_{buildingType}"
+                    $"{TextureType.Building}_{buildingType}"
                 );
                 if (
                     __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)

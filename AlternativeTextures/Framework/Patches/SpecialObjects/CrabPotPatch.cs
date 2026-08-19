@@ -10,12 +10,9 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.SpecialObjects;
 
-internal class CrabPotPatch : PatchTemplate
+internal class CrabPotPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(CrabPot);
-
-    internal CrabPotPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

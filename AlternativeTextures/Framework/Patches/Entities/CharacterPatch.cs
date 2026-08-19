@@ -10,15 +10,12 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class CharacterPatch : PatchTemplate
+internal class CharacterPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Character);
 
     internal const string BABY_NAME_PREFIX = "Baby";
     internal const string TODDLER_NAME_PREFIX = "Toddler";
-
-    internal CharacterPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -56,7 +53,7 @@ internal class CharacterPatch : PatchTemplate
             .Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
+                $"{TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
@@ -77,7 +74,7 @@ internal class CharacterPatch : PatchTemplate
             child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 child.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(child)}"
+                $"{TextureType.Character}_{GetCharacterName(child)}"
             );
             if (
                 child.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
@@ -111,7 +108,7 @@ internal class CharacterPatch : PatchTemplate
             horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(horse)}"
+                $"{TextureType.Character}_{GetCharacterName(horse)}"
             );
             if (
                 horse.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)

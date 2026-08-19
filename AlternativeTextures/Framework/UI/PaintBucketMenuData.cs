@@ -12,7 +12,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.UI;
 
-using TextureType = AlternativeTextureModel.TextureType;
+using TextureType = TextureType;
 
 // interface IActionable
 // {

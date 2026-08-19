@@ -9,12 +9,9 @@ using StardewValley;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class FarmAnimalPatch : PatchTemplate
+internal class FarmAnimalPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(FarmAnimal);
-
-    internal FarmAnimalPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -85,7 +82,7 @@ internal class FarmAnimalPatch : PatchTemplate
             .Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
+                $"{TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
@@ -105,7 +102,7 @@ internal class FarmAnimalPatch : PatchTemplate
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
+                $"{TextureType.Character}_{GetCharacterName(__instance)}"
             );
             if (
                 __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
@@ -126,7 +123,7 @@ internal class FarmAnimalPatch : PatchTemplate
 
     private static void FarmAnimalPostfix(FarmAnimal __instance, string type, long id, long ownerID)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
         if (

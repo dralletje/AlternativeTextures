@@ -47,25 +47,6 @@ public class AlternativeTextureModel
         get { return 16384; }
     }
 
-    public enum TextureType
-    {
-        Unknown,
-        Craftable,
-        Grass,
-        Tree,
-        FruitTree,
-        Crop,
-        GiantCrop,
-        ResourceClump,
-        Bush,
-        Flooring,
-        Furniture,
-        Character,
-        Building,
-        Decoration,
-        ArtifactSpot,
-    }
-
     public AlternativeTextureModel ShallowCopy()
     {
         return (AlternativeTextureModel)this.MemberwiseClone();

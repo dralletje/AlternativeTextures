@@ -13,12 +13,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FruitTreePatch : PatchTemplate
+internal class FruitTreePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(FruitTree);
-
-    internal FruitTreePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -344,7 +341,7 @@ internal class FruitTreePatch : PatchTemplate
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.FruitTree}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SAPLING_NAME]}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
+                $"{TextureType.FruitTree}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SAPLING_NAME]}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
             );
         }
     }
@@ -359,7 +356,7 @@ internal class FruitTreePatch : PatchTemplate
         }
 
         var saplingName = Game1.objectData.ContainsKey(id) ? Game1.objectData[id].Name : String.Empty;
-        var instanceName = $"{AlternativeTextureModel.TextureType.FruitTree}_{saplingName}";
+        var instanceName = $"{TextureType.FruitTree}_{saplingName}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

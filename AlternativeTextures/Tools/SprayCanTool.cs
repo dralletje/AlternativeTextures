@@ -124,7 +124,7 @@ class SprayCanTool : ICustomTool
     //         }
     //         else if (terrainFeature is Flooring flooring)
     //         {
-    //           var modelType = AlternativeTextureModel.TextureType.Flooring;
+    //           var modelType = TextureType.Flooring;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_{PatchTemplate.GetFlooringName(flooring)}")
     //           {
     //             flooring.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = actualSelectedModel.Owner;
@@ -135,7 +135,7 @@ class SprayCanTool : ICustomTool
     //         }
     //         if (terrainFeature is HoeDirt hoeDirt && hoeDirt.crop is not null)
     //         {
-    //           var modelType = AlternativeTextureModel.TextureType.Crop;
+    //           var modelType = TextureType.Crop;
     //           var instanceName = Game1.objectData.ContainsKey(hoeDirt.crop.netSeedIndex.Value) ? Game1.objectData[hoeDirt.crop.netSeedIndex.Value].Name : String.Empty;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_{instanceName}")
     //           {
@@ -147,7 +147,7 @@ class SprayCanTool : ICustomTool
     //         }
     //         if (terrainFeature is Grass grass)
     //         {
-    //           var modelType = AlternativeTextureModel.TextureType.Grass;
+    //           var modelType = TextureType.Grass;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_Grass")
     //           {
     //             grass.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = actualSelectedModel.Owner;
@@ -158,7 +158,7 @@ class SprayCanTool : ICustomTool
     //         }
     //         if (terrainFeature is Tree tree)
     //         {
-    //           var modelType = AlternativeTextureModel.TextureType.Tree;
+    //           var modelType = TextureType.Tree;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_{PatchTemplate.GetTreeTypeString(tree)}")
     //           {
     //             tree.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = actualSelectedModel.Owner;
@@ -173,7 +173,7 @@ class SprayCanTool : ICustomTool
     //         }
     //         if (terrainFeature is FruitTree fruitTree)
     //         {
-    //           var modelType = AlternativeTextureModel.TextureType.FruitTree;
+    //           var modelType = TextureType.FruitTree;
     //           var saplingName = Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value) ? Game1.objectData[fruitTree.treeId.Value].Name : String.Empty;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_{saplingName}")
     //           {
@@ -191,7 +191,7 @@ class SprayCanTool : ICustomTool
     //         var placedObject = PatchTemplate.GetObjectAt(Game1.currentLocation, actualX, actualY);
     //         if (placedObject is not null)
     //         {
-    //           var modelType = placedObject is Furniture ? AlternativeTextureModel.TextureType.Furniture : AlternativeTextureModel.TextureType.Craftable;
+    //           var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
     //           if (tool.modData[SPRAY_CAN_FLAG] == $"{modelType}_{PatchTemplate.GetObjectName(placedObject)}")
     //           {
     //             placedObject.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = actualSelectedModel.Owner;

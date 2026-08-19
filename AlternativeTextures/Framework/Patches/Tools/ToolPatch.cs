@@ -27,12 +27,9 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.Tools;
 
-internal class ToolPatch : PatchTemplate
+internal class ToolPatch(IMonitor _monitor, IModHelper _helper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Tool);
-
-    internal ToolPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -313,7 +310,7 @@ internal class ToolPatch : PatchTemplate
                     ),
                 ],
                 gridSizeFor(paintable),
-                uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                uiTitle: AlternativeTextures.modHelper.Translation.Get("tools.name.paint_bucket"),
                 onPress: (item) =>
                 {
                     if (item is TextureGridMenuItem betterItem)
@@ -362,7 +359,7 @@ internal class ToolPatch : PatchTemplate
                         }),
                     ],
                     new(rows: 2, columns: 6),
-                    uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                    uiTitle: AlternativeTextures.modHelper.Translation.Get("tools.name.paint_bucket"),
                     onPress: (item) =>
                     {
                         if (item is TextureGridMenuItem betterItem)
@@ -407,7 +404,7 @@ internal class ToolPatch : PatchTemplate
                         }),
                     ],
                     new(rows: 3, columns: 4),
-                    uiTitle: _helper.Translation.Get("tools.name.paint_bucket"),
+                    uiTitle: AlternativeTextures.modHelper.Translation.Get("tools.name.paint_bucket"),
                     onPress: (item) =>
                     {
                         if (item is TextureGridMenuItem betterItem)
@@ -442,7 +439,7 @@ internal class ToolPatch : PatchTemplate
         //         var mailboxPosition = farm.GetMainMailboxPosition();
         //         if (PatchTemplate.IsPositionNearMailbox(location, mailboxPosition, x / 64, y / 64))
         //         {
-        //             var modelType = AlternativeTextureModel.TextureType.Building;
+        //             var modelType = TextureType.Building;
         //             if (!location.modData.ContainsKey("AlternativeTextureName.Mailbox") || !location.modData["AlternativeTextureName.Mailbox"].Contains("Mailbox"))
         //             {
         //                 var textureModel = new AlternativeTextureModel() { Owner = AlternativeTextures.DEFAULT_OWNER, Season = Game1.GetSeasonForLocation(Game1.currentLocation).ToString() };
@@ -498,7 +495,7 @@ internal class ToolPatch : PatchTemplate
         //             targetedBuilding.tilesWide.Value = farmerHouse.tilesWide.Value;
         //             targetedBuilding.tilesHigh.Value = farmerHouse.tilesHigh.Value;
 
-        //             var modelType = AlternativeTextureModel.TextureType.Building;
+        //             var modelType = TextureType.Building;
         //             if (!farm.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) || !farm.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME].Contains(targetedBuilding.buildingType.Value))
         //             {
         //                 var instanceSeasonName = $"{modelType}_{targetedBuilding.buildingType.Value}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
@@ -517,7 +514,7 @@ internal class ToolPatch : PatchTemplate
         //         // Assign default data if none exists
         //         if (!targetedBuilding.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
         //         {
-        //             var modelType = AlternativeTextureModel.TextureType.Building;
+        //             var modelType = TextureType.Building;
         //             var instanceSeasonName = $"{modelType}_{targetedBuilding.buildingType.Value}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
         //             AssignDefaultModData(targetedBuilding, instanceSeasonName, true);
         //         }
@@ -580,7 +577,7 @@ internal class ToolPatch : PatchTemplate
         if (character != null)
         {
             // Assign default data if none exists
-            var modelType = AlternativeTextureModel.TextureType.Character;
+            var modelType = TextureType.Character;
             if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
             {
                 var instanceSeasonName =
@@ -638,7 +635,7 @@ internal class ToolPatch : PatchTemplate
                 {
                     Game1.addHUDMessage(
                         new HUDMessage(
-                            _helper.Translation.Get(
+                            AlternativeTextures.modHelper.Translation.Get(
                                 "messages.warning.no_textures_for_season",
                                 new { itemName = modelName }
                             ),

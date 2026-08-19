@@ -6,10 +6,8 @@ namespace AlternativeTextures.Framework.Managers;
 internal class ApiManager(IMonitor monitor)
 {
     private IMonitor _monitor = monitor;
-    private IMoreGiantCropsApi _moreGiantCropsApi;
-    private IDynamicGameAssetsApi _dynamicGameAssetsApi;
-    private IContentPatcherApi _contentPatcherApi;
-    private IGenericModConfigMenuApi _genericModConfigMenuApi;
+    private IMoreGiantCropsApi? _moreGiantCropsApi;
+    private IDynamicGameAssetsApi? _dynamicGameAssetsApi;
 
     internal bool HookIntoMoreGiantCrops(IModHelper helper)
     {
@@ -39,12 +37,12 @@ internal class ApiManager(IMonitor monitor)
         return true;
     }
 
-    internal IMoreGiantCropsApi GetMoreGiantCropsApi()
+    internal IMoreGiantCropsApi? GetMoreGiantCropsApi()
     {
         return _moreGiantCropsApi;
     }
 
-    internal IDynamicGameAssetsApi GetDynamicGameAssetsApi()
+    internal IDynamicGameAssetsApi? GetDynamicGameAssetsApi()
     {
         return _dynamicGameAssetsApi;
     }

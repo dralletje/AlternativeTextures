@@ -9,12 +9,9 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.SpecialObjects;
 
-internal class IndoorPotPatch : PatchTemplate
+internal class IndoorPotPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(IndoorPot);
-
-    internal IndoorPotPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

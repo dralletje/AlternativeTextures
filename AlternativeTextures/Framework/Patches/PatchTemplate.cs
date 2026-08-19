@@ -22,17 +22,8 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches;
 
-internal class PatchTemplate
+internal class PatchTemplate()
 {
-    internal static IMonitor _monitor;
-    internal static IModHelper _helper;
-
-    internal PatchTemplate(IMonitor modMonitor, IModHelper modHelper)
-    {
-        _monitor = modMonitor;
-        _helper = modHelper;
-    }
-
     internal static string GetModelNameWithoutSeason(string modelName, string season)
     {
         return modelName.ReplaceLastInstance($"_{season}", String.Empty);
@@ -178,9 +169,9 @@ internal class PatchTemplate
         return location.getObjectAt(x, y);
     }
 
-    internal static Building GetBuildingAt(GameLocation location, int x, int y)
+    internal static Building? GetBuildingAt(GameLocation location, int x, int y)
     {
-        Vector2 tile = new Vector2(x / 64, y / 64);
+        var tile = new Vector2(x / 64, y / 64);
         if (location.buildings.FirstOrDefault(b => b.occupiesTile(tile)) is Building building && building != null)
         {
             return building;
@@ -333,12 +324,12 @@ internal class PatchTemplate
 
     internal static bool IsDGAUsed()
     {
-        return _helper.ModRegistry.IsLoaded("spacechase0.DynamicGameAssets");
+        return AlternativeTextures.modHelper.ModRegistry.IsLoaded("spacechase0.DynamicGameAssets");
     }
 
     internal static bool IsSolidFoundationsUsed()
     {
-        return _helper.ModRegistry.IsLoaded("PeacefulEnd.SolidFoundations");
+        return AlternativeTextures.modHelper.ModRegistry.IsLoaded("PeacefulEnd.SolidFoundations");
     }
 
     internal static bool IsDGAObject(object obj)

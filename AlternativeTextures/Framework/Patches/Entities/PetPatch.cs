@@ -10,12 +10,9 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class PetPatch : PatchTemplate
+internal class PetPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Pet);
-
-    internal PetPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -174,7 +171,7 @@ internal class PetPatch : PatchTemplate
             .Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}"
+                $"{TextureType.Character}_{GetCharacterName(__instance)}"
             )
             .ToLower();
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
@@ -195,7 +192,7 @@ internal class PetPatch : PatchTemplate
             pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(pet)}"
+                $"{TextureType.Character}_{GetCharacterName(pet)}"
             );
             if (
                 pet.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
@@ -216,7 +213,7 @@ internal class PetPatch : PatchTemplate
 
     private static void PetPostfix(Pet __instance, int xTile, int yTile, string petBreed, string petType)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
         if (

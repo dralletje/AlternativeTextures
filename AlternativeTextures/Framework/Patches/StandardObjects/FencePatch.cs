@@ -9,13 +9,10 @@ using StardewValley;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FencePatch : PatchTemplate
+internal class FencePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Fence);
     private const int VANILLA_FENCE_TEXTURE_WIDTH = 48;
-
-    internal FencePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -330,8 +327,7 @@ internal class FencePatch : PatchTemplate
         // Assign Gate modData to this fence (if applicable)
         if (dropInItem.ParentSheetIndex == 325 && __result)
         {
-            var instanceName =
-                $"{AlternativeTextureModel.TextureType.Craftable}_{Game1.objectData[dropInItem.ItemId].Name}";
+            var instanceName = $"{TextureType.Craftable}_{Game1.objectData[dropInItem.ItemId].Name}";
             var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
             if (

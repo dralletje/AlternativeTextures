@@ -9,12 +9,9 @@ using StardewValley;
 
 namespace AlternativeTextures.Framework.Patches.SpecialObjects;
 
-internal class TorchPatch : PatchTemplate
+internal class TorchPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Torch);
-
-    internal TorchPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

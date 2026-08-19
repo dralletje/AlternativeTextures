@@ -10,12 +10,9 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.SpecialObjects;
 
-internal class ChestPatch : PatchTemplate
+internal class ChestPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Chest);
-
-    internal ChestPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

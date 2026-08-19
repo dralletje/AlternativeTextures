@@ -26,6 +26,25 @@ using StardewValley.Tools;
 
 namespace AlternativeTextures;
 
+public enum TextureType
+{
+    Unknown,
+    Craftable,
+    Grass,
+    Tree,
+    FruitTree,
+    Crop,
+    GiantCrop,
+    ResourceClump,
+    Bush,
+    Flooring,
+    Furniture,
+    Character,
+    Building,
+    Decoration,
+    ArtifactSpot,
+}
+
 public class AlternativeTextures : Mod
 {
     internal const string PAINTPAIL = "(F)PeacefulEnd.AlternativeTexturesContentPatcher_PaintPail";

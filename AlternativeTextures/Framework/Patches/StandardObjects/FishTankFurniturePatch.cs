@@ -11,12 +11,9 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FishTankFurniturePatch : PatchTemplate
+internal class FishTankFurniturePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(FishTankFurniture);
-
-    internal FishTankFurniturePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -169,9 +166,8 @@ internal class FishTankFurniturePatch : PatchTemplate
                     }
                     for (var j = 0; j < __instance.floorDecorations.Count; j++)
                     {
-                        if (__instance.floorDecorations[j].HasValue)
+                        if (__instance.floorDecorations[j] is { } decoration)
                         {
-                            var decoration = __instance.floorDecorations[j].Value;
                             var decoration_position = decoration.Value;
                             var decoration_source_rect = decoration.Key;
                             var decoration_layer =

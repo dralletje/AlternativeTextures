@@ -7,12 +7,9 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class HoeDirtPatch : PatchTemplate
+internal class HoeDirtPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(HoeDirt);
-
-    internal HoeDirtPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -25,7 +22,7 @@ internal class HoeDirtPatch : PatchTemplate
     private static void PlantPostfix(HoeDirt __instance, string itemId, Farmer who, bool isFertilizer)
     {
         var instanceName = Game1.objectData.ContainsKey(itemId) ? Game1.objectData[itemId].Name : String.Empty;
-        instanceName = $"{AlternativeTextureModel.TextureType.Crop}_{instanceName}";
+        instanceName = $"{TextureType.Crop}_{instanceName}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
 
         if (

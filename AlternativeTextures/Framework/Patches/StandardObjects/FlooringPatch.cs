@@ -12,7 +12,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;
 
-internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate(modMonitor, modHelper)
+internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Flooring);
 
@@ -406,7 +406,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
         var seasonalName = String.Concat(
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
             ".",
-            $"{AlternativeTextureModel.TextureType.Flooring}_{GetFlooringName(flooring)}_{season}"
+            $"{TextureType.Flooring}_{GetFlooringName(flooring)}_{season}"
         );
         if (
             (

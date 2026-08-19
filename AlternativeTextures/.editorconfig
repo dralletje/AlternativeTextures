@@ -42,3 +42,6 @@ csharp_style_prefer_switch_expression = true:warning # Default: true:suggestion
 
 # Use .Count instead of Enumerable.Count()
 dotnet_diagnostic.CA1829.severity = warning
+
+# Unused variable
+dotnet_diagnostic.CS9113.severity = suggestion

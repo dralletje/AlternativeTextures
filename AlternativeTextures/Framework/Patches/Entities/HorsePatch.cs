@@ -12,12 +12,9 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class HorsePatch : PatchTemplate
+internal class HorsePatch(IMonitor _monitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Horse);
-
-    internal HorsePatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -73,7 +70,10 @@ internal class HorsePatch : PatchTemplate
         }
         catch (Exception e)
         {
-            _monitor.Log($"There was an issue modifying the instructions for Horse.draw: {e}", LogLevel.Error);
+            AlternativeTextures.monitor.Log(
+                $"There was an issue modifying the instructions for Horse.draw: {e}",
+                LogLevel.Error
+            );
             return instructions;
         }
     }
@@ -170,7 +170,7 @@ internal class HorsePatch : PatchTemplate
 
     private static void HorsePostfix(Horse __instance, Guid horseId, int xTile, int yTile)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
         if (

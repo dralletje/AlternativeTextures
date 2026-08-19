@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿#pragma warning disable
+
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AlternativeTextures.Framework.Interfaces;
 

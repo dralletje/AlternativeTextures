@@ -8,12 +8,9 @@ using StardewValley.Buildings;
 
 namespace AlternativeTextures.Framework.Patches.Buildings;
 
-internal class ShippingBinPatch : PatchTemplate
+internal class ShippingBinPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(ShippingBin);
-
-    internal ShippingBinPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {

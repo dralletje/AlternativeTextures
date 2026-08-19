@@ -7,12 +7,9 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;
 
-internal class ChildPatch : PatchTemplate
+internal class ChildPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Child);
-
-    internal ChildPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -24,7 +21,7 @@ internal class ChildPatch : PatchTemplate
 
     private static void ChildPostfix(Child __instance, string name, bool isMale, bool isDarkSkinned, Farmer parent)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Character}_{GetCharacterName(__instance)}";
+        var instanceName = $"{TextureType.Character}_{GetCharacterName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}";
 
         if (

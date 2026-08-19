@@ -14,13 +14,10 @@ using StardewValley.GameData.Buildings;
 
 namespace AlternativeTextures.Framework.Patches.Buildings;
 
-internal class BuildingPatch : PatchTemplate
+internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Building);
     private const int TRACTOR_GARAGE_ID = -794739;
-
-    internal BuildingPatch(IMonitor modMonitor, IModHelper modHelper)
-        : base(modMonitor, modHelper) { }
 
     internal void Apply(Harmony harmony)
     {
@@ -76,7 +73,7 @@ internal class BuildingPatch : PatchTemplate
         var instanceName = String.Concat(
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
             ".",
-            $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}"
+            $"{TextureType.Building}_{GetBuildingName(__instance)}"
         );
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
@@ -96,7 +93,7 @@ internal class BuildingPatch : PatchTemplate
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
                 ".",
-                $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}"
+                $"{TextureType.Building}_{GetBuildingName(__instance)}"
             );
             if (
                 __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
@@ -728,7 +725,7 @@ internal class BuildingPatch : PatchTemplate
 
     private static void BuildingPostfix(Building __instance, string type, Vector2 tile)
     {
-        var instanceName = $"{AlternativeTextureModel.TextureType.Building}_{GetBuildingName(__instance)}";
+        var instanceName = $"{TextureType.Building}_{GetBuildingName(__instance)}";
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
         if (
