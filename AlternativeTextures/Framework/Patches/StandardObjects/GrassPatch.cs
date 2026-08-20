@@ -2,6 +2,7 @@
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -96,8 +97,8 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
     private static void SeasonUpdatePostfix(Grass __instance, bool onLoad)
     {
         if (
-            __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-            && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+            && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
             && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
         )
         {

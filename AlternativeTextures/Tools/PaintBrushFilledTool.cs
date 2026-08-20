@@ -28,7 +28,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
     {
         get
         {
-            var modelIdentifierString = tool.modData.GetValueOrDefault(MODDATA_MODEL_KEY);
+            var modelIdentifierString = tool.modData.GetValueOrNull(MODDATA_MODEL_KEY);
             /// TODO Should not hit "Craftable_Chest", but would still like a more thoughtout fallback
             return ModelIdentifier.FromString(modelIdentifierString) ?? TextureType.Craftable.WithName("Chest");
         }

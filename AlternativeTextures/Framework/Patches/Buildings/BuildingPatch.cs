@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
-using AlternativeTextures.Framework.Utilities.Extensions;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;
@@ -11,7 +9,6 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Buildings;
-using StardewValley.GameData.Buildings;
 
 namespace AlternativeTextures.Framework.Patches.Buildings;
 

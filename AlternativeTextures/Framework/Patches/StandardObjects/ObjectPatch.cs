@@ -96,8 +96,8 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
     {
         if (
             GetTextureForUse(
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             )
             is not { } textureModel
         )

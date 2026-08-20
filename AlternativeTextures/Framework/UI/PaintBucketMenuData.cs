@@ -77,10 +77,8 @@ static class PaintBucketMenuData
         {
             if (decoration.Item is Wallpaper floor)
             {
-                if (!String.IsNullOrEmpty(floor.setId.Value))
-                {
+                if (!string.IsNullOrEmpty(floor.setId.Value))
                     continue;
-                }
 
                 yield return new TextureInfo()
                 {
@@ -88,12 +86,7 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = floor.ParentSheetIndex,
-                        ForModel = new()
-                        {
-                            Type = TextureType.Decoration,
-                            IsName = true,
-                            String = "Floor",
-                        },
+                        ForModel = ModelIdentifier.Floor,
                     },
                 };
             }
@@ -107,10 +100,8 @@ static class PaintBucketMenuData
         {
             if (decoration.Item is Wallpaper wallpaper)
             {
-                if (!String.IsNullOrEmpty(wallpaper.setId.Value))
-                {
+                if (!string.IsNullOrEmpty(wallpaper.setId.Value))
                     continue;
-                }
 
                 yield return new TextureInfo()
                 {
@@ -118,12 +109,7 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = wallpaper.ParentSheetIndex,
-                        ForModel = new()
-                        {
-                            Type = TextureType.Decoration,
-                            IsName = true,
-                            String = "Wallpaper",
-                        },
+                        ForModel = ModelIdentifier.Wallpaper,
                     },
                 };
             }

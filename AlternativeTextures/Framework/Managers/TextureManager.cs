@@ -31,8 +31,7 @@ internal class TextureManager(IMod mod)
     private List<AlternativeTextureModel> _alternativeTextures = [];
     private List<string> _textureNames = [];
     private HashSet<string> _textureIdsInsensitive = [with(StringComparer.OrdinalIgnoreCase)];
-    private Dictionary<string, Texture2D> _tokenToTextures = [with(StringComparer.OrdinalIgnoreCase)];
-    private Dictionary<string, TokenModel> _tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
+    private Dictionary<string, AlternativeTextureModel> tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
 
     private string _variationRegexPattern = @"AlternativeTextures\/Textures\/.*(?<variation>\d+)$";
 
@@ -52,47 +51,21 @@ internal class TextureManager(IMod mod)
         }
         else
         {
-            texturesByIdentifier.Add(model.UniqueIdentifier, model);
             _alternativeTextures.Add(model);
-            _textureIdsInsensitive.Add(model.GetId());
         }
 
-        RegisterTokens(model);
-    }
+        texturesByIdentifier.Add(model.UniqueIdentifier, model);
+        _textureIdsInsensitive.Add(model.LegacyId);
 
-    public void RegisterTokens(AlternativeTextureModel textureModel)
-    {
-        // Register for Content Patcher
-        var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}";
-        _tokenToModel[token] = new TokenModel()
-        {
-            // Id = token,
-            AlternativeTexture = textureModel,
-        };
+        var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{model.GetTokenId()}";
+        tokenToModel[token] = model;
 
-        _textureNames.Add(textureModel.GetTokenId());
-        foreach (var variation in textureModel.Textures.Keys)
-        {
-            _textureNames.Add(textureModel.GetTokenId(variation));
-
-            token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId(variation)}";
-            _tokenToModel[token] = new TokenModel()
-            {
-                // Id = token,
-                Variation = variation,
-                AlternativeTexture = textureModel,
-            };
-        }
+        _textureNames.Add(model.GetTokenId());
     }
 
     public List<AlternativeTextureModel> GetAllTextures()
     {
         return _alternativeTextures;
-    }
-
-    public List<string> GetValidTextureNames()
-    {
-        return [.. _alternativeTextures.Select(t => t.GetId())];
     }
 
     public List<string> GetValidTextureNamesWithSeason()
@@ -120,57 +93,17 @@ internal class TextureManager(IMod mod)
         return _textureIdsInsensitive.Contains(objectId);
     }
 
-    public AlternativeTextureModel? GetRandomTextureModel(string objectName)
-    {
-        var validTextures = _alternativeTextures
-            .Where(t => string.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        return validTextures[Game1.random.Next(validTextures.Count)];
-    }
-
     [Obsolete("Use .GetTexture(identifier)")]
     public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
     {
-        return !DoesObjectHaveAlternativeTextureById(textureId)
-            ? null
-            : _alternativeTextures.First(t => string.Equals(t.GetId(), textureId, StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Obsolete("String modelname")]
-    public List<AlternativeTextureModel> GetAvailableTextureModels(string modelName, Season season)
-    {
-        var modelNameWithSeason = string.Concat(modelName, "_", season);
-
-        if (!DoesObjectHaveAlternativeTexture(modelName) && !DoesObjectHaveAlternativeTexture(modelNameWithSeason))
-        {
-            return [];
-        }
-
-        var seasonalTextures = _alternativeTextures
-            .Where(t =>
-                t.IsUsingItemId() is false
-                && string.Equals(t.GetNameWithSeason(), modelNameWithSeason, StringComparison.OrdinalIgnoreCase)
-            )
-            .ToList();
-        seasonalTextures.AddRange(
-            _alternativeTextures.Where(t =>
-                t.IsUsingItemId() is false
-                && !seasonalTextures.Any(s => s.GetId() == t.GetId())
-                && string.Equals(t.GetNameWithSeason(), modelName, StringComparison.OrdinalIgnoreCase)
-            )
+        return _alternativeTextures.FirstOrDefault(t =>
+            string.Equals(t.LegacyId, textureId, StringComparison.OrdinalIgnoreCase)
         );
-        return seasonalTextures;
     }
 
     public List<AlternativeTextureModel> GetTexturesForModel(ModelIdentifier modelIdentifier, Season season)
     {
-        return _alternativeTextures
-            // .Where(t =>
-            //     t.IsUsingItemId() is false
-            //     && string.Equals(t.GetNameWithSeason(), modelNameWithSeason, StringComparison.OrdinalIgnoreCase)
-            // )
-            .Where(t => t.ForModel == modelIdentifier && t.Season == season)
-            .ToList();
+        return _alternativeTextures.Where(t => t.ForModel == modelIdentifier && t.Season == season).ToList();
     }
 
     public AlternativeTextureModel? GetTexture(UniqueTextureIdentifier identifier)
@@ -178,50 +111,8 @@ internal class TextureManager(IMod mod)
         return texturesByIdentifier.GetValueOrNull(identifier);
     }
 
-    public int GetVariationFromToken(string token)
+    public AlternativeTextureModel? GetModelByToken(string token)
     {
-        var regex = new Regex(_variationRegexPattern);
-        foreach (Match match in regex.Matches(token))
-        {
-            if (Int32.TryParse(match.Groups["variation"].ToString(), out var variation))
-            {
-                // Alert on failure
-                return variation;
-            }
-        }
-
-        return 0;
-    }
-
-    public Texture2D? GetTextureByToken(string token)
-    {
-        return String.IsNullOrEmpty(token) || _tokenToTextures.ContainsKey(token) is false
-            ? null
-            : _tokenToTextures[token];
-    }
-
-    public TokenModel? GetModelByToken(string token)
-    {
-        return String.IsNullOrEmpty(token) || _tokenToModel.ContainsKey(token) is false ? null : _tokenToModel[token];
-    }
-
-    public void UpdateTokenCache(string token)
-    {
-        _tokenToTextures[token] = _helper.GameContent.Load<Texture2D>(token);
-    }
-
-    public void UpdateTexture(string token, Texture2D texture)
-    {
-        if (String.IsNullOrEmpty(token) || _tokenToModel.ContainsKey(token) is false)
-        {
-            return;
-        }
-
-        var replacementIndex = _alternativeTextures.IndexOf(_tokenToModel[token].AlternativeTexture);
-        /// TODO Also replace it in the other maps
-        _alternativeTextures[replacementIndex] = _alternativeTextures[replacementIndex] with
-        {
-            Texture = new DrawableTexture(texture),
-        };
+        return tokenToModel.GetValueOrNull(token);
     }
 }

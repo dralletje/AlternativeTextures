@@ -59,7 +59,7 @@ class ContentPackLoader(Mod mod)
                     }
                     else
                     {
-                        Console.Log($"{matches.Count()} textures found for {matches.Key}");
+                        Console.Log($"{matches.Count()} textures found for {matches.Key}, not adding either");
                     }
                 }
             }
@@ -248,6 +248,13 @@ class ContentPackLoader(Mod mod)
         return mutable_TextureModels;
     }
 
+    static IEnumerable<int> Infinite()
+    {
+        var i = 0;
+        while (true)
+            yield return i++;
+    }
+
     internal static IEnumerable<DrawableTexture> LoadTexturesFromSingleFile(
         IContentPack contentPack,
         AlternativeTextureFile textureFile,
@@ -265,12 +272,56 @@ class ContentPackLoader(Mod mod)
 
         if (textureFile.Type == TextureType.Decoration)
         {
-            if (texture.Width < 256)
+            if (texture.Width != 256)
                 throw new ContentPackTextureException(
                     "The required image width is 256 for Decoration types (wallpapers / floors)"
                 );
 
-            yield return new DrawableTexture(texture);
+            if (textureFile.ItemName == "Floor")
+            {
+                var texturesPerRow = 256 / 32;
+                var rows = texture.Height / 32;
+                foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
+                {
+                    yield return new DrawableTexture(
+                        FlattenDecorationTexture(
+                            Game1.graphics.GraphicsDevice,
+                            new DrawableTexture()
+                            {
+                                Texture = texture,
+                                SourceRect = new Rectangle((index % 8) * 32, (index / 8) * 32, 32, 32),
+                            }
+                        )
+                    );
+                }
+            }
+            else if (textureFile.ItemName == "Wallpaper")
+            {
+                var texturesPerRow = 256 / 16;
+                var rows = texture.Height / 48;
+                foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
+                {
+                    yield return new DrawableTexture(
+                        FlattenDecorationTexture(
+                            Game1.graphics.GraphicsDevice,
+                            new DrawableTexture()
+                            {
+                                Texture = texture,
+                                SourceRect = new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48),
+                            }
+                        )
+                    );
+                    // yield return new DrawableTexture()
+                    // {
+                    //     Texture = texture,
+                    //     SourceRect = new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48),
+                    // };
+                }
+            }
+            else
+            {
+                throw new ContentPackTextureException("Type = Decoration, but itemName is not Floor or Wallpaper");
+            }
         }
         else
         {
@@ -308,6 +359,21 @@ class ContentPackLoader(Mod mod)
                 yield return new DrawableTexture(boringTexture);
             }
         }
+    }
+
+    internal static Texture2D FlattenDecorationTexture(GraphicsDevice gd, DrawableTexture texture)
+    {
+        return Renderer.Render(
+            gd,
+            256,
+            texture.SourceRect.Height,
+            batch =>
+            {
+                batch.Begin(samplerState: SamplerState.PointClamp);
+                batch.Draw(texture.Texture, texture.SourceRect with { X = 0, Y = 0 }, texture.SourceRect, Color.White);
+                batch.End();
+            }
+        );
     }
 
     internal static IEnumerable<DrawableTexture> LoadTexturesFromMultipleFiles(

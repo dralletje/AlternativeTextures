@@ -329,12 +329,12 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
             if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
             {
                 var wallpaperPaintable = new WallpaperDecorationPaintable(decoratableLocation, wallId);
-
                 List<TextureInfo> items =
                 [
                     .. PaintBucketMenuData.VanillaWallpaperDecorations(),
                     .. PaintBucketMenuData.GetTexturesFor(wallpaperPaintable.ModelIdentifier),
                 ];
+
                 if (items.Count == 1)
                 {
                     // csharpier-ignore
@@ -566,94 +566,94 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
 
     private static bool UseScissors(GameLocation location, int x, int y, Farmer who)
     {
-        var character = GetCharacterAt(location, x, y);
-        if (character != null)
-        {
-            // Assign default data if none exists
-            var modelType = TextureType.Character;
-            // if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            // {
-            //     var instanceSeasonName =
-            //         $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            //     AssignDefaultModData(character, instanceSeasonName, true);
-            // }
+        // var character = GetCharacterAt(location, x, y);
+        // if (character != null)
+        // {
+        //     // Assign default data if none exists
+        //     var modelType = TextureType.Character;
+        //     // if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        //     // {
+        //     //     var instanceSeasonName =
+        //     //         $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+        //     //     AssignDefaultModData(character, instanceSeasonName, true);
+        //     // }
 
-            var modelName = character
-                .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-                .Replace($"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
-            if (modelName.Contains(GetCharacterName(character), StringComparison.OrdinalIgnoreCase) is false)
-            {
-                modelName =
-                    $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-            }
+        //     var modelName = character
+        //         .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+        //         .Replace($"{character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER]}.", String.Empty);
+        //     if (modelName.Contains(GetCharacterName(character), StringComparison.OrdinalIgnoreCase) is false)
+        //     {
+        //         modelName =
+        //             $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+        //     }
 
-            if (
-                character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                && !String.IsNullOrEmpty(character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
-            )
-            {
-                modelName = GetModelNameWithoutSeason(
-                    modelName,
-                    character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
-                );
-            }
+        //     if (
+        //         character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+        //         && !String.IsNullOrEmpty(character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
+        //     )
+        //     {
+        //         modelName = GetModelNameWithoutSeason(
+        //             modelName,
+        //             character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
+        //         );
+        //     }
 
-            if (
-                AlternativeTextures
-                    .textureManager.GetAvailableTextureModels(
-                        modelName,
-                        Game1.GetSeasonForLocation(Game1.currentLocation)
-                    )
-                    .Count == 0
-            )
-            {
-                if (
-                    (
-                        character is Pet pet
-                        && pet.GetPetData() is var petData
-                        && petData is not null
-                        && petData.Breeds is not null
-                    )
-                    || (
-                        character is FarmAnimal animal
-                        && animal.GetAnimalData() is var animalData
-                        && animalData is not null
-                        && animalData.Skins is not null
-                    )
-                )
-                {
-                    // Skip no texture warning
-                }
-                else
-                {
-                    Game1.addHUDMessage(
-                        new HUDMessage(
-                            AlternativeTextures.modHelper.Translation.Get(
-                                "messages.warning.no_textures_for_season",
-                                new { itemName = modelName }
-                            ),
-                            3
-                        )
-                    );
-                    return CancelUsing(who);
-                }
-            }
+        //     if (
+        //         AlternativeTextures
+        //             .textureManager.GetAvailableTextureModels(
+        //                 modelName,
+        //                 Game1.GetSeasonForLocation(Game1.currentLocation)
+        //             )
+        //             .Count == 0
+        //     )
+        //     {
+        //         if (
+        //             (
+        //                 character is Pet pet
+        //                 && pet.GetPetData() is var petData
+        //                 && petData is not null
+        //                 && petData.Breeds is not null
+        //             )
+        //             || (
+        //                 character is FarmAnimal animal
+        //                 && animal.GetAnimalData() is var animalData
+        //                 && animalData is not null
+        //                 && animalData.Skins is not null
+        //             )
+        //         )
+        //         {
+        //             // Skip no texture warning
+        //         }
+        //         else
+        //         {
+        //             Game1.addHUDMessage(
+        //                 new HUDMessage(
+        //                     AlternativeTextures.modHelper.Translation.Get(
+        //                         "messages.warning.no_textures_for_season",
+        //                         new { itemName = modelName }
+        //                     ),
+        //                     3
+        //                 )
+        //             );
+        //             return CancelUsing(who);
+        //         }
+        //     }
 
-            // Display texture menu
-            var obj = new Object("100", 1, isRecipe: false, -1)
-            {
-                Name = character.Name,
-                displayName = character.displayName,
-                TileLocation = character.Tile,
-                Location = location,
-            };
-            obj.modData.SetFromSerialization(character.modData);
+        //     // Display texture menu
+        //     var obj = new Object("100", 1, isRecipe: false, -1)
+        //     {
+        //         Name = character.Name,
+        //         displayName = character.displayName,
+        //         TileLocation = character.Tile,
+        //         Location = location,
+        //     };
+        //     obj.modData.SetFromSerialization(character.modData);
 
-            /// TODO
-            // Game1.activeClickableMenu = new PaintBucketMenu(obj, obj.TileLocation * 64f, GetTextureType(character), modelName, uiTitle: _helper.Translation.Get("tools.name.scissors"));
+        //     /// TODO
+        //     // Game1.activeClickableMenu = new PaintBucketMenu(obj, obj.TileLocation * 64f, GetTextureType(character), modelName, uiTitle: _helper.Translation.Get("tools.name.scissors"));
 
-            return CancelUsing(who);
-        }
+        //     return CancelUsing(who);
+        // }
         return CancelUsing(who);
     }
 

@@ -2,27 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.External.GenericModConfigMenu;
 using AlternativeTextures.Framework.Managers;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Patches;
 using AlternativeTextures.Framework.Patches.Buildings;
 using AlternativeTextures.Framework.Patches.Entities;
 using AlternativeTextures.Framework.Patches.GameLocations;
 using AlternativeTextures.Framework.Patches.SpecialObjects;
 using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.Patches.Tools;
-using AlternativeTextures.Framework.Utilities.Extensions;
 using AlternativeTextures.Tools;
 using ConsoleLog;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.GameData;
-using StardewValley.Menus;
 using StardewValley.Tools;
 
 namespace AlternativeTextures;
@@ -215,7 +213,7 @@ public class AlternativeTextures : Mod
 
         // Hook into the Content events
         helper.Events.Content.AssetRequested += OnContentAssetRequested;
-        helper.Events.Content.AssetReady += OnContentAssetReady;
+        // helper.Events.Content.AssetReady += OnContentAssetReady;
 
         // Hook into Multiplayer events
         helper.Events.Multiplayer.ModMessageReceived += OnModMessageReceived;
@@ -229,25 +227,27 @@ public class AlternativeTextures : Mod
         }
     }
 
-    private void OnContentAssetReady(object? sender, AssetReadyEventArgs e)
-    {
-        var asset = e.Name;
-        if (textureManager.GetTextureByToken(asset.Name) is Texture2D texture && texture is not null)
-        {
-            var loadedTexture = Helper.GameContent.Load<Texture2D>(asset.Name);
+    // private void OnContentAssetReady(object? sender, AssetReadyEventArgs e)
+    // {
+    //     var asset = e.Name;
+    //     if (textureManager.GetTextureByToken(asset.Name) is Texture2D texture)
+    //     {
+    //         var loadedTexture = Helper.GameContent.Load<Texture2D>(asset.Name);
 
-            textureManager.UpdateTexture(asset.Name, loadedTexture);
-        }
-    }
+    //         textureManager.UpdateTexture(asset.Name, loadedTexture);
+    //     }
+    // }
 
     private void OnContentAssetRequested(object? sender, AssetRequestedEventArgs e)
     {
         if (e.DataType == typeof(Texture2D))
         {
             var asset = e.Name;
-            if (textureManager.GetModelByToken(asset.Name) is TokenModel tokenModel && tokenModel is not null)
+            Console.Log($"asset.Name: {asset.Name}");
+            if (textureManager.GetModelByToken(asset.Name) is { } textureModel)
             {
-                var originalTexture = tokenModel.AlternativeTexture.GetTexture(tokenModel.Variation);
+                Console.Log($"textureModel: {textureModel}");
+                var originalTexture = textureModel.Texture.Texture;
                 var clonedTexture = originalTexture.CreateSelectiveCopy(
                     Game1.graphics.GraphicsDevice,
                     new Rectangle(0, 0, originalTexture.Width, originalTexture.Height)
@@ -268,16 +268,26 @@ public class AlternativeTextures : Mod
                     var textureModel in textureManager
                         .GetAllTextures()
                         .Where(t =>
-                            t.ForModel.Type is TextureType.Decoration && !moddedDecorations.Any(d => d.Id == t.GetId())
+                            t.ForModel.Type is TextureType.Decoration
+                            && !moddedDecorations.Any(d =>
+                                d.Id == DecorationIdHelper.ToString(t.UniqueIdentifierWithoutSeason)
+                            )
                         )
                 )
                 {
+                    var texture =
+                        $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
+
+                    Console.Log(
+                        $"DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason): {DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason)}"
+                    );
+
                     var decoration = new ModWallpaperOrFlooring()
                     {
-                        Id = textureModel.GetId(),
-                        Texture = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}",
-                        IsFlooring = String.Equals(textureModel.ItemName, "Floor", StringComparison.OrdinalIgnoreCase),
-                        Count = textureModel.GetVariations(),
+                        Id = DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason),
+                        Texture = texture,
+                        IsFlooring = textureModel.ForModel == ModelIdentifier.Floor,
+                        Count = 1,
                     };
 
                     moddedDecorations.Add(decoration);

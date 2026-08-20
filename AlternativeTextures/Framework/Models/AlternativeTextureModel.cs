@@ -38,24 +38,30 @@ static class UniqueTextureIdentifierExtensions
     {
         public static (string owner, TextureType type, string objectName, Season? season) ParseOldId(string name)
         {
-            var (owner, typeAndNameAndSeason) = name.Split(".") switch
+            var nameWithoutSeason = name;
+            var season = (Season?)null;
+            foreach (var s in Season.All())
+            {
+                var seasonSuffix = $"_{s}";
+                if (name.EndsWith(seasonSuffix))
+                {
+                    season = s;
+                    nameWithoutSeason = name[..^seasonSuffix.Length];
+                }
+            }
+
+            var (owner, typeAndNameAndSeason) = nameWithoutSeason.Split(".") switch
             {
                 [.. var _owner, var _rest] => (string.Join(".", _owner), _rest),
                 _ => throw new ArgumentException($"Not a valid name '{name}' #2"),
             };
 
-            var (type, objectName, season) = typeAndNameAndSeason.Split("_", 3) switch
+            var (type, objectName) = typeAndNameAndSeason.Split("_") switch
             {
-                [var _typeString, var _objectName] when Enum.TryParse<TextureType>(_typeString, out var _type) => (
+                [var _typeString, .. var _objectName] when Enum.TryParse<TextureType>(_typeString, out var _type) => (
                     _type,
-                    _objectName,
-                    (Season?)null
+                    string.Join("_", _objectName)
                 ),
-
-                [var _typeString, var _objectName, var _seasonString]
-                    when Enum.TryParse<TextureType>(_typeString, out var _type)
-                        && Enum.TryParse<Season>(_seasonString, out var _season) => (_type, _objectName, _season),
-
                 _ => throw new ArgumentException($"Not a valid name '{name}'"),
             };
 
@@ -82,7 +88,7 @@ static class UniqueTextureIdentifierExtensions
         public static UniqueTextureIdentifier FromString(string name, string variationString) =>
             FromString(name, int.Parse(variationString));
 
-        public bool IsDefault => identifier.Variation is -1;
+        public bool IsDefault => identifier.Owner is AlternativeTextures.DEFAULT_OWNER || identifier.Variation is -1;
 
         public string LegacyId => $"{identifier.Owner}.{identifier.ForModel.Type}_{identifier.ForModel.String}";
 
@@ -97,9 +103,11 @@ static class TextureIdentifierWithoutSeasonExtensions
 {
     extension(TextureIdentifierWithoutSeason identifier)
     {
-        public bool IsDefault => identifier.Variation is -1;
+        public bool IsDefault => identifier.Owner is AlternativeTextures.DEFAULT_OWNER || identifier.Variation is -1;
 
         public string LegacyId => $"{identifier.Owner}.{identifier.ForModel.Type}_{identifier.ForModel.String}";
+        public string LegacyIdWithVariant =>
+            $"{identifier.Owner}.{identifier.ForModel.Type}_{identifier.ForModel.String}_{identifier.Variation}";
 
         public UniqueTextureIdentifier WithSeason(Season season) =>
             new(identifier.Owner, identifier.ForModel, identifier.Variation, season);
@@ -163,6 +171,9 @@ public record ModelIdentifier
             _ => null,
         };
     }
+
+    public static readonly ModelIdentifier Floor = TextureType.Decoration.WithName("Floor");
+    public static readonly ModelIdentifier Wallpaper = TextureType.Decoration.WithName("Wallpaper");
 }
 
 public record AlternativeTextureModel
@@ -179,7 +190,6 @@ public record AlternativeTextureModel
 
     public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
     public List<string> Keywords = [];
-    public int? DefaultVariation;
     public List<AnimationModel> Animation = [];
 
     public string Owner => PackManifest.UniqueID;
@@ -198,11 +208,15 @@ static class AlternativeTextureModelExtensions
         //     get { return Season is null ? $"{Type}_{ItemName}" : $"{Type}_{ItemName}_{Season}"; }
         // }
 
+        /// <summary>
+        /// This is what is currently saved to items, so we need it for compatibitily.
+        /// Biggest problem is that it does not contain the variant, that is currently stored separately.
+        /// This is still used for a bunch of lookups, so as a workaround `.getTexture(int variation)` will
+        /// actually look up the actual texture model in the list of all textures.
+        /// </summary>
         internal string LegacyId => $"{textureModel.Owner}.{textureModel.ForModel.Type}_{textureModel.ForModel.String}";
-
-        /// TODO Include variant?
-        [Obsolete("Why???")]
-        internal string ModelName => $"{textureModel.ForModel.Type}_{textureModel.ForModel.String}";
+        internal string LegacyIdWithVariant =>
+            $"{textureModel.Owner}.{textureModel.ForModel.Type}_{textureModel.ForModel.String}_{textureModel.Variation}";
 
         [Obsolete("Use `.LegacyId`")]
         internal string TextureId => textureModel.LegacyId;
@@ -215,9 +229,10 @@ static class AlternativeTextureModelExtensions
 
         public bool IsUsingItemId() => textureModel.ForModel.IsName;
 
+        [Obsolete("Uhhh")]
         public string? GetNameWithSeason()
         {
-            return textureModel.ModelName;
+            return $"{textureModel.ForModel.Type}_{textureModel.ForModel.String}";
         }
 
         [Obsolete("Variations are separate entities now")]
@@ -333,6 +348,7 @@ static class AlternativeTextureModelExtensions
         [Obsolete("Smakes Smo Smense!!!!")]
         public int GetTextureOffset(int _) => 0;
 
+        [Obsolete("Just compare the `.ForModel.Type`")]
         public string? ItemName => textureModel.ForModel.IsName ? textureModel.ForModel.String : null;
 
         [Obsolete("Use version without variation")]
@@ -366,7 +382,8 @@ static class AlternativeTextureModelExtensions
 
         public bool HasTint() => false;
 
-        public string GetTokenId() => "";
+        public string GetTokenId() =>
+            $"{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
 
         internal bool IsFrameValid(int currentFrame, bool isMachineActive) => false;
 

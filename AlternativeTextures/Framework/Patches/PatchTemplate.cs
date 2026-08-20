@@ -2,33 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework.Interfaces;
-using AlternativeTextures.Framework.Managers;
-using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches.Entities;
 using AlternativeTextures.Framework.Utilities;
-using AlternativeTextures.Framework.Utilities.Extensions;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Characters;
 using StardewValley.Locations;
-using StardewValley.Monsters;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
-using StardewValley.Tools;
-using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches;
 
 internal class PatchTemplate()
 {
-    internal static string GetModelNameWithoutSeason(string modelName, string season)
-    {
-        return modelName.ReplaceLastInstance($"_{season}", String.Empty);
-    }
-
     internal static string GetObjectName(Object obj)
     {
         // Perform separate check for DGA objects, before using check for vanilla objects
@@ -308,70 +296,6 @@ internal class PatchTemplate()
         }
 
         return false;
-    }
-
-    internal static bool AssignModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
-    {
-        return false;
-
-        /// IMMEDIATE TODO
-        // if (HasCachedTextureName(type) || IsTextureRandomnessEnabled(type) is false)
-        // {
-        //     return false;
-        // }
-
-        // var textureModel = AlternativeTextures.textureManager.GetRandomTextureModel(modelName);
-
-        // var selectedVariation = Game1.random.Next(-1, textureModel.Variations);
-        // if (textureModel.DefaultVariation is not null)
-        // {
-        //     selectedVariation = textureModel.DefaultVariation.Value;
-        // }
-        // else if (textureModel.ManualVariations.Count > 0)
-        // {
-        //     var weightedSelection = textureModel
-        //         .ManualVariations.Where(v => v.ChanceWeight > Game1.random.NextDouble())
-        //         .ToList();
-        //     if (weightedSelection.Count > 0)
-        //     {
-        //         var randomWeightedSelection = Game1.random.Next(
-        //             !textureModel.ManualVariations.Any(v => v.Id == -1) ? -1 : 0,
-        //             weightedSelection.Count
-        //         );
-        //         selectedVariation = randomWeightedSelection == -1 ? -1 : weightedSelection[randomWeightedSelection].Id;
-        //     }
-        //     else
-        //     {
-        //         return AssignDefaultModData<T>(type, modelName, trackSeason, trackSheetId);
-        //     }
-        // }
-
-        // switch (type)
-        // {
-        //     case Object obj:
-        //         AssignObjectModData(obj, modelName, textureModel, selectedVariation, trackSeason, trackSheetId);
-        //         return true;
-        //     case TerrainFeature terrain:
-        //         AssignTerrainFeatureModData(terrain, modelName, textureModel, selectedVariation, trackSeason);
-        //         return true;
-        //     case Character character:
-        //         AssignCharacterModData(character, modelName, textureModel, selectedVariation, trackSeason);
-        //         return true;
-        //     case Building building:
-        //         AssignBuildingModData(building, modelName, textureModel, selectedVariation, trackSeason);
-        //         return true;
-        //     case DecoratableLocation decoratableLocation:
-        //         AssignDecoratableLocationModData(
-        //             decoratableLocation,
-        //             modelName,
-        //             textureModel,
-        //             selectedVariation,
-        //             trackSeason
-        //         );
-        //         return true;
-        // }
-
-        // return false;
     }
 
     public static AlternativeTextureModel? GetTextureForUse(string? nameMaybe, string? variation)

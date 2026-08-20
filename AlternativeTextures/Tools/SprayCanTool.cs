@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AlternativeTextures.Framework;
+using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -44,7 +45,7 @@ class SprayCanTool : ICustomTool
     {
         if (IPaintable.OnTile(tile).FirstOrDefault() is { } paintable)
         {
-            if (paintable.Type != tool.modData.GetValueOrDefault(SPRAY_CAN_FLAG))
+            if (paintable.Type != tool.modData.GetValueOrNull(SPRAY_CAN_FLAG))
             {
                 Game1.player.modData[ENABLED_SPRAY_CAN_TEXTURES] = null;
             }

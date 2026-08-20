@@ -3,6 +3,7 @@ using System.Linq;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -113,8 +114,8 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var obj in __instance.objects.Values)
             {
                 if (
-                    obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-                    && obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    obj.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && obj.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
                     && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
@@ -133,8 +134,8 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var character in __instance.characters)
             {
                 if (
-                    character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-                    && character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    character.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && character.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
                     && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
@@ -153,8 +154,8 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var animal in __instance.animals.Values)
             {
                 if (
-                    animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-                    && animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    animal.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && animal.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
                     && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
@@ -172,8 +173,8 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
         {
             if (
                 __instance.IsBuildableLocation()
-                && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-                && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
                 && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
             )
             {

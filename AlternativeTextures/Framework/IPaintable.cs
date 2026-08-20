@@ -174,43 +174,13 @@ interface IPaintable
     }
 }
 
-/// TODO: Add seasons back?
-static class ModDataToTexture
-{
-    public static TextureIdentifier? GetTexture(ModDataDictionary modData)
-    {
-        return
-            modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER) is { } owner
-            && modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
-            && modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
-            ? new TextureIdentifier(owner, name, variation)
-            : null;
-    }
-
-    public static void SetTexture(ModDataDictionary modData, TextureIdentifier? value)
-    {
-        if (value is { } texture)
-        {
-            modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = texture.Owner;
-            modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = texture.Name;
-            modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = texture.Variation.ToString();
-        }
-        else
-        {
-            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER);
-            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
-            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION);
-        }
-    }
-}
-
 static class ModDataToTextureIdentifierWithoutSeason
 {
     public static TextureIdentifierWithoutSeason? GetTexture(ModDataDictionary modData)
     {
         return
-            modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
-            && modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
+            && modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
             ? TextureIdentifierWithoutSeason.FromString(name, variation)
             : null;
     }
@@ -228,148 +198,6 @@ static class ModDataToTextureIdentifierWithoutSeason
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER);
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
             modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION);
-        }
-    }
-}
-
-record WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
-{
-    public ModelIdentifier ModelIdentifier { get; } = TextureType.Decoration.WithName("Wallpaper");
-
-    public object? Related { get; } = null;
-
-    public TextureIdentifierWithoutSeason? TextureIdentifier
-    {
-        get
-        {
-            var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
-            return wallpaperId.Split(":", 2) switch
-            {
-                [var name, var variant] => TextureIdentifierWithoutSeason.FromString(name, variant),
-                [var variantString] when int.TryParse(variantString, out var variant) => new()
-                {
-                    Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Variation = variant,
-                    ForModel = ModelIdentifier,
-                },
-                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
-            };
-        }
-    }
-
-    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
-    {
-        if (maybeTextureToApply is { } textureToApply)
-        {
-            var decorationKey = textureToApply.IsDefault
-                ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
-                : $"{textureToApply.LegacyId}:{textureToApply.Variation}";
-            location.SetWallpaper(decorationKey, roomId);
-        }
-        else
-        {
-            location.SetWallpaper("0", roomId);
-        }
-    }
-
-    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier)
-    {
-        if (textureIdentifier.IsDefault)
-        {
-            var which = textureIdentifier.Variation;
-            return new()
-            {
-                Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
-                SourceRect = new Rectangle(which % 16 * 16, which / 16 * 48, 16, 48),
-            };
-        }
-        else
-        {
-            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
-            if (textureModel is null)
-                return null;
-
-            var decorationOffset = 16;
-            return new(
-                parent: textureModel.Texture,
-                sourceRect: new Rectangle(
-                    textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
-                    textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
-                    textureModel.TextureWidth,
-                    textureModel.TextureHeight
-                )
-            );
-        }
-    }
-}
-
-record FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
-{
-    public ModelIdentifier ModelIdentifier { get; } = TextureType.Decoration.WithName("Floor");
-
-    public object? Related { get; } = null;
-
-    public TextureIdentifierWithoutSeason? TextureIdentifier
-    {
-        get
-        {
-            var floorId = location.appliedWallpaper.GetValueOrDefault(roomId);
-            return floorId.Split(":", 2) switch
-            {
-                [var name, var variant] => TextureIdentifierWithoutSeason.FromString(name, variant),
-                [var variantString] when int.TryParse(variantString, out var variant) => new()
-                {
-                    Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Variation = variant,
-                    ForModel = ModelIdentifier,
-                },
-                _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{floorId}'"),
-            };
-        }
-    }
-
-    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
-    {
-        if (maybeTextureToApply is { } textureToApply)
-        {
-            var decorationKey = textureToApply.IsDefault
-                ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
-                : $"{textureToApply.LegacyId}:{textureToApply.Variation}";
-            location.SetFloor(decorationKey, roomId);
-        }
-        else
-        {
-            location.SetFloor("0", roomId);
-        }
-    }
-
-    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier)
-    {
-        if (textureIdentifier.IsDefault)
-        {
-            var which = textureIdentifier.Variation;
-            return new()
-            {
-                Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
-                SourceRect = new Rectangle(which % 8 * 32, 336 + (which / 8 * 32), 32, 32),
-            };
-        }
-        else
-        {
-            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
-            if (textureModel is null)
-                return null;
-
-            var decorationOffset = 8;
-            return new(
-                parent: textureModel.Texture,
-                sourceRect: new Rectangle(
-                    textureIdentifier.Variation % decorationOffset * textureModel.TextureWidth,
-                    textureIdentifier.Variation / decorationOffset * textureModel.TextureHeight,
-                    textureModel.TextureWidth,
-                    textureModel.TextureHeight
-                )
-            );
         }
     }
 }

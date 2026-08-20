@@ -2,6 +2,7 @@
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -79,8 +80,8 @@ internal class ResourceClumpPatch(IMonitor modMonitor, IModHelper modHelper) : P
         if (__instance is ResourceClump resourceClump)
         {
             if (
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-                && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
                 && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
             )
             {

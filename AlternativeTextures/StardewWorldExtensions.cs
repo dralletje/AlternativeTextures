@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Tools;
+using Incubator;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.GameData.GiantCrops;
@@ -17,7 +18,7 @@ public static class StardewWorldExtensions
         public TerrainFeature? GetTerrainFeatureAtTile(Tile tile)
         {
             var tileVector = tile.ToVector2();
-            if (location.terrainFeatures.GetValueOrDefault(tileVector) is { } feature)
+            if (location.terrainFeatures.GetValueOrNull(tileVector) is { } feature)
             {
                 return feature;
             }

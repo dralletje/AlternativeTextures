@@ -1,5 +1,6 @@
 using System;
 using AlternativeTextures.Framework.Models;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Netcode;
 using StardewValley;
@@ -114,28 +115,28 @@ static class SourceRects
         byte drawSum = 0;
 
         if (
-            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { X = flooring.Tile.X + 1f })
+            Game1.currentLocation.terrainFeatures.GetValueOrNull(flooring.Tile with { X = flooring.Tile.X + 1f })
             is Flooring
         )
         {
             drawSum = (byte)(drawSum + 2);
         }
         if (
-            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { X = flooring.Tile.X - 1f })
+            Game1.currentLocation.terrainFeatures.GetValueOrNull(flooring.Tile with { X = flooring.Tile.X - 1f })
             is Flooring
         )
         {
             drawSum = (byte)(drawSum + 8);
         }
         if (
-            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { Y = flooring.Tile.Y + 1f })
+            Game1.currentLocation.terrainFeatures.GetValueOrNull(flooring.Tile with { Y = flooring.Tile.Y + 1f })
             is Flooring
         )
         {
             drawSum = (byte)(drawSum + 4);
         }
         if (
-            Game1.currentLocation.terrainFeatures.GetValueOrDefault(flooring.Tile with { Y = flooring.Tile.Y - 1f })
+            Game1.currentLocation.terrainFeatures.GetValueOrNull(flooring.Tile with { Y = flooring.Tile.Y - 1f })
             is Flooring
         )
         {

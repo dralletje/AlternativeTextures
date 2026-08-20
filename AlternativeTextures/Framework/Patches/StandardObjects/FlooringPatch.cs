@@ -3,6 +3,7 @@ using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -40,8 +41,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
     {
         if (
             GetTextureForUse(
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             ) is
             { } textureModel
         )
@@ -306,8 +307,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
         if (
             !PatchTemplate.IsDGAObject(__instance)
             && GetTextureForUse(
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             )
                 is { } textureModel
         )
@@ -373,8 +374,8 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
     {
         if (
             __instance is Flooring flooring
-            && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
-            && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+            && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
             && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
         )
         {

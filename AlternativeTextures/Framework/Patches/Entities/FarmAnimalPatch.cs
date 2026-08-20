@@ -63,9 +63,9 @@ internal class FarmAnimalPatch(IMonitor modMonitor, IModHelper modHelper) : Patc
     private static void UpdateWhenCurrentLocationPostfix(FarmAnimal __instance, GameTime time, GameLocation location)
     {
         if (
-            __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is not { } texturename
-            || __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is not { } variation
-            || __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER) is not { } owner
+            __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is not { } texturename
+            || __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is not { } variation
+            || __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER) is not { } owner
         )
             return;
 

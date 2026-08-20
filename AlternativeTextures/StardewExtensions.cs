@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Tools;
 using StardewModdingAPI.Events;
@@ -29,6 +30,17 @@ public static class MyExtensions
                     return new Tile((int)(toolLoc.X / Game1.tileSize), (int)(toolLoc.Y / Game1.tileSize));
                 }
             }
+        }
+    }
+
+    extension(Season season)
+    {
+        public static IEnumerable<Season> All()
+        {
+            yield return Season.Spring;
+            yield return Season.Summer;
+            yield return Season.Fall;
+            yield return Season.Winter;
         }
     }
 
