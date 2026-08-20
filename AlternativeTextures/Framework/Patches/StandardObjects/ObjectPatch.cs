@@ -45,14 +45,6 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(Object.rot), null),
             postfix: new HarmonyMethod(GetType(), nameof(RotPostfix))
         );
-        harmony.Patch(
-            AccessTools.Method(
-                _object,
-                nameof(Object.placementAction),
-                [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
-            ),
-            postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
-        );
 
         if (PatchTemplate.IsDGAUsed())
         {
@@ -70,14 +62,6 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
                             [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
                         ),
                         prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
-                    );
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaObjectType,
-                            nameof(Object.placementAction),
-                            [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
-                        ),
-                        postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
                     );
                 }
 
@@ -448,13 +432,13 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
 
     internal static bool DrawPlacementBoundsPrefix(Object __instance, SpriteBatch spriteBatch, GameLocation location)
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-        {
-            __instance.modData["AlternativeTextureNameCached"] = __instance.modData[
-                ModDataKeys.ALTERNATIVE_TEXTURE_NAME
-            ];
-            __instance.modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
-        }
+        // if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        // {
+        //     __instance.modData["AlternativeTextureNameCached"] = __instance.modData[
+        //         ModDataKeys.ALTERNATIVE_TEXTURE_NAME
+        //     ];
+        //     __instance.modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
+        // }
         return true;
     }
 
@@ -496,98 +480,5 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
         {
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = "-1";
         }
-    }
-
-    internal static void PlacementActionPostfix(
-        Object __instance,
-        bool __result,
-        GameLocation location,
-        int x,
-        int y,
-        Farmer? who = null
-    )
-    {
-        if (!__result)
-        {
-            return;
-        }
-
-        // Used for most objects, except for those who are converted upon placement (such as Fences)
-        var placedObject = PatchTemplate.GetObjectAt(location, x, y);
-        if (placedObject is null)
-        {
-            var terrainFeature = GetTerrainFeatureAt(location, x, y);
-            if (terrainFeature is Flooring flooring)
-            {
-                flooring.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID] = __instance.ParentSheetIndex.ToString();
-
-                var flooringName = $"{TextureType.Flooring}_{GetFlooringName(flooring)}";
-                var flooringSeasonName = $"{flooringName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-                if (
-                    AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(flooringName)
-                    && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(flooringSeasonName)
-                )
-                {
-                    var result =
-                        Game1.random.Next(2) > 0
-                            ? AssignModData(flooring, flooringSeasonName, true)
-                            : AssignModData(flooring, flooringName, false);
-                    return;
-                }
-                else
-                {
-                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(flooringName))
-                    {
-                        AssignModData(flooring, flooringName, false);
-                        return;
-                    }
-
-                    if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(flooringSeasonName))
-                    {
-                        AssignModData(flooring, flooringSeasonName, true);
-                        return;
-                    }
-                }
-
-                AssignDefaultModData(flooring, flooringSeasonName, true);
-            }
-            return;
-        }
-
-        var modelType = placedObject is Furniture ? TextureType.Furniture : TextureType.Craftable;
-        var instanceName = $"{modelType}_{GetObjectName(placedObject)}";
-        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-
-        if (HasCachedTextureName(__instance) is true)
-        {
-            return;
-        }
-        else if (
-            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-        )
-        {
-            var result =
-                Game1.random.Next(2) > 0
-                    ? AssignModData(placedObject, instanceSeasonName, true, placedObject.bigCraftable.Value)
-                    : AssignModData(placedObject, instanceName, false, placedObject.bigCraftable.Value);
-            return;
-        }
-        else
-        {
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-            {
-                AssignModData(placedObject, instanceName, false, placedObject.bigCraftable.Value);
-                return;
-            }
-
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-            {
-                AssignModData(placedObject, instanceSeasonName, true, placedObject.bigCraftable.Value);
-                return;
-            }
-        }
-
-        AssignDefaultModData(placedObject, instanceSeasonName, true, placedObject.bigCraftable.Value);
     }
 }

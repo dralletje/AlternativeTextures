@@ -21,10 +21,6 @@ internal class GiantCropPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(GiantCrop.draw), [typeof(SpriteBatch)]),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-        harmony.Patch(
-            AccessTools.Constructor(typeof(GiantCrop), [typeof(string), typeof(Vector2)]),
-            postfix: new HarmonyMethod(GetType(), nameof(GiantCropPostfix))
-        );
 
         if (PatchTemplate.IsDGAUsed())
         {
@@ -104,43 +100,6 @@ internal class GiantCropPatch(IModHelper modHelper) : PatchTemplate()
         }
 
         return true;
-    }
-
-    private static void GiantCropPostfix(GiantCrop __instance)
-    {
-        if (!TryGetGiantCropName(__instance, out var instanceName))
-        {
-            return;
-        }
-        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
-
-        if (
-            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-        )
-        {
-            var result =
-                Game1.random.Next(2) > 0
-                    ? AssignModData(__instance, instanceSeasonName, true)
-                    : AssignModData(__instance, instanceName, false);
-            return;
-        }
-        else
-        {
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-            {
-                AssignModData(__instance, instanceName, false);
-                return;
-            }
-
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-            {
-                AssignModData(__instance, instanceSeasonName, true);
-                return;
-            }
-        }
-
-        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 
     internal static bool TryGetGiantCropName(GiantCrop giantCrop, out string instanceName)

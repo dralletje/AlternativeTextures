@@ -164,7 +164,6 @@ public class AlternativeTextures : Mod
             new GameLocationPatch(monitor, helper).Apply(harmony);
             new ObjectPatch(helper).Apply(harmony);
             new FencePatch(helper).Apply(harmony);
-            new HoeDirtPatch(monitor, helper).Apply(harmony);
             new CropPatch(helper).Apply(harmony);
             new GiantCropPatch(helper).Apply(harmony);
             new GrassPatch(monitor, helper).Apply(harmony);

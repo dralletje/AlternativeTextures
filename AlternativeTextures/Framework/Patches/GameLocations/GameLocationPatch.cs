@@ -113,17 +113,15 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var obj in __instance.objects.Values)
             {
                 if (
-                    GetTextureForUse(
-                        obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                        obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-                    ) is
-                    { } textureModel
+                    obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && obj.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
-                    if (textureModel.Season != season)
+                    if (textureIdentifier.Season != season)
                     {
-                        obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
-                            .UniqueIdentifierWithoutSeason.WithSeason(season)
+                        obj.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                            .WithoutSeason.WithSeason(season)
                             .LegacyId;
                     }
                 }
@@ -135,17 +133,15 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var character in __instance.characters)
             {
                 if (
-                    GetTextureForUse(
-                        character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                        character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-                    ) is
-                    { } textureModel
+                    character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && character.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
-                    if (textureModel.Season != season)
+                    if (textureIdentifier.Season != season)
                     {
-                        character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
-                            .UniqueIdentifierWithoutSeason.WithSeason(season)
+                        character.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                            .WithoutSeason.WithSeason(season)
                             .LegacyId;
                     }
                 }
@@ -157,41 +153,36 @@ internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : Pa
             foreach (var animal in __instance.animals.Values)
             {
                 if (
-                    GetTextureForUse(
-                        animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                        animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-                    ) is
-                    { } textureModel
+                    animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                    && animal.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                    && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
                 )
                 {
-                    if (textureModel.Season != season)
+                    if (textureIdentifier.Season != season)
                     {
-                        animal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
-                            .UniqueIdentifierWithoutSeason.WithSeason(season)
+                        animal.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                            .WithoutSeason.WithSeason(season)
                             .LegacyId;
                     }
                 }
             }
         }
 
-        if (
-            __instance.IsBuildableLocation()
-            && UniqueTextureIdentifier.FromString(
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-            )
-                is { } textureIdentifier
-        )
+        /// Extra scope so I can use textureIdentifier name
         {
-            var buildingType = $"Farmhouse_{Game1.MasterPlayer.HouseUpgradeLevel}";
-            if (textureIdentifier.Season != season)
+            if (
+                __instance.IsBuildableLocation()
+                && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+                && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+                && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
+            )
             {
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = (
-                    textureIdentifier with
-                    {
-                        Season = season,
-                    }
-                ).LegacyId;
+                if (textureIdentifier.Season != season)
+                {
+                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                        .WithoutSeason.WithSeason(season)
+                        .LegacyId;
+                }
             }
         }
     }

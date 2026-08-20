@@ -25,10 +25,6 @@ internal class BushPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTempl
             AccessTools.Method(_object, nameof(Bush.seasonUpdate), [typeof(bool)]),
             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
         );
-        harmony.Patch(
-            AccessTools.Constructor(typeof(Bush), [typeof(Vector2), typeof(int), typeof(GameLocation), typeof(int)]),
-            postfix: new HarmonyMethod(GetType(), nameof(BushPostfix))
-        );
     }
 
     private static bool DrawPrefix(
@@ -179,39 +175,5 @@ internal class BushPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTempl
                 $"{TextureType.Bush}_{GetBushTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
             );
         }
-    }
-
-    private static void BushPostfix(Bush __instance)
-    {
-        var instanceName = $"{TextureType.Bush}_{GetBushTypeString(__instance)}";
-        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
-
-        if (
-            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-        )
-        {
-            var result =
-                Game1.random.Next(2) > 0
-                    ? AssignModData(__instance, instanceSeasonName, true)
-                    : AssignModData(__instance, instanceName, false);
-            return;
-        }
-        else
-        {
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-            {
-                AssignModData(__instance, instanceName, false);
-                return;
-            }
-
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-            {
-                AssignModData(__instance, instanceSeasonName, true);
-                return;
-            }
-        }
-
-        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 }

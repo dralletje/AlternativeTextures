@@ -30,11 +30,11 @@ public sealed record TextureIdentifier() : IEquatable<TextureIdentifier>
 
     [SetsRequiredMembers]
     public TextureIdentifier(AlternativeTextureModel model, int variation)
-        : this(model.Owner, model.GetId(), variation) { }
+        : this(model.Owner, model.LegacyId, variation) { }
 
     [SetsRequiredMembers]
     public TextureIdentifier(AlternativeTextureModel model, string variation)
-        : this(model.Owner, model.GetId(), variation) { }
+        : this(model.Owner, model.LegacyId, variation) { }
 
     public bool IsDefault
     {

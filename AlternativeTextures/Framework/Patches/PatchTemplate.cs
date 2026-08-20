@@ -310,87 +310,6 @@ internal class PatchTemplate()
         return false;
     }
 
-    internal static bool IsTextureRandomnessEnabled<T>(T type)
-    {
-        switch (type)
-        {
-            case Flooring:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingFlooring;
-            case FruitTree:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingFruitTree;
-            case Tree:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingTree;
-            case HoeDirt:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingHoeDirt;
-            case Grass:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingGrass;
-            case Furniture:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingFurniture;
-            case Object obj:
-                if (obj is not null && obj.Name == "Artifact Spot")
-                {
-                    return AlternativeTextures.modConfig.UseRandomTexturesWhenSpawningArtifactSpots;
-                }
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingObject;
-            case FarmAnimal:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingFarmAnimal;
-            case Monster:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingMonster;
-            case Building:
-                return AlternativeTextures.modConfig.UseRandomTexturesWhenPlacingBuilding;
-        }
-
-        return true;
-    }
-
-    internal static bool AssignDefaultModData<T>(
-        T type,
-        string modelName,
-        bool trackSeason = false,
-        bool trackSheetId = false
-    )
-    {
-        if (HasCachedTextureName(type))
-        {
-            return false;
-        }
-
-        var textureModel = new AlternativeTextureModel()
-        {
-            DisplayName = null,
-            Texture = null!,
-            ForModel = ModelIdentifier.FromString(modelName)!,
-            TextureWidth = 16,
-            TextureHeight = 16,
-            Variation = 1,
-            PackManifest = AlternativeTextures.modManifest,
-            Season = Game1.GetSeasonForLocation(Game1.currentLocation),
-        };
-        switch (type)
-        {
-            case Object obj:
-                AssignObjectModData(obj, modelName, textureModel, -1, trackSeason, trackSheetId);
-                return true;
-            case TerrainFeature terrain:
-                AssignTerrainFeatureModData(terrain, modelName, textureModel, -1, trackSeason);
-                return true;
-            case Character character:
-                AssignCharacterModData(character, modelName, textureModel, -1, trackSeason);
-                return true;
-            case Building building:
-                AssignBuildingModData(building, modelName, textureModel, -1, trackSeason);
-                return true;
-            case DecoratableLocation decoratableLocation:
-                AssignDecoratableLocationModData(decoratableLocation, modelName, textureModel, -1, trackSeason);
-                return true;
-            case GameLocation gameLocation when gameLocation.IsBuildableLocation():
-                AssignGameLocationModData(gameLocation, modelName, textureModel, -1, trackSeason);
-                return true;
-        }
-
-        return false;
-    }
-
     internal static bool AssignModData<T>(T type, string modelName, bool trackSeason = false, bool trackSheetId = false)
     {
         return false;
@@ -455,8 +374,10 @@ internal class PatchTemplate()
         // return false;
     }
 
-    public static AlternativeTextureModel? GetTextureForUse(string name, string? variation)
+    public static AlternativeTextureModel? GetTextureForUse(string? nameMaybe, string? variation)
     {
+        if (nameMaybe is not { } name)
+            return null;
         if (variation is not { } rawVariationIndex)
             return null;
 

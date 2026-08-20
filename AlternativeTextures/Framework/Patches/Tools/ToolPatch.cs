@@ -571,12 +571,12 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
         {
             // Assign default data if none exists
             var modelType = TextureType.Character;
-            if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-            {
-                var instanceSeasonName =
-                    $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-                AssignDefaultModData(character, instanceSeasonName, true);
-            }
+            // if (!character.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+            // {
+            //     var instanceSeasonName =
+            //         $"{modelType}_{GetCharacterName(character)}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
+            //     AssignDefaultModData(character, instanceSeasonName, true);
+            // }
 
             var modelName = character
                 .modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]

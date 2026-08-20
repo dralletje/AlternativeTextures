@@ -321,18 +321,16 @@ internal class FruitTreePatch(IModHelper modHelper) : PatchTemplate()
     private static void SeasonUpdatePostfix(FruitTree __instance, bool onLoad)
     {
         if (
-            GetTextureForUse(
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
-                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-            ) is
-            { } textureModel
+            __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+            && __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
         )
         {
             var season = Game1.GetSeasonForLocation(__instance.Location);
-            if (textureModel.Season != season)
+            if (textureIdentifier.Season != season)
             {
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
-                    .UniqueIdentifierWithoutSeason.WithSeason(season)
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                    .WithoutSeason.WithSeason(season)
                     .LegacyId;
             }
         }

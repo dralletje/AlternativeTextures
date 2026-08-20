@@ -91,28 +91,34 @@ static class UniqueTextureIdentifierExtensions
     }
 }
 
-public readonly record struct TextureIdentifierWithoutSeason(string Owner, ModelIdentifier ForModel, int Variation)
+public readonly record struct TextureIdentifierWithoutSeason(string Owner, ModelIdentifier ForModel, int Variation) { }
+
+static class TextureIdentifierWithoutSeasonExtensions
 {
-    public bool IsDefault => Variation is -1;
-
-    public string LegacyId => $"{Owner}.{ForModel.Type}_{ForModel.String}";
-
-    public UniqueTextureIdentifier WithSeason(Season season) => new(Owner, ForModel, Variation, season);
-
-    public static TextureIdentifierWithoutSeason FromString(string name, int variation)
+    extension(TextureIdentifierWithoutSeason identifier)
     {
-        var (owner, type, objectName, season) = UniqueTextureIdentifier.ParseOldId(name);
+        public bool IsDefault => identifier.Variation is -1;
 
-        /// Error is `season` is not null?
-        return new(owner, type.WithName(objectName), variation);
+        public string LegacyId => $"{identifier.Owner}.{identifier.ForModel.Type}_{identifier.ForModel.String}";
+
+        public UniqueTextureIdentifier WithSeason(Season season) =>
+            new(identifier.Owner, identifier.ForModel, identifier.Variation, season);
+
+        public static TextureIdentifierWithoutSeason FromString(string name, int variation)
+        {
+            var (owner, type, objectName, season) = UniqueTextureIdentifier.ParseOldId(name);
+
+            /// Error is `season` is not null?
+            return new(owner, type.WithName(objectName), variation);
+        }
+
+        public static TextureIdentifierWithoutSeason FromString(string name, string variationString) =>
+            FromString(name, int.Parse(variationString));
+
+        public static TextureIdentifierWithoutSeason DefaultFor(ModelIdentifier modelIdentifier) =>
+            new(AlternativeTextures.DEFAULT_OWNER, modelIdentifier, -1);
     }
-
-    public static TextureIdentifierWithoutSeason FromString(string name, string variationString) =>
-        FromString(name, int.Parse(variationString));
-
-    public static TextureIdentifierWithoutSeason DefaultFor(ModelIdentifier modelIdentifier) =>
-        new(AlternativeTextures.DEFAULT_OWNER, modelIdentifier, -1);
-};
+}
 
 public record TextureQuery
 {

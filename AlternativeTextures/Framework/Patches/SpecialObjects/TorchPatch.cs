@@ -23,14 +23,6 @@ internal class TorchPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
             ),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-        harmony.Patch(
-            AccessTools.Method(
-                _object,
-                nameof(Torch.placementAction),
-                [typeof(GameLocation), typeof(int), typeof(int), typeof(Farmer)]
-            ),
-            postfix: new HarmonyMethod(GetType(), nameof(PlacementActionPostfix))
-        );
     }
 
     private static bool DrawPrefix(
@@ -304,17 +296,5 @@ internal class TorchPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
             return false;
         }
         return true;
-    }
-
-    internal static void PlacementActionPostfix(
-        Torch __instance,
-        bool __result,
-        GameLocation location,
-        int x,
-        int y,
-        Farmer who
-    )
-    {
-        ObjectPatch.PlacementActionPostfix(__instance, __result, location, x, y, who);
     }
 }

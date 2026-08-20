@@ -5,6 +5,7 @@ using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Utilities;
 using AlternativeTextures.Framework.Utilities.Extensions;
 using HarmonyLib;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -501,7 +502,7 @@ internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
 
             // Handle mailbox
             if (
-                Game1.currentLocation.modData.GetValueOrDefault("AlternativeTextureVariation.Mailbox")
+                Game1.currentLocation.modData.GetValueOrNull("AlternativeTextureVariation.Mailbox")
                 is not { } rawVariationIndex
             )
                 return true;

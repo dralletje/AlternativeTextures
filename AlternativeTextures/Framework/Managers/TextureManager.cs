@@ -175,7 +175,7 @@ internal class TextureManager(IMod mod)
 
     public AlternativeTextureModel? GetTexture(UniqueTextureIdentifier identifier)
     {
-        return texturesByIdentifier.GetValueOrDefault(identifier);
+        return texturesByIdentifier.GetValueOrNull(identifier);
     }
 
     public int GetVariationFromToken(string token)
