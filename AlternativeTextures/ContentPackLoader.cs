@@ -10,6 +10,7 @@ using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Parser;
 using ConsoleLog;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -303,18 +304,8 @@ class ContentPackLoader(Mod mod)
                 };
 
                 /// TODO Don't flatten, once the rest of the code knows of DrawableTexture
-                var boringTexture = FlattenDrawableTexture(bestDrawable);
-                yield return new DrawableTexture()
-                {
-                    Texture = boringTexture,
-                    SourceRect = new Rectangle()
-                    {
-                        X = 0,
-                        Y = 0,
-                        Width = boringTexture.Width,
-                        Height = boringTexture.Height,
-                    },
-                };
+                var boringTexture = bestDrawable.Flatten(Game1.graphics.GraphicsDevice);
+                yield return new DrawableTexture(boringTexture);
             }
         }
     }
@@ -346,25 +337,5 @@ class ContentPackLoader(Mod mod)
             var texture = contentPack.ModContent.Load<Texture2D>(Path.Combine(textureFolder, textureFileName));
             yield return new DrawableTexture(texture);
         }
-    }
-
-    public static Texture2D FlattenDrawableTexture(DrawableTexture source)
-    {
-        Color[] extractPixels = new Color[source.SourceRect.Width * source.SourceRect.Height];
-
-        if (source.Texture.Bounds.Contains(source.SourceRect) is false)
-            throw new ArgumentException("SourceRect is not fully inside actual texture bounds");
-
-        // Get the required pixels
-        source.Texture.GetData(0, source.SourceRect, extractPixels, 0, extractPixels.Length);
-
-        // Set the required pixels
-        var extractedTexture = new Texture2D(
-            Game1.graphics.GraphicsDevice,
-            source.SourceRect.Width,
-            source.SourceRect.Height
-        );
-        extractedTexture.SetData(extractPixels);
-        return extractedTexture;
     }
 }

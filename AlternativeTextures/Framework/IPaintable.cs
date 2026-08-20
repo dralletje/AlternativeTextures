@@ -7,6 +7,7 @@ using AlternativeTextures.Framework.Patches;
 using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -29,46 +30,6 @@ public static class EnumUtil
     }
 }
 
-public record DrawableTexture()
-{
-    public required Texture2D Texture { get; init; }
-    public required Rectangle SourceRect { get; init; }
-
-    [SetsRequiredMembers]
-    public DrawableTexture(Texture2D texture)
-        : this()
-    {
-        Texture = texture;
-        SourceRect = new()
-        {
-            X = 0,
-            Y = 0,
-            Width = texture.Width,
-            Height = texture.Height,
-        };
-    }
-
-    [SetsRequiredMembers]
-    public DrawableTexture(DrawableTexture parent, Rectangle sourceRect)
-        : this()
-    {
-        Texture = parent.Texture;
-        SourceRect = new()
-        {
-            X = parent.SourceRect.X + sourceRect.X,
-            Y = parent.SourceRect.Y + sourceRect.Y,
-            /// TODO Make sure the sourceRect fits inside the parent SourceRect
-            Width = sourceRect.Width,
-            Height = sourceRect.Height,
-        };
-    }
-
-    public DrawableTexture WithSourceRect(Rectangle sourceRect)
-    {
-        return new DrawableTexture(this, sourceRect);
-    }
-}
-
 static class Function
 {
     public static T Tap<T>(Func<T> function)
@@ -85,13 +46,16 @@ static class Function
 interface IPaintable
 {
     ModelIdentifier ModelIdentifier { get; }
+    TextureIdentifierWithoutSeason? TextureIdentifier { get; }
 
     /// Instead of storing Related, make this `Draw` (+ `DrawInMenu`?) so this is actually an abstraction
     object? Related { get; }
 
-    TextureIdentifier? Texture { get; }
-    public void ApplyTexture(TextureIdentifier? texture);
-    public DrawableTexture? PreviewTexture(TextureIdentifier texture);
+    public void ApplyTexture(TextureIdentifierWithoutSeason? texture);
+    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier texture);
+
+    public DrawableTexture? PreviewTexture(TextureIdentifierWithoutSeason texture, Season season) =>
+        PreviewTexture(texture.WithSeason(season));
 
     /// Currently this is called `Type`, but I rather switch it to `id`, or something more sensible
     string Type
@@ -240,43 +204,66 @@ static class ModDataToTexture
     }
 }
 
+static class ModDataToTextureIdentifierWithoutSeason
+{
+    public static TextureIdentifierWithoutSeason? GetTexture(ModDataDictionary modData)
+    {
+        return
+            modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
+            && modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            ? TextureIdentifierWithoutSeason.FromString(name, variation)
+            : null;
+    }
+
+    public static void SetTexture(ModDataDictionary modData, TextureIdentifierWithoutSeason? value)
+    {
+        if (value is { } texture)
+        {
+            modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = texture.Owner;
+            modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = texture.LegacyId;
+            modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = texture.Variation.ToString();
+        }
+        else
+        {
+            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER);
+            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
+            modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION);
+        }
+    }
+}
+
 record WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
 {
     public ModelIdentifier ModelIdentifier { get; } = TextureType.Decoration.WithName("Wallpaper");
 
     public object? Related { get; } = null;
 
-    public TextureIdentifier? Texture
+    public TextureIdentifierWithoutSeason? TextureIdentifier
     {
         get
         {
             var wallpaperId = location.appliedWallpaper.GetValueOrDefault(roomId);
             return wallpaperId.Split(":", 2) switch
             {
-                [var name, var variantString] when int.TryParse(variantString, out var variant) => new()
-                {
-                    Owner = "Is this even necessary?",
-                    Name = name,
-                    Variation = variant,
-                },
+                [var name, var variant] => TextureIdentifierWithoutSeason.FromString(name, variant),
                 [var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Name = AlternativeTextures.DEFAULT_OWNER,
                     Variation = variant,
+                    ForModel = ModelIdentifier,
                 },
                 _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{wallpaperId}'"),
             };
         }
     }
 
-    public void ApplyTexture(TextureIdentifier? maybeTextureToApply)
+    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
     {
         if (maybeTextureToApply is { } textureToApply)
         {
             var decorationKey = textureToApply.IsDefault
                 ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
-                : $"{textureToApply.Name}:{textureToApply.Variation}";
+                : $"{textureToApply.LegacyId}:{textureToApply.Variation}";
             location.SetWallpaper(decorationKey, roomId);
         }
         else
@@ -285,7 +272,7 @@ record WallpaperDecorationPaintable(DecoratableLocation location, string roomId)
         }
     }
 
-    public DrawableTexture? PreviewTexture(TextureIdentifier textureIdentifier)
+    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier)
     {
         if (textureIdentifier.IsDefault)
         {
@@ -298,8 +285,7 @@ record WallpaperDecorationPaintable(DecoratableLocation location, string roomId)
         }
         else
         {
-            var identifier = UniqueTextureIdentifier.FromString(textureIdentifier.Name, textureIdentifier.Variation);
-            var textureModel = AlternativeTextures.textureManager.GetTexture(identifier);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
             if (textureModel is null)
                 return null;
 
@@ -323,37 +309,32 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
 
     public object? Related { get; } = null;
 
-    public TextureIdentifier? Texture
+    public TextureIdentifierWithoutSeason? TextureIdentifier
     {
         get
         {
-            var floorId = location.appliedFloor.GetValueOrDefault(roomId);
+            var floorId = location.appliedWallpaper.GetValueOrDefault(roomId);
             return floorId.Split(":", 2) switch
             {
-                [var name, var variantString] when int.TryParse(variantString, out var variant) => new()
-                {
-                    Owner = "Is this even necessary?",
-                    Name = name,
-                    Variation = variant,
-                },
+                [var name, var variant] => TextureIdentifierWithoutSeason.FromString(name, variant),
                 [var variantString] when int.TryParse(variantString, out var variant) => new()
                 {
                     Owner = AlternativeTextures.DEFAULT_OWNER,
-                    Name = AlternativeTextures.DEFAULT_OWNER,
                     Variation = variant,
+                    ForModel = ModelIdentifier,
                 },
                 _ => throw new ArgumentException($"Couldn't parse wallpaper ID '{floorId}'"),
             };
         }
     }
 
-    public void ApplyTexture(TextureIdentifier? maybeTextureToApply)
+    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
     {
         if (maybeTextureToApply is { } textureToApply)
         {
             var decorationKey = textureToApply.IsDefault
                 ? (textureToApply.Variation == -1 ? "0" : textureToApply.Variation.ToString())
-                : $"{textureToApply.Name}:{textureToApply.Variation}";
+                : $"{textureToApply.LegacyId}:{textureToApply.Variation}";
             location.SetFloor(decorationKey, roomId);
         }
         else
@@ -362,7 +343,7 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
         }
     }
 
-    public DrawableTexture? PreviewTexture(TextureIdentifier textureIdentifier)
+    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier)
     {
         if (textureIdentifier.IsDefault)
         {
@@ -375,8 +356,7 @@ record FloorDecorationPaintable(DecoratableLocation location, string roomId) : I
         }
         else
         {
-            var identifier = UniqueTextureIdentifier.FromString(textureIdentifier.Name, textureIdentifier.Variation);
-            var textureModel = AlternativeTextures.textureManager.GetTexture(identifier);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
             if (textureModel is null)
                 return null;
 
@@ -517,17 +497,17 @@ record PaintableFromModData(ModDataDictionary modData) : IPaintable
 
     public required object? Related { get; init; }
 
-    public TextureIdentifier? Texture
+    public TextureIdentifierWithoutSeason? TextureIdentifier
     {
-        get { return ModDataToTexture.GetTexture(modData); }
+        get { return ModDataToTextureIdentifierWithoutSeason.GetTexture(modData); }
     }
 
-    public void ApplyTexture(TextureIdentifier? texture)
+    public void ApplyTexture(TextureIdentifierWithoutSeason? texture)
     {
-        ModDataToTexture.SetTexture(modData, texture);
+        ModDataToTextureIdentifierWithoutSeason.SetTexture(modData, texture);
     }
 
-    public DrawableTexture? PreviewTexture(TextureIdentifier textureIdentifier)
+    public DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier)
     {
         if (textureIdentifier.IsDefault)
         {
@@ -535,9 +515,7 @@ record PaintableFromModData(ModDataDictionary modData) : IPaintable
         }
         else
         {
-            var textureModel = AlternativeTextures.textureManager.GetTexture(
-                textureIdentifier.ToUniqueTextureIdentifier()
-            );
+            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
             if (textureModel is null)
                 /// Texture not found (most likely mod removed),
                 /// fall back to default

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.Framework.Models;
 
 namespace AlternativeTextures.Framework.External.GenericModConfigMenu;
 
@@ -26,11 +27,20 @@ public class ModConfig
     public bool UseRandomTexturesWhenPlacingBuilding { get; set; } = false;
     public List<DisabledTexture> DisabledTextures { get; set; } = [];
 
+    [Obsolete("Use UniqueTextureIdentifier variant")]
     internal bool IsTextureVariationDisabled(string textureId, int variation)
     {
         return DisabledTextures.Any(t =>
             t.TextureId.Equals(textureId, StringComparison.OrdinalIgnoreCase)
             && t.DisabledVariations.Contains(variation)
+        );
+    }
+
+    internal bool IsTextureVariationDisabled(TextureIdentifierWithoutSeason identifier)
+    {
+        return DisabledTextures.Any(t =>
+            t.TextureId.Equals(identifier.LegacyId, StringComparison.OrdinalIgnoreCase)
+            && t.DisabledVariations.Contains(identifier.Variation)
         );
     }
 

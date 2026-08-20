@@ -203,195 +203,161 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
         float alpha = 1f
     )
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-        {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
+        if (
+            GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+            )
+            is not { } textureModel
+        )
+            return true;
 
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+        // Replicate the base draw
+        if (__instance.isTemporarilyInvisible)
+        {
+            return true;
+        }
+
+        // Set xTileOffset if AlternativeTextureModel has an animation
+        var xTileOffset = 0;
+        var actualSourceIndexOffset = ___sourceIndexOffset.Value;
+        if (textureModel.HasAnimation())
+        {
             if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                !__instance.modData.ContainsKey("AlternativeTextureCurrentFrame")
+                || !__instance.modData.ContainsKey("AlternativeTextureFrameIndex")
+                || !__instance.modData.ContainsKey("AlternativeTextureFrameDuration")
+                || !__instance.modData.ContainsKey("AlternativeTextureElapsedDuration")
             )
             {
-                return true;
-            }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
-
-            // Replicate the base draw
-            if (__instance.isTemporarilyInvisible)
-            {
-                return true;
+                __instance.modData["AlternativeTextureCurrentFrame"] = "0";
+                __instance.modData["AlternativeTextureFrameIndex"] = "0";
+                __instance.modData["AlternativeTextureFrameDuration"] = textureModel
+                    .GetAnimationDataAtIndex(0)
+                    .Duration.ToString(); // Animation.ElementAt(0).Duration.ToString();
+                __instance.modData["AlternativeTextureElapsedDuration"] = "0";
             }
 
-            // Set xTileOffset if AlternativeTextureModel has an animation
-            var xTileOffset = 0;
-            var actualSourceIndexOffset = ___sourceIndexOffset.Value;
-            if (textureModel.HasAnimation(textureVariation))
+            var currentFrame = Int32.Parse(__instance.modData["AlternativeTextureCurrentFrame"]);
+            var frameIndex = Int32.Parse(__instance.modData["AlternativeTextureFrameIndex"]);
+            var frameDuration = Int32.Parse(__instance.modData["AlternativeTextureFrameDuration"]);
+            var elapsedDuration = Int32.Parse(__instance.modData["AlternativeTextureElapsedDuration"]);
+
+            if (elapsedDuration >= frameDuration)
             {
-                if (
-                    !__instance.modData.ContainsKey("AlternativeTextureCurrentFrame")
-                    || !__instance.modData.ContainsKey("AlternativeTextureFrameIndex")
-                    || !__instance.modData.ContainsKey("AlternativeTextureFrameDuration")
-                    || !__instance.modData.ContainsKey("AlternativeTextureElapsedDuration")
-                )
-                {
-                    __instance.modData["AlternativeTextureCurrentFrame"] = "0";
-                    __instance.modData["AlternativeTextureFrameIndex"] = "0";
-                    __instance.modData["AlternativeTextureFrameDuration"] = textureModel
-                        .GetAnimationDataAtIndex(textureVariation, 0)
-                        .Duration.ToString(); // Animation.ElementAt(0).Duration.ToString();
-                    __instance.modData["AlternativeTextureElapsedDuration"] = "0";
-                }
+                frameIndex = frameIndex + 1 >= textureModel.GetAnimationData().Count ? 0 : frameIndex + 1;
 
-                var currentFrame = Int32.Parse(__instance.modData["AlternativeTextureCurrentFrame"]);
-                var frameIndex = Int32.Parse(__instance.modData["AlternativeTextureFrameIndex"]);
-                var frameDuration = Int32.Parse(__instance.modData["AlternativeTextureFrameDuration"]);
-                var elapsedDuration = Int32.Parse(__instance.modData["AlternativeTextureElapsedDuration"]);
+                var animationData = textureModel.GetAnimationDataAtIndex(frameIndex);
+                currentFrame = animationData.Frame;
 
-                if (elapsedDuration >= frameDuration)
-                {
-                    frameIndex =
-                        frameIndex + 1 >= textureModel.GetAnimationData(textureVariation).Count ? 0 : frameIndex + 1;
-
-                    var animationData = textureModel.GetAnimationDataAtIndex(textureVariation, frameIndex);
-                    currentFrame = animationData.Frame;
-
-                    __instance.modData["AlternativeTextureCurrentFrame"] = currentFrame.ToString();
-                    __instance.modData["AlternativeTextureFrameIndex"] = frameIndex.ToString();
-                    __instance.modData["AlternativeTextureFrameDuration"] = animationData.Duration.ToString();
-                    __instance.modData["AlternativeTextureElapsedDuration"] = "0";
-                }
-                else
-                {
-                    __instance.modData["AlternativeTextureElapsedDuration"] = (
-                        elapsedDuration + Game1.currentGameTime.ElapsedGameTime.Milliseconds
-                    ).ToString();
-                }
-
-                xTileOffset = currentFrame;
-                actualSourceIndexOffset = 0;
-            }
-
-            var sourceRect = __instance.sourceRect.Value;
-            sourceRect.X -= __instance.defaultSourceRect.X;
-            sourceRect.X += (actualSourceIndexOffset * sourceRect.Width) + (xTileOffset * sourceRect.Width);
-            sourceRect.Y = textureOffset;
-
-            if (Furniture.isDrawingLocationFurniture)
-            {
-                Texture2D? frontTexture = null;
-                if (__instance.HasSittingFarmers())
-                {
-                    try
-                    {
-                        frontTexture = Game1.content.Load<Texture2D>(
-                            ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).TextureName + "Front"
-                        );
-                    }
-                    catch
-                    {
-                        frontTexture = null;
-                    }
-                }
-
-                if (
-                    frontTexture is not null
-                    && __instance.sourceRect.Right <= frontTexture.Width
-                    && __instance.sourceRect.Bottom <= frontTexture.Height
-                )
-                {
-                    spriteBatch.Draw(
-                        textureModel.GetTexture(textureVariation),
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            ___drawPosition.Value
-                                + (
-                                    (__instance.shakeTimer > 0)
-                                        ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
-                                        : Vector2.Zero
-                                )
-                        ),
-                        sourceRect,
-                        Color.White * alpha,
-                        0f,
-                        Vector2.Zero,
-                        4f,
-                        __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        (float)(__instance.boundingBox.Value.Top + 16) / 10000f
-                    );
-
-                    var rotationSourceRect = sourceRect;
-                    rotationSourceRect.Y += textureModel.TextureHeight / 2;
-                    spriteBatch.Draw(
-                        textureModel.GetTexture(textureVariation),
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            ___drawPosition.Value
-                                + (
-                                    (__instance.shakeTimer > 0)
-                                        ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
-                                        : Vector2.Zero
-                                )
-                        ),
-                        rotationSourceRect,
-                        Color.White * alpha,
-                        0f,
-                        Vector2.Zero,
-                        4f,
-                        __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        (float)(__instance.boundingBox.Value.Bottom - 8) / 10000f
-                    );
-                }
-                else
-                {
-                    spriteBatch.Draw(
-                        textureModel.GetTexture(textureVariation),
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            ___drawPosition.Value
-                                + (
-                                    (__instance.shakeTimer > 0)
-                                        ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
-                                        : Vector2.Zero
-                                )
-                        ),
-                        sourceRect,
-                        Color.White * alpha,
-                        0f,
-                        Vector2.Zero,
-                        4f,
-                        __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        (__instance.furniture_type.Value == 12)
-                            ? (2E-09f + (__instance.TileLocation.Y / 100000f))
-                            : (
-                                (float)(
-                                    __instance.boundingBox.Value.Bottom
-                                    - ((__instance.furniture_type.Value is 6 or 17 or 13) ? 48 : 8)
-                                ) / 10000f
-                            )
-                    );
-                }
+                __instance.modData["AlternativeTextureCurrentFrame"] = currentFrame.ToString();
+                __instance.modData["AlternativeTextureFrameIndex"] = frameIndex.ToString();
+                __instance.modData["AlternativeTextureFrameDuration"] = animationData.Duration.ToString();
+                __instance.modData["AlternativeTextureElapsedDuration"] = "0";
             }
             else
             {
+                __instance.modData["AlternativeTextureElapsedDuration"] = (
+                    elapsedDuration + Game1.currentGameTime.ElapsedGameTime.Milliseconds
+                ).ToString();
+            }
+
+            xTileOffset = currentFrame;
+            actualSourceIndexOffset = 0;
+        }
+
+        var sourceRect = __instance.sourceRect.Value with
+        {
+            X =
+                __instance.sourceRect.Value.X
+                - __instance.defaultSourceRect.X
+                + (actualSourceIndexOffset * __instance.sourceRect.Value.Width)
+                + (xTileOffset * __instance.sourceRect.Value.Width),
+            Y = 0,
+        };
+
+        if (Furniture.isDrawingLocationFurniture)
+        {
+            Texture2D? frontTexture = null;
+            if (__instance.HasSittingFarmers())
+            {
+                try
+                {
+                    frontTexture = Game1.content.Load<Texture2D>(
+                        ItemRegistry.GetDataOrErrorItem(__instance.QualifiedItemId).TextureName + "Front"
+                    );
+                }
+                catch
+                {
+                    frontTexture = null;
+                }
+            }
+
+            if (
+                frontTexture is not null
+                && __instance.sourceRect.Right <= frontTexture.Width
+                && __instance.sourceRect.Bottom <= frontTexture.Height
+            )
+            {
+                var drawableTexture = textureModel.Texture.WithSourceRect(sourceRect);
                 spriteBatch.Draw(
-                    textureModel.GetTexture(textureVariation),
+                    drawableTexture.Texture,
                     Game1.GlobalToLocal(
                         Game1.viewport,
-                        new Vector2(
-                            (x * 64) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
-                            (y * 64)
-                                - ((__instance.sourceRect.Height * 4) - __instance.boundingBox.Height)
-                                + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
-                        )
+                        ___drawPosition.Value
+                            + (
+                                (__instance.shakeTimer > 0)
+                                    ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
+                                    : Vector2.Zero
+                            )
                     ),
-                    __instance.sourceRect.Value,
+                    drawableTexture.SourceRect,
+                    Color.White * alpha,
+                    0f,
+                    Vector2.Zero,
+                    4f,
+                    __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                    (float)(__instance.boundingBox.Value.Top + 16) / 10000f
+                );
+
+                var rotationSourceRect = sourceRect;
+                rotationSourceRect.Y += textureModel.TextureHeight / 2;
+                var rotationDrawableTexture = textureModel.Texture.WithSourceRect(rotationSourceRect);
+                spriteBatch.Draw(
+                    rotationDrawableTexture.Texture,
+                    Game1.GlobalToLocal(
+                        Game1.viewport,
+                        ___drawPosition.Value
+                            + (
+                                (__instance.shakeTimer > 0)
+                                    ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
+                                    : Vector2.Zero
+                            )
+                    ),
+                    rotationDrawableTexture.SourceRect,
+                    Color.White * alpha,
+                    0f,
+                    Vector2.Zero,
+                    4f,
+                    __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                    (float)(__instance.boundingBox.Value.Bottom - 8) / 10000f
+                );
+            }
+            else
+            {
+                var drawableTexture = textureModel.Texture.WithSourceRect(sourceRect);
+                spriteBatch.Draw(
+                    drawableTexture.Texture,
+                    Game1.GlobalToLocal(
+                        Game1.viewport,
+                        ___drawPosition.Value
+                            + (
+                                (__instance.shakeTimer > 0)
+                                    ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
+                                    : Vector2.Zero
+                            )
+                    ),
+                    drawableTexture.SourceRect,
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -407,203 +373,229 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                         )
                 );
             }
-            if (__instance.heldObject.Value != null)
-            {
-                if (__instance.heldObject.Value is Furniture furniture)
-                {
-                    furniture.drawAtNonTileSpot(
-                        spriteBatch,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(
-                                __instance.boundingBox.Center.X - 32,
-                                __instance.boundingBox.Center.Y
-                                    - (furniture.sourceRect.Height * 4)
-                                    - (__instance.drawHeldObjectLow.Value ? (-16) : 16)
-                            )
-                        ),
-                        (float)(__instance.boundingBox.Bottom - 7) / 10000f,
-                        alpha
-                    );
-                }
-                else if (
-                    HeldObjectDraw(
-                        __instance.heldObject.Value,
-                        spriteBatch,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(
-                                __instance.boundingBox.Center.X - 32,
-                                __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
-                            )
-                        ),
-                        (float)(__instance.boundingBox.Bottom + 1) / 10000f,
-                        alpha
+        }
+        else
+        {
+            var drawableTexture = textureModel.Texture.WithSourceRect(__instance.sourceRect.Value);
+            spriteBatch.Draw(
+                drawableTexture.Texture,
+                Game1.GlobalToLocal(
+                    Game1.viewport,
+                    new Vector2(
+                        (x * 64) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                        (y * 64)
+                            - ((__instance.sourceRect.Height * 4) - __instance.boundingBox.Height)
+                            + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                     )
-                )
-                {
-                    var heldItemData = ItemRegistry.GetDataOrErrorItem(__instance.heldObject.Value.QualifiedItemId);
-                    spriteBatch.Draw(
-                        Game1.shadowTexture,
-                        Game1.GlobalToLocal(
-                            Game1.viewport,
-                            new Vector2(
-                                __instance.boundingBox.Center.X - 32,
-                                __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
-                            )
-                        ) + new Vector2(32f, 53f),
-                        Game1.shadowTexture.Bounds,
-                        Color.White * alpha,
-                        0f,
-                        new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y),
-                        4f,
-                        SpriteEffects.None,
-                        (float)__instance.boundingBox.Bottom / 10000f
-                    );
-                    if (__instance.heldObject.Value is ColoredObject)
-                    {
-                        __instance.heldObject.Value.drawInMenu(
-                            spriteBatch,
-                            Game1.GlobalToLocal(
-                                Game1.viewport,
-                                new Vector2(
-                                    __instance.boundingBox.Center.X - 32,
-                                    __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
-                                )
-                            ),
-                            1f,
-                            1f,
-                            (float)(__instance.boundingBox.Bottom + 1) / 10000f,
-                            StackDrawType.Hide,
-                            Color.White,
-                            drawShadow: false
-                        );
-                    }
-                    else
-                    {
-                        spriteBatch.Draw(
-                            heldItemData.GetTexture(),
-                            Game1.GlobalToLocal(
-                                Game1.viewport,
-                                new Vector2(
-                                    __instance.boundingBox.Center.X - 32,
-                                    __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
-                                )
-                            ),
-                            heldItemData.GetSourceRect(),
-                            Color.White * alpha,
-                            0f,
-                            Vector2.Zero,
-                            4f,
-                            SpriteEffects.None,
-                            (float)(__instance.boundingBox.Bottom + 1) / 10000f
-                        );
-                    }
-                }
-            }
-            if (__instance.IsOn && __instance.furniture_type.Value == 14)
+                ),
+                drawableTexture.SourceRect,
+                Color.White * alpha,
+                0f,
+                Vector2.Zero,
+                4f,
+                __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                (__instance.furniture_type.Value == 12)
+                    ? (2E-09f + (__instance.TileLocation.Y / 100000f))
+                    : (
+                        (float)(
+                            __instance.boundingBox.Value.Bottom
+                            - ((__instance.furniture_type.Value is 6 or 17 or 13) ? 48 : 8)
+                        ) / 10000f
+                    )
+            );
+        }
+        if (__instance.heldObject.Value != null)
+        {
+            if (__instance.heldObject.Value is Furniture furniture)
             {
-                spriteBatch.Draw(
-                    Game1.mouseCursors,
-                    Game1.GlobalToLocal(
-                        Game1.viewport,
-                        new Vector2(__instance.boundingBox.Center.X - 12, __instance.boundingBox.Center.Y - 64)
-                    ),
-                    new Rectangle(
-                        276
-                            + (
-                                (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 3047)
-                                        + (double)(y * 88)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12
-                            ),
-                        1985,
-                        12,
-                        11
-                    ),
-                    Color.White,
-                    0f,
-                    Vector2.Zero,
-                    4f,
-                    SpriteEffects.None,
-                    (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 2) / 10000f
-                );
-                spriteBatch.Draw(
-                    Game1.mouseCursors,
-                    Game1.GlobalToLocal(
-                        Game1.viewport,
-                        new Vector2(__instance.boundingBox.Center.X - 32 - 4, __instance.boundingBox.Center.Y - 64)
-                    ),
-                    new Rectangle(
-                        276
-                            + (
-                                (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 2047)
-                                        + (double)(y * 98)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12
-                            ),
-                        1985,
-                        12,
-                        11
-                    ),
-                    Color.White,
-                    0f,
-                    Vector2.Zero,
-                    4f,
-                    SpriteEffects.None,
-                    (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 1) / 10000f
-                );
-            }
-            else if (__instance.IsOn && __instance.furniture_type.Value == 16)
-            {
-                spriteBatch.Draw(
-                    Game1.mouseCursors,
+                furniture.drawAtNonTileSpot(
+                    spriteBatch,
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         new Vector2(
-                            __instance.boundingBox.Center.X - 20,
-                            (float)__instance.boundingBox.Center.Y - 105.6f
+                            __instance.boundingBox.Center.X - 32,
+                            __instance.boundingBox.Center.Y
+                                - (furniture.sourceRect.Height * 4)
+                                - (__instance.drawHeldObjectLow.Value ? (-16) : 16)
                         )
                     ),
-                    new Rectangle(
-                        276
-                            + (
-                                (int)(
-                                    (
-                                        Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                                        + (double)(x * 3047)
-                                        + (double)(y * 88)
-                                    )
-                                    % 400.0
-                                    / 100.0
-                                ) * 12
-                            ),
-                        1985,
-                        12,
-                        11
-                    ),
-                    Color.White,
-                    0f,
-                    Vector2.Zero,
-                    4f,
-                    SpriteEffects.None,
-                    (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 2) / 10000f
+                    (float)(__instance.boundingBox.Bottom - 7) / 10000f,
+                    alpha
                 );
             }
-
-            return false;
+            else if (
+                HeldObjectDraw(
+                    __instance.heldObject.Value,
+                    spriteBatch,
+                    Game1.GlobalToLocal(
+                        Game1.viewport,
+                        new Vector2(
+                            __instance.boundingBox.Center.X - 32,
+                            __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                        )
+                    ),
+                    (float)(__instance.boundingBox.Bottom + 1) / 10000f,
+                    alpha
+                )
+            )
+            {
+                var heldItemData = ItemRegistry.GetDataOrErrorItem(__instance.heldObject.Value.QualifiedItemId);
+                spriteBatch.Draw(
+                    Game1.shadowTexture,
+                    Game1.GlobalToLocal(
+                        Game1.viewport,
+                        new Vector2(
+                            __instance.boundingBox.Center.X - 32,
+                            __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                        )
+                    ) + new Vector2(32f, 53f),
+                    Game1.shadowTexture.Bounds,
+                    Color.White * alpha,
+                    0f,
+                    new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y),
+                    4f,
+                    SpriteEffects.None,
+                    (float)__instance.boundingBox.Bottom / 10000f
+                );
+                if (__instance.heldObject.Value is ColoredObject)
+                {
+                    __instance.heldObject.Value.drawInMenu(
+                        spriteBatch,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2(
+                                __instance.boundingBox.Center.X - 32,
+                                __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                            )
+                        ),
+                        1f,
+                        1f,
+                        (float)(__instance.boundingBox.Bottom + 1) / 10000f,
+                        StackDrawType.Hide,
+                        Color.White,
+                        drawShadow: false
+                    );
+                }
+                else
+                {
+                    spriteBatch.Draw(
+                        heldItemData.GetTexture(),
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2(
+                                __instance.boundingBox.Center.X - 32,
+                                __instance.boundingBox.Center.Y - (__instance.drawHeldObjectLow.Value ? 32 : 85)
+                            )
+                        ),
+                        heldItemData.GetSourceRect(),
+                        Color.White * alpha,
+                        0f,
+                        Vector2.Zero,
+                        4f,
+                        SpriteEffects.None,
+                        (float)(__instance.boundingBox.Bottom + 1) / 10000f
+                    );
+                }
+            }
         }
-        return true;
+        if (__instance.IsOn && __instance.furniture_type.Value == 14)
+        {
+            spriteBatch.Draw(
+                Game1.mouseCursors,
+                Game1.GlobalToLocal(
+                    Game1.viewport,
+                    new Vector2(__instance.boundingBox.Center.X - 12, __instance.boundingBox.Center.Y - 64)
+                ),
+                new Rectangle(
+                    276
+                        + (
+                            (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 3047)
+                                    + (double)(y * 88)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12
+                        ),
+                    1985,
+                    12,
+                    11
+                ),
+                Color.White,
+                0f,
+                Vector2.Zero,
+                4f,
+                SpriteEffects.None,
+                (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 2) / 10000f
+            );
+            spriteBatch.Draw(
+                Game1.mouseCursors,
+                Game1.GlobalToLocal(
+                    Game1.viewport,
+                    new Vector2(__instance.boundingBox.Center.X - 32 - 4, __instance.boundingBox.Center.Y - 64)
+                ),
+                new Rectangle(
+                    276
+                        + (
+                            (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 2047)
+                                    + (double)(y * 98)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12
+                        ),
+                    1985,
+                    12,
+                    11
+                ),
+                Color.White,
+                0f,
+                Vector2.Zero,
+                4f,
+                SpriteEffects.None,
+                (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 1) / 10000f
+            );
+        }
+        else if (__instance.IsOn && __instance.furniture_type.Value == 16)
+        {
+            spriteBatch.Draw(
+                Game1.mouseCursors,
+                Game1.GlobalToLocal(
+                    Game1.viewport,
+                    new Vector2(__instance.boundingBox.Center.X - 20, (float)__instance.boundingBox.Center.Y - 105.6f)
+                ),
+                new Rectangle(
+                    276
+                        + (
+                            (int)(
+                                (
+                                    Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+                                    + (double)(x * 3047)
+                                    + (double)(y * 88)
+                                )
+                                % 400.0
+                                / 100.0
+                            ) * 12
+                        ),
+                    1985,
+                    12,
+                    11
+                ),
+                Color.White,
+                0f,
+                Vector2.Zero,
+                4f,
+                SpriteEffects.None,
+                (float)(__instance.GetBoundingBoxAt(x, y).Bottom - 2) / 10000f
+            );
+        }
+
+        return false;
     }
 
     private static bool HeldObjectDraw(
@@ -614,59 +606,41 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
         float alpha = 1f
     )
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-        {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
-
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+        if (
+            GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             )
-            {
-                return true;
-            }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            is not { } textureModel
+        )
+            return true;
 
-            // Get the current X index for the source tile
-            var xTileOffset = __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID)
-                ? __instance.ParentSheetIndex
-                    - Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID])
-                : 0;
-            if (__instance.showNextIndex.Value)
-            {
-                xTileOffset += 1;
-            }
-            xTileOffset *= textureModel.TextureWidth;
-
-            // Replicate the base draw
-            Rectangle sourceRect = new Rectangle(
-                xTileOffset,
-                textureOffset,
-                textureModel.TextureWidth,
-                textureModel.TextureHeight
-            );
-            spriteBatch.Draw(
-                textureModel.GetTexture(textureVariation),
-                location,
-                sourceRect,
-                Color.White * alpha,
-                0f,
-                Vector2.Zero,
-                4f,
-                __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                layerDepth
-            );
-
-            return false;
+        // Get the current X index for the source tile
+        var xTileOffset = __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID)
+            ? __instance.ParentSheetIndex - Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SHEET_ID])
+            : 0;
+        if (__instance.showNextIndex.Value)
+        {
+            xTileOffset += 1;
         }
-        return true;
+        xTileOffset *= textureModel.TextureWidth;
+
+        // Replicate the base draw
+        var sourceRect = new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight);
+        var drawable = textureModel.Texture.WithSourceRect(sourceRect);
+        spriteBatch.Draw(
+            drawable.Texture,
+            location,
+            drawable.SourceRect,
+            Color.White * alpha,
+            0f,
+            Vector2.Zero,
+            4f,
+            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+            layerDepth
+        );
+
+        return false;
     }
 
     private static bool DrawAtNonTileSpotPrefix(
@@ -678,45 +652,36 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
         float alpha = 1f
     )
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
-        {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
-
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+        if (
+            GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
             )
-            {
-                return true;
-            }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            is not { } textureModel
+        )
+            return true;
 
-            // Replicate the base draw
-            var sourceRect = __instance.sourceRect.Value;
-            sourceRect.X -= __instance.defaultSourceRect.X;
-            sourceRect.Y = textureOffset;
-            spriteBatch.Draw(
-                textureModel.GetTexture(textureVariation),
-                location,
-                sourceRect,
-                Color.White * alpha,
-                0f,
-                Vector2.Zero,
-                4f,
-                __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                layerDepth
-            );
+        // Replicate the base draw
+        var sourceRect = __instance.sourceRect.Value with
+        {
+            X = __instance.sourceRect.Value.X - __instance.defaultSourceRect.X,
+            Y = 0,
+        };
 
-            return false;
-        }
-        return true;
+        var drawable = textureModel.Texture.WithSourceRect(sourceRect);
+        spriteBatch.Draw(
+            drawable.Texture,
+            location,
+            drawable.SourceRect,
+            Color.White * alpha,
+            0f,
+            Vector2.Zero,
+            4f,
+            __instance.Flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+            layerDepth
+        );
+
+        return false;
     }
 
     // private static bool DrawInMenuPrefix(
@@ -747,11 +712,11 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
     //         if (
     //             __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
     //             && AlternativeTextures.textureManager.GetSpecificTextureModel(
-    //                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+    //                 __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
     //             )
     //                 is AlternativeTextureModel textureModel
     //             && Int32.TryParse(
-    //                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION],
+    //                 __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION),
     //                 out var textureVariation
     //             )
     //             && textureVariation != -1

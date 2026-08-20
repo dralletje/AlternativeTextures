@@ -186,8 +186,11 @@ internal class GridMenu : IClickableMenu
         var indexRelativeToRow = index - (row * gridSize.Columns);
         if (itemGrid.ElementAtOrDefault(indexRelativeToRow) is { } element)
         {
-            this.currentlySnappedComponent = element;
-            this.snapCursorToCurrentSnappedComponent();
+            if (Game1.options.SnappyMenus)
+            {
+                this.currentlySnappedComponent = element;
+                this.snapCursorToCurrentSnappedComponent();
+            }
         }
     }
 
@@ -210,8 +213,11 @@ internal class GridMenu : IClickableMenu
             }
             else if ((rowsScrolled * gridSize.Columns) + oldID + gridSize.Columns < items.Count)
             {
-                this.currentlySnappedComponent = this.getComponentWithID(oldID + gridSize.Columns);
-                this.snapCursorToCurrentSnappedComponent();
+                if (Game1.options.SnappyMenus)
+                {
+                    this.setCurrentlySnappedComponentTo(oldID + gridSize.Columns);
+                    this.snapCursorToCurrentSnappedComponent();
+                }
             }
             else
             {
@@ -226,8 +232,11 @@ internal class GridMenu : IClickableMenu
             }
             else if ((rowsScrolled * gridSize.Columns) + oldID - gridSize.Columns >= 0)
             {
-                this.currentlySnappedComponent = this.getComponentWithID(oldID - gridSize.Columns);
-                this.snapCursorToCurrentSnappedComponent();
+                if (Game1.options.SnappyMenus)
+                {
+                    this.setCurrentlySnappedComponentTo(oldID - gridSize.Columns);
+                    this.snapCursorToCurrentSnappedComponent();
+                }
             }
             else
             {

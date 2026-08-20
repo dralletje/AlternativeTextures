@@ -37,12 +37,6 @@ internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             AccessTools.Method(_entity, nameof(Building.draw), [typeof(SpriteBatch)]),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-
-        harmony.Patch(
-            AccessTools.Constructor(_entity, [typeof(string), typeof(Vector2)]),
-            postfix: new HarmonyMethod(GetType(), nameof(BuildingPostfix))
-        );
-
         harmony
             .CreateReversePatcher(
                 AccessTools.Method(_entity, nameof(Building.resetTexture), null),
@@ -506,32 +500,30 @@ internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             }
 
             // Handle mailbox
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                Game1.currentLocation.modData["AlternativeTextureName.Mailbox"]
+            if (
+                Game1.currentLocation.modData.GetValueOrDefault("AlternativeTextureVariation.Mailbox")
+                is not { } rawVariationIndex
+            )
+                return true;
+
+            var textureIdentifier = UniqueTextureIdentifier.FromString(
+                Game1.currentLocation.modData["AlternativeTextureName.Mailbox"],
+                rawVariationIndex
             );
+
             if (
-                textureModel is null
-                || Game1.currentLocation.modData.TryGetValue(
-                    "AlternativeTextureVariation.Mailbox",
-                    out var rawVariationIndex
-                )
-                    is false
+                textureIdentifier.IsDefault
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureIdentifier.WithoutSeason)
             )
-            {
                 return true;
-            }
-            var textureVariation = Int32.Parse(rawVariationIndex);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
+
+            var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
+
+            if (textureModel is null)
                 return true;
-            }
 
             // Set the layer to use the AT token for the texture
-            drawLayer.Texture =
-                $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId(textureVariation)}";
+            drawLayer.Texture = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}";
 
             return true;
         }
@@ -721,40 +713,6 @@ internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             color.B = (byte)b;
             pixels[index] = color;
         }
-    }
-
-    private static void BuildingPostfix(Building __instance, string type, Vector2 tile)
-    {
-        var instanceName = $"{TextureType.Building}_{GetBuildingName(__instance)}";
-        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
-
-        if (
-            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-        )
-        {
-            var result =
-                Game1.random.Next(2) > 0
-                    ? AssignModData(__instance, instanceSeasonName, true)
-                    : AssignModData(__instance, instanceName, false);
-            return;
-        }
-        else
-        {
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
-            {
-                AssignModData(__instance, instanceName, false);
-                return;
-            }
-
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-            {
-                AssignModData(__instance, instanceSeasonName, true);
-                return;
-            }
-        }
-
-        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 
     public static void ResetTextureReversePatch(Building __instance)

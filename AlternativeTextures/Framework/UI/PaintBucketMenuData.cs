@@ -22,12 +22,15 @@ using TextureType = TextureType;
 record TextureGridMenuItem : GridMenu.Item
 {
     public required IPaintable Paintable { get; init; }
-    public required TextureIdentifier TextureIdentifier { get; init; }
+    public required TextureIdentifierWithoutSeason TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
 
     public void Draw(SpriteBatch batch, Rectangle destinationRect)
     {
-        if (Paintable.PreviewTexture(TextureIdentifier) is { } drawableTexture)
+        if (
+            Paintable.PreviewTexture(TextureIdentifier.WithSeason(Game1.currentLocation.GetSeason())) is
+            { } drawableTexture
+        )
         {
             if (drawableTexture.Texture == null)
             {
@@ -61,7 +64,7 @@ record TextureGridMenuItem : GridMenu.Item
 
 record TextureInfo
 {
-    public required TextureIdentifier TextureIdentifier { get; init; }
+    public required TextureIdentifierWithoutSeason TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
 }
 
@@ -85,7 +88,12 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = floor.ParentSheetIndex,
-                        Name = AlternativeTextures.DEFAULT_OWNER,
+                        ForModel = new()
+                        {
+                            Type = TextureType.Decoration,
+                            IsName = true,
+                            String = "Floor",
+                        },
                     },
                 };
             }
@@ -110,7 +118,12 @@ static class PaintBucketMenuData
                     {
                         Owner = AlternativeTextures.DEFAULT_OWNER,
                         Variation = wallpaper.ParentSheetIndex,
-                        Name = AlternativeTextures.DEFAULT_OWNER,
+                        ForModel = new()
+                        {
+                            Type = TextureType.Decoration,
+                            IsName = true,
+                            String = "Wallpaper",
+                        },
                     },
                 };
             }
@@ -137,7 +150,7 @@ static class PaintBucketMenuData
             default:
                 yield return new TextureInfo()
                 {
-                    TextureIdentifier = TextureIdentifier.Default,
+                    TextureIdentifier = TextureIdentifierWithoutSeason.DefaultFor(modelIdentifier),
                     DisplayName = "Default",
                 };
                 break;
@@ -152,7 +165,11 @@ static class PaintBucketMenuData
         );
         foreach (var model in availableModels)
         {
-            yield return new() { TextureIdentifier = model.TextureIdentifier, DisplayName = model.DisplayName };
+            yield return new()
+            {
+                TextureIdentifier = model.UniqueIdentifierWithoutSeason,
+                DisplayName = model.DisplayName,
+            };
         }
     }
 }

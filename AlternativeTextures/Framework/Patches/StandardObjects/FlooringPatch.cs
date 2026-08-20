@@ -38,30 +38,20 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
 
     private static bool DrawPrefix(Flooring __instance, byte ___neighborMask, SpriteBatch spriteBatch)
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        if (
+            GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+            ) is
+            { } textureModel
+        )
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
-
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
-                return true;
-            }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            var textureOffset = 0;
 
             var tileLocation = __instance.Tile;
+            var texture = textureModel.Texture.Texture;
 
             var data = __instance.GetData();
-            var texture = textureModel.GetTexture(textureVariation);
             var corner = __instance.GetTextureCorner();
             var cornerSortOffset = 1f;
             switch (data.ConnectType)
@@ -288,7 +278,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             }
 
             spriteBatch.Draw(
-                textureModel.GetTexture(textureVariation),
+                textureModel.Texture.Texture,
                 Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
                 new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
                 Color.White,
@@ -314,27 +304,15 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
     )
     {
         if (
-            __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            && !PatchTemplate.IsDGAObject(__instance)
+            !PatchTemplate.IsDGAObject(__instance)
+            && GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+            )
+                is { } textureModel
         )
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
-
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
-                return true;
-            }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            var textureOffset = 0;
 
             var sourceRectPosition = 1;
             byte drawSum = 0;
@@ -375,7 +353,7 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
             }
             sourceRectPosition = Flooring.drawGuide[drawSum];
             spriteBatch.Draw(
-                textureModel.GetTexture(textureVariation),
+                textureModel.Texture.Texture,
                 positionOnScreen,
                 new Rectangle(sourceRectPosition % 16 * 16, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
                 Color.White,
@@ -394,35 +372,21 @@ internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchT
     private static void SeasonUpdatePostfix(TerrainFeature __instance, bool onLoad)
     {
         if (
-            __instance is not Flooring flooring
-            || __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER) is false
-            || __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is false
+            __instance is Flooring flooring
+            && GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+            )
+                is { } textureModel
         )
         {
-            return;
-        }
-
-        var season = Game1.GetSeasonForLocation(__instance.Location).ToString();
-        var seasonalName = String.Concat(
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-            ".",
-            $"{TextureType.Flooring}_{GetFlooringName(flooring)}_{season}"
-        );
-        if (
-            (
-                __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-                && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
-                && !String.Equals(
-                    __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON],
-                    season,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            ) || AlternativeTextures.textureManager.DoesObjectHaveAlternativeTextureById(seasonalName)
-        )
-        {
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = season;
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = seasonalName;
+            var season = Game1.GetSeasonForLocation(__instance.Location);
+            if (textureModel.Season != season)
+            {
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
+                    .UniqueIdentifierWithoutSeason.WithSeason(season)
+                    .LegacyId;
+            }
         }
     }
 }

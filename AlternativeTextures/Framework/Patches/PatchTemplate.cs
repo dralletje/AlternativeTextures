@@ -357,7 +357,7 @@ internal class PatchTemplate()
 
         var textureModel = new AlternativeTextureModel()
         {
-            DisplayName = "",
+            DisplayName = null,
             Texture = null!,
             ForModel = ModelIdentifier.FromString(modelName)!,
             TextureWidth = 16,
@@ -453,6 +453,22 @@ internal class PatchTemplate()
         // }
 
         // return false;
+    }
+
+    public static AlternativeTextureModel? GetTextureForUse(string name, string? variation)
+    {
+        if (variation is not { } rawVariationIndex)
+            return null;
+
+        var textureIdentifier = UniqueTextureIdentifier.FromString(name, rawVariationIndex);
+
+        if (
+            textureIdentifier.IsDefault
+            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureIdentifier.WithoutSeason)
+        )
+            return null;
+
+        return AlternativeTextures.textureManager.GetTexture(textureIdentifier);
     }
 
     private static void AssignObjectModData(

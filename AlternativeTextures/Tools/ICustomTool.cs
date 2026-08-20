@@ -9,8 +9,5 @@ public interface ICustomTool
 {
     public IDisposable? Start();
 
-    public IEnumerator<bool>? OnButton(ButtonPressedEventArgs e)
-    {
-        return null;
-    }
+    public IEnumerator<bool>? OnButton(ButtonPressedEventArgs e) => null;
 }

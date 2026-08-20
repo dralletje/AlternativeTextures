@@ -199,7 +199,12 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
 
     static GridSize gridSizeFor(IPaintable paintable)
     {
-        var _sourceRect = paintable.PreviewTexture(paintable.Texture ?? TextureIdentifier.Default)?.SourceRect;
+        var _sourceRect = paintable
+            .PreviewTexture(
+                paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier),
+                Game1.currentLocation.GetSeason()
+            )
+            ?.SourceRect;
         var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
 
         // var sourceRect = SourceRects.GetSourceRectangle(availableModels.First(), target, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
@@ -309,7 +314,7 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
             );
 
             Game1.activeClickableMenu = gridMenu;
-            if (paintable.Texture is { } texture)
+            if (paintable.TextureIdentifier is { } texture)
             {
                 gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
             }
@@ -358,7 +363,7 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
                 );
 
                 Game1.activeClickableMenu = gridMenu;
-                if (wallpaperPaintable.Texture is { } texture)
+                if (wallpaperPaintable.TextureIdentifier is { } texture)
                 {
                     gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
                 }
@@ -403,7 +408,7 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
                 );
 
                 Game1.activeClickableMenu = gridMenu;
-                if (floorPaintable.Texture is { } texture)
+                if (floorPaintable.TextureIdentifier is { } texture)
                 {
                     gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
                 }

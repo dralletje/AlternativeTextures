@@ -26,14 +26,6 @@ internal class TreePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTempl
             AccessTools.Method(_object, nameof(Tree.seasonUpdate), [typeof(bool)]),
             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
         );
-        harmony.Patch(
-            AccessTools.Constructor(typeof(Tree), [typeof(string)]),
-            postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
-        );
-        harmony.Patch(
-            AccessTools.Constructor(typeof(Tree), [typeof(string), typeof(int), typeof(bool)]),
-            postfix: new HarmonyMethod(GetType(), nameof(TreePostfix))
-        );
     }
 
     private static bool DrawPrefix(
@@ -248,53 +240,20 @@ internal class TreePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTempl
     private static void SeasonUpdatePostfix(Tree __instance, bool onLoad)
     {
         if (
-            __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-            && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
+            GetTextureForUse(
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
+                __instance.modData.GetValueOrDefault(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
+            ) is
+            { } textureModel
         )
         {
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                .GetSeasonForLocation(__instance.Location)
-                .ToString();
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-                ".",
-                $"{TextureType.Tree}_{GetTreeTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
-            );
-        }
-    }
-
-    private static void TreePostfix(Tree __instance)
-    {
-        var instanceName = $"{TextureType.Tree}_{GetTreeTypeString(__instance)}";
-        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.Location)}";
-
-        if (
-            AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName)
-            && AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName)
-        )
-        {
-            var result =
-                Game1.random.Next(2) > 0
-                    ? AssignModData(__instance, instanceSeasonName, true)
-                    : AssignModData(__instance, instanceName, false);
-            return;
-        }
-        else
-        {
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceName))
+            var season = Game1.GetSeasonForLocation(__instance.Location);
+            if (textureModel.Season != season)
             {
-                AssignModData(__instance, instanceName, false);
-                return;
-            }
-
-            if (AlternativeTextures.textureManager.DoesObjectHaveAlternativeTexture(instanceSeasonName))
-            {
-                AssignModData(__instance, instanceSeasonName, true);
-                return;
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureModel
+                    .UniqueIdentifierWithoutSeason.WithSeason(season)
+                    .LegacyId;
             }
         }
-
-        AssignDefaultModData(__instance, instanceSeasonName, true);
     }
 }

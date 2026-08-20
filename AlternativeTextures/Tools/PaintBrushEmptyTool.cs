@@ -1,21 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
-using Force.DeepCloner;
-using HarmonyLib;
-using Incubator;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Mods;
-using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
 namespace AlternativeTextures.Tools;
@@ -65,14 +57,22 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
     private void DoReadTexture(Tile tile)
     {
         var paintables = IPaintable.OnTile(tile);
-        Console.Log($"paintables: {paintables.Select(x => x.Type)}");
+        Console.Log($"paintables: {paintables.Select(x => x.Type).ToList()}");
 
         var paintableMaybe = IPaintable.OnTile(tile).FirstOrDefault();
         if (paintableMaybe is { } paintable)
         {
-            Console.Log($"paintable: {paintable.Category} - {paintable.InstanceName}");
-            Console.Log($"paintable.Texture: {paintable.Texture?.Owner} - {paintable.Texture?.Name}");
-            var item = PaintBrushFilledTool.CreateItem(paintable.Type, paintable.Texture ?? TextureIdentifier.Default);
+            Console.Log($"paintable.TextureIdentifier: {paintable.TextureIdentifier}");
+            var item = PaintBrushFilledTool.CreateItem(
+                paintable.Type,
+                paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier)
+            );
+
+            var str = JsonSerializer.Serialize(paintable.TextureIdentifier);
+            Console.Log($"With: {str}");
+            var x = JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(str);
+            Console.Log($"JSON x: {x}");
+
             Game1.player.Items[Game1.player.CurrentToolIndex] = item;
         }
     }

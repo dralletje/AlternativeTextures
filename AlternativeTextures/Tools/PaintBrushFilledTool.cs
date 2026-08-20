@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
 using ConsoleLog;
 using Force.DeepCloner;
 using HarmonyLib;
@@ -35,17 +33,17 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             return ModelIdentifier.FromString(modelIdentifierString) ?? TextureType.Craftable.WithName("Chest");
         }
     }
-    TextureIdentifier Texture
+    TextureIdentifierWithoutSeason Texture
     {
         get
         {
             try
             {
-                return JsonSerializer.Deserialize<TextureIdentifier>(tool.modData[MODDATA_TEXTURE_KEY]);
+                return JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(tool.modData[MODDATA_TEXTURE_KEY]);
             }
             catch
             {
-                return TextureIdentifier.Default;
+                return TextureIdentifierWithoutSeason.DefaultFor(ModelIdentifier);
             }
         }
     }
@@ -113,24 +111,19 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         }
         else
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(Texture.Name);
+            var textureModel = AlternativeTextures.textureManager.GetTexture(
+                Texture.WithSeason(Game1.currentLocation.GetSeason())
+            );
             if (textureModel is null)
             {
-                Console.Log($"textureModel is null ({Texture.Name})");
                 return;
             }
 
-            var textureVariation = Texture.Variation;
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
+            if (Texture.Variation == -1 || AlternativeTextures.modConfig.IsTextureVariationDisabled(Texture))
             {
                 Console.Log($"textureVariation is -1");
                 return;
             }
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
-            var texture2d = textureModel.GetTexture(textureVariation);
 
             // if (type.StartsWith("Craftable_"))
             // {
@@ -168,23 +161,25 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             if (ModelIdentifier.Type == TextureType.Flooring)
             {
                 e.SpriteBatch.Draw(
-                    texture2d,
+                    textureModel.Texture.WithSourceRect(
+                        new Rectangle(0, 0, Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom)
+                    ),
                     new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize),
-                    new Rectangle(0, 0, Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom),
                     target is not null ? Color.White * 0.7f : Color.White * 0.3f
                 );
             }
             else
             {
                 e.SpriteBatch.Draw(
-                    texture2d,
+                    textureModel.Texture.WithSourceRect(
+                        new Rectangle(0, 0, textureModel.TextureWidth, textureModel.TextureHeight)
+                    ),
                     new Rectangle(
                         (int)positionOnScreen.X + (Game1.tileSize - (textureModel.TextureWidth * Game1.pixelZoom)),
                         (int)positionOnScreen.Y + (Game1.tileSize - (textureModel.TextureHeight * Game1.pixelZoom)),
                         textureModel.TextureWidth * Game1.pixelZoom,
                         textureModel.TextureHeight * Game1.pixelZoom
                     ),
-                    new Rectangle(0, 0, textureModel.TextureWidth, textureModel.TextureHeight),
                     // new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
 
                     target is not null
@@ -206,13 +201,17 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         }
         else if (e.Button.IsUseToolButton())
         {
+            var textureModel = AlternativeTextures.textureManager.GetTexture(
+                Texture.WithSeason(Game1.currentLocation.GetSeason())
+            );
+
             var tile = Game1.player.ActiveTargetTile;
-            PrettyPrint.Log("[IsUseToolButton] Paint Brush");
+            Console.Log($"[IsUseToolButton] Paint Brush");
 
             var placedObject = Game1.currentLocation.getObjectAtTile(tile.X, tile.Y);
             if (placedObject?.QualifiedItemId == AlternativeTextures.PAINTPAIL)
             {
-                PrettyPrint.Log("Cleaning using the PAINTPAIL");
+                Console.Log($"Cleaning using the PAINTPAIL");
                 Game1.player.Items[Game1.player.CurrentToolIndex] = PaintBrushEmptyTool.CreateItem();
                 yield return false;
             }
@@ -237,9 +236,10 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         var paintableMaybe = IPaintable.OnTile(tile).FirstOrDefault();
         if (paintableMaybe is { } paintable)
         {
-            Console.Log($"paintable: {paintable.Category} - {paintable.InstanceName}");
-            Console.Log($"paintable.Texture: {paintable.Texture?.Owner} - {paintable.Texture?.Name}");
-            var item = PaintBrushFilledTool.CreateItem(paintable.Type, paintable.Texture ?? TextureIdentifier.Default);
+            var item = PaintBrushFilledTool.CreateItem(
+                paintable.Type,
+                paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier)
+            );
             Game1.player.Items[Game1.player.CurrentToolIndex] = item;
         }
     }
@@ -260,11 +260,19 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         /// Don't do anything if none match
     }
 
-    public static Item CreateItem(string modelIdentifierString, TextureIdentifier texture)
+    public static Item CreateItem(string modelIdentifierString, TextureIdentifierWithoutSeason texture)
     {
+        Console.Log($"texture: {texture}");
+        var x = JsonSerializer.Serialize(texture);
+        Console.Log($"json: {x}");
+        var result = JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(x);
+        Console.Log($"result: {result}");
+
         var tool = ItemRegistry.Create(AlternativeTextures.PAINT_BRUSH_FILLED_ID);
         tool.modData[MODDATA_MODEL_KEY] = modelIdentifierString;
         tool.modData[MODDATA_TEXTURE_KEY] = JsonSerializer.Serialize(texture);
+
+        Console.Log($">> texture: {texture}");
 
         // JsonConvert.SerializeObject(texture);
         return tool;

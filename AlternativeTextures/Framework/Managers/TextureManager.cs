@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AlternativeTextures.Framework.Models;
 using ConsoleLog;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -63,7 +64,11 @@ internal class TextureManager(IMod mod)
     {
         // Register for Content Patcher
         var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}";
-        _tokenToModel[token] = new TokenModel() { Id = token, AlternativeTexture = textureModel };
+        _tokenToModel[token] = new TokenModel()
+        {
+            // Id = token,
+            AlternativeTexture = textureModel,
+        };
 
         _textureNames.Add(textureModel.GetTokenId());
         foreach (var variation in textureModel.Textures.Keys)
@@ -73,7 +78,7 @@ internal class TextureManager(IMod mod)
             token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId(variation)}";
             _tokenToModel[token] = new TokenModel()
             {
-                Id = token,
+                // Id = token,
                 Variation = variation,
                 AlternativeTexture = textureModel,
             };
@@ -95,6 +100,11 @@ internal class TextureManager(IMod mod)
         return _textureNames;
     }
 
+    public bool DoesObjectHaveAlternativeTexture(TextureQuery query)
+    {
+        return _alternativeTextures.Any(t => t.ForModel == query.ModelIdentifier && t.Season == query.Season);
+    }
+
     [Obsolete("Don't even know.")]
     public bool DoesObjectHaveAlternativeTexture(string objectName, bool isItemId = false)
     {
@@ -112,11 +122,6 @@ internal class TextureManager(IMod mod)
 
     public AlternativeTextureModel? GetRandomTextureModel(string objectName)
     {
-        if (!DoesObjectHaveAlternativeTexture(objectName))
-        {
-            return null;
-        }
-
         var validTextures = _alternativeTextures
             .Where(t => string.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase))
             .ToList();
@@ -173,35 +178,6 @@ internal class TextureManager(IMod mod)
         return texturesByIdentifier.GetValueOrDefault(identifier);
     }
 
-    public List<AlternativeTextureModel> GetAvailableTextureModels(string itemId, string modelName, Season season)
-    {
-        var textureModels = GetAvailableTextureModels(modelName, season);
-
-        var itemIdWithSeason = string.Concat(itemId, "_", season);
-        if (
-            !DoesObjectHaveAlternativeTexture(itemId, isItemId: true)
-            && !DoesObjectHaveAlternativeTexture(itemIdWithSeason, isItemId: true)
-        )
-        {
-            return textureModels;
-        }
-
-        var seasonalTextures = _alternativeTextures
-            .Where(t =>
-                t.IsUsingItemId()
-                && string.Equals(t.GetNameWithSeason(), itemIdWithSeason, StringComparison.OrdinalIgnoreCase)
-            )
-            .ToList();
-        seasonalTextures.AddRange(
-            _alternativeTextures.Where(t =>
-                t.IsUsingItemId()
-                && !seasonalTextures.Any(s => s.GetId() == t.GetId())
-                && string.Equals(t.GetNameWithSeason(), itemId, StringComparison.OrdinalIgnoreCase)
-            )
-        );
-        return [.. textureModels, .. seasonalTextures];
-    }
-
     public int GetVariationFromToken(string token)
     {
         var regex = new Regex(_variationRegexPattern);
@@ -242,6 +218,10 @@ internal class TextureManager(IMod mod)
         }
 
         var replacementIndex = _alternativeTextures.IndexOf(_tokenToModel[token].AlternativeTexture);
-        _alternativeTextures[replacementIndex].Textures[_tokenToModel[token].Variation] = texture;
+        /// TODO Also replace it in the other maps
+        _alternativeTextures[replacementIndex] = _alternativeTextures[replacementIndex] with
+        {
+            Texture = new DrawableTexture(texture),
+        };
     }
 }

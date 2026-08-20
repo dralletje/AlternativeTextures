@@ -1,4 +1,5 @@
-﻿using System;
+﻿global using AlternativeTextures.Framework.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework.External.GenericModConfigMenu;
@@ -186,7 +187,6 @@ public class AlternativeTextures : Mod
 
             // Start of entity patches
             new CharacterPatch(monitor, helper).Apply(harmony);
-            new ChildPatch(monitor, helper).Apply(harmony);
             new FarmAnimalPatch(monitor, helper).Apply(harmony);
             new HorsePatch(helper).Apply(harmony);
             new PetPatch(monitor, helper).Apply(harmony);
