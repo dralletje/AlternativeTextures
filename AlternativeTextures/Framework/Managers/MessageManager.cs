@@ -20,12 +20,12 @@ internal class MessageManager(IModHelper helper, string modID)
         BuildingTextureUpdate,
     }
 
-    internal class BuildingTextureUpdateMessage
+    internal record BuildingTextureUpdateMessage
     {
-        public string LocationName { get; set; }
-        public Guid BuildingID { get; set; }
-        public string TextureName { get; set; }
-        public string TextureVariation { get; set; }
+        public required string LocationName { get; set; }
+        public required Guid BuildingID { get; set; }
+        public required string TextureName { get; set; }
+        public required string TextureVariation { get; set; }
     }
 
     public void HandleIncomingMessage(ModMessageReceivedEventArgs e)

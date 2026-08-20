@@ -108,7 +108,6 @@ public class AlternativeTextures : Mod
     internal const string MOD_ID = "PeacefulEnd.AlternativeTextures";
 
     // Shared static helpers
-    internal static IMonitor monitor;
     internal static IModHelper modHelper;
     internal static Multiplayer multiplayer;
     internal static IManifest modManifest;
@@ -132,8 +131,6 @@ public class AlternativeTextures : Mod
     public override void Entry(IModHelper helper)
     {
         // Set up the monitor, helper and multiplayer
-        monitor = Monitor;
-
         global::AlternativeTextures.Monitor.monitor = Monitor;
 
         modHelper = helper;
@@ -159,42 +156,42 @@ public class AlternativeTextures : Mod
             var harmony = new Harmony(this.ModManifest.UniqueID);
 
             // Apply texture override related patches
-            new GameLocationPatch(monitor, helper).Apply(harmony);
+            new GameLocationPatch(Monitor, helper).Apply(harmony);
             new ObjectPatch(helper).Apply(harmony);
             new FencePatch(helper).Apply(harmony);
             new CropPatch(helper).Apply(harmony);
             new GiantCropPatch(helper).Apply(harmony);
-            new GrassPatch(monitor, helper).Apply(harmony);
-            new TreePatch(monitor, helper).Apply(harmony);
+            new GrassPatch(Monitor, helper).Apply(harmony);
+            new TreePatch(Monitor, helper).Apply(harmony);
             new FruitTreePatch(helper).Apply(harmony);
-            new ResourceClumpPatch(monitor, helper).Apply(harmony);
-            new BushPatch(monitor, helper).Apply(harmony);
-            new FlooringPatch(monitor, helper).Apply(harmony);
+            new ResourceClumpPatch(Monitor, helper).Apply(harmony);
+            new BushPatch(Monitor, helper).Apply(harmony);
+            new FlooringPatch(Monitor, helper).Apply(harmony);
             new FurniturePatch(helper).Apply(harmony);
             new BedFurniturePatch(helper).Apply(harmony);
             new FishTankFurniturePatch(helper).Apply(harmony);
 
             // Start of special objects
-            new ChestPatch(monitor, helper).Apply(harmony);
-            new CrabPotPatch(monitor, helper).Apply(harmony);
-            new IndoorPotPatch(monitor, helper).Apply(harmony);
-            new PhonePatch(monitor, helper).Apply(harmony);
-            new TorchPatch(monitor, helper).Apply(harmony);
-            new WoodChipperPatch(monitor, helper).Apply(harmony);
+            new ChestPatch(Monitor, helper).Apply(harmony);
+            new CrabPotPatch(Monitor, helper).Apply(harmony);
+            new IndoorPotPatch(Monitor, helper).Apply(harmony);
+            new PhonePatch(Monitor, helper).Apply(harmony);
+            new TorchPatch(Monitor, helper).Apply(harmony);
+            new WoodChipperPatch(Monitor, helper).Apply(harmony);
 
             // Start of entity patches
-            new CharacterPatch(monitor, helper).Apply(harmony);
-            new FarmAnimalPatch(monitor, helper).Apply(harmony);
+            new CharacterPatch(Monitor, helper).Apply(harmony);
+            new FarmAnimalPatch(Monitor, helper).Apply(harmony);
             new HorsePatch(helper).Apply(harmony);
-            new PetPatch(monitor, helper).Apply(harmony);
-            new MonsterPatch(monitor, helper).Apply(harmony);
+            new PetPatch(Monitor, helper).Apply(harmony);
+            new MonsterPatch(Monitor, helper).Apply(harmony);
 
             // Start of building patches
-            new BuildingPatch(monitor, helper).Apply(harmony);
-            new ShippingBinPatch(monitor, helper).Apply(harmony);
+            new BuildingPatch(Monitor, helper).Apply(harmony);
+            new ShippingBinPatch(Monitor, helper).Apply(harmony);
 
             // Start of location patches
-            new GameLocationPatch(monitor, helper).Apply(harmony);
+            new GameLocationPatch(Monitor, helper).Apply(harmony);
 
             // Paint tool related patches
             new ToolPatch(helper).Apply(harmony);
@@ -243,10 +240,8 @@ public class AlternativeTextures : Mod
         if (e.DataType == typeof(Texture2D))
         {
             var asset = e.Name;
-            Console.Log($"asset.Name: {asset.Name}");
             if (textureManager.GetModelByToken(asset.Name) is { } textureModel)
             {
-                Console.Log($"textureModel: {textureModel}");
                 var originalTexture = textureModel.Texture.Texture;
                 var clonedTexture = originalTexture.CreateSelectiveCopy(
                     Game1.graphics.GraphicsDevice,
@@ -255,10 +250,7 @@ public class AlternativeTextures : Mod
                 e.LoadFrom(() => clonedTexture, AssetLoadPriority.Exclusive);
             }
         }
-        else if (
-            e.NameWithoutLocale.IsEquivalentTo("Data/AdditionalWallpaperFlooring")
-            && textureManager.GetValidTextureNamesWithSeason().Count > 0
-        )
+        else if (e.NameWithoutLocale.IsEquivalentTo("Data/AdditionalWallpaperFlooring"))
         {
             e.Edit(asset =>
             {
@@ -277,10 +269,6 @@ public class AlternativeTextures : Mod
                 {
                     var texture =
                         $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
-
-                    Console.Log(
-                        $"DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason): {DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason)}"
-                    );
 
                     var decoration = new ModWallpaperOrFlooring()
                     {

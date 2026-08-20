@@ -29,11 +29,8 @@ internal class TextureManager(IMod mod)
     private IModHelper _helper = mod.Helper;
 
     private List<AlternativeTextureModel> _alternativeTextures = [];
-    private List<string> _textureNames = [];
     private HashSet<string> _textureIdsInsensitive = [with(StringComparer.OrdinalIgnoreCase)];
     private Dictionary<string, AlternativeTextureModel> tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
-
-    private string _variationRegexPattern = @"AlternativeTextures\/Textures\/.*(?<variation>\d+)$";
 
     static int? FindIndexOrNull<T>(List<T> haystack, System.Predicate<T> findNeedle)
     {
@@ -59,38 +56,11 @@ internal class TextureManager(IMod mod)
 
         var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{model.GetTokenId()}";
         tokenToModel[token] = model;
-
-        _textureNames.Add(model.GetTokenId());
     }
 
     public List<AlternativeTextureModel> GetAllTextures()
     {
         return _alternativeTextures;
-    }
-
-    public List<string> GetValidTextureNamesWithSeason()
-    {
-        return _textureNames;
-    }
-
-    public bool DoesObjectHaveAlternativeTexture(TextureQuery query)
-    {
-        return _alternativeTextures.Any(t => t.ForModel == query.ModelIdentifier && t.Season == query.Season);
-    }
-
-    [Obsolete("Don't even know.")]
-    public bool DoesObjectHaveAlternativeTexture(string objectName, bool isItemId = false)
-    {
-        return _alternativeTextures.Any(t =>
-            t.IsUsingItemId() == isItemId
-            && String.Equals(t.GetNameWithSeason(), objectName, StringComparison.OrdinalIgnoreCase)
-        );
-    }
-
-    [Obsolete("Don't even know.")]
-    public bool DoesObjectHaveAlternativeTextureById(string objectId)
-    {
-        return _textureIdsInsensitive.Contains(objectId);
     }
 
     [Obsolete("Use .GetTexture(identifier)")]

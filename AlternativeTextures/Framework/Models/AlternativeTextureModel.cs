@@ -298,7 +298,7 @@ static class AlternativeTextureModelExtensions
                     $"Error drawing the texture {textureModel.TextureId}: It was incorrectly disposed!",
                     StardewModdingAPI.LogLevel.Warn
                 );
-                Monitor.LogOnce(textureModel.ToString(), StardewModdingAPI.LogLevel.Trace);
+                Monitor.LogOnce(textureModel.ToString(), LogLevel.Trace);
                 return AlternativeTextures.textureManager.ErrorTexture;
             }
 
@@ -339,9 +339,6 @@ static class AlternativeTextureModelExtensions
         [Obsolete("Variations are separate textures now")]
         public int Variations => 1;
 
-        [Obsolete("Variations are separate textures now.")]
-        public List<VariationModel> ManualVariations => [];
-
         [Obsolete("Smakes Smo Smense.")]
         public Dictionary<int, Texture2D> Textures => [];
 
@@ -362,9 +359,6 @@ static class AlternativeTextureModelExtensions
 
         [Obsolete("Use version without variation")]
         public bool HasTint(int variation) => false;
-
-        [Obsolete("Use version without variation")]
-        public string GetTokenId(int? variation = null) => "";
 
         [Obsolete("Use version without variation")]
         internal bool IsFrameValid(int variation, int currentFrame, bool isMachineActive) => false;
@@ -444,7 +438,6 @@ static class AlternativeTextureModelExtensions
 //     public List<string> Keywords = [];
 //     public List<string> Seasons = []; // For use by mod user to determine which seasons the texture is valid for
 //     public int? DefaultVariation;
-//     public List<VariationModel> ManualVariations = [];
 //     public List<AnimationModel> Animation = [];
 
 //     internal string? Season; // Used by framework to split the Seasons property into individual AlternativeTextureModel models
