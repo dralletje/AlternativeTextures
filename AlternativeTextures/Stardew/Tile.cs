@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace AlternativeTextures.Framework;
+namespace AlternativeTextures.Stardew;
 
 public record Tile(int X, int Y)
 {

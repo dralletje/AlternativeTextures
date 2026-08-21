@@ -23,10 +23,6 @@
       "IsRequired": false
     },
     {
-      "UniqueID": "spacechase0.DynamicGameAssets",
-      "IsRequired": false
-    },
-    {
       "UniqueID": "spacechase0.GenericModConfigMenu",
       "IsRequired": false
     },

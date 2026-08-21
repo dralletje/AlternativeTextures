@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Stardew;
-using ConsoleLog;
+using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -35,7 +35,7 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
         else if (e.Button.IsUseToolButton())
         {
             var tile = Game1.player.ActiveTargetTile;
-            Console.Log($"[IsUseToolButton] Paint Brush");
+            Console.Log($"[IsUseToolButton] Paint Brush {tile}");
 
             var placedObject = Game1.currentLocation.getObjectAtTile(tile.X, tile.Y);
             if (placedObject?.QualifiedItemId == AlternativeTextures.PAINTPAIL)
@@ -56,22 +56,16 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     private void DoReadTexture(Tile tile)
     {
-        var paintables = IPaintable.OnTile(tile);
-        Console.Log($"paintables: {paintables.Select(x => x.Type).ToList()}");
-
-        var paintableMaybe = IPaintable.OnTile(tile).FirstOrDefault();
+        var paintableMaybe = IPaintable
+            .GetAnythingAtTile(tile)
+            .Select(x => IPaintable.From(x))
+            .WhereNotNull()
+            .FirstOrDefault();
         if (paintableMaybe is { } paintable)
         {
-            Console.Log($"paintable.TextureIdentifier: {paintable.TextureIdentifier}");
             var item = PaintBrushFilledTool.CreateItem(
-                paintable.Type,
                 paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier)
             );
-
-            var str = JsonSerializer.Serialize(paintable.TextureIdentifier);
-            Console.Log($"With: {str}");
-            var x = JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(str);
-            Console.Log($"JSON x: {x}");
 
             Game1.player.Items[Game1.player.CurrentToolIndex] = item;
         }
@@ -82,12 +76,5 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
     public static Item CreateItem()
     {
         return ItemRegistry.Create(AlternativeTextures.PAINT_BRUSH_EMPTY_ID);
-    }
-
-    public static PaintBrushEmptyTool? From(IModHelper helper, Tool? tool)
-    {
-        return tool is GenericTool { QualifiedItemId: AlternativeTextures.PAINT_BRUSH_EMPTY_ID } genericTool
-            ? new PaintBrushEmptyTool(helper, genericTool)
-            : null;
     }
 }

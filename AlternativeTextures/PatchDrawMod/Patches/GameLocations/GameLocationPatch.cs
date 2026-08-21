@@ -56,14 +56,13 @@ internal class GameLocationPatch(IModHelper modHelper) : PatchTemplate()
 
         if (
             who.CurrentTool is GenericTool tool
-            && (
-                tool.QualifiedItemId == AlternativeTextures.TOOL_ID_PAINT_BUCKET
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SCISSORS
-                || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
-                || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SPRAY_CAN
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_CATALOGUE
-            )
+            && tool.QualifiedItemId
+                is AlternativeTextures.TOOL_ID_PAINT_BUCKET
+                    or AlternativeTextures.TOOL_ID_SCISSORS
+                    or AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                    or AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+                    or AlternativeTextures.TOOL_ID_SPRAY_CAN
+                    or AlternativeTextures.TOOL_ID_CATALOGUE
         )
         {
             var position =
@@ -82,14 +81,13 @@ internal class GameLocationPatch(IModHelper modHelper) : PatchTemplate()
     {
         if (
             who.CurrentTool is GenericTool tool
-            && (
-                tool.QualifiedItemId == AlternativeTextures.TOOL_ID_PAINT_BUCKET
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SCISSORS
-                || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_FILLED_ID
-                || tool.QualifiedItemId == AlternativeTextures.PAINT_BRUSH_EMPTY_ID
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_SPRAY_CAN
-                || tool.QualifiedItemId == AlternativeTextures.TOOL_ID_CATALOGUE
-            )
+            && tool.QualifiedItemId
+                is AlternativeTextures.TOOL_ID_PAINT_BUCKET
+                    or AlternativeTextures.TOOL_ID_SCISSORS
+                    or AlternativeTextures.PAINT_BRUSH_FILLED_ID
+                    or AlternativeTextures.PAINT_BRUSH_EMPTY_ID
+                    or AlternativeTextures.TOOL_ID_SPRAY_CAN
+                    or AlternativeTextures.TOOL_ID_CATALOGUE
         )
         {
             __result = false;

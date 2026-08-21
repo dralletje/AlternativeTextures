@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Stardew;
-using ConsoleLog;
+using AlternativeTextures.Framework.Paintable;
 using Force.DeepCloner;
 using HarmonyLib;
 using Incubator;
@@ -68,6 +68,8 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         ModDataDictionary
     >("<modData>k__BackingField");
 
+    record PaintableOnTheWorld(WorldObject WorldObject, IPaintable Paintable);
+
     public void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
     {
         var targetTile = Game1.player.ActiveTargetTile;
@@ -80,8 +82,13 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             return;
         }
 
-        var paintables = IPaintable.OnTile(targetTile);
-        var target = paintables.FirstOrDefault(paintable => paintable.ModelIdentifier == this.ModelIdentifier);
+        var worldObjects = IPaintable.GetAnythingAtTile(targetTile);
+        var target = worldObjects
+            .Select(worldObject =>
+                IPaintable.From(worldObject) is { } paintable ? new PaintableOnTheWorld(worldObject, paintable) : null
+            )
+            .WhereNotNull()
+            .FirstOrDefault(paintable => paintable.Paintable.ModelIdentifier == this.ModelIdentifier);
 
         var positionOnScreen = Game1.GlobalToLocal(Game1.viewport, targetTile.ToVector2() * Game1.tileSize);
         var overlayColor = target is not null ? Color.Green * 1f : Color.Red * 0.7f;
@@ -97,7 +104,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             0.0001f // Draw depth (just above ground)
         );
 
-        if (this.Texture is { } texture && target?.Related is TerrainFeature floor)
+        if (this.Texture is { } texture && target?.WorldObject is WorldObject.TerrainFeature(var floor))
         {
             var newfloor = floor.ShallowClone();
             var clonedModData = new ModDataDictionary();
@@ -106,7 +113,6 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             var paintable = new PaintableFromModData(clonedModData)
             {
                 ModelIdentifier = TextureType.Unknown.WithName(""),
-                Related = null,
             };
             paintable.ApplyTexture(texture);
             modDataRef(newfloor) = clonedModData;
@@ -120,12 +126,6 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             );
             if (textureModel is null)
             {
-                return;
-            }
-
-            if (Texture.Variation == -1 || AlternativeTextures.modConfig.IsTextureVariationDisabled(Texture))
-            {
-                Console.Log($"textureVariation is -1");
                 return;
             }
 
@@ -234,14 +234,14 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     private void DoReadTexture(Tile tile)
     {
-        var paintables = IPaintable.OnTile(tile);
-        Console.Log($"paintables: {paintables.Select(x => x.Type)}");
-
-        var paintableMaybe = IPaintable.OnTile(tile).FirstOrDefault();
+        var paintableMaybe = IPaintable
+            .GetAnythingAtTile(tile)
+            .Select(x => IPaintable.From(x))
+            .WhereNotNull()
+            .FirstOrDefault();
         if (paintableMaybe is { } paintable)
         {
             var item = PaintBrushFilledTool.CreateItem(
-                paintable.Type,
                 paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier)
             );
             Game1.player.Items[Game1.player.CurrentToolIndex] = item;
@@ -250,8 +250,7 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     private void DoApplyTexture(Tile tile)
     {
-        var paintables = IPaintable.OnTile(tile);
-
+        var paintables = IPaintable.GetAnythingAtTile(tile).Select(x => IPaintable.From(x)).WhereNotNull();
         foreach (var paintable in paintables)
         {
             if (paintable.ModelIdentifier == this.ModelIdentifier)
@@ -264,11 +263,10 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         /// Don't do anything if none match
     }
 
-    public static Item CreateItem(string modelIdentifierString, TextureIdentifierWithoutSeason texture)
+    public static Item CreateItem(TextureIdentifierWithoutSeason texture)
     {
         var tool = ItemRegistry.Create(AlternativeTextures.PAINT_BRUSH_FILLED_ID);
-        tool.modData[MODDATA_MODEL_KEY] = modelIdentifierString;
-        // tool.modData[MODDATA_TEXTURE_KEY] = Json.JsonSerializer.Serialize(texture);
+        tool.modData[MODDATA_MODEL_KEY] = $"{texture.ForModel.Type}_{texture.ForModel.String}";
         tool.modData[MODDATA_TEXTURE_KEY] = JsonConvert.SerializeObject(texture);
         return tool;
     }

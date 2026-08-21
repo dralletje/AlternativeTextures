@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Stardew;
 using Incubator;
@@ -44,19 +45,20 @@ class SprayCanTool : ICustomTool
 
     private bool OpenMenu(Tile tile)
     {
-        if (IPaintable.OnTile(tile).FirstOrDefault() is { } paintable)
-        {
-            if (paintable.Type != tool.modData.GetValueOrNull(SPRAY_CAN_FLAG))
-            {
-                Game1.player.modData[ENABLED_SPRAY_CAN_TEXTURES] = null;
-            }
-            tool.modData[SPRAY_CAN_FLAG] = paintable.Type;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
+        // if (IPaintable.OnTile(tile).FirstOrDefault() is { } paintable)
+        // {
+        //     if (paintable.Type != tool.modData.GetValueOrNull(SPRAY_CAN_FLAG))
+        //     {
+        //         Game1.player.modData[ENABLED_SPRAY_CAN_TEXTURES] = null;
+        //     }
+        //     tool.modData[SPRAY_CAN_FLAG] = paintable.Type;
+        //     return true;
+        // }
+        // else
+        // {
+        //     return false;
+        // }
     }
 
     // private void Apply()

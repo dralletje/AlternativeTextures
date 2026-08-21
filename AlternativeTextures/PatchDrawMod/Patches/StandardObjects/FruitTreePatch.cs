@@ -26,35 +26,6 @@ internal class FruitTreePatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(FruitTree.seasonUpdate), [typeof(bool)]),
             postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
         );
-
-        if (PatchTemplate.IsDGAUsed())
-        {
-            try
-            {
-                if (
-                    Type.GetType("DynamicGameAssets.Game.CustomFruitTree, DynamicGameAssets") is Type dgaCropType
-                    && dgaCropType != null
-                )
-                {
-                    harmony.Patch(
-                        AccessTools.Method(dgaCropType, nameof(FruitTree.draw), [typeof(SpriteBatch), typeof(Vector2)]),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
-                    );
-                    harmony.Patch(
-                        AccessTools.Method(dgaCropType, nameof(FruitTree.seasonUpdate), [typeof(bool)]),
-                        postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
-                    );
-                }
-            }
-            catch (Exception ex)
-            {
-                Monitor.Log(
-                    $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
-                    LogLevel.Warn
-                );
-                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
-            }
-        }
     }
 
     private static bool DrawPrefix(

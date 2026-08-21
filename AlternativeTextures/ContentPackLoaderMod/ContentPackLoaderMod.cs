@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.MetaFramework;
-using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

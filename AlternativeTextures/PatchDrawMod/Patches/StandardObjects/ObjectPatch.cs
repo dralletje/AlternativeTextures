@@ -41,51 +41,6 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(Object.rot), null),
             postfix: new HarmonyMethod(GetType(), nameof(RotPostfix))
         );
-
-        if (PatchTemplate.IsDGAUsed())
-        {
-            try
-            {
-                if (
-                    Type.GetType("DynamicGameAssets.Game.CustomObject, DynamicGameAssets") is Type dgaObjectType
-                    && dgaObjectType != null
-                )
-                {
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaObjectType,
-                            nameof(Object.draw),
-                            [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
-                    );
-                }
-
-                if (
-                    Type.GetType("DynamicGameAssets.Game.CustomBigCraftable, DynamicGameAssets")
-                        is Type dgaCraftableType
-                    && dgaCraftableType != null
-                )
-                {
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaCraftableType,
-                            nameof(Object.draw),
-                            [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
-                    );
-                }
-            }
-            catch (Exception ex)
-            {
-                Monitor.Log(
-                    $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
-                    LogLevel.Warn
-                );
-                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
-            }
-        }
     }
 
     internal static bool DrawPrefix(Object __instance, SpriteBatch spriteBatch, int x, int y, float alpha = 1f)

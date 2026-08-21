@@ -70,6 +70,9 @@ public static class StardewWorldExtensions
 
             return objects;
         }
+
+        public ResourceClump? GetResourceClumpAt(Tile tile) =>
+            location.resourceClumps.FirstOrDefault(r => r.occupiesTile(tile.X, tile.Y));
     }
 
     extension(GiantCrop giantCrop)

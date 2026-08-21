@@ -20,10 +20,6 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(Bush.draw), [typeof(SpriteBatch)]),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-        harmony.Patch(
-            AccessTools.Method(_object, nameof(Bush.seasonUpdate), [typeof(bool)]),
-            postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
-        );
     }
 
     private static bool DrawPrefix(
@@ -34,24 +30,14 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
         SpriteBatch spriteBatch
     )
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        if (IPaintable.From(__instance)?.TextureIdentifier is { } textureIdentifier)
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            var textureModel = AlternativeTextures.textureManager.GetTexture(
+                textureIdentifier.WithSeason(Game1.currentLocation.GetSeason())
             );
-            if (textureModel is null)
-            {
-                return true;
-            }
 
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
+            if (textureModel is null)
                 return true;
-            }
             var tileLocation = __instance.Tile;
 
             var effectiveSize = getEffectiveSize(__instance.size.Value);
@@ -99,7 +85,7 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
                 }
             }
 
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            var textureOffset = 0;
             var sourceRect = new Rectangle(
                 __instance.tileSheetOffset.Value == 1 && __instance.inBloom() ? 32 : 0,
                 textureOffset,
@@ -116,7 +102,7 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
                 );
             }
             spriteBatch.Draw(
-                textureModel.GetTexture(textureVariation),
+                textureModel.Texture.Texture,
                 Game1.GlobalToLocal(
                     Game1.viewport,
                     new Vector2(
@@ -155,24 +141,5 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
             return 0;
         }
         return size == 4 ? 1 : size;
-    }
-
-    private static void SeasonUpdatePostfix(Bush __instance, bool onLoad)
-    {
-        if (
-            __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
-            && __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-            && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
-        )
-        {
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
-                .GetSeasonForLocation(__instance.Location)
-                .ToString();
-            __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
-                ".",
-                $"{TextureType.Bush}_{GetBushTypeString(__instance)}_{__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]}"
-            );
-        }
     }
 }

@@ -7,13 +7,17 @@ using AlternativeTextures.PatchDrawMod.Patches.Entities;
 using AlternativeTextures.PatchDrawMod.Patches.GameLocations;
 using AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 using AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
-using AlternativeTextures.PatchDrawMod.Patches.Tools;
 using HarmonyLib;
 using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
 namespace AlternativeTextures.PatchDrawMod;
+
+class PatchApiContainer()
+{
+    internal static PatchApiContainer shared = null!;
+}
 
 class PatchDrawMod<TParent>(DralModContext<TParent, PatchDrawMod<TParent>> context) : DralMod
     where TParent : HasMod<TextureManager>
@@ -26,6 +30,8 @@ class PatchDrawMod<TParent>(DralModContext<TParent, PatchDrawMod<TParent>> conte
 
     public override IDisposable? Entry()
     {
+        PatchApiContainer.shared = new PatchApiContainer() { };
+
         try
         {
             var harmony = new Harmony(ModManifest.UniqueID);
@@ -67,9 +73,6 @@ class PatchDrawMod<TParent>(DralModContext<TParent, PatchDrawMod<TParent>> conte
 
             // Start of location patches
             new GameLocationPatch(Helper).Apply(harmony);
-
-            // Paint tool related patches
-            new ToolPatch(Helper).Apply(harmony);
         }
         catch (Exception e)
         {

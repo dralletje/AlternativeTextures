@@ -1,15 +1,16 @@
 ﻿global using AlternativeTextures.Framework.Models;
+global using AlternativeTextures.Stardew;
+global using ConsoleLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlternativeTextures.App.Tools;
+using AlternativeTextures.App;
+using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.External.GenericModConfigMenu;
 using AlternativeTextures.Framework.Managers;
+using AlternativeTextures.Framework.Paintable;
 using AlternativeTextures.MetaFramework;
 using AlternativeTextures.PatchDrawMod;
-using AlternativeTextures.PatchDrawMod.Patches.Tools;
-using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,39 +18,8 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.GameData;
-using StardewValley.Tools;
 
 namespace AlternativeTextures;
-
-public enum TextureType
-{
-    Unknown,
-    Craftable,
-    Grass,
-    Tree,
-    FruitTree,
-    Crop,
-    GiantCrop,
-    ResourceClump,
-    Bush,
-    Flooring,
-    Furniture,
-    Character,
-    Building,
-    Decoration,
-    ArtifactSpot,
-}
-
-public static class TextureTypeExtensions
-{
-    public static ModelIdentifier WithName(this TextureType type, string name) =>
-        new()
-        {
-            Type = type,
-            IsName = true,
-            String = name,
-        };
-}
 
 static class Monitor
 {
@@ -80,6 +50,16 @@ static class Monitor
     }
 }
 
+static class ModHelper
+{
+    public static IModHelper shared;
+}
+
+class ModConfigStub
+{
+    public bool IsTextureVariationDisabled(string identifier, int variant) => false;
+}
+
 public class AlternativeTextures : Mod
 {
     internal const string PAINTPAIL = "(F)PeacefulEnd.AlternativeTexturesContentPatcher_PaintPail";
@@ -103,13 +83,9 @@ public class AlternativeTextures : Mod
     // Mod ID const
     internal const string MOD_ID = "PeacefulEnd.AlternativeTextures";
 
-    internal static IModHelper modHelper;
+    internal static readonly ModConfigStub modConfig = new();
 
     // internal static Multiplayer multiplayer;
-    internal static IManifest modManifest;
-
-    internal static ModConfig modConfig = new ModConfig();
-
     internal static TextureManager textureManager;
 
     AlternativeTexturesDralMod? mod = null;
@@ -117,11 +93,10 @@ public class AlternativeTextures : Mod
     public override void Entry(IModHelper helper)
     {
         global::AlternativeTextures.Monitor.monitor = Monitor;
+        global::AlternativeTextures.ModHelper.shared = helper;
 
         textureManager = new(helper);
 
-        modHelper = helper;
-        modManifest = ModManifest;
         // multiplayer = helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
 
         mod = new AlternativeTexturesDralMod(
@@ -141,7 +116,8 @@ public class AlternativeTextures : Mod
 
 class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesDralMod> context)
     : DralMod,
-        HasMod<TextureManager>
+        HasMod<TextureManager>,
+        HasMod<ICustomToolMod>
 {
     IModHelper Helper = context.Helper;
     IMonitor Monitor = context.Monitor;
@@ -151,42 +127,30 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
 
     TextureManager HasMod<TextureManager>.GetMod() => AlternativeTextures.textureManager;
 
-    // Shared static helpers
-
-    static ModConfigHolder? modConfigHolder;
-    internal static ModConfig modConfig
-    {
-        get { return modConfigHolder?.ModConfig ?? new ModConfig(); }
-        set { modConfigHolder?.ModConfig = value; }
-    }
-
     internal ContentPackLoaderMod.ContentPackLoaderMod<AlternativeTexturesDralMod> contentPackLoaderMod =
         context.Scoped<ContentPackLoaderMod.ContentPackLoaderMod<AlternativeTexturesDralMod>>(
             (context) => new(context)
         );
 
-    // internal PatchDrawMod<AlternativeTexturesDralMod> patchDrawMod = context.Scoped<
-    //     PatchDrawMod<AlternativeTexturesDralMod>
-    // >((context) => new(context));
-
     internal PatchDrawMod<AlternativeTexturesDralMod> patchDrawMod = context.Scoped<
         PatchDrawMod<AlternativeTexturesDralMod>
     >((context) => new(context));
 
-    // Managers
-    internal static ApiManager apiManager;
+    internal CustomToolMod<AlternativeTexturesDralMod> CustomToolPlugin = context.Scoped<
+        CustomToolMod<AlternativeTexturesDralMod>
+    >((context) => new(context));
 
-    private CustomToolPlugin? customToolPlugin;
+    ICustomToolMod HasMod<ICustomToolMod>.GetMod() => CustomToolPlugin;
+
+    internal App<AlternativeTexturesDralMod> App = context.Scoped<App<AlternativeTexturesDralMod>>(
+        (context) => new(context)
+    );
 
     public override IDisposable? Entry()
     {
         // Set up the monitor, helper and multiplayer
 
         // multiplayer.broadcastSprites;
-
-        Console.Log(
-            $"Helper.ModRegistry.IsLoaded(spacechase0.MoreGiantCrops): {Helper.ModRegistry.IsLoaded("spacechase0.MoreGiantCrops")}"
-        );
 
         // modConfigHolder = new ModConfigHolder(this);
 
@@ -196,18 +160,14 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
 
         // new Commands(this).Register();
 
-        // // Hook into GameLoop events
-
-        // // Hook into Input events
-        // helper.Events.Input.ButtonsChanged += OnButtonChanged;
-
         // // Hook into the Content events
         Helper.Events.Content.AssetRequested += OnContentAssetRequested;
         // // helper.Events.Content.AssetReady += OnContentAssetReady;
 
+        CustomToolPlugin.Entry();
         contentPackLoaderMod.Entry();
-        // Load our Harmony patches
         patchDrawMod.Entry();
+        App.Entry();
 
         return null;
     }
@@ -274,21 +234,7 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
 
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     {
-        // Set our default configuration file
-        modConfig = Helper.ReadConfig<ModConfig>();
-
-        if (Helper.ModRegistry.IsLoaded("spacechase0.MoreGiantCrops"))
-        {
-            apiManager.HookIntoMoreGiantCrops(Helper);
-        }
-
-        if (Helper.ModRegistry.IsLoaded("spacechase0.DynamicGameAssets"))
-        {
-            apiManager.HookIntoDynamicGameAssets(Helper);
-        }
-
         Monitor.Log($"Finished loading Alternative Textures content packs", LogLevel.Debug);
-
         // Hook into GMCM, if applicable
         // modConfigHolder!.RegisterWithGMC();
     }

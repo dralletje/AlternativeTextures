@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AlternativeTextures.Framework;
-using ConsoleLog;
+using AlternativeTextures.Framework.Paintable;
 using DralGeometry;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,8 +11,6 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.App.UI;
 
-using TextureType = TextureType;
-
 // interface IActionable
 // {
 //     void Do();
@@ -21,13 +19,14 @@ using TextureType = TextureType;
 record TextureGridMenuItem : GridMenu.Item
 {
     public required IPaintable Paintable { get; init; }
+    public required WorldObject Related { get; init; }
     public required TextureIdentifierWithoutSeason TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
 
     public void Draw(SpriteBatch batch, Rectangle destinationRect)
     {
         if (
-            Paintable.PreviewTexture(TextureIdentifier.WithSeason(Game1.currentLocation.GetSeason())) is
+            DrawPaintable.PreviewTexture(TextureIdentifier.WithSeason(Game1.currentLocation.GetSeason()), Related) is
             { } drawableTexture
         )
         {
@@ -119,17 +118,14 @@ static class PaintBucketMenuData
         {
             case { Type: TextureType.Decoration, IsName: true, String: "Floor" }:
                 foreach (var thing in VanillaFloorDecorations())
-                {
                     yield return thing;
-                }
                 break;
 
             case { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" }:
                 foreach (var thing in VanillaWallpaperDecorations())
-                {
                     yield return thing;
-                }
                 break;
+
             default:
                 yield return new TextureInfo()
                 {

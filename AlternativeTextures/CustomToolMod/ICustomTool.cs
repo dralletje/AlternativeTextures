@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Events;
 
-namespace AlternativeTextures.App.Tools;
+namespace AlternativeTextures.CustomToolMod;
 
 public interface ICustomTool
 {

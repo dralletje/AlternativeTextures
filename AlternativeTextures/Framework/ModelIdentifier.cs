@@ -1,6 +1,38 @@
+using System;
 using System.Text.Json.Serialization;
+using Incubator;
 
 namespace AlternativeTextures.Framework;
+
+public enum TextureType
+{
+    Unknown,
+    Craftable,
+    Grass,
+    Tree,
+    FruitTree,
+    Crop,
+    GiantCrop,
+    ResourceClump,
+    Bush,
+    Flooring,
+    Furniture,
+    Character,
+    Building,
+    Decoration,
+    ArtifactSpot,
+}
+
+public static class TextureTypeExtensions
+{
+    public static ModelIdentifier WithName(this TextureType type, string name) =>
+        new()
+        {
+            Type = type,
+            IsName = true,
+            String = name,
+        };
+}
 
 public record ModelIdentifier
 {
@@ -17,28 +49,35 @@ public record ModelIdentifier
     {
         return $"{String} ({Type})";
     }
+}
 
-    public string Name => String;
-
-    /// TODO Make this work for IDs too?
-    public static ModelIdentifier? FromString(string modelIdentifierString)
+public static class ModelIdentifierExtensions
+{
+    extension(ModelIdentifier modelIdentifier)
     {
-        return modelIdentifierString.Split("_", 2) switch
-        {
-            [var typeString, var name] => EnumUtil.ParseOrNull<TextureType>(typeString) switch
-            {
-                { } modelType => new ModelIdentifier()
-                {
-                    Type = modelType,
-                    IsName = true,
-                    String = name,
-                },
-                null => null,
-            },
-            _ => null,
-        };
-    }
+        public string Name => modelIdentifier.String;
 
-    public static readonly ModelIdentifier Floor = TextureType.Decoration.WithName("Floor");
-    public static readonly ModelIdentifier Wallpaper = TextureType.Decoration.WithName("Wallpaper");
+        /// TODO Make this work for IDs too?
+        public static ModelIdentifier? FromString(string modelIdentifierString)
+        {
+            return modelIdentifierString.Split("_", 2) switch
+            {
+                [var typeString, var name] => Enum.ParseOrNull<TextureType>(typeString) switch
+                {
+                    { } modelType => new ModelIdentifier()
+                    {
+                        Type = modelType,
+                        IsName = true,
+                        String = name,
+                    },
+                    null => null,
+                },
+                _ => null,
+            };
+        }
+
+        public static ModelIdentifier Floor => TextureType.Decoration.WithName("Floor");
+        public static ModelIdentifier Wallpaper => TextureType.Decoration.WithName("Wallpaper");
+        public static ModelIdentifier Mailbox => TextureType.Building.WithName("Mailbox");
+    }
 }

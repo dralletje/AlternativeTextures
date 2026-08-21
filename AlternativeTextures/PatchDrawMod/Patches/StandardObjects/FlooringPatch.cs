@@ -303,12 +303,11 @@ internal class FlooringPatch(IModHelper modHelper) : PatchTemplate()
     )
     {
         if (
-            !PatchTemplate.IsDGAObject(__instance)
-            && GetTextureForUse(
+            GetTextureForUse(
                 __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME),
                 __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION)
-            )
-                is { } textureModel
+            ) is
+            { } textureModel
         )
         {
             var textureOffset = 0;

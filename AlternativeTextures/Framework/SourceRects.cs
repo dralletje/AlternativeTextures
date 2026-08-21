@@ -225,9 +225,7 @@ static class SourceRects
     {
         if (variation == -1)
         {
-            var vanillaRectangle = AlternativeTextures
-                .modHelper.Reflection.GetField<Rectangle>(crop, "sourceRect")
-                .GetValue();
+            var vanillaRectangle = ModHelper.shared.Reflection.GetField<Rectangle>(crop, "sourceRect").GetValue();
             return new Rectangle(vanillaRectangle.X >= 128 ? 128 : 0, vanillaRectangle.Y, 128, 32);
         }
 
@@ -251,7 +249,7 @@ static class SourceRects
         if (variation == -1)
         {
             bush.setUpSourceRect();
-            return AlternativeTextures.modHelper.Reflection.GetField<NetRectangle>(bush, "sourceRect").GetValue().Value;
+            return ModHelper.shared.Reflection.GetField<NetRectangle>(bush, "sourceRect").GetValue().Value;
         }
 
         if (bush.size.Value == Bush.greenTeaBush)
@@ -263,9 +261,7 @@ static class SourceRects
                 32
             );
         }
-        var vanillaSourceRect = AlternativeTextures
-            .modHelper.Reflection.GetField<NetRectangle>(bush, "sourceRect")
-            .GetValue();
+        var vanillaSourceRect = ModHelper.shared.Reflection.GetField<NetRectangle>(bush, "sourceRect").GetValue();
         return new Rectangle(
             bush.tileSheetOffset.Value == 1 && bush.inBloom() ? 32 : 0,
             0,

@@ -1,0 +1,89 @@
+using System;
+using StardewValley.Locations;
+
+namespace AlternativeTextures.Framework.Paintable;
+
+public static class DecorationIdHelper
+{
+    public static string ToString(TextureIdentifierWithoutSeason identifier) =>
+        $"{identifier.Owner}.{identifier.ForModel.Type}.{identifier.ForModel.String}.{identifier.Variation}";
+
+    public static TextureIdentifierWithoutSeason FromString(string identifier, ModelIdentifier forModel) =>
+        int.TryParse(identifier, out var vanillaNumber)
+            ? new(AlternativeTextures.DEFAULT_OWNER, forModel, vanillaNumber)
+            : identifier.Split(".") switch
+            {
+                [.. var owner, var typeString, var name, var variationString]
+                    when Enum.TryParse<TextureType>(typeString, out var type)
+                        && int.TryParse(variationString, out var variation) => new TextureIdentifierWithoutSeason(
+                    string.Join(".", owner),
+                    type.WithName(name),
+                    variation
+                ),
+                _ => throw new ArgumentException($"Couln't parse identifier '{identifier}'"),
+            };
+}
+
+record WallpaperDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+{
+    public ModelIdentifier ModelIdentifier { get; } = ModelIdentifier.Wallpaper;
+
+    public TextureIdentifierWithoutSeason? TextureIdentifier =>
+        location.GetWallpaper(roomId) switch
+        {
+            { Name: null or "", Variant: var variant } => new(
+                AlternativeTextures.DEFAULT_OWNER,
+                ModelIdentifier.Wallpaper,
+                variant
+            ),
+            { Name: { } name } => DecorationIdHelper.FromString(name, ModelIdentifier.Wallpaper),
+            null => null,
+        };
+
+    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
+    {
+        if (maybeTextureToApply is { } textureToApply)
+        {
+            var decorationKey = textureToApply.IsDefault
+                ? new DecorationIdentifier(null, textureToApply.Variation == -1 ? 0 : textureToApply.Variation)
+                : new DecorationIdentifier(DecorationIdHelper.ToString(textureToApply), 0);
+            location.SetWallpaper(decorationKey, roomId);
+        }
+        else
+        {
+            location.SetWallpaper("0", roomId);
+        }
+    }
+}
+
+record FloorDecorationPaintable(DecoratableLocation location, string roomId) : IPaintable
+{
+    public ModelIdentifier ModelIdentifier { get; } = ModelIdentifier.Floor;
+
+    public TextureIdentifierWithoutSeason? TextureIdentifier =>
+        location.GetFloor(roomId) switch
+        {
+            { Name: null or "", Variant: var variant } => new(
+                AlternativeTextures.DEFAULT_OWNER,
+                ModelIdentifier.Floor,
+                variant
+            ),
+            { Name: { } name } => DecorationIdHelper.FromString(name, ModelIdentifier.Floor),
+            null => null,
+        };
+
+    public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTextureToApply)
+    {
+        if (maybeTextureToApply is { } textureToApply)
+        {
+            var decorationKey = textureToApply.IsDefault
+                ? new DecorationIdentifier(null, textureToApply.Variation == -1 ? 0 : textureToApply.Variation)
+                : new DecorationIdentifier(DecorationIdHelper.ToString(textureToApply), 0);
+            location.SetFloor(decorationKey, roomId);
+        }
+        else
+        {
+            location.SetFloor("0", roomId);
+        }
+    }
+}

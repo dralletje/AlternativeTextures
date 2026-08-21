@@ -20,7 +20,7 @@ public static class MyExtensions
             {
                 if (Game1.wasMouseVisibleThisFrame)
                 {
-                    return new Tile(AlternativeTextures.modHelper.Input.GetCursorPosition().Tile);
+                    return new Tile(ModHelper.shared.Input.GetCursorPosition().Tile);
                 }
                 else
                 {

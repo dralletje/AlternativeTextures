@@ -20,35 +20,6 @@ internal class GiantCropPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_object, nameof(GiantCrop.draw), [typeof(SpriteBatch)]),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-
-        if (PatchTemplate.IsDGAUsed())
-        {
-            try
-            {
-                if (
-                    Type.GetType("DynamicGameAssets.Game.CustomGiantCrop, DynamicGameAssets") is Type dgaGiantCropType
-                    && dgaGiantCropType != null
-                )
-                {
-                    harmony.Patch(
-                        AccessTools.Method(
-                            dgaGiantCropType,
-                            nameof(GiantCrop.draw),
-                            [typeof(SpriteBatch), typeof(Vector2)]
-                        ),
-                        prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
-                    );
-                }
-            }
-            catch (Exception ex)
-            {
-                Monitor.Log(
-                    $"Failed to patch Dynamic Game Assets in {this.GetType().Name}: AT may not be able to override certain DGA object types!",
-                    LogLevel.Warn
-                );
-                Monitor.Log($"Patch for DGA failed in {this.GetType().Name}: {ex}", LogLevel.Trace);
-            }
-        }
     }
 
     [HarmonyBefore(["spacechase0.JsonAssets", "spacechase0.MoreGiantCrops"])]

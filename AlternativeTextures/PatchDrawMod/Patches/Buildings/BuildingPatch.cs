@@ -509,12 +509,6 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
                 rawVariationIndex
             );
 
-            if (
-                textureIdentifier.IsDefault
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureIdentifier.WithoutSeason)
-            )
-                return true;
-
             var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
 
             if (textureModel is null)
@@ -543,7 +537,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
         // Handle instances where required paint masks are missing but textureModel.IgnoreBuildingColorMask is false
         var canReallyBePainted =
             (building.CanBePainted() || canBePaintedOverride) && textureModel.IgnoreBuildingColorMask is false;
-        var originalTexture = AlternativeTextures.modHelper.GameContent.Load<Texture2D>(building.textureName());
+        var originalTexture = ModHelper.shared.GameContent.Load<Texture2D>(building.textureName());
         if (originalTexture is not null)
         {
             if (canReallyBePainted && baseTexture.Width <= originalTexture.Width)

@@ -1,30 +1,48 @@
 using System;
 using System.Collections.Generic;
+using AlternativeTextures.MetaFramework;
 using AlternativeTextures.Stardew;
 using ConsoleLog;
 using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Tools;
 
-namespace AlternativeTextures.App.Tools;
+namespace AlternativeTextures.CustomToolMod;
 
-public class CustomToolPlugin(IModHelper helper)
+interface ICustomToolMod
 {
-    public IDisposable Start()
-    {
-        helper.Events.GameLoop.UpdateTicked += OnTickUpdateCurrentTool;
+    public void Register(string toolId, Func<GenericTool, ICustomTool> factory);
+}
 
-        helper.Events.Input.ButtonPressed += OnButtonPressed;
-        helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
-        helper.Events.Input.ButtonReleased += OnButtonReleased;
+public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParent>> context) : DralMod, ICustomToolMod
+{
+    IModHelper Helper = context.Helper;
+    IMonitor Monitor = context.Monitor;
+
+    private Dictionary<string, Func<GenericTool, ICustomTool>> registeredTools = [];
+
+    public void Register(string toolId, Func<GenericTool, ICustomTool> factory)
+    {
+        registeredTools[toolId] = factory;
+    }
+
+    public override IDisposable? Entry()
+    {
+        Helper.Events.GameLoop.UpdateTicked += OnTickUpdateCurrentTool;
+
+        Helper.Events.Input.ButtonPressed += OnButtonPressed;
+        Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+        Helper.Events.Input.ButtonReleased += OnButtonReleased;
+
         return new ActionDisposable(() =>
         {
-            helper.Events.GameLoop.UpdateTicked -= OnTickUpdateCurrentTool;
+            Helper.Events.GameLoop.UpdateTicked -= OnTickUpdateCurrentTool;
 
-            helper.Events.Input.ButtonPressed -= OnButtonPressed;
-            helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
-            helper.Events.Input.ButtonReleased -= OnButtonReleased;
+            Helper.Events.Input.ButtonPressed -= OnButtonPressed;
+            Helper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
+            Helper.Events.Input.ButtonReleased -= OnButtonReleased;
         });
     }
 
@@ -51,18 +69,28 @@ public class CustomToolPlugin(IModHelper helper)
                 disposable.Dispose();
             }
 
-            var currentTool = Game1.player.CurrentTool;
-            var nextCustomTool =
-                PaintBrushEmptyTool.From(helper, currentTool) as ICustomTool
-                ?? PaintBrushFilledTool.From(helper, currentTool) as ICustomTool
-                ?? SprayCanTool.From(helper, currentTool) as ICustomTool;
-
-            currentCustomToolCache = new()
+            if (
+                Game1.player.CurrentTool is GenericTool currentTool
+                && registeredTools.GetValueOrNull(currentTool.QualifiedItemId) is { } toolFactory
+            )
             {
-                Item = currentTool,
-                Tool = nextCustomTool,
-                Disposable = nextCustomTool?.Start(),
-            };
+                var nextCustomTool = toolFactory(currentTool);
+                currentCustomToolCache = new()
+                {
+                    Item = currentTool,
+                    Tool = nextCustomTool,
+                    Disposable = nextCustomTool?.Start(),
+                };
+            }
+            else
+            {
+                currentCustomToolCache = new()
+                {
+                    Item = Game1.player.CurrentItem,
+                    Tool = null,
+                    Disposable = null,
+                };
+            }
         }
     }
 
