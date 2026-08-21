@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Tools;
 using Incubator;
-using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.GameData.GiantCrops;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 
-namespace AlternativeTextures;
+namespace AlternativeTextures.Stardew;
 
 public static class StardewWorldExtensions
 {

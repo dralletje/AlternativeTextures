@@ -1,13 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Managers;
-using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Parser;
 using ConsoleLog;
 using Incubator;
@@ -35,6 +31,7 @@ class ContentPackLoader(Mod mod)
         // Load owned content packs
         foreach (var contentPack in Helper.ContentPacks.GetOwned())
         {
+            var TAG = $"[{contentPack.Manifest.Name}]".Blue();
             Monitor.Log(
                 $"Loading textures from pack: {contentPack.Manifest.Name} {contentPack.Manifest.Version} by {contentPack.Manifest.Author}",
                 LogLevel.Debug
@@ -70,7 +67,7 @@ class ContentPackLoader(Mod mod)
 
             individualLoadingStopwatch.Stop();
             Monitor.Log(
-                $"[{contentPack.Manifest.Name}] finished loading in {Math.Round(individualLoadingStopwatch.ElapsedMilliseconds / 1000f, 2)} seconds",
+                $"{TAG} finished loading in {Math.Round(individualLoadingStopwatch.ElapsedMilliseconds / 1000f, 2)} seconds",
                 LogLevel.Trace
             );
 
@@ -87,6 +84,14 @@ class ContentPackLoader(Mod mod)
         );
     }
 
+    record TextureGroup
+    {
+        public required (ModelIdentifier, Season) Id { get; init; }
+        public required List<AlternativeTextureModel> Models { get; init; }
+        public required bool IsImplicitSeason { get; init; }
+        public required string TextureJsonPath { get; init; }
+    }
+
     internal static IEnumerable<AlternativeTextureModel> LoadPackContents(IContentPack contentPack)
     {
         var texturesRootFolder = Path.Combine(contentPack.DirectoryPath, "Textures");
@@ -95,7 +100,9 @@ class ContentPackLoader(Mod mod)
         if (textureFolders.Length == 0)
             throw new ContentPackException("No folders found inside content pack");
 
-        var mutable_TextureModels = new List<AlternativeTextureModel>();
+        // var mutable_TextureModels = new List<AlternativeTextureModel>();
+        var mutable_files = new List<TextureGroup>();
+        var TAG = $"[{contentPack.Manifest.Name}]".Blue();
 
         // Load in the alternative textures
         foreach (var textureFolder in textureFolders)
@@ -209,9 +216,10 @@ class ContentPackLoader(Mod mod)
 
                 foreach (var modelIdentifier in models)
                 {
-                    foreach (var (variation, texture) in variationCombination)
+                    foreach (var season in seasons)
                     {
-                        foreach (var season in seasons)
+                        var mutable_TextureModels = new List<AlternativeTextureModel>();
+                        foreach (var (variation, texture) in variationCombination)
                         {
                             mutable_TextureModels.Add(
                                 new AlternativeTextureModel()
@@ -233,19 +241,76 @@ class ContentPackLoader(Mod mod)
                                 }
                             );
                         }
+                        mutable_files.Add(
+                            new()
+                            {
+                                Id = (modelIdentifier, season),
+                                Models = mutable_TextureModels,
+                                IsImplicitSeason = file.Seasons.Count == 0,
+                                TextureJsonPath = relativeFolderName,
+                            }
+                        );
                     }
                 }
             }
             catch (Exception error)
             {
-                Monitor.Log(
-                    $"[{contentPack.Manifest.Name}] Error loading texture {textureFolder}: {error}",
-                    LogLevel.Error
-                );
+                Monitor.Log($"{TAG} Error loading texture {textureFolder}: {error}".BrightBlack(), LogLevel.Warn);
             }
         }
 
-        return mutable_TextureModels;
+        /// We should really only have one file per model+season pair,
+        /// but implicit seasons do take a backseat to explicit ones
+        foreach (var group in mutable_files.GroupBy(x => x.Id))
+        {
+            /// So we allow groups with 2 files, one implicit one explicit.
+            /// That is the only case where we allow a group bigger than one.
+            switch (group.ToList())
+            {
+                case []:
+                    /// Huh
+                    break;
+
+                case [var file]:
+                    foreach (var texture in file.Models)
+                    {
+                        yield return texture;
+                    }
+                    break;
+
+                case [var file1, var file2]:
+                    var fileToUse = (file1, file2) switch
+                    {
+                        ({ IsImplicitSeason: false } explicitFile, { IsImplicitSeason: false }) => explicitFile,
+                        ({ IsImplicitSeason: true }, { IsImplicitSeason: false } explicitFile) => explicitFile,
+                        _ => null,
+                    };
+                    if (fileToUse is not null)
+                    {
+                        foreach (var texture in fileToUse.Models)
+                        {
+                            yield return texture;
+                        }
+                    }
+                    else
+                    {
+                        Monitor.Log(
+                            $"{TAG} provided colliding textures for {group.Key.ToString().Green()}.".BrightBlack(),
+                            LogLevel.Warn
+                        );
+                        Monitor.Log(PrettyPrint.InspectFormat($"{(file1, file2)}"), LogLevel.Info);
+                    }
+
+                    break;
+                default:
+                    /// OOofff
+                    Monitor.Log(
+                        $"{TAG} provided colliding textures for {group.Key.ToString().Green()}.".BrightBlack(),
+                        LogLevel.Warn
+                    );
+                    break;
+            }
+        }
     }
 
     static IEnumerable<int> Infinite()

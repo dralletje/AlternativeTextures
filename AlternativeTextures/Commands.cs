@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using AlternativeTextures.Framework.Patches;
-using Incubator;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;

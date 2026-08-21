@@ -49,3 +49,6 @@ dotnet_diagnostic.CS9113.severity = suggestion
 dotnet_diagnostic.IDE0305.severity = suggestion
 
 dotnet_diagnostic.IDE0047.severity = suggestion
+
+# Remove unused `using`
+dotnet_diagnostic.IDE0005.severity = warning

@@ -1,28 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.UI;
-using AlternativeTextures.Framework.Utilities;
-using ConsoleLog;
 using DralGeometry;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Buildings;
-using StardewValley.Characters;
 using StardewValley.Locations;
-using StardewValley.Menus;
-using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
-using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.Tools;
 
@@ -36,24 +22,6 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
             AccessTools.Method(typeof(Item), nameof(GenericTool.canBeTrashed), null),
             postfix: new HarmonyMethod(GetType(), nameof(CanBeTrashedPostfix))
         );
-        // harmony.Patch(
-        //     AccessTools.Method(
-        //         _object,
-        //         nameof(Tool.drawInMenu),
-        //         new[]
-        //         {
-        //             typeof(SpriteBatch),
-        //             typeof(Vector2),
-        //             typeof(float),
-        //             typeof(float),
-        //             typeof(float),
-        //             typeof(StackDrawType),
-        //             typeof(Color),
-        //             typeof(bool),
-        //         }
-        //     ),
-        //     prefix: new HarmonyMethod(GetType(), nameof(DrawInMenuPrefix))
-        // );
         harmony.Patch(
             AccessTools.Method(
                 _object,
@@ -84,51 +52,6 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
             __result = true;
         }
     }
-
-    // private static bool DrawInMenuPrefix(
-    //     Tool __instance,
-    //     SpriteBatch spriteBatch,
-    //     Vector2 location,
-    //     ref float scaleSize,
-    //     float transparency,
-    //     float layerDepth,
-    //     StackDrawType drawStackNumber,
-    //     Color color,
-    //     bool drawShadow
-    // )
-    // {
-    //     // Paint brush requires special draw prefix for
-    //     if (__instance.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_FLAG))
-    //     {
-    //         var scale = __instance.modData.ContainsKey(AlternativeTextures.PAINT_BRUSH_SCALE)
-    //             ? float.Parse(__instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE])
-    //             : 0f;
-    //         var texture = Managers.ToolManager.GetPaintBrushEmptyTexture();
-    //         if (!String.IsNullOrEmpty(__instance.modData[AlternativeTextures.PAINT_BRUSH_FLAG]))
-    //         {
-    //             texture = Managers.ToolManager.GetPaintBrushFilledTexture();
-    //         }
-    //         spriteBatch.Draw(
-    //             texture,
-    //             location + new Vector2(32f, 32f),
-    //             new Rectangle(0, 0, 16, 16),
-    //             color * transparency,
-    //             0f,
-    //             new Vector2(8f, 8f),
-    //             4f * (scaleSize + scale),
-    //             SpriteEffects.None,
-    //             layerDepth
-    //         );
-
-    //         if (scale > 0f)
-    //         {
-    //             __instance.modData[AlternativeTextures.PAINT_BRUSH_SCALE] = (scale -= 0.01f).ToString();
-    //         }
-    //         return false;
-    //     }
-
-    //     return true;
-    // }
 
     private static bool BeginUsingPrefix(
         GenericTool __instance,
@@ -181,22 +104,6 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
         return true;
     }
 
-    // static QualifiedIdFor(ModelIdentifier modelIdentifier)
-    // {
-    //     Dictionary<string, string> nameToIdMap = [];
-    //     foreach (var kvp in Game1.objectData)
-    //     {
-    //         var unqualifiedId = kvp.Key; // e.g., "128"
-    //         var internalName = kvp.Value.Name; // e.g., "Pufferfish"
-
-    //         // Avoid crashing if two mods accidentally use the same name
-    //         if (!nameToIdMap.ContainsKey(internalName))
-    //         {
-    //             nameToIdMap[internalName] = $"(O){unqualifiedId}";
-    //         }
-    //     }
-    // }
-
     static GridSize gridSizeFor(IPaintable paintable)
     {
         var _sourceRect = paintable
@@ -208,54 +115,30 @@ internal class ToolPatch(IModHelper _helper) : PatchTemplate()
         var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
 
         // var sourceRect = SourceRects.GetSourceRectangle(availableModels.First(), target, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
-        switch (paintable.ModelIdentifier)
+        return paintable.ModelIdentifier switch
         {
-            case { Type: TextureType.Craftable }:
-                return sourceRect.Height <= 16 ? new(rows: 4, columns: 6) : new(rows: 3, columns: 6);
-
-            case { Type: TextureType.Furniture }:
-                if (sourceRect.Height >= 64)
-                {
-                    return new(rows: 2, columns: 6);
-                }
-                else
-                {
-                    return sourceRect.Height >= 32 ? new(rows: 3, columns: 6) : new(rows: 4, columns: 6);
-                }
-
-            case { Type: TextureType.Flooring }:
-                return new(rows: 4, columns: 6);
-
-            case { Type: TextureType.Character }:
-                return new(rows: 4, columns: 6);
-
-            case { Type: TextureType.Tree }:
-                return new(rows: 2, columns: 6);
-
-            case { Type: TextureType.FruitTree }:
-                return new(rows: 1, columns: 3);
-
-            case { Type: TextureType.Crop }:
-                return new(rows: 4, columns: 1);
-
-            case { Type: TextureType.GiantCrop }:
-                return new(rows: 2, columns: 3);
-
-            case { Type: TextureType.Grass }:
-                return new(rows: 6, columns: 4);
-
-            case { Type: TextureType.Bush }:
-                return new(rows: 6, columns: 4);
-
-            case { Type: TextureType.Building }:
-                return new(rows: 1, columns: 3);
-            case { Type: TextureType.Decoration, IsName: true, String: "Floor" }:
-                return new(rows: 3, columns: 4);
-            case { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" }:
-                return new(rows: 2, columns: 6);
-            default:
-                return new(rows: 4, columns: 6);
-        }
+            { Type: TextureType.Craftable } => sourceRect.Height <= 16
+                ? new(rows: 4, columns: 6)
+                : new(rows: 3, columns: 6),
+            { Type: TextureType.Furniture } => sourceRect switch
+            {
+                { Height: >= 64 } => new(rows: 2, columns: 6),
+                { Height: >= 32 } => new(rows: 3, columns: 6),
+                _ => new(rows: 4, columns: 6),
+            },
+            { Type: TextureType.Flooring } => new(rows: 4, columns: 6),
+            { Type: TextureType.Character } => new(rows: 4, columns: 6),
+            { Type: TextureType.Tree } => new(rows: 2, columns: 6),
+            { Type: TextureType.FruitTree } => new(rows: 1, columns: 3),
+            { Type: TextureType.Crop } => new(rows: 4, columns: 1),
+            { Type: TextureType.GiantCrop } => new(rows: 2, columns: 3),
+            { Type: TextureType.Grass } => new(rows: 6, columns: 4),
+            { Type: TextureType.Bush } => new(rows: 6, columns: 4),
+            { Type: TextureType.Building } => new(rows: 1, columns: 3),
+            { Type: TextureType.Decoration, IsName: true, String: "Floor" } => new(rows: 3, columns: 4),
+            { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" } => new(rows: 2, columns: 6),
+            _ => new(rows: 4, columns: 6),
+        };
     }
 
     internal static bool UsePaintBucket(GameLocation location, int x, int y, Farmer who, bool isSprayCan = false)

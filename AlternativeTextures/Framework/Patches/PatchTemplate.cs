@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework.Interfaces;
 using AlternativeTextures.Framework.Patches.Entities;
-using AlternativeTextures.Framework.Utilities;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Buildings;

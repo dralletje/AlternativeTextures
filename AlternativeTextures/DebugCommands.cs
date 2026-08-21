@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Incubator;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Characters;
-using StardewValley.GameData.GiantCrops;
 using StardewValley.Monsters;
 using StardewValley.TerrainFeatures;
 

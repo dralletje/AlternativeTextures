@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Tools;
 using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace AlternativeTextures;
+namespace AlternativeTextures.Stardew;
 
 public static class MyExtensions
 {
@@ -35,13 +33,15 @@ public static class MyExtensions
 
     extension(Season season)
     {
-        public static IEnumerable<Season> All()
-        {
-            yield return Season.Spring;
-            yield return Season.Summer;
-            yield return Season.Fall;
-            yield return Season.Winter;
-        }
+        // public static IEnumerable<Season> All()
+        // {
+        //     yield return Season.Spring;
+        //     yield return Season.Summer;
+        //     yield return Season.Fall;
+        //     yield return Season.Winter;
+        // }
+
+        // public static List<Season> All => [Season.Spring, Season.Summer, Season.Fall, Season.Winter];
     }
 
     extension(ButtonPressedEventArgs e)

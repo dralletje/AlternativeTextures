@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using AlternativeTextures.Framework.Models;
 using ConsoleLog;
 using DralGeometry;
 using Microsoft.Xna.Framework;
@@ -82,12 +80,11 @@ static class PaintBucketMenuData
 
                 yield return new TextureInfo()
                 {
-                    TextureIdentifier = new()
-                    {
-                        Owner = AlternativeTextures.DEFAULT_OWNER,
-                        Variation = floor.ParentSheetIndex,
-                        ForModel = ModelIdentifier.Floor,
-                    },
+                    TextureIdentifier = new(
+                        AlternativeTextures.DEFAULT_OWNER,
+                        ModelIdentifier.Floor,
+                        floor.ParentSheetIndex
+                    ),
                 };
             }
         }
@@ -105,12 +102,11 @@ static class PaintBucketMenuData
 
                 yield return new TextureInfo()
                 {
-                    TextureIdentifier = new()
-                    {
-                        Owner = AlternativeTextures.DEFAULT_OWNER,
-                        Variation = wallpaper.ParentSheetIndex,
-                        ForModel = ModelIdentifier.Wallpaper,
-                    },
+                    TextureIdentifier = new(
+                        AlternativeTextures.DEFAULT_OWNER,
+                        ModelIdentifier.Wallpaper,
+                        wallpaper.ParentSheetIndex
+                    ),
                 };
             }
         }

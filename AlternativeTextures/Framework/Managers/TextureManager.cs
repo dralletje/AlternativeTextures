@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AlternativeTextures.Framework.Models;
-using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +26,7 @@ internal class TextureManager(IMod mod)
     private IModHelper _helper = mod.Helper;
 
     private List<AlternativeTextureModel> _alternativeTextures = [];
-    private HashSet<string> _textureIdsInsensitive = [with(StringComparer.OrdinalIgnoreCase)];
+    private Dictionary<string, AlternativeTextureModel> legacyIdToModel = [with(StringComparer.OrdinalIgnoreCase)];
     private Dictionary<string, AlternativeTextureModel> tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
 
     static int? FindIndexOrNull<T>(List<T> haystack, System.Predicate<T> findNeedle)
@@ -51,8 +48,8 @@ internal class TextureManager(IMod mod)
             _alternativeTextures.Add(model);
         }
 
-        texturesByIdentifier.Add(model.UniqueIdentifier, model);
-        _textureIdsInsensitive.Add(model.LegacyId);
+        texturesByIdentifier[model.UniqueIdentifier] = model;
+        legacyIdToModel[model.LegacyId] = model;
 
         var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{model.GetTokenId()}";
         tokenToModel[token] = model;
@@ -66,9 +63,7 @@ internal class TextureManager(IMod mod)
     [Obsolete("Use .GetTexture(identifier)")]
     public AlternativeTextureModel? GetSpecificTextureModel(string textureId)
     {
-        return _alternativeTextures.FirstOrDefault(t =>
-            string.Equals(t.LegacyId, textureId, StringComparison.OrdinalIgnoreCase)
-        );
+        return legacyIdToModel.GetValueOrNull(textureId);
     }
 
     public List<AlternativeTextureModel> GetTexturesForModel(ModelIdentifier modelIdentifier, Season season)

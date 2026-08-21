@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Models;
+using AlternativeTextures.Stardew;
 using ConsoleLog;
 using Force.DeepCloner;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
+// using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -30,16 +31,19 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         {
             var modelIdentifierString = tool.modData.GetValueOrNull(MODDATA_MODEL_KEY);
             /// TODO Should not hit "Craftable_Chest", but would still like a more thoughtout fallback
-            return ModelIdentifier.FromString(modelIdentifierString) ?? TextureType.Craftable.WithName("Chest");
+            return ModelIdentifier.FromString(modelIdentifierString ?? "") ?? TextureType.Craftable.WithName("Chest");
         }
     }
+
     TextureIdentifierWithoutSeason Texture
     {
         get
         {
             try
             {
-                return JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(tool.modData[MODDATA_TEXTURE_KEY]);
+                var json = tool.modData[MODDATA_TEXTURE_KEY];
+                return JsonConvert.DeserializeObject<TextureIdentifierWithoutSeason>(json)
+                    ?? TextureIdentifierWithoutSeason.DefaultFor(ModelIdentifier);
             }
             catch
             {
@@ -262,19 +266,10 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     public static Item CreateItem(string modelIdentifierString, TextureIdentifierWithoutSeason texture)
     {
-        Console.Log($"texture: {texture}");
-        var x = JsonSerializer.Serialize(texture);
-        Console.Log($"json: {x}");
-        var result = JsonSerializer.Deserialize<TextureIdentifierWithoutSeason>(x);
-        Console.Log($"result: {result}");
-
         var tool = ItemRegistry.Create(AlternativeTextures.PAINT_BRUSH_FILLED_ID);
         tool.modData[MODDATA_MODEL_KEY] = modelIdentifierString;
-        tool.modData[MODDATA_TEXTURE_KEY] = JsonSerializer.Serialize(texture);
-
-        Console.Log($">> texture: {texture}");
-
-        // JsonConvert.SerializeObject(texture);
+        // tool.modData[MODDATA_TEXTURE_KEY] = Json.JsonSerializer.Serialize(texture);
+        tool.modData[MODDATA_TEXTURE_KEY] = JsonConvert.SerializeObject(texture);
         return tool;
     }
 

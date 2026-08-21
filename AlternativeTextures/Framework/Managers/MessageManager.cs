@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using AlternativeTextures.Framework.Patches.Buildings;
-using AlternativeTextures.Framework.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;

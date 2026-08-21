@@ -11,7 +11,6 @@ using Netcode;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
-using static AlternativeTextures.Framework.Models.AlternativeTextureModel;
 
 namespace AlternativeTextures.Framework.UI;
 

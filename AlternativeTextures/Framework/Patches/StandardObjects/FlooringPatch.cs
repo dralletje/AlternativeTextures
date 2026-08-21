@@ -1,7 +1,4 @@
 ﻿using System;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
-using ConsoleLog;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;

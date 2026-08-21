@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Xml;
-using AlternativeTextures.Framework.Enums;
-using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewValley;
 
@@ -40,7 +37,7 @@ static class UniqueTextureIdentifierExtensions
         {
             var nameWithoutSeason = name;
             var season = (Season?)null;
-            foreach (var s in Season.All())
+            foreach (var s in Enum.GetValues<Season>())
             {
                 var seasonSuffix = $"_{s}";
                 if (name.EndsWith(seasonSuffix))
@@ -97,7 +94,11 @@ static class UniqueTextureIdentifierExtensions
     }
 }
 
-public readonly record struct TextureIdentifierWithoutSeason(string Owner, ModelIdentifier ForModel, int Variation) { }
+public record TextureIdentifierWithoutSeason(
+    [property: JsonProperty(Required = Required.Always)] string Owner,
+    [property: JsonProperty(Required = Required.Always)] ModelIdentifier ForModel,
+    [property: JsonProperty(Required = Required.Always)] int Variation
+) { }
 
 static class TextureIdentifierWithoutSeasonExtensions
 {
@@ -148,7 +149,7 @@ public record ModelIdentifier
 
     public override string ToString()
     {
-        return $"{Type}_{String}";
+        return $"{String} ({Type})";
     }
 
     public string Name => String;

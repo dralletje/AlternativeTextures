@@ -12,7 +12,9 @@
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/stardew_install_symlink/StardewModdingAPI",
-      "cwd": "${workspaceFolder}/stardew_install_symlink"
+      "cwd": "${workspaceFolder}/stardew_install_symlink",
+      "targetArchitecture": "x86_64",
+      "preLaunchTask": "build"
     }
   ]
 }

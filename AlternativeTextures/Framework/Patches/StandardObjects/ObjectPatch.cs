@@ -1,16 +1,11 @@
 ﻿using System;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
-using ConsoleLog;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
-using StardewValley.TerrainFeatures;
 using Object = StardewValley.Object;
 
 namespace AlternativeTextures.Framework.Patches.StandardObjects;

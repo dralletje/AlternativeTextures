@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewValley;
 using StardewValley.Characters;
 
 namespace AlternativeTextures.Framework.Patches.Entities;

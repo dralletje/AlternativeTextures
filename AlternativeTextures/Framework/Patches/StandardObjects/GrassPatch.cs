@@ -1,6 +1,4 @@
 ﻿using System;
-using AlternativeTextures.Framework.Models;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;
@@ -41,27 +39,14 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
         SpriteBatch spriteBatch
     )
     {
-        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        if (
+            __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
+            && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            && PatchTemplate.GetTextureForUse(name, variation) is { } textureModel
+        )
         {
-            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
-                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
-            );
-            if (textureModel is null)
-            {
-                return true;
-            }
-
-            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
-            if (
-                textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
-            )
-            {
-                return true;
-            }
-
             var tileLocation = __instance.Tile;
-            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            var textureOffset = 0;
             for (var i = 0; i < __instance.numberOfWeeds.Value; i++)
             {
                 var pos =
@@ -78,7 +63,7 @@ internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemp
                             + new Vector2((float)(16 + (___offset1[i] * 4) - 4) + 30f, 16 + (___offset2[i] * 4) + 40)
                         );
                 spriteBatch.Draw(
-                    textureModel.GetTexture(textureVariation),
+                    textureModel.Texture.Texture,
                     Game1.GlobalToLocal(Game1.viewport, pos),
                     new Rectangle(0, textureOffset, 15, 20),
                     Color.White,

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AlternativeTextures.Stardew;
 using ConsoleLog;
 using Incubator;
 using StardewModdingAPI;

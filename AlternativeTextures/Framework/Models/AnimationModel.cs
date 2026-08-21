@@ -1,6 +1,4 @@
-﻿using AlternativeTextures.Framework.Enums;
-
-namespace AlternativeTextures.Framework.Models;
+﻿namespace AlternativeTextures.Framework.Models;
 
 public class AnimationModel
 {

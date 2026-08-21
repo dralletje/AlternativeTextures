@@ -12,7 +12,6 @@ using AlternativeTextures.Framework.Patches.SpecialObjects;
 using AlternativeTextures.Framework.Patches.StandardObjects;
 using AlternativeTextures.Framework.Patches.Tools;
 using AlternativeTextures.Tools;
-using ConsoleLog;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;

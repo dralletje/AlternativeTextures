@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

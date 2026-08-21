@@ -1,4 +1,4 @@
-﻿namespace AlternativeTextures.Framework.Enums;
+﻿namespace AlternativeTextures.Framework;
 
 public enum FrameType
 {

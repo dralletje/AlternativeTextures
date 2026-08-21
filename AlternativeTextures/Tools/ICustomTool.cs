@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Events;
-using StardewValley;
 
 namespace AlternativeTextures.Tools;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AlternativeTextures.Framework;
+using AlternativeTextures.Stardew;
 using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -36,7 +37,7 @@ class SprayCanTool : ICustomTool
         }
         else
         {
-            return e.Button is SButton.MouseLeft ? false : false;
+            return e.Button is SButton.MouseLeft && false;
             // LeftClickSprayCan(tool, xTile, yTile)
         }
     }

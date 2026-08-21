@@ -165,6 +165,11 @@ public static class PrettyPrint
         Console.WriteLine(as_string);
     }
 
+    public static string InspectFormat(InspectString message)
+    {
+        return message.ToString();
+    }
+
     public static string Inspect(object? value, int maxdepth = 3, int depth = 0)
     {
         // Handle null case

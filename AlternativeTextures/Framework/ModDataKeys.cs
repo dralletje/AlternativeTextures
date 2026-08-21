@@ -1,4 +1,4 @@
-﻿namespace AlternativeTextures.Framework.Utilities;
+﻿namespace AlternativeTextures.Framework;
 
 public static class ModDataKeys
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Models;
+using AlternativeTextures.Stardew;
 using ConsoleLog;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -28,24 +28,24 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
         if (e.Button is SButton.MouseRight)
         {
             var tile = new Tile(e.Cursor.Tile);
-            PrettyPrint.Log("[MouseRight] Paint Brush");
+            Console.Log($"[MouseRight] Paint Brush");
             DoReadTexture(tile);
             yield return true;
         }
         else if (e.Button.IsUseToolButton())
         {
             var tile = Game1.player.ActiveTargetTile;
-            PrettyPrint.Log("[IsUseToolButton] Paint Brush");
+            Console.Log($"[IsUseToolButton] Paint Brush");
 
             var placedObject = Game1.currentLocation.getObjectAtTile(tile.X, tile.Y);
             if (placedObject?.QualifiedItemId == AlternativeTextures.PAINTPAIL)
             {
-                PrettyPrint.Log("Cleaning empty brush using the PAINTPAIL");
+                Console.Log($"Cleaning empty brush using the PAINTPAIL");
                 yield return false;
             }
             else
             {
-                PrettyPrint.Log("[IsUseToolButton] Getting texture");
+                Console.Log($"[IsUseToolButton] Getting texture");
                 DoReadTexture(tile);
                 yield return false;
             }

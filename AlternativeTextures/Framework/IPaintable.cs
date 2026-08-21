@@ -1,18 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using AlternativeTextures.Framework.Models;
 using AlternativeTextures.Framework.Patches;
 using AlternativeTextures.Framework.Patches.StandardObjects;
-using AlternativeTextures.Framework.Utilities;
+using AlternativeTextures.Stardew;
 using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.GameData.FloorsAndPaths;
-using StardewValley.Locations;
 using StardewValley.Mods;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
@@ -139,7 +135,7 @@ interface IPaintable
             },
             Bush bush => new PaintableFromModData(bush.modData)
             {
-                ModelIdentifier = TextureType.Grass.WithName(PatchTemplate.GetBushTypeString(bush)),
+                ModelIdentifier = TextureType.Bush.WithName(PatchTemplate.GetBushTypeString(bush)),
                 Related = bush,
             },
             Tree tree => new PaintableFromModData(tree.modData)

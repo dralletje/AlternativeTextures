@@ -1,5 +1,4 @@
 ﻿using System;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;

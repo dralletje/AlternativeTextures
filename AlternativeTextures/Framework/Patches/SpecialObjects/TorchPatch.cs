@@ -1,6 +1,5 @@
 ﻿using System;
 using AlternativeTextures.Framework.Patches.StandardObjects;
-using AlternativeTextures.Framework.Utilities;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

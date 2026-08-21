@@ -1,5 +1,4 @@
 using System;
-using AlternativeTextures.Framework.Models;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Netcode;
