@@ -1,114 +1,366 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Incubator;
 
-public record DrawableTexture()
+public interface ITexture : IDisposable
+{
+    public void Draw(
+        SpriteBatch spritebatch,
+        Vector2 position,
+        Rectangle? sourceRectangle,
+        Color color,
+        float rotation,
+        Vector2 origin,
+        Vector2 scale,
+        SpriteEffects effects,
+        float layerDepth
+    );
+
+    /// Has destinationRectangle, so no scale
+    public void Draw(
+        SpriteBatch spritebatch,
+        Rectangle destinationRectangle,
+        Rectangle? sourceRectangle,
+        Color color,
+        float rotation,
+        Vector2 origin,
+        SpriteEffects effects,
+        float layerDepth
+    );
+
+    public int Height { get; }
+    public int Width { get; }
+
+    public bool IsDisposed { get; }
+}
+
+static class ITextureExtensions
+{
+    extension(ITexture texture)
+    {
+        public Texture2D Flatten(GraphicsDevice graphicsDevice) =>
+            Renderer.Render(
+                graphicsDevice,
+                texture.Width,
+                texture.Height,
+                (batch) =>
+                {
+                    var rectangle = new Rectangle(0, 0, texture.Width, texture.Height);
+                    batch.Begin();
+                    batch.Draw(texture, rectangle, rectangle, Color.White);
+                    batch.End();
+                }
+            );
+    }
+}
+
+public record DrawableTexture() : ITexture
 {
     public required Texture2D Texture { get; init; }
     public required Rectangle SourceRect { get; init; }
 
-    [SetsRequiredMembers]
-    public DrawableTexture(Texture2D texture)
-        : this()
+    public int Height => SourceRect.Height;
+    public int Width => SourceRect.Width;
+
+    public bool IsDisposed => Texture.IsDisposed;
+
+    public void Dispose()
     {
-        Texture = texture;
-        SourceRect = new()
+        Texture.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public void Draw(
+        SpriteBatch sb,
+        Vector2 pos,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        Vector2 scale,
+        SpriteEffects eff,
+        float depth
+    ) => new SubTexture(new IdentityTexture(Texture), SourceRect).Draw(sb, pos, src, col, rot, org, scale, eff, depth);
+
+    public void Draw(
+        SpriteBatch sb,
+        Rectangle dest,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        SpriteEffects eff,
+        float depth
+    ) => new SubTexture(new IdentityTexture(Texture), SourceRect).Draw(sb, dest, src, col, rot, org, eff, depth);
+}
+
+public record IdentityTexture(Texture2D Texture) : ITexture
+{
+    public int Width => Texture.Width;
+    public int Height => Texture.Height;
+
+    public bool IsDisposed => Texture.IsDisposed;
+
+    public void Dispose()
+    {
+        Texture.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public void Draw(
+        SpriteBatch sb,
+        Vector2 pos,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        Vector2 scale,
+        SpriteEffects eff,
+        float depth
+    ) => sb.Draw(Texture, pos, src, col, rot, org, scale, eff, depth);
+
+    public void Draw(
+        SpriteBatch sb,
+        Rectangle dest,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        SpriteEffects eff,
+        float depth
+    ) => sb.Draw(Texture, dest, src, col, rot, org, eff, depth);
+}
+
+public record TranslatedTexture(ITexture BaseTexture, Vector2 Offset) : ITexture
+{
+    public int Width => BaseTexture.Width + (int)Offset.X;
+    public int Height => BaseTexture.Height + (int)Offset.Y;
+
+    public bool IsDisposed => BaseTexture.IsDisposed;
+
+    public void Dispose()
+    {
+        BaseTexture.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    public void Draw(
+        SpriteBatch sb,
+        Vector2 pos,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        Vector2 scale,
+        SpriteEffects eff,
+        float depth
+    ) => BaseTexture.Draw(sb, pos + Offset, src, col, rot, org, scale, eff, depth);
+
+    public void Draw(
+        SpriteBatch sb,
+        Rectangle dest,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        SpriteEffects eff,
+        float depth
+    ) =>
+        BaseTexture.Draw(
+            sb,
+            new(dest.X + (int)Offset.X, dest.Y + (int)Offset.Y, dest.Width, dest.Height),
+            src,
+            col,
+            rot,
+            org,
+            eff,
+            depth
+        );
+}
+
+public record SubTexture(ITexture BaseTexture, Rectangle BaseSource) : ITexture
+{
+    public SubTexture(Texture2D texture, Rectangle rectangle)
+        : this(texture.ITexture(), rectangle) { }
+
+    public int Width => BaseSource.Width;
+    public int Height => BaseSource.Height;
+
+    public bool IsDisposed => BaseTexture.IsDisposed;
+
+    public void Dispose()
+    {
+        BaseTexture.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    private Rectangle Combine(Rectangle? src) =>
+        src is { } s ? new(BaseSource.X + s.X, BaseSource.Y + s.Y, s.Width, s.Height) : BaseSource;
+
+    public void Draw(
+        SpriteBatch sb,
+        Vector2 pos,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        Vector2 scale,
+        SpriteEffects eff,
+        float depth
+    ) => BaseTexture.Draw(sb, pos, Combine(src), col, rot, org, scale, eff, depth);
+
+    public void Draw(
+        SpriteBatch sb,
+        Rectangle dest,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        SpriteEffects eff,
+        float depth
+    ) => BaseTexture.Draw(sb, dest, Combine(src), col, rot, org, eff, depth);
+}
+
+public record OverlayTexture(List<ITexture> Layers) : ITexture
+{
+    public int Width => Layers[0].Width;
+    public int Height => Layers[0].Height;
+
+    public bool IsDisposed => Layers.Any(x => x.IsDisposed);
+
+    public void Dispose()
+    {
+        foreach (var layer in Layers)
         {
-            X = 0,
-            Y = 0,
-            Width = texture.Width,
-            Height = texture.Height,
-        };
+            layer.Dispose();
+        }
+        GC.SuppressFinalize(this);
     }
 
-    [SetsRequiredMembers]
-    public DrawableTexture(DrawableTexture parent, Rectangle sourceRect)
-        : this()
+    public void Draw(
+        SpriteBatch sb,
+        Vector2 pos,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        Vector2 scale,
+        SpriteEffects eff,
+        float depth
+    )
     {
-        Texture = parent.Texture;
-        SourceRect = new()
-        {
-            X = parent.SourceRect.X + sourceRect.X,
-            Y = parent.SourceRect.Y + sourceRect.Y,
-            /// TODO Make sure the sourceRect fits inside the parent SourceRect
-            Width = sourceRect.Width,
-            Height = sourceRect.Height,
-        };
+        foreach (var layer in Layers)
+            layer.Draw(sb, pos, src, col, rot, org, scale, eff, depth);
     }
 
-    public DrawableTexture WithSourceRect(Rectangle sourceRect)
+    public void Draw(
+        SpriteBatch sb,
+        Rectangle dest,
+        Rectangle? src,
+        Color col,
+        float rot,
+        Vector2 org,
+        SpriteEffects eff,
+        float depth
+    )
     {
-        return new DrawableTexture(this, sourceRect);
+        foreach (var layer in Layers)
+            layer.Draw(sb, dest, src, col, rot, org, eff, depth);
     }
-
-    public Texture2D Flatten(GraphicsDevice graphicsDevice) => Texture.CreateSelectiveCopy(graphicsDevice, SourceRect);
 }
 
 static class MonoGameExtensions
 {
     extension(SpriteBatch spritebatch)
     {
+        /// Has destination position and scale arguments
         public void Draw(
-            DrawableTexture texture,
-            Rectangle destination,
-            Color? overlayColor = null,
-            float rotation = 0f,
-            Vector2? origin = null,
-            SpriteEffects? effects = null,
-            float layerDepth = 1f
+            ITexture texture,
+            Vector2 position,
+            Rectangle? sourceRectangle,
+            Color color,
+            float rotation,
+            Vector2 origin,
+            float scale,
+            SpriteEffects effects,
+            float layerDepth
         )
         {
             spritebatch.Draw(
-                texture.Texture,
-                destination,
-                texture.SourceRect,
-                overlayColor ?? Color.White,
+                texture,
+                position,
+                sourceRectangle,
+                color,
                 rotation,
-                origin ?? Vector2.Zero,
-                effects ?? SpriteEffects.None,
+                origin,
+                new Vector2(scale, scale),
+                effects,
                 layerDepth
             );
         }
 
         public void Draw(
-            DrawableTexture texture,
+            ITexture texture,
             Vector2 position,
+            Rectangle? sourceRectangle,
             Color color,
             float rotation,
             Vector2 origin,
             Vector2 scale,
             SpriteEffects effects,
             float layerDepth
-        ) { }
+        )
+        {
+            texture.Draw(spritebatch, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+        }
 
+        /// Has destinationRectangle, so no scale
         public void Draw(
-            DrawableTexture texture,
-            Vector2 position,
+            ITexture texture,
+            Rectangle destinationRectangle,
+            Rectangle? sourceRectangle,
             Color color,
             float rotation,
             Vector2 origin,
-            float scale,
             SpriteEffects effects,
             float layerDepth
-        ) { }
+        )
+        {
+            texture.Draw(
+                spritebatch,
+                destinationRectangle,
+                sourceRectangle,
+                color,
+                rotation,
+                origin,
+                effects,
+                layerDepth
+            );
+        }
 
-        public void Draw(
-            Texture2D texture,
-            Vector2 position,
-            Color color,
-            float rotation,
-            Vector2 origin,
-            float scale,
-            SpriteEffects effects,
-            float layerDepth
-        ) { }
+        public void Draw(ITexture texture, Rectangle destinationRectangle, Rectangle sourceRectangle, Color color)
+        {
+            spritebatch.Draw(
+                texture,
+                destinationRectangle,
+                sourceRectangle,
+                color,
+                rotation: 0f,
+                origin: Vector2.Zero,
+                effects: SpriteEffects.None,
+                layerDepth: 0f
+            );
+        }
     }
 
     extension(Texture2D texture)
     {
+        public ITexture ITexture() => new IdentityTexture(texture);
+
         public Texture2D CreateSelectiveCopyCPU(GraphicsDevice device, Rectangle selectionRect)
         {
             var extractPixels = new Color[selectionRect.Width * selectionRect.Height];

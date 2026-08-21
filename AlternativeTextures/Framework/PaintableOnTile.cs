@@ -55,6 +55,18 @@ static class PaintableExtensions
                 yield return new WorldObject.TerrainFeature(terrainFeature);
             }
 
+            if (location is DecoratableLocation decoratableLocation)
+            {
+                if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
+                {
+                    yield return new WorldObject.Decoration(DecorationType.Wallpaper, decoratableLocation, wallId);
+                }
+                else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
+                {
+                    yield return new WorldObject.Decoration(DecorationType.Floor, decoratableLocation, floorId);
+                }
+            }
+
             if (location.getBuildingAt(tile.ToVector2()) is { } building)
             {
                 yield return new WorldObject.Building(building);

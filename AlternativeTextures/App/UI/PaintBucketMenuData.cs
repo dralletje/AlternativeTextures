@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Paintable;
 using DralGeometry;
+using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using StardewValley.GameData.Buildings;
 using StardewValley.Internal;
 using StardewValley.Objects;
 
@@ -30,12 +33,6 @@ record TextureGridMenuItem : GridMenu.Item
             { } drawableTexture
         )
         {
-            if (drawableTexture.Texture == null)
-            {
-                Console.Log($"Texture == null: {TextureIdentifier}");
-                return;
-            }
-
             var littleInset =
                 destinationRect
                 - new Padding()
@@ -45,11 +42,11 @@ record TextureGridMenuItem : GridMenu.Item
                     Left = 8,
                     Right = 8,
                 };
-            var rectangle = littleInset.FitInside(drawableTexture.SourceRect);
+            var rectangle = littleInset.FitInside(new Rectangle(0, 0, drawableTexture.Width, drawableTexture.Height));
             batch.Draw(
-                drawableTexture.Texture,
+                drawableTexture,
                 rectangle,
-                drawableTexture.SourceRect,
+                new Rectangle(0, 0, drawableTexture.Width, drawableTexture.Height),
                 Color.White,
                 0f,
                 new Vector2(0, 0),
@@ -112,6 +109,44 @@ static class PaintBucketMenuData
         }
     }
 
+    public static BuildingData? GetBuildingData(ModelIdentifier modelIdentifier)
+    {
+        var internalBuildingType = modelIdentifier.Name switch
+        {
+            "Farmhouse_0" or "Farmhouse_1" or "Farmhouse_2" or "Farmhouse_3" => "Farmhouse",
+            var somethingElse => somethingElse,
+        };
+        return Game1.buildingData.GetValueOrNull(internalBuildingType);
+    }
+
+    public static BuildingSkin? GetBuildingSkinData(BuildingData buildingData, string skinId)
+    {
+        return buildingData.Skins.FirstOrDefault(x => x.Id == skinId);
+    }
+
+    public static IEnumerable<TextureInfo> VanillaBuildingTestures(string buildingType)
+    {
+        if (GetBuildingData(TextureType.Building.WithName(buildingType)) is not { } buildingData)
+            yield break;
+
+        Console.Log($"buildingData: {buildingData}");
+
+        yield return new()
+        {
+            DisplayName = "Default",
+            TextureIdentifier = new(AlternativeTextures.DEFAULT_OWNER, TextureType.Building.WithName(buildingType), -1),
+        };
+
+        foreach (var skin in buildingData.Skins)
+        {
+            yield return new()
+            {
+                DisplayName = skin.Id,
+                TextureIdentifier = new(skin.Id, TextureType.Building.WithName(buildingType), -1),
+            };
+        }
+    }
+
     public static IEnumerable<TextureInfo> VanillaTexturesFor(ModelIdentifier modelIdentifier)
     {
         switch (modelIdentifier)
@@ -123,6 +158,11 @@ static class PaintBucketMenuData
 
             case { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" }:
                 foreach (var thing in VanillaWallpaperDecorations())
+                    yield return thing;
+                break;
+
+            case { Type: TextureType.Building, String: var buildingType }:
+                foreach (var thing in VanillaBuildingTestures(buildingType))
                     yield return thing;
                 break;
 

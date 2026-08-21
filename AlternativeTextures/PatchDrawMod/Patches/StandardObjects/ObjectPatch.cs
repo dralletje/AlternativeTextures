@@ -131,8 +131,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
             if (__instance.ParentSheetIndex == 272)
             {
                 spriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(new Rectangle(16 + (xTileOffset * 2), 0, 16, 32)),
+                    textureModel.Texture,
                     destination,
+                    new Rectangle(16 + (xTileOffset * 2), 0, 16, 32),
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -140,8 +141,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
                     draw_layer
                 );
                 spriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(new Rectangle(32 + (xTileOffset * 2), 0, 16, 32)),
+                    textureModel.Texture,
                     position + (new Vector2(8.5f, 12f) * 4f),
+                    new Rectangle(32 + (xTileOffset * 2), 0, 16, 32),
                     Color.White * alpha,
                     (float)Game1.currentGameTime.TotalGameTime.TotalSeconds * -1.5f,
                     new Vector2(7.5f, 15.5f),
@@ -154,10 +156,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
 
             // Perform base game draw logic
             spriteBatch.Draw(
-                textureModel.Texture.WithSourceRect(
-                    new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight)
-                ),
+                textureModel.Texture,
                 destination,
+                new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight),
                 Color.White * alpha,
                 0f,
                 Vector2.Zero,
@@ -169,8 +170,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
             if (__instance.Name.Equals("Loom") && __instance.MinutesUntilReady > 0)
             {
                 spriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(new Rectangle(32, 0, 16, 16)),
+                    textureModel.Texture,
                     __instance.getLocalPosition(Game1.viewport) + new Vector2(32f, 0f),
+                    new Rectangle(32, 0, 16, 16),
                     Color.White * alpha,
                     __instance.scale.X,
                     new Vector2(8f, 8f),
@@ -232,8 +234,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
                         ? ((int)(Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 400.0 / 100.0) * 16)
                         : 0;
                 spriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(new Rectangle(artifactOffset, 0, 16, 16)),
+                    textureModel.Texture,
                     position2,
+                    new Rectangle(artifactOffset, 0, 16, 16),
                     color,
                     0f,
                     origin,
@@ -278,10 +281,9 @@ internal class ObjectPatch(IModHelper modHelper) : PatchTemplate()
             }
 
             spriteBatch.Draw(
-                textureModel.Texture.WithSourceRect(
-                    new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight)
-                ),
+                textureModel.Texture,
                 position3,
+                new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight),
                 color2,
                 0f,
                 origin2,

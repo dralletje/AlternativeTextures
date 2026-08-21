@@ -144,7 +144,7 @@ public record AlternativeTextureModel
     public required string? DisplayName;
     public required int TextureWidth;
     public required int TextureHeight;
-    public required DrawableTexture Texture;
+    public required Texture2D Texture;
 
     public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
     public List<string> Keywords = [];
@@ -250,7 +250,7 @@ static class AlternativeTextureModelExtensions
                 AlternativeTextures.textureManager.GetTexture(identifier)
                 ?? throw new ArgumentException($"Can't found texture for {identifier}");
 
-            if (texture.Texture.Texture.IsDisposed)
+            if (texture.Texture.IsDisposed)
             {
                 Monitor.LogOnce(
                     $"Error drawing the texture {textureModel.TextureId}: It was incorrectly disposed!",
@@ -260,7 +260,7 @@ static class AlternativeTextureModelExtensions
                 return AlternativeTextures.textureManager.ErrorTexture;
             }
 
-            return texture.Texture.Texture;
+            return texture.Texture;
         }
 
         // public Color GetRandomTint(int variation)

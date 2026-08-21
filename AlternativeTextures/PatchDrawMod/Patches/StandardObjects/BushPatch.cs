@@ -102,7 +102,7 @@ internal class BushPatch(IModHelper modHelper) : PatchTemplate()
                 );
             }
             spriteBatch.Draw(
-                textureModel.Texture.Texture,
+                textureModel.Texture,
                 Game1.GlobalToLocal(
                     Game1.viewport,
                     new Vector2(

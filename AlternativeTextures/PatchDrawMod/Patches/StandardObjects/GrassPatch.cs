@@ -64,7 +64,7 @@ internal class GrassPatch(IModHelper modHelper) : PatchTemplate()
                             + new Vector2((float)(16 + (___offset1[i] * 4) - 4) + 30f, 16 + (___offset2[i] * 4) + 40)
                         );
                 spriteBatch.Draw(
-                    textureModel.Texture.Texture,
+                    textureModel.Texture,
                     Game1.GlobalToLocal(Game1.viewport, pos),
                     new Rectangle(0, textureOffset, 15, 20),
                     Color.White,

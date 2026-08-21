@@ -1,4 +1,5 @@
 using AlternativeTextures.Framework;
+using AlternativeTextures.Framework.Paintable;
 using Incubator;
 using StardewValley.Buildings;
 
@@ -6,29 +7,28 @@ record PaintableBuilding(Building Building) : IPaintable
 {
     public required ModelIdentifier ModelIdentifier { get; init; }
 
+    private PaintableFromModData modDataPaintable => new(Building.modData) { ModelIdentifier = ModelIdentifier };
+
     public TextureIdentifierWithoutSeason? TextureIdentifier =>
-        (
-            Building.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } name
-            && Building.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
-                ? TextureIdentifierWithoutSeason.FromString(name, variation)
-                : null
-        );
+        modDataPaintable.TextureIdentifier is { } textureIdentifier
+            ? textureIdentifier
+            : new(Building.skinId.Value, ModelIdentifier, -1);
 
     public void ApplyTexture(TextureIdentifierWithoutSeason? maybeTexture)
     {
-        if (maybeTexture is { } texture)
+        if (maybeTexture is not { } texture)
         {
-            Building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] = texture.Owner;
-            Building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = texture.LegacyId;
-            Building.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION] = texture.Variation.ToString();
-            Building.resetTexture();
+            modDataPaintable.ApplyTexture(null);
+        }
+        else if (texture.IsDefault)
+        {
+            Building.skinId.Value = texture.Owner;
         }
         else
         {
-            Building.modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_OWNER);
-            Building.modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_NAME);
-            Building.modData.Remove(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION);
-            Building.resetTexture();
+            modDataPaintable.ApplyTexture(texture);
         }
+
+        Building.resetTexture();
     }
 }

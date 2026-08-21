@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using AlternativeTextures.App.UI;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using StardewValley.GameData.Buildings;
 using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
@@ -11,7 +15,7 @@ namespace AlternativeTextures.Framework.Paintable;
 
 static class DrawPaintable
 {
-    public static DrawableTexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier, WorldObject? MaybeRelated)
+    public static ITexture? PreviewTexture(UniqueTextureIdentifier textureIdentifier, WorldObject? MaybeRelated)
     {
         switch (textureIdentifier)
         {
@@ -20,7 +24,7 @@ static class DrawPaintable
                 if (textureIdentifier.IsDefault)
                 {
                     var which = textureIdentifier.Variation;
-                    return new()
+                    return new DrawableTexture()
                     {
                         Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
                         SourceRect = new Rectangle(which % 16 * 16, which / 16 * 48, 16, 48),
@@ -29,15 +33,23 @@ static class DrawPaintable
                 else
                 {
                     var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
-                    return textureModel?.Texture.WithSourceRect(
-                        new()
-                        {
-                            X = 0,
-                            Y = 0,
-                            Width = 16,
-                            Height = 48,
-                        }
-                    );
+                    if (textureModel?.Texture is { } texture)
+                    {
+                        return new SubTexture(
+                            texture,
+                            new()
+                            {
+                                X = 0,
+                                Y = 0,
+                                Width = 16,
+                                Height = 48,
+                            }
+                        );
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -46,7 +58,7 @@ static class DrawPaintable
                 if (textureIdentifier.IsDefault)
                 {
                     var which = textureIdentifier.Variation;
-                    return new()
+                    return new DrawableTexture()
                     {
                         Texture = Game1.content.Load<Texture2D>("Maps\\walls_and_floors"),
                         SourceRect = new Rectangle(which % 8 * 32, 336 + (which / 8 * 32), 32, 32),
@@ -55,16 +67,73 @@ static class DrawPaintable
                 else
                 {
                     var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
-                    return textureModel?.Texture.WithSourceRect(
-                        new()
-                        {
-                            X = 0,
-                            Y = 0,
-                            Width = 32,
-                            Height = 32,
-                        }
-                    );
+                    if (textureModel?.Texture is { } texture)
+                    {
+                        return new SubTexture(
+                            texture,
+                            new()
+                            {
+                                X = 0,
+                                Y = 0,
+                                Width = 32,
+                                Height = 32,
+                            }
+                        );
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
+            }
+
+            case { ForModel: { Type: TextureType.Building } buildingModel, Variation: -1, Owner: var skinId }:
+            {
+                if (PaintBucketMenuData.GetBuildingData(buildingModel) is not { } buildingData)
+                    return null;
+
+                var maybeTextureName =
+                    skinId == AlternativeTextures.DEFAULT_OWNER
+                        ? buildingData.Texture
+                        : (
+                            PaintBucketMenuData.GetBuildingSkinData(buildingData, skinId) is { } skin
+                                ? skin.Texture
+                                : null
+                        );
+
+                if (maybeTextureName is not { } textureName)
+                    return null;
+
+                var texture = ModHelper.shared.GameContent.Load<Texture2D>(textureName);
+
+                // Console.Log($"buildingData: {buildingData.DrawLayers}");
+
+                /// .SeasonOffset ???
+                /// .DrawOffset ???
+                /// .DrawPosition ???
+                /// FRAMES????
+                List<ITexture> layers =
+                [
+                    .. buildingData
+                        .DrawLayers.Where(x => x.DrawInBackground is true)
+                        .Select(x => new SubTexture(
+                            x.Texture is { } textureName
+                                ? ModHelper.shared.GameContent.Load<Texture2D>(textureName)
+                                : texture,
+                            x.SourceRect
+                        )),
+                    new SubTexture(texture, buildingData.SourceRect),
+                    .. buildingData
+                        .DrawLayers.Where(x => x.DrawInBackground is false)
+                        .Select(x => new SubTexture(
+                            x.Texture is { } textureName
+                                ? ModHelper.shared.GameContent.Load<Texture2D>(textureName)
+                                : texture,
+                            x.SourceRect
+                        )),
+                ];
+
+                return new OverlayTexture(layers);
             }
 
             default:
@@ -83,9 +152,9 @@ static class DrawPaintable
 
                     return MaybeRelated switch
                     {
-                        WorldObject.Object(var @object) => new(
-                            parent: textureModel.Texture,
-                            sourceRect: SourceRects.GetSourceRectangle(
+                        WorldObject.Object(var @object) => new SubTexture(
+                            textureModel.Texture,
+                            SourceRects.GetSourceRectangle(
                                 @object,
                                 textureModel.Variation,
                                 textureModel.TextureWidth,
@@ -94,48 +163,54 @@ static class DrawPaintable
                         ),
                         WorldObject.TerrainFeature(var terrainFeature) => terrainFeature switch
                         {
-                            Tree tree => textureModel.Texture.WithSourceRect(
+                            Tree tree => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetTreeSourceRect(tree, textureModel.Variation, textureModel.TextureHeight)
                             ),
-                            FruitTree fruitTree => textureModel.Texture.WithSourceRect(
+                            FruitTree fruitTree => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetFruitTreeSourceRect(
                                     fruitTree,
                                     textureModel.Variation,
                                     textureModel.TextureHeight
                                 )
                             ),
-                            Flooring flooring => textureModel.Texture.WithSourceRect(
+                            Flooring flooring => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetFlooringSourceRect(
                                     flooring,
                                     textureModel.Variation,
                                     textureModel.TextureHeight
                                 )
                             ),
-                            HoeDirt hoeDirt => textureModel.Texture.WithSourceRect(
+                            HoeDirt hoeDirt => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetCropSourceRect(
                                     hoeDirt.crop,
                                     textureModel.Variation,
                                     textureModel.TextureHeight
                                 )
                             ),
-                            Grass grass => textureModel.Texture.WithSourceRect(
+                            Grass grass => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetGrassSourceRect(
                                     grass,
                                     textureModel.Variation,
                                     textureModel.TextureHeight
                                 )
                             ),
-                            Bush bush => textureModel.Texture.WithSourceRect(
+                            Bush bush => new SubTexture(
+                                textureModel.Texture,
                                 SourceRects.GetBushSourceRect(bush, textureModel.Variation, textureModel.TextureHeight)
                             ),
-                            ResourceClump clump => textureModel.Texture.WithSourceRect(new Rectangle(0, 0, 32, 32)),
+                            ResourceClump clump => new SubTexture(textureModel.Texture, new Rectangle(0, 0, 32, 32)),
                             _ => null,
                         },
                         WorldObject.Decoration => null,
                         WorldObject.Mailbox => null,
-                        WorldObject.Building(var building) => new(
-                            parent: textureModel.Texture,
-                            sourceRect: building.getSourceRect()
+                        WorldObject.Building(var building) => new SubTexture(
+                            textureModel.Texture,
+                            building.getSourceRect()
                         ),
                     };
                 }
@@ -312,47 +387,42 @@ static class DrawPaintable
 static class TextureHelper
 {
     /// TODO: Do this without `related`?
-    public static DrawableTexture? GetDefault(ModelIdentifier modelIdentifier, WorldObject? related)
+    public static ITexture? GetDefault(ModelIdentifier modelIdentifier, WorldObject? related)
     {
         var variation = -1;
         return related switch
         {
             WorldObject.Object(var @object) => (modelIdentifier, @object) switch
             {
-                ({ Type: TextureType.Craftable }, { bigCraftable.Value: true }) => new()
-                {
-                    Texture = Game1.bigCraftableSpriteSheet,
-                    SourceRect = StardewValley.Object.getSourceRectForBigCraftable(@object.ParentSheetIndex),
-                },
+                ({ Type: TextureType.Craftable }, { bigCraftable.Value: true }) => new SubTexture(
+                    Game1.bigCraftableSpriteSheet.ITexture(),
+                    StardewValley.Object.getSourceRectForBigCraftable(@object.ParentSheetIndex)
+                ),
 
-                ({ Type: TextureType.Craftable }, { bigCraftable.Value: false }) => new()
-                {
-                    Texture = Game1.objectSpriteSheet,
-                    SourceRect = GameLocation.getSourceRectForObject(@object.ParentSheetIndex),
-                },
+                ({ Type: TextureType.Craftable }, { bigCraftable.Value: false }) => new SubTexture(
+                    Game1.objectSpriteSheet.ITexture(),
+                    GameLocation.getSourceRectForObject(@object.ParentSheetIndex)
+                ),
 
-                (_, Furniture furniture) when ItemRegistry.GetData(furniture.QualifiedItemId) is { } data => new()
-                {
-                    Texture = data.GetTexture(),
-                    SourceRect = furniture.sourceRect.Value,
-                },
+                (_, Furniture furniture) when ItemRegistry.GetData(furniture.QualifiedItemId) is { } data =>
+                    new SubTexture(data.GetTexture().ITexture(), furniture.sourceRect.Value),
 
                 _ => null,
             },
 
             WorldObject.TerrainFeature(var terrainFeature) => terrainFeature switch
             {
-                Tree tree => new()
-                {
-                    Texture = tree.texture.Value,
-                    SourceRect = SourceRects.GetTreeSourceRect(tree, variation, 0),
-                },
-                FruitTree fruitTree => new()
-                {
-                    Texture = fruitTree.texture,
-                    SourceRect = SourceRects.GetFruitTreeSourceRect(fruitTree, variation, 0),
-                },
-                Flooring flooring => Function.Tap<DrawableTexture>(() =>
+                Tree tree => new SubTexture(
+                    tree.texture.Value.ITexture(),
+                    SourceRects.GetTreeSourceRect(tree, variation, 0)
+                ),
+
+                FruitTree fruitTree => new SubTexture(
+                    fruitTree.texture.ITexture(),
+                    SourceRects.GetFruitTreeSourceRect(fruitTree, variation, 0)
+                ),
+
+                Flooring flooring => Function.Tap<ITexture>(() =>
                 {
                     var whichFloor = flooring.whichFloor.Value.ToString();
                     var floorData = Game1.content.Load<Dictionary<string, FloorPathData>>("Data/FloorsAndPaths");
@@ -362,29 +432,28 @@ static class TextureHelper
                             ? floorData[whichFloor].WinterTexture
                             : floorData[whichFloor].Texture;
                     var texture = Game1.content.Load<Texture2D>(texturePath);
-                    return new()
-                    {
-                        Texture = texture,
-                        SourceRect = SourceRects.GetFlooringSourceRect(flooring, variation, 0),
-                    };
+                    return new SubTexture(
+                        texture.ITexture(),
+                        SourceRects.GetFlooringSourceRect(flooring, variation, 0)
+                    );
                 }),
-                HoeDirt hoeDirt => new()
-                {
-                    Texture = Game1.cropSpriteSheet,
-                    SourceRect = SourceRects.GetCropSourceRect(hoeDirt.crop, variation, 0),
-                },
-                Grass grass => new()
-                {
-                    Texture = grass.texture.Value,
-                    SourceRect = SourceRects.GetGrassSourceRect(grass, variation, 0),
-                },
-                Bush bush => new()
-                {
-                    Texture = Bush.texture.Value,
-                    SourceRect = SourceRects.GetBushSourceRect(bush, variation, 0),
-                },
 
-                ResourceClump resourceclump => Function.Tap<DrawableTexture>(() =>
+                HoeDirt hoeDirt => new SubTexture(
+                    Game1.cropSpriteSheet.ITexture(),
+                    SourceRects.GetCropSourceRect(hoeDirt.crop, variation, 0)
+                ),
+
+                Grass grass => new SubTexture(
+                    grass.texture.Value.ITexture(),
+                    SourceRects.GetGrassSourceRect(grass, variation, 0)
+                ),
+
+                Bush bush => new SubTexture(
+                    Bush.texture.Value.ITexture(),
+                    SourceRects.GetBushSourceRect(bush, variation, 0)
+                ),
+
+                ResourceClump resourceclump => Function.Tap<ITexture>(() =>
                 {
                     var texture = resourceclump.textureName.Value is { } textureName
                         ? Game1.content.Load<Texture2D>(textureName)
@@ -402,7 +471,7 @@ static class TextureHelper
                         Height = resourceclump.height.Value * 16,
                     };
 
-                    return new() { Texture = texture, SourceRect = sourceRect };
+                    return new SubTexture(texture.ITexture(), sourceRect);
                 }),
 
                 _ => null,

@@ -244,7 +244,7 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                                     Variation = variation.Id,
                                     Season = season,
 
-                                    Texture = texture,
+                                    Texture = texture.Flatten(Game1.graphics.GraphicsDevice),
                                     TextureHeight = file.TextureHeight,
                                     TextureWidth = file.TextureWidth,
 
@@ -335,7 +335,7 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
             yield return i++;
     }
 
-    internal static IEnumerable<DrawableTexture> LoadTexturesFromSingleFile(
+    internal static IEnumerable<ITexture> LoadTexturesFromSingleFile(
         IContentPack contentPack,
         AlternativeTextureFile textureFile,
         string textureFolderPath
@@ -363,15 +363,15 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                 var rows = texture.Height / 32;
                 foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
                 {
-                    yield return new DrawableTexture(
+                    yield return (
                         FlattenDecorationTexture(
-                            Game1.graphics.GraphicsDevice,
-                            new DrawableTexture()
-                            {
-                                Texture = texture,
-                                SourceRect = new Rectangle((index % 8) * 32, (index / 8) * 32, 32, 32),
-                            }
-                        )
+                                Game1.graphics.GraphicsDevice,
+                                new SubTexture(
+                                    texture.ITexture(),
+                                    new Rectangle((index % 8) * 32, (index / 8) * 32, 32, 32)
+                                )
+                            )
+                            .ITexture()
                     );
                 }
             }
@@ -381,17 +381,17 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                 var rows = texture.Height / 48;
                 foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
                 {
-                    yield return new DrawableTexture(
+                    yield return (
                         FlattenDecorationTexture(
-                            Game1.graphics.GraphicsDevice,
-                            new DrawableTexture()
-                            {
-                                Texture = texture,
-                                SourceRect = new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48),
-                            }
-                        )
+                                Game1.graphics.GraphicsDevice,
+                                new SubTexture(
+                                    texture.ITexture(),
+                                    new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48)
+                                )
+                            )
+                            .ITexture()
                     );
-                    // yield return new DrawableTexture()
+                    // yield return new ITexture()
                     // {
                     //     Texture = texture,
                     //     SourceRect = new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48),
@@ -421,42 +421,45 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
 
             foreach (var index in Enumerable.Range(0, variantionsInTexture))
             {
-                var bestDrawable = new DrawableTexture()
-                {
-                    Texture = texture,
-                    SourceRect = new Rectangle()
+                var bestDrawable = new SubTexture(
+                    texture.ITexture(),
+                    new Rectangle()
                     {
                         X = 0,
                         Y = textureFile.TextureHeight * index,
                         // Width = textureFile.TextureWidth,
                         Width = texture.Width,
                         Height = textureFile.TextureHeight,
-                    },
-                };
+                    }
+                );
 
-                /// TODO Don't flatten, once the rest of the code knows of DrawableTexture
-                var boringTexture = bestDrawable.Flatten(Game1.graphics.GraphicsDevice);
-                yield return new DrawableTexture(boringTexture);
+                /// TODO Don't flatten, once the rest of the code knows of ITexture
+                yield return bestDrawable.Flatten(Game1.graphics.GraphicsDevice).ITexture();
             }
         }
     }
 
-    internal static Texture2D FlattenDecorationTexture(GraphicsDevice gd, DrawableTexture texture)
+    internal static Texture2D FlattenDecorationTexture(GraphicsDevice gd, ITexture texture)
     {
         return Renderer.Render(
             gd,
             256,
-            texture.SourceRect.Height,
+            texture.Height,
             batch =>
             {
                 batch.Begin(samplerState: SamplerState.PointClamp);
-                batch.Draw(texture.Texture, texture.SourceRect with { X = 0, Y = 0 }, texture.SourceRect, Color.White);
+                batch.Draw(
+                    texture,
+                    new(0, 0, texture.Width, texture.Height),
+                    new(0, 0, texture.Width, texture.Height),
+                    Color.White
+                );
                 batch.End();
             }
         );
     }
 
-    internal static IEnumerable<DrawableTexture> LoadTexturesFromMultipleFiles(
+    internal static IEnumerable<ITexture> LoadTexturesFromMultipleFiles(
         IContentPack contentPack,
         AlternativeTextureFile textureFile,
         string textureFolder
@@ -481,7 +484,7 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
         foreach (var textureFileName in textureFileNames)
         {
             var texture = contentPack.ModContent.Load<Texture2D>(Path.Combine(textureFolder, textureFileName));
-            yield return new DrawableTexture(texture);
+            yield return new IdentityTexture(texture);
         }
     }
 }

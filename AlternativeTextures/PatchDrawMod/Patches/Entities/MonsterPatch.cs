@@ -32,7 +32,8 @@ internal class MonsterPatch(IModHelper modHelper) : PatchTemplate()
 
     private static void SetTexture(Monster monster, AlternativeTextureModel textureModel)
     {
-        monster.Sprite.spriteTexture = textureModel.Texture.Texture;
+        /// TODO I broke this because of ITexture...
+        // monster.Sprite.spriteTexture = textureModel.Texture;
         monster.Sprite.sourceRect.Y =
             monster.Sprite.currentFrame
             * monster.Sprite.SpriteWidth
@@ -71,10 +72,11 @@ internal class MonsterPatch(IModHelper modHelper) : PatchTemplate()
             { } textureModel
         )
         {
-            if (__instance.Sprite.textureName.Value != textureModel.Texture.Texture.Name)
-            {
-                SetTexture(__instance, textureModel);
-            }
+            /// TODO I broke this with ITexture... Need to fix
+            // if (__instance.Sprite.textureName.Value != textureModel.Texture.Texture.Name)
+            // {
+            //     SetTexture(__instance, textureModel);
+            // }
         }
     }
 

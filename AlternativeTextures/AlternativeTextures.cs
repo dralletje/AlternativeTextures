@@ -190,10 +190,9 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
             var asset = e.Name;
             if (textureManager.GetModelByToken(asset.Name) is { } textureModel)
             {
-                var originalTexture = textureModel.Texture.Texture;
-                var clonedTexture = originalTexture.CreateSelectiveCopy(
+                var clonedTexture = textureModel.Texture.CreateSelectiveCopy(
                     Game1.graphics.GraphicsDevice,
-                    new Rectangle(0, 0, originalTexture.Width, originalTexture.Height)
+                    new Rectangle(0, 0, textureModel.Texture.Width, textureModel.Texture.Height)
                 );
                 e.LoadFrom(() => clonedTexture, AssetLoadPriority.Exclusive);
             }

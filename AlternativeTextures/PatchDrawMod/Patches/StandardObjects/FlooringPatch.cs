@@ -48,7 +48,7 @@ internal class FlooringPatch(IModHelper modHelper) : PatchTemplate()
             var textureOffset = 0;
 
             var tileLocation = __instance.Tile;
-            var texture = textureModel.Texture.Texture;
+            var texture = textureModel.Texture;
 
             var data = __instance.GetData();
             var corner = __instance.GetTextureCorner();
@@ -277,7 +277,7 @@ internal class FlooringPatch(IModHelper modHelper) : PatchTemplate()
             }
 
             spriteBatch.Draw(
-                textureModel.Texture.Texture,
+                textureModel.Texture,
                 Game1.GlobalToLocal(Game1.viewport, new Vector2(tileLocation.X * 64f, tileLocation.Y * 64f)),
                 new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
                 Color.White,
@@ -351,7 +351,7 @@ internal class FlooringPatch(IModHelper modHelper) : PatchTemplate()
             }
             sourceRectPosition = Flooring.drawGuide[drawSum];
             spriteBatch.Draw(
-                textureModel.Texture.Texture,
+                textureModel.Texture,
                 positionOnScreen,
                 new Rectangle(sourceRectPosition % 16 * 16, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
                 Color.White,

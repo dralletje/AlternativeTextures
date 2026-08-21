@@ -159,9 +159,8 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                 && __instance.sourceRect.Bottom <= frontTexture.Height
             )
             {
-                var drawableTexture = textureModel.Texture.WithSourceRect(sourceRect);
                 spriteBatch.Draw(
-                    drawableTexture.Texture,
+                    textureModel.Texture,
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         ___drawPosition.Value
@@ -171,7 +170,7 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                                     : Vector2.Zero
                             )
                     ),
-                    drawableTexture.SourceRect,
+                    sourceRect,
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -182,9 +181,8 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
 
                 var rotationSourceRect = sourceRect;
                 rotationSourceRect.Y += textureModel.TextureHeight / 2;
-                var rotationDrawableTexture = textureModel.Texture.WithSourceRect(rotationSourceRect);
                 spriteBatch.Draw(
-                    rotationDrawableTexture.Texture,
+                    textureModel.Texture,
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         ___drawPosition.Value
@@ -194,7 +192,7 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                                     : Vector2.Zero
                             )
                     ),
-                    rotationDrawableTexture.SourceRect,
+                    rotationSourceRect,
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -205,9 +203,8 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
             }
             else
             {
-                var drawableTexture = textureModel.Texture.WithSourceRect(sourceRect);
                 spriteBatch.Draw(
-                    drawableTexture.Texture,
+                    textureModel.Texture,
                     Game1.GlobalToLocal(
                         Game1.viewport,
                         ___drawPosition.Value
@@ -217,7 +214,7 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                                     : Vector2.Zero
                             )
                     ),
-                    drawableTexture.SourceRect,
+                    sourceRect,
                     Color.White * alpha,
                     0f,
                     Vector2.Zero,
@@ -236,9 +233,8 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
         }
         else
         {
-            var drawableTexture = textureModel.Texture.WithSourceRect(__instance.sourceRect.Value);
             spriteBatch.Draw(
-                drawableTexture.Texture,
+                textureModel.Texture,
                 Game1.GlobalToLocal(
                     Game1.viewport,
                     new Vector2(
@@ -248,7 +244,7 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
                             + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0)
                     )
                 ),
-                drawableTexture.SourceRect,
+                __instance.sourceRect.Value,
                 Color.White * alpha,
                 0f,
                 Vector2.Zero,
@@ -487,11 +483,10 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
 
         // Replicate the base draw
         var sourceRect = new Rectangle(xTileOffset, 0, textureModel.TextureWidth, textureModel.TextureHeight);
-        var drawable = textureModel.Texture.WithSourceRect(sourceRect);
         spriteBatch.Draw(
-            drawable.Texture,
+            textureModel.Texture,
             location,
-            drawable.SourceRect,
+            sourceRect,
             Color.White * alpha,
             0f,
             Vector2.Zero,
@@ -528,11 +523,10 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
             Y = 0,
         };
 
-        var drawable = textureModel.Texture.WithSourceRect(sourceRect);
         spriteBatch.Draw(
-            drawable.Texture,
+            textureModel.Texture,
             location,
-            drawable.SourceRect,
+            sourceRect,
             Color.White * alpha,
             0f,
             Vector2.Zero,

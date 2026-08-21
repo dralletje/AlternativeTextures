@@ -75,6 +75,8 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
                 .. PaintBucketMenuData.GetTexturesFor(paintable.ModelIdentifier),
             ];
 
+            Console.Log($"items: {items}");
+
             if (items.Count == 1)
             {
                 // Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
@@ -204,25 +206,32 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
         // }
     }
 
+    static Rectangle DefaultSourceRectFor(TextureIdentifierWithoutSeason textureIdentifier, WorldObject related)
+    {
+        var _texture = DrawPaintable.PreviewTexture(
+            textureIdentifier.WithSeason(Game1.currentLocation.GetSeason()),
+            related
+        );
+        var sourceRect = _texture is { } texture
+            ? new Rectangle(0, 0, texture.Width, texture.Height)
+            : new Rectangle(0, 0, 0, 0);
+        return sourceRect;
+    }
+
     static GridSize gridSizeFor(IPaintable paintable, WorldObject related)
     {
-        var _sourceRect = DrawPaintable
-            .PreviewTexture(
-                (
-                    paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier)
-                ).WithSeason(Game1.currentLocation.GetSeason()),
-                related
-            )
-            ?.SourceRect;
-        var sourceRect = _sourceRect ?? new Rectangle(0, 0, 0, 0);
+        var textureIdentifier =
+            paintable.TextureIdentifier ?? TextureIdentifierWithoutSeason.DefaultFor(paintable.ModelIdentifier);
 
         // var sourceRect = SourceRects.GetSourceRectangle(availableModels.First(), target, availableModels.First().TextureWidth, availableModels.First().TextureHeight, -1);
         return paintable.ModelIdentifier switch
         {
-            { Type: TextureType.Craftable } => sourceRect.Height <= 16
-                ? new(rows: 4, columns: 6)
-                : new(rows: 3, columns: 6),
-            { Type: TextureType.Furniture } => sourceRect switch
+            { Type: TextureType.Craftable } => DefaultSourceRectFor(textureIdentifier, related) switch
+            {
+                { Height: <= 16 } => new(rows: 4, columns: 6),
+                _ => new(rows: 3, columns: 6),
+            },
+            { Type: TextureType.Furniture } => DefaultSourceRectFor(textureIdentifier, related) switch
             {
                 { Height: >= 64 } => new(rows: 2, columns: 6),
                 { Height: >= 32 } => new(rows: 3, columns: 6),

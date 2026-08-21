@@ -165,30 +165,25 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             if (ModelIdentifier.Type == TextureType.Flooring)
             {
                 e.SpriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(
-                        new Rectangle(0, 0, Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom)
-                    ),
+                    textureModel.Texture,
                     new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize),
+                    new Rectangle(0, 0, Game1.tileSize / Game1.pixelZoom, Game1.tileSize / Game1.pixelZoom),
                     target is not null ? Color.White * 0.7f : Color.White * 0.3f
                 );
             }
             else
             {
                 e.SpriteBatch.Draw(
-                    textureModel.Texture.WithSourceRect(
-                        new Rectangle(0, 0, textureModel.TextureWidth, textureModel.TextureHeight)
-                    ),
-                    new Rectangle(
+                    texture: textureModel.Texture,
+                    destinationRectangle: new Rectangle(
                         (int)positionOnScreen.X + (Game1.tileSize - (textureModel.TextureWidth * Game1.pixelZoom)),
                         (int)positionOnScreen.Y + (Game1.tileSize - (textureModel.TextureHeight * Game1.pixelZoom)),
                         textureModel.TextureWidth * Game1.pixelZoom,
                         textureModel.TextureHeight * Game1.pixelZoom
                     ),
-                    // new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
-
-                    target is not null
-                        ? Color.White * 0.7f
-                        : Color.White * 0.3f
+                    // sourceRectangle: new Rectangle(sourceRectPosition * 16 % 256, (sourceRectPosition / 16 * 16) + textureOffset, 16, 16),
+                    sourceRectangle: new Rectangle(0, 0, textureModel.TextureWidth, textureModel.TextureHeight),
+                    color: target is not null ? Color.White * 0.7f : Color.White * 0.3f
                 );
             }
         }

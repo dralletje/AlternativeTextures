@@ -1,7 +1,4 @@
 using AlternativeTextures.Framework.Paintable;
-using Incubator;
-using StardewValley.Buildings;
-using StardewValley.Mods;
 using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework;

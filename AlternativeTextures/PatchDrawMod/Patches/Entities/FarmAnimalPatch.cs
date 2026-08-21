@@ -47,8 +47,8 @@ internal class FarmAnimalPatch(IModHelper modHelper) : PatchTemplate()
             //     return true;
             // }
 
-            /// TODO Make this work with modelTexture.Texture.SourceRect, you know you want to
-            __instance.Sprite.spriteTexture = modelTexture.Texture.Texture;
+            /// TODO I broke this with ITexture
+            // __instance.Sprite.spriteTexture = modelTexture.Texture.Texture;
             __instance.Sprite.sourceRect.Y =
                 __instance.Sprite.currentFrame
                 * __instance.Sprite.SpriteWidth
