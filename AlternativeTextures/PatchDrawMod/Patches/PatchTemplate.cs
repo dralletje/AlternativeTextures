@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
-using AlternativeTextures.PatchDrawMod.Interfaces;
 using AlternativeTextures.PatchDrawMod.Patches.Entities;
+using ConsoleLog;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Buildings;
@@ -19,33 +18,35 @@ internal class PatchTemplate()
 {
     internal static string GetObjectName(Object obj)
     {
+        return "";
+        /// IMMEDIATE TODO
         // Perform separate check for DGA objects, before using check for vanilla objects
-        if (
-            IsDGAUsed()
-            && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api
-            && api != null
-        )
-        {
-            var dgaId = api.GetDGAItemId(obj);
-            if (dgaId != null)
-            {
-                return dgaId;
-            }
-        }
+        // if (
+        //     IsDGAUsed()
+        //     && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api
+        //     && api != null
+        // )
+        // {
+        //     var dgaId = api.GetDGAItemId(obj);
+        //     if (dgaId != null)
+        //     {
+        //         return dgaId;
+        //     }
+        // }
 
-        if (obj.bigCraftable.Value)
-        {
-            return !Game1.bigCraftableData.ContainsKey(obj.ItemId) ? obj.name : Game1.bigCraftableData[obj.ItemId].Name;
-        }
-        else if (obj is Furniture)
-        {
-            var dataSheet = Game1.content.Load<Dictionary<string, string>>("Data\\Furniture");
-            return !dataSheet.ContainsKey(obj.ItemId) ? obj.name : dataSheet[obj.ItemId].Split('/')[0];
-        }
-        else
-        {
-            return !Game1.objectData.ContainsKey(obj.ItemId) ? obj.name : Game1.objectData[obj.ItemId].Name;
-        }
+        // if (obj.bigCraftable.Value)
+        // {
+        //     return !Game1.bigCraftableData.ContainsKey(obj.ItemId) ? obj.name : Game1.bigCraftableData[obj.ItemId].Name;
+        // }
+        // else if (obj is Furniture)
+        // {
+        //     var dataSheet = Game1.content.Load<Dictionary<string, string>>("Data\\Furniture");
+        //     return !dataSheet.ContainsKey(obj.ItemId) ? obj.name : dataSheet[obj.ItemId].Split('/')[0];
+        // }
+        // else
+        // {
+        //     return !Game1.objectData.ContainsKey(obj.ItemId) ? obj.name : Game1.objectData[obj.ItemId].Name;
+        // }
     }
 
     internal static string GetCharacterName(Character character)
@@ -282,20 +283,22 @@ internal class PatchTemplate()
 
     internal static bool IsDGAObject(object obj)
     {
-        if (
-            IsDGAUsed()
-            && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api
-            && api != null
-        )
-        {
-            var dgaId = api.GetDGAItemId(obj);
-            if (dgaId != null)
-            {
-                return true;
-            }
-        }
-
+        /// IMMEDIATE TODO
         return false;
+        // if (
+        //     IsDGAUsed()
+        //     && AlternativeTextures.apiManager.GetDynamicGameAssetsApi() is IDynamicGameAssetsApi api
+        //     && api != null
+        // )
+        // {
+        //     var dgaId = api.GetDGAItemId(obj);
+        //     if (dgaId != null)
+        //     {
+        //         return true;
+        //     }
+        // }
+
+        // return false;
     }
 
     public static AlternativeTextureModel? GetTextureForUse(string? nameMaybe, string? variation)

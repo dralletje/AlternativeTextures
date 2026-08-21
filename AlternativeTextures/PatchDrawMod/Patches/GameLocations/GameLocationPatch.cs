@@ -9,7 +9,7 @@ using StardewValley.Tools;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.GameLocations;
 
-internal class GameLocationPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class GameLocationPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(GameLocation);
 

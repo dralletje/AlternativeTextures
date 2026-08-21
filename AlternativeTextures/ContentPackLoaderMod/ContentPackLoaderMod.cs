@@ -5,28 +5,43 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Parser;
+using AlternativeTextures.Framework.Managers;
+using AlternativeTextures.MetaFramework;
 using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace AlternativeTextures;
+namespace AlternativeTextures.ContentPackLoaderMod;
 
 public sealed class ContentPackException(string message) : Exception(message);
 
 public sealed class ContentPackTextureException(string message) : Exception(message);
 
-class ContentPackLoader(Mod mod)
+class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod<TParent>> context) : DralMod
+    where TParent : HasMod<TextureManager>
 {
-    readonly IManifest ModManifest = mod.ModManifest;
-    readonly IModHelper Helper = mod.Helper;
+    readonly IManifest ModManifest = context.ModManifest;
+    readonly IModHelper Helper = context.Helper;
 
-    public void Load()
+    public override IDisposable? Entry()
     {
+        Helper.Events.GameLoop.GameLaunched += this.Load;
+
+        return new ActionDisposable(() =>
+        {
+            Helper.Events.GameLoop.GameLaunched -= this.Load;
+        });
+    }
+
+    public void Load(object? sender, GameLaunchedEventArgs e)
+    {
+        var textureManager = context.Parent.GetMod<TextureManager>();
+
         var collectiveLoadingStopwatch = Stopwatch.StartNew();
 
         // Load owned content packs
@@ -52,7 +67,7 @@ class ContentPackLoader(Mod mod)
                     {
                         foreach (var match in matches)
                         {
-                            AlternativeTextures.textureManager.AddAlternativeTexture(match);
+                            textureManager.AddAlternativeTexture(match);
                         }
                     }
                     else

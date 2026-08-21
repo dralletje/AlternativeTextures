@@ -9,7 +9,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 
-internal class IndoorPotPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class IndoorPotPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(IndoorPot);
 

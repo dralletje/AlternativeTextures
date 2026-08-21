@@ -10,7 +10,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Tools;
 
-namespace AlternativeTextures.Tools;
+namespace AlternativeTextures.App.Tools;
 
 class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
 {

@@ -9,7 +9,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 
-internal class PhonePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class PhonePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Phone);
 

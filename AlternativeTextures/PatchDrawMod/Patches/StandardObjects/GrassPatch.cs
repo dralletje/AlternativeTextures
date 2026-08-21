@@ -10,7 +10,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
-internal class GrassPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class GrassPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Grass);
     private const string NAME_PREFIX = "Grass";

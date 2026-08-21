@@ -9,7 +9,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 
-internal class ChestPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class ChestPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Chest);
 

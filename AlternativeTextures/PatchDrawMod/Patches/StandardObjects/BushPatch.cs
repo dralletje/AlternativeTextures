@@ -10,7 +10,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
-internal class BushPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class BushPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Bush);
 

@@ -12,7 +12,7 @@ using StardewValley.Buildings;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.Buildings;
 
-internal class BuildingPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Building);
     private const int TRACTOR_GARAGE_ID = -794739;

@@ -9,7 +9,7 @@ using StardewValley.Characters;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.Entities;
 
-internal class PetPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class PetPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Pet);
 

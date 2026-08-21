@@ -9,7 +9,7 @@ using StardewValley;
 
 namespace AlternativeTextures.PatchDrawMod.Patches;
 
-internal class FarmAnimalPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class FarmAnimalPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(FarmAnimal);
 

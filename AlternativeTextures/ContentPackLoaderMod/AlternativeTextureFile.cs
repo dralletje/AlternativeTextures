@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using AlternativeTextures.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StardewValley;
 
-namespace AlternativeTextures.Framework.Parser;
+namespace AlternativeTextures.ContentPackLoaderMod;
 
 record VariationFromFile
 {

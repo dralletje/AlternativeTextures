@@ -12,7 +12,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
-internal class TreePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class TreePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Tree);
 

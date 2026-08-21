@@ -11,7 +11,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
-internal class FlooringPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class FlooringPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Flooring);
 

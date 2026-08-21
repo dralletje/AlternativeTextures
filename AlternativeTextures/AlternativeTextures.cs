@@ -2,19 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.App.Tools;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.External.GenericModConfigMenu;
 using AlternativeTextures.Framework.Managers;
+using AlternativeTextures.MetaFramework;
 using AlternativeTextures.PatchDrawMod;
-using AlternativeTextures.PatchDrawMod.Patches;
-using AlternativeTextures.PatchDrawMod.Patches.Buildings;
-using AlternativeTextures.PatchDrawMod.Patches.Entities;
-using AlternativeTextures.PatchDrawMod.Patches.GameLocations;
-using AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
-using AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 using AlternativeTextures.PatchDrawMod.Patches.Tools;
-using AlternativeTextures.Tools;
-using HarmonyLib;
+using ConsoleLog;
 using Incubator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -108,10 +103,55 @@ public class AlternativeTextures : Mod
     // Mod ID const
     internal const string MOD_ID = "PeacefulEnd.AlternativeTextures";
 
-    // Shared static helpers
     internal static IModHelper modHelper;
-    internal static Multiplayer multiplayer;
+
+    // internal static Multiplayer multiplayer;
     internal static IManifest modManifest;
+
+    internal static ModConfig modConfig = new ModConfig();
+
+    internal static TextureManager textureManager;
+
+    AlternativeTexturesDralMod? mod = null;
+
+    public override void Entry(IModHelper helper)
+    {
+        global::AlternativeTextures.Monitor.monitor = Monitor;
+
+        textureManager = new(helper);
+
+        modHelper = helper;
+        modManifest = ModManifest;
+        // multiplayer = helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+
+        mod = new AlternativeTexturesDralMod(
+            new DralModContext<ValueTuple, AlternativeTexturesDralMod>()
+            {
+                Helper = Helper,
+                ModManifest = ModManifest,
+                Monitor = Monitor,
+                GetParent = () => new(),
+                GetMe = () => mod ?? throw new ArgumentException("GetMe called before initialization"),
+            }
+        );
+
+        mod.Entry();
+    }
+}
+
+class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesDralMod> context)
+    : DralMod,
+        HasMod<TextureManager>
+{
+    IModHelper Helper = context.Helper;
+    IMonitor Monitor = context.Monitor;
+    IManifest ModManifest = context.ModManifest;
+
+    TextureManager textureManager => AlternativeTextures.textureManager;
+
+    TextureManager HasMod<TextureManager>.GetMod() => AlternativeTextures.textureManager;
+
+    // Shared static helpers
 
     static ModConfigHolder? modConfigHolder;
     internal static ModConfig modConfig
@@ -120,109 +160,56 @@ public class AlternativeTextures : Mod
         set { modConfigHolder?.ModConfig = value; }
     }
 
-    internal ContentPackLoader? contentPackLoader;
+    internal ContentPackLoaderMod.ContentPackLoaderMod<AlternativeTexturesDralMod> contentPackLoaderMod =
+        context.Scoped<ContentPackLoaderMod.ContentPackLoaderMod<AlternativeTexturesDralMod>>(
+            (context) => new(context)
+        );
+
+    // internal PatchDrawMod<AlternativeTexturesDralMod> patchDrawMod = context.Scoped<
+    //     PatchDrawMod<AlternativeTexturesDralMod>
+    // >((context) => new(context));
+
+    internal PatchDrawMod<AlternativeTexturesDralMod> patchDrawMod = context.Scoped<
+        PatchDrawMod<AlternativeTexturesDralMod>
+    >((context) => new(context));
 
     // Managers
-    internal static TextureManager textureManager;
-    internal static MessageManager messageManager;
     internal static ApiManager apiManager;
 
     private CustomToolPlugin? customToolPlugin;
 
-    public override void Entry(IModHelper helper)
+    public override IDisposable? Entry()
     {
         // Set up the monitor, helper and multiplayer
-        global::AlternativeTextures.Monitor.monitor = Monitor;
 
-        modHelper = helper;
-        modManifest = ModManifest;
-        multiplayer = helper.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+        // multiplayer.broadcastSprites;
 
-        modConfigHolder = new ModConfigHolder(this);
-        contentPackLoader = new ContentPackLoader(this);
+        Console.Log(
+            $"Helper.ModRegistry.IsLoaded(spacechase0.MoreGiantCrops): {Helper.ModRegistry.IsLoaded("spacechase0.MoreGiantCrops")}"
+        );
 
-        // Setup our managers
-        textureManager = new TextureManager(this);
-        messageManager = new MessageManager(helper, ModManifest.UniqueID);
+        // modConfigHolder = new ModConfigHolder(this);
 
-        this.customToolPlugin = new CustomToolPlugin(helper);
+        // this.customToolPlugin = new CustomToolPlugin(helper);
 
-        this.customToolPlugin.Start();
+        // this.customToolPlugin.Start();
 
-        new Commands(this).Register();
+        // new Commands(this).Register();
 
+        // // Hook into GameLoop events
+
+        // // Hook into Input events
+        // helper.Events.Input.ButtonsChanged += OnButtonChanged;
+
+        // // Hook into the Content events
+        Helper.Events.Content.AssetRequested += OnContentAssetRequested;
+        // // helper.Events.Content.AssetReady += OnContentAssetReady;
+
+        contentPackLoaderMod.Entry();
         // Load our Harmony patches
-        try
-        {
-            var harmony = new Harmony(this.ModManifest.UniqueID);
+        patchDrawMod.Entry();
 
-            // Apply texture override related patches
-            new GameLocationPatch(Monitor, helper).Apply(harmony);
-            new ObjectPatch(helper).Apply(harmony);
-            new FencePatch(helper).Apply(harmony);
-            new CropPatch(helper).Apply(harmony);
-            new GiantCropPatch(helper).Apply(harmony);
-            new GrassPatch(Monitor, helper).Apply(harmony);
-            new TreePatch(Monitor, helper).Apply(harmony);
-            new FruitTreePatch(helper).Apply(harmony);
-            new ResourceClumpPatch(Monitor, helper).Apply(harmony);
-            new BushPatch(Monitor, helper).Apply(harmony);
-            new FlooringPatch(Monitor, helper).Apply(harmony);
-            new FurniturePatch(helper).Apply(harmony);
-            new BedFurniturePatch(helper).Apply(harmony);
-            new FishTankFurniturePatch(helper).Apply(harmony);
-
-            // Start of special objects
-            new ChestPatch(Monitor, helper).Apply(harmony);
-            new CrabPotPatch(Monitor, helper).Apply(harmony);
-            new IndoorPotPatch(Monitor, helper).Apply(harmony);
-            new PhonePatch(Monitor, helper).Apply(harmony);
-            new TorchPatch(Monitor, helper).Apply(harmony);
-            new WoodChipperPatch(Monitor, helper).Apply(harmony);
-
-            // Start of entity patches
-            new CharacterPatch(Monitor, helper).Apply(harmony);
-            new FarmAnimalPatch(Monitor, helper).Apply(harmony);
-            new HorsePatch(helper).Apply(harmony);
-            new PetPatch(Monitor, helper).Apply(harmony);
-            new MonsterPatch(Monitor, helper).Apply(harmony);
-
-            // Start of building patches
-            new BuildingPatch(Monitor, helper).Apply(harmony);
-            new ShippingBinPatch(Monitor, helper).Apply(harmony);
-
-            // Start of location patches
-            new GameLocationPatch(Monitor, helper).Apply(harmony);
-
-            // Paint tool related patches
-            new ToolPatch(helper).Apply(harmony);
-        }
-        catch (Exception e)
-        {
-            Monitor.Log($"Issue with Harmony patching: {e}", LogLevel.Error);
-            return;
-        }
-
-        // Hook into GameLoop events
-        helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
-
-        // Hook into Input events
-        helper.Events.Input.ButtonsChanged += OnButtonChanged;
-
-        // Hook into the Content events
-        helper.Events.Content.AssetRequested += OnContentAssetRequested;
-        // helper.Events.Content.AssetReady += OnContentAssetReady;
-
-        // Hook into Multiplayer events
-        helper.Events.Multiplayer.ModMessageReceived += OnModMessageReceived;
-    }
-
-    private void OnModMessageReceived(object? sender, ModMessageReceivedEventArgs e)
-    {
-        if (e.FromModID == ModManifest.UniqueID)
-        {
-            messageManager.HandleIncomingMessage(e);
-        }
+        return null;
     }
 
     // private void OnContentAssetReady(object? sender, AssetReadyEventArgs e)
@@ -285,21 +272,6 @@ public class AlternativeTextures : Mod
         }
     }
 
-    private void OnButtonChanged(object? sender, ButtonsChangedEventArgs e)
-    {
-        if (
-            Game1.activeClickableMenu is null
-            && Game1.player.CurrentTool is GenericTool tool
-            && e.Held.Contains(SButton.MouseLeft)
-        )
-        {
-            if (tool.QualifiedItemId == TOOL_ID_CATALOGUE)
-            {
-                ToolPatch.UseTextureCatalogue(Game1.player);
-            }
-        }
-    }
-
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     {
         // Set our default configuration file
@@ -315,12 +287,9 @@ public class AlternativeTextures : Mod
             apiManager.HookIntoDynamicGameAssets(Helper);
         }
 
-        // Load any owned content packs
-        contentPackLoader!.Load();
-
         Monitor.Log($"Finished loading Alternative Textures content packs", LogLevel.Debug);
 
         // Hook into GMCM, if applicable
-        modConfigHolder!.RegisterWithGMC();
+        // modConfigHolder!.RegisterWithGMC();
     }
 }

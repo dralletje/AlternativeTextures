@@ -9,7 +9,7 @@ using StardewValley;
 
 namespace AlternativeTextures.Framework.Managers;
 
-internal class TextureManager(IMod mod)
+internal class TextureManager(IModHelper helper)
 {
     public readonly Texture2D ErrorTexture = Function.Run<Texture2D>(() =>
     {
@@ -22,8 +22,6 @@ internal class TextureManager(IMod mod)
         ErrorTexture.SetData(Enumerable.Repeat(Color.White, 16 * 16).ToArray());
         return ErrorTexture;
     });
-
-    private IModHelper _helper = mod.Helper;
 
     private List<AlternativeTextureModel> _alternativeTextures = [];
     private Dictionary<string, AlternativeTextureModel> legacyIdToModel = [with(StringComparer.OrdinalIgnoreCase)];

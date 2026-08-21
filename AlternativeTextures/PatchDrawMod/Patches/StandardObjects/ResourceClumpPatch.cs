@@ -10,7 +10,7 @@ using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
-internal class ResourceClumpPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class ResourceClumpPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(ResourceClump);
 

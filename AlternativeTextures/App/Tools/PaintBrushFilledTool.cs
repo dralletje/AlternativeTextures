@@ -18,7 +18,7 @@ using StardewValley.Mods;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
 
-namespace AlternativeTextures.Tools;
+namespace AlternativeTextures.App.Tools;
 
 class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 {

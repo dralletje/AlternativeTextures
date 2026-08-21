@@ -9,7 +9,7 @@ using StardewValley;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 
-internal class TorchPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class TorchPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Torch);
 

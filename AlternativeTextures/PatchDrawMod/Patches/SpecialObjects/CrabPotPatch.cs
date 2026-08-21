@@ -9,7 +9,7 @@ using StardewValley.Objects;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
 
-internal class CrabPotPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class CrabPotPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(CrabPot);
 

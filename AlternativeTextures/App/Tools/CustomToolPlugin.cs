@@ -7,7 +7,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace AlternativeTextures.Tools;
+namespace AlternativeTextures.App.Tools;
 
 public class CustomToolPlugin(IModHelper helper)
 {

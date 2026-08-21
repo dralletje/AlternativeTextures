@@ -10,7 +10,7 @@ using StardewValley.Monsters;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.Entities;
 
-internal class MonsterPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+internal class MonsterPatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _entity = typeof(Monster);
 
