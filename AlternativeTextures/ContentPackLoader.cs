@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Parser;
 using ConsoleLog;
 using Incubator;

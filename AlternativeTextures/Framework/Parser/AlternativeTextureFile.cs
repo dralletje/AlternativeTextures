@@ -14,8 +14,8 @@ record VariationFromFile
     public List<AnimationModel> Animation { get; set; } = [];
     public List<int[]> Tints { get; set; } = [];
 
-    [Newtonsoft.Json.JsonExtensionData]
-    public IDictionary<string, Newtonsoft.Json.Linq.JToken>? ExtraData;
+    [JsonExtensionData]
+    public IDictionary<string, JToken>? ExtraData;
 }
 
 record AnimationModel

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using AlternativeTextures.Framework.Patches;
-using AlternativeTextures.Framework.Patches.StandardObjects;
+using AlternativeTextures.PatchDrawMod.Patches;
+using AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 using AlternativeTextures.Stardew;
 using ConsoleLog;
 using Incubator;

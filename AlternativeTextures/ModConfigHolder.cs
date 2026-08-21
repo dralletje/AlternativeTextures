@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using AlternativeTextures.Framework.External.GenericModConfigMenu;
-using AlternativeTextures.Framework.Interfaces;
+using AlternativeTextures.PatchDrawMod.Interfaces;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 

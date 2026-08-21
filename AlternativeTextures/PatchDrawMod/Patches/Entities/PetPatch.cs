@@ -1,0 +1,207 @@
+﻿using System;
+using AlternativeTextures.Framework;
+using HarmonyLib;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.Characters;
+
+namespace AlternativeTextures.PatchDrawMod.Patches.Entities;
+
+internal class PetPatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+{
+    private readonly Type _entity = typeof(Pet);
+
+    internal void Apply(Harmony harmony)
+    {
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Pet.draw), [typeof(SpriteBatch)]),
+            prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+        );
+        harmony.Patch(
+            AccessTools.Method(_entity, nameof(Pet.update), [typeof(GameTime), typeof(GameLocation)]),
+            postfix: new HarmonyMethod(GetType(), nameof(UpdatePostfix))
+        );
+    }
+
+    private static void ReloadBreedSpritePostfix(Pet __instance)
+    {
+        if (
+            __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME)
+            && __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER] != AlternativeTextures.DEFAULT_OWNER
+        )
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
+            {
+                __instance.Sprite.LoadTexture(__instance.getPetTextureName());
+                return;
+            }
+
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                __instance.Sprite.LoadTexture(__instance.getPetTextureName());
+                return;
+            }
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+
+            __instance.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
+            __instance.Sprite.sourceRect.Y =
+                textureOffset
+                + (
+                    __instance.Sprite.currentFrame
+                    * __instance.Sprite.SpriteWidth
+                    / __instance.Sprite.Texture.Width
+                    * __instance.Sprite.SpriteHeight
+                );
+        }
+
+        return;
+    }
+
+    private static bool DrawPrefix(Pet __instance, int ___shakeTimer, SpriteBatch b)
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
+            {
+                return true;
+            }
+
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return true;
+            }
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+
+            __instance.Sprite.spriteTexture = textureModel.GetTexture(textureVariation);
+            __instance.Sprite.sourceRect.Y =
+                textureOffset
+                + (
+                    __instance.Sprite.currentFrame
+                    * __instance.Sprite.SpriteWidth
+                    / __instance.Sprite.Texture.Width
+                    * __instance.Sprite.SpriteHeight
+                );
+
+            b.Draw(
+                __instance.Sprite.Texture,
+                __instance.getLocalPosition(Game1.viewport)
+                    + new Vector2(__instance.Sprite.SpriteWidth * 4 / 2, __instance.GetBoundingBox().Height / 2)
+                    + (
+                        (___shakeTimer > 0)
+                            ? new Vector2(Game1.random.Next(-1, 2), Game1.random.Next(-1, 2))
+                            : Vector2.Zero
+                    ),
+                __instance.Sprite.SourceRect,
+                Color.White,
+                __instance.rotation,
+                new Vector2(__instance.Sprite.SpriteWidth / 2, (float)__instance.Sprite.SpriteHeight * 3f / 4f),
+                Math.Max(0.2f, __instance.Scale) * 4f,
+                (
+                    __instance.flip
+                    || (
+                        __instance.Sprite.CurrentAnimation != null
+                        && __instance.Sprite.CurrentAnimation[__instance.Sprite.currentAnimationIndex].flip
+                    )
+                )
+                    ? SpriteEffects.FlipHorizontally
+                    : SpriteEffects.None,
+                Math.Max(
+                    0f,
+                    __instance.isSleepingOnFarmerBed.Value
+                        ? (((float)__instance.StandingPixel.Y + 112f) / 10000f)
+                        : ((float)__instance.StandingPixel.Y / 10000f)
+                )
+            );
+            if (__instance.IsEmoting)
+            {
+                var localPosition = __instance.getLocalPosition(Game1.viewport);
+                var point = __instance.GetPetData()?.EmoteOffset ?? Point.Zero;
+                b.Draw(
+                    Game1.emoteSpriteSheet,
+                    new Vector2(localPosition.X + 32f + (float)point.X, localPosition.Y - 96f + (float)point.Y),
+                    new Rectangle(
+                        __instance.CurrentEmoteIndex * 16 % Game1.emoteSpriteSheet.Width,
+                        __instance.CurrentEmoteIndex * 16 / Game1.emoteSpriteSheet.Width * 16,
+                        16,
+                        16
+                    ),
+                    Color.White,
+                    0f,
+                    Vector2.Zero,
+                    4f,
+                    SpriteEffects.None,
+                    ((float)__instance.StandingPixel.Y / 10000f) + 0.0001f
+                );
+            }
+        }
+
+        return true;
+    }
+
+    private static void UpdatePostfix(Pet __instance, GameTime time, GameLocation location)
+    {
+        if (!__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            return;
+        }
+
+        var instanceName = String
+            .Concat(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
+                ".",
+                $"{TextureType.Character}_{GetCharacterName(__instance)}"
+            )
+            .ToLower();
+        var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(__instance.currentLocation)}".ToLower();
+        if (
+            __instance is Pet pet
+            && !String.Equals(
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceName,
+                StringComparison.OrdinalIgnoreCase
+            )
+            && !String.Equals(
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                instanceSeasonName,
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
+                ".",
+                $"{TextureType.Character}_{GetCharacterName(pet)}"
+            );
+            if (
+                pet.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
+                && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
+            )
+            {
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1.GetSeasonForLocation(location).ToString();
+                pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = String.Concat(
+                    pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
+                    "_",
+                    pet.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON]
+                );
+            }
+        }
+
+        ReloadBreedSpritePostfix(__instance);
+    }
+}

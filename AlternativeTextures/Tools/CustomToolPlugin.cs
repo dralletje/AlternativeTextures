@@ -95,7 +95,7 @@ public class CustomToolPlugin(IModHelper helper)
                 else
                 {
                     /// Is fine with what it has, Dispose just in case
-                    PrettyPrint.Log("Explicit release on start");
+                    Console.Log($"Explicit release on start");
                     routine.Dispose();
                 }
             }

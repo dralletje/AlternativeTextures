@@ -1,0 +1,95 @@
+﻿using System;
+using AlternativeTextures.Framework;
+using HarmonyLib;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.Objects;
+
+namespace AlternativeTextures.PatchDrawMod.Patches.SpecialObjects;
+
+internal class PhonePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+{
+    private readonly Type _object = typeof(Phone);
+
+    internal void Apply(Harmony harmony)
+    {
+        harmony.Patch(
+            AccessTools.Method(
+                _object,
+                nameof(Phone.draw),
+                [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float)]
+            ),
+            prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+        );
+    }
+
+    private static bool DrawPrefix(Phone __instance, SpriteBatch spriteBatch, int x, int y, float alpha = 1f)
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
+            {
+                return true;
+            }
+
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return true;
+            }
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+
+            var scaleFactor = __instance.getScale();
+            scaleFactor *= 4f;
+            var position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
+            Rectangle destination = new Rectangle(
+                (int)(position.X - (scaleFactor.X / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(position.Y - (scaleFactor.Y / 2f)) + ((__instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)(64f + scaleFactor.X),
+                (int)(128f + (scaleFactor.Y / 2f))
+            );
+            var draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 24) / 10000f) + ((float)x * 1E-05f);
+            spriteBatch.Draw(
+                textureModel.GetTexture(textureVariation),
+                destination,
+                new Rectangle(0, textureOffset, textureModel.TextureWidth, textureModel.TextureHeight),
+                Color.White * alpha,
+                0f,
+                Vector2.Zero,
+                SpriteEffects.None,
+                draw_layer
+            );
+
+            var ringing = Phone.ringingTimer is > 0 and < 600;
+            position = Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y * 64) - 64));
+            destination = new Rectangle(
+                (int)position.X + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                (int)position.Y + ((ringing || __instance.shakeTimer > 0) ? Game1.random.Next(-1, 2) : 0),
+                64,
+                128
+            );
+            draw_layer = Math.Max(0f, (float)(((y + 1) * 64) - 20) / 10000f) + ((float)x * 1E-05f);
+            spriteBatch.Draw(
+                textureModel.GetTexture(textureVariation),
+                destination,
+                new Rectangle(16, textureOffset, 16, 32),
+                Color.White * alpha,
+                0f,
+                Vector2.Zero,
+                SpriteEffects.None,
+                draw_layer
+            );
+
+            return false;
+        }
+        return true;
+    }
+}

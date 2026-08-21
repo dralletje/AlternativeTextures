@@ -1,0 +1,257 @@
+﻿using System;
+using System.Collections.Generic;
+using AlternativeTextures.Framework;
+using HarmonyLib;
+using Incubator;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Netcode;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.TerrainFeatures;
+
+namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
+
+internal class TreePatch(IMonitor modMonitor, IModHelper modHelper) : PatchTemplate()
+{
+    private readonly Type _object = typeof(Tree);
+
+    internal void Apply(Harmony harmony)
+    {
+        harmony.Patch(
+            AccessTools.Method(_object, nameof(Tree.draw), [typeof(SpriteBatch)]),
+            prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
+        );
+        harmony.Patch(
+            AccessTools.Method(_object, nameof(Tree.seasonUpdate), [typeof(bool)]),
+            postfix: new HarmonyMethod(GetType(), nameof(SeasonUpdatePostfix))
+        );
+    }
+
+    private static bool DrawPrefix(
+        Tree __instance,
+        float ___shakeRotation,
+        float ___shakeTimer,
+        float ___alpha,
+        List<Leaf> ___leaves,
+        NetBool ___falling,
+        SpriteBatch spriteBatch
+    )
+    {
+        if (__instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_NAME))
+        {
+            var textureModel = AlternativeTextures.textureManager.GetSpecificTextureModel(
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME]
+            );
+            if (textureModel is null)
+            {
+                return true;
+            }
+
+            var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
+            if (
+                textureVariation == -1
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            )
+            {
+                return true;
+            }
+
+            if (__instance.isTemporarilyInvisible)
+            {
+                return true;
+            }
+            var tileLocation = __instance.Tile;
+
+            var textureOffset = textureModel.GetTextureOffset(textureVariation);
+            if (__instance.growthStage.Value < 5)
+            {
+                var sourceRect = Rectangle.Empty;
+                sourceRect = __instance.growthStage.Value switch
+                {
+                    0 => new Rectangle(32, 128, 16, 16),
+                    1 => new Rectangle(0, 128, 16, 16),
+                    2 => new Rectangle(16, 128, 16, 16),
+                    _ => new Rectangle(0, 96, 16, 32),
+                };
+                sourceRect.Y += textureOffset;
+
+                spriteBatch.Draw(
+                    textureModel.GetTexture(textureVariation),
+                    Game1.GlobalToLocal(
+                        Game1.viewport,
+                        new Vector2(
+                            (tileLocation.X * 64f) + 32f,
+                            (tileLocation.Y * 64f)
+                                - (float)((sourceRect.Height * 4) - 64)
+                                + (float)((__instance.growthStage.Value >= 3) ? 128 : 64)
+                        )
+                    ),
+                    sourceRect,
+                    __instance.fertilized.Value ? Color.HotPink : Color.White,
+                    ___shakeRotation,
+                    new Vector2(8f, (__instance.growthStage.Value >= 3) ? 32 : 16),
+                    4f,
+                    __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                    (__instance.growthStage.Value == 0) ? 0.0001f : (__instance.getBoundingBox().Bottom / 10000f)
+                );
+            }
+            else
+            {
+                var treeTexture = textureModel.GetTexture(textureVariation);
+                if (!__instance.stump.Value || ___falling.Value)
+                {
+                    spriteBatch.Draw(
+                        Game1.mouseCursors,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2((tileLocation.X * 64f) - 51f, (tileLocation.Y * 64f) - 16f)
+                        ),
+                        Tree.shadowSourceRect,
+                        Color.White * (((float)Math.PI / 2f) - Math.Abs(___shakeRotation)),
+                        0f,
+                        Vector2.Zero,
+                        4f,
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                        1E-06f
+                    );
+                    var source_rect = Tree.treeTopSourceRect;
+
+                    // TODO: Review if this code block is actually used
+                    /*
+                    if (__instance.treeType.Value == 9)
+                    {
+                        if (__instance.hasSeed.Value)
+                        {
+                            source_rect.X = 48;
+                        }
+                        else
+                        {
+                            source_rect.X = 0;
+                        }
+                    }
+                    */
+                    if (__instance.hasMoss.Value && treeTexture.Width > 48)
+                    {
+                        source_rect.X = 96;
+                    }
+                    source_rect.Y += textureOffset;
+                    spriteBatch.Draw(
+                        treeTexture,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2((tileLocation.X * 64f) + 32f, (tileLocation.Y * 64f) + 64f)
+                        ),
+                        source_rect,
+                        Color.White * ___alpha,
+                        ___shakeRotation,
+                        new Vector2(24f, 96f),
+                        4f,
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                        ((float)(__instance.getBoundingBox().Bottom + 2) / 10000f) - (tileLocation.X / 1000000f)
+                    );
+                }
+
+                var stumpSource = new Rectangle(
+                    Tree.stumpSourceRect.X,
+                    Tree.stumpSourceRect.Y + textureOffset,
+                    Tree.stumpSourceRect.Width,
+                    Tree.stumpSourceRect.Height
+                );
+                if (__instance.hasMoss.Value && treeTexture.Width > 48)
+                {
+                    stumpSource.X += 96;
+                }
+                if (__instance.health.Value >= 1f || (!___falling.Value && __instance.health.Value > -99f))
+                {
+                    spriteBatch.Draw(
+                        treeTexture,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2(
+                                (tileLocation.X * 64f)
+                                    + (
+                                        (___shakeTimer > 0f)
+                                            ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
+                                            : 0f
+                                    ),
+                                (tileLocation.Y * 64f) - 64f
+                            )
+                        ),
+                        stumpSource,
+                        Color.White * ___alpha,
+                        0f,
+                        Vector2.Zero,
+                        4f,
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                        (float)__instance.getBoundingBox().Bottom / 10000f
+                    );
+                }
+                if ((bool)__instance.stump.Value && __instance.health.Value < 4f && __instance.health.Value > -99f)
+                {
+                    spriteBatch.Draw(
+                        treeTexture,
+                        Game1.GlobalToLocal(
+                            Game1.viewport,
+                            new Vector2(
+                                (tileLocation.X * 64f)
+                                    + (
+                                        (___shakeTimer > 0f)
+                                            ? ((float)Math.Sin(Math.PI * 2.0 / (double)___shakeTimer) * 3f)
+                                            : 0f
+                                    ),
+                                tileLocation.Y * 64f
+                            )
+                        ),
+                        new Rectangle(
+                            Math.Min(2, (int)(3f - __instance.health.Value)) * 16,
+                            144 + textureOffset,
+                            16,
+                            16
+                        ),
+                        Color.White * ___alpha,
+                        0f,
+                        Vector2.Zero,
+                        4f,
+                        __instance.flipped.Value ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                        (float)(__instance.getBoundingBox().Bottom + 1) / 10000f
+                    );
+                }
+            }
+            foreach (var i in ___leaves)
+            {
+                spriteBatch.Draw(
+                    textureModel.GetTexture(textureVariation),
+                    Game1.GlobalToLocal(Game1.viewport, i.position),
+                    new Rectangle(16 + (i.type % 2 * 8), textureOffset + 112 + (i.type / 2 * 8), 8, 8),
+                    Color.White,
+                    i.rotation,
+                    Vector2.Zero,
+                    4f,
+                    SpriteEffects.None,
+                    ((float)__instance.getBoundingBox().Bottom / 10000f) + 0.01f
+                );
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static void SeasonUpdatePostfix(Tree __instance, bool onLoad)
+    {
+        if (
+            __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_NAME) is { } textureName
+            && __instance.modData.GetValueOrNull(ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION) is { } variation
+            && UniqueTextureIdentifier.FromString(textureName, variation) is { } textureIdentifier
+        )
+        {
+            var season = Game1.GetSeasonForLocation(__instance.Location);
+            if (textureIdentifier.Season != season)
+            {
+                __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME] = textureIdentifier
+                    .WithoutSeason.WithSeason(season)
+                    .LegacyId;
+            }
+        }
+    }
+}
