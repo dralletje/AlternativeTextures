@@ -334,8 +334,8 @@ static class AlternativeTextureModelExtensions
 
         public bool HasTint() => false;
 
-        public string GetTokenId() =>
-            $"{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
+        public string TexturePath =>
+            $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
 
         internal bool IsFrameValid(int currentFrame, bool isMachineActive) => false;
 

@@ -7,10 +7,10 @@ public static class PaddingExtensions
 {
     extension(Rectangle rectangle)
     {
-        public static Rectangle operator +(Rectangle rect, Padding padding) =>
-            (rect.ToSystemRectangle() + padding).ToXnaRectangle();
+        // public static Rectangle operator +(Rectangle rect, Padding padding) =>
+        //     (rect.ToSystemRectangle() + padding).ToXnaRectangle();
 
-        public static Rectangle operator -(Rectangle rect, Padding padding) => rect + (padding * -1);
+        // public static Rectangle operator -(Rectangle rect, Padding padding) => rect + (padding * -1);
     }
 }
 

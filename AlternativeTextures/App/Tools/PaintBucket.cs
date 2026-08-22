@@ -75,8 +75,6 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
                 .. PaintBucketMenuData.GetTexturesFor(paintable.ModelIdentifier),
             ];
 
-            Console.Log($"items: {items}");
-
             if (items.Count == 1)
             {
                 // Game1.addHUDMessage(new HUDMessage(_helper.Translation.Get("messages.warning.no_textures_for_season", new { itemName = modelName }), 3));
@@ -95,6 +93,7 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
                                 Paintable = paintable,
                                 TextureIdentifier = textureInfo.TextureIdentifier,
                                 DisplayName = textureInfo.DisplayName,
+                                HoverText = textureInfo.HoverText,
                             }
                     ),
                 ],
@@ -116,94 +115,6 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
             }
             return;
         }
-
-        // if (location is DecoratableLocation decoratableLocation)
-        // {
-        //     if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
-        //     {
-        //         var wallpaperPaintable = new WallpaperDecorationPaintable(decoratableLocation, wallId);
-        //         List<TextureInfo> items =
-        //         [
-        //             .. PaintBucketMenuData.VanillaWallpaperDecorations(),
-        //             .. PaintBucketMenuData.GetTexturesFor(wallpaperPaintable.ModelIdentifier),
-        //         ];
-
-        //         if (items.Count == 1)
-        //         {
-        //             // csharpier-ignore
-        //             Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {wallpaperPaintable.ModelIdentifier.String} ({wallpaperPaintable.ModelIdentifier.Type})"));
-        //         }
-
-        //         var gridMenu = new GridMenu(
-        //             [
-        //                 .. items.Select(textureInfo => new TextureGridMenuItem()
-        //                 {
-        //                     Related = null,
-        //                     DisplayName = textureInfo.DisplayName,
-        //                     TextureIdentifier = textureInfo.TextureIdentifier,
-        //                     Paintable = wallpaperPaintable,
-        //                 }),
-        //             ],
-        //             new(rows: 2, columns: 6),
-        //             uiTitle: Helper.Translation.Get("tools.name.paint_bucket"),
-        //             onPress: (item) =>
-        //             {
-        //                 if (item is TextureGridMenuItem betterItem)
-        //                 {
-        //                     betterItem.Paintable.ApplyTexture(betterItem.TextureIdentifier);
-        //                 }
-        //             }
-        //         );
-
-        //         Game1.activeClickableMenu = gridMenu;
-        //         if (wallpaperPaintable.TextureIdentifier is { } texture)
-        //         {
-        //             gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
-        //         }
-        //     }
-        //     else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
-        //     {
-        //         var floorPaintable = new FloorDecorationPaintable(decoratableLocation, floorId);
-
-        //         List<TextureInfo> items =
-        //         [
-        //             .. PaintBucketMenuData.VanillaFloorDecorations(),
-        //             .. PaintBucketMenuData.GetTexturesFor(floorPaintable.ModelIdentifier),
-        //         ];
-        //         if (items.Count == 1)
-        //         {
-        //             // csharpier-ignore
-        //             Game1.addHUDMessage(new HUDMessage($"No alternative textures found for {floorPaintable.ModelIdentifier.String} ({floorPaintable.ModelIdentifier.Type})"));
-        //         }
-
-        //         var gridMenu = new GridMenu(
-        //             [
-        //                 .. items.Select(textureInfo => new TextureGridMenuItem()
-        //                 {
-        //                     Related = null,
-        //                     DisplayName = textureInfo.DisplayName,
-        //                     TextureIdentifier = textureInfo.TextureIdentifier,
-        //                     Paintable = floorPaintable,
-        //                 }),
-        //             ],
-        //             new(rows: 3, columns: 4),
-        //             uiTitle: Helper.Translation.Get("tools.name.paint_bucket"),
-        //             onPress: (item) =>
-        //             {
-        //                 if (item is TextureGridMenuItem betterItem)
-        //                 {
-        //                     betterItem.Paintable.ApplyTexture(betterItem.TextureIdentifier);
-        //                 }
-        //             }
-        //         );
-
-        //         Game1.activeClickableMenu = gridMenu;
-        //         if (floorPaintable.TextureIdentifier is { } texture)
-        //         {
-        //             gridMenu.ScrollTo(items.FindIndex(x => x.TextureIdentifier == texture));
-        //         }
-        //     }
-        // }
     }
 
     static Rectangle DefaultSourceRectFor(TextureIdentifierWithoutSeason textureIdentifier, WorldObject related)
@@ -245,7 +156,7 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
             { Type: TextureType.GiantCrop } => new(rows: 2, columns: 3),
             { Type: TextureType.Grass } => new(rows: 6, columns: 4),
             { Type: TextureType.Bush } => new(rows: 6, columns: 4),
-            { Type: TextureType.Building } => new(rows: 1, columns: 3),
+            { Type: TextureType.Building } => new(rows: 2, columns: 3),
             { Type: TextureType.Decoration, IsName: true, String: "Floor" } => new(rows: 3, columns: 4),
             { Type: TextureType.Decoration, IsName: true, String: "Wallpaper" } => new(rows: 2, columns: 6),
             _ => new(rows: 4, columns: 6),

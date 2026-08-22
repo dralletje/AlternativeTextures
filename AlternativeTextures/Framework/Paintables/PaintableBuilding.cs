@@ -1,7 +1,6 @@
-using AlternativeTextures.Framework;
-using AlternativeTextures.Framework.Paintable;
-using Incubator;
 using StardewValley.Buildings;
+
+namespace AlternativeTextures.Framework.Paintables;
 
 record PaintableBuilding(Building Building) : IPaintable
 {
@@ -22,6 +21,7 @@ record PaintableBuilding(Building Building) : IPaintable
         }
         else if (texture.IsDefault)
         {
+            modDataPaintable.ApplyTexture(null);
             Building.skinId.Value = texture.Owner;
         }
         else
@@ -30,5 +30,6 @@ record PaintableBuilding(Building Building) : IPaintable
         }
 
         Building.resetTexture();
+        /// TODO Broadcast resetTexture to other players
     }
 }

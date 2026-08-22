@@ -4,6 +4,7 @@ using System.Linq;
 using AlternativeTextures.Framework;
 using HarmonyLib;
 using Incubator;
+using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -492,7 +493,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             {
                 return true;
             }
-            else if (AlternativeTextures.textureManager.GetModelByToken(drawLayer.Texture) is not null)
+            else if (AlternativeTextures.textureManager.GetTextureForPath(drawLayer.Texture) is not null)
             {
                 drawLayer.Texture = "Buildings\\Mailbox";
             }
@@ -515,7 +516,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
                 return true;
 
             // Set the layer to use the AT token for the texture
-            drawLayer.Texture = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.GetTokenId()}";
+            drawLayer.Texture = textureModel.TexturePath;
 
             return true;
         }
@@ -556,16 +557,18 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             : building is ShippingBin ? textureModel.TextureWidth
             : baseTexture.Width;
 
-        var texture2D = baseTexture.CreateSelectiveCopy(
-            Game1.graphics.GraphicsDevice,
+        var texture2D = new SubTexture(
+            baseTexture,
             new Rectangle(0, yOffset, textureWidth, baseTexture.Height)
-        );
+        ).Flatten(Game1.graphics.GraphicsDevice);
+
         if (canReallyBePainted)
         {
-            var paintedTexture2D = baseTexture.CreateSelectiveCopy(
-                Game1.graphics.GraphicsDevice,
+            var paintedTexture2D = new SubTexture(
+                baseTexture,
                 new Rectangle(textureWidth, yOffset, textureWidth, baseTexture.Height)
-            );
+            ).Flatten(Game1.graphics.GraphicsDevice);
+
             building.paintedTexture = GetPaintedOverlay(
                 building,
                 texture2D,

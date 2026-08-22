@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Paintable;
-using DralGeometry;
 using Incubator;
+using Incubator.MonoGame;
+using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -25,6 +26,7 @@ record TextureGridMenuItem : GridMenu.Item
     public required WorldObject Related { get; init; }
     public required TextureIdentifierWithoutSeason TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
+    public string? HoverText { get; init; }
 
     public void Draw(SpriteBatch batch, Rectangle destinationRect)
     {
@@ -61,6 +63,7 @@ record TextureInfo
 {
     public required TextureIdentifierWithoutSeason TextureIdentifier { get; init; }
     public string? DisplayName { get; init; }
+    public string? HoverText { get; init; }
 }
 
 static class PaintBucketMenuData
@@ -82,6 +85,7 @@ static class PaintBucketMenuData
                         ModelIdentifier.Floor,
                         floor.ParentSheetIndex
                     ),
+                    DisplayName = $"Default #{floor.ParentSheetIndex}",
                 };
             }
         }
@@ -104,6 +108,7 @@ static class PaintBucketMenuData
                         ModelIdentifier.Wallpaper,
                         wallpaper.ParentSheetIndex
                     ),
+                    DisplayName = $"Default #{wallpaper.ParentSheetIndex}",
                 };
             }
         }
@@ -184,10 +189,15 @@ static class PaintBucketMenuData
         );
         foreach (var model in availableModels)
         {
+            if (model.UniqueIdentifier.IsDefault)
+                continue;
+            var idText = $"{model.UniqueIdentifier.Owner} #{model.UniqueIdentifier.Variation}";
+
             yield return new()
             {
                 TextureIdentifier = model.UniqueIdentifierWithoutSeason,
-                DisplayName = model.DisplayName,
+                DisplayName = model.DisplayName ?? idText,
+                HoverText = idText,
             };
         }
     }

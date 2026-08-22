@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ConsoleLog;
 using DralGeometry;
 using Incubator;
+using Incubator.MonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,10 +18,11 @@ namespace AlternativeTextures.App.UI;
 
 internal class GridMenu : IClickableMenu
 {
-    internal interface Item
+    internal interface Item : IDraw
     {
         public string? DisplayName { get; init; }
-        public void Draw(SpriteBatch batch, Rectangle destinationRect);
+        public string? HoverText { get; init; }
+        // public void Draw(SpriteBatch batch, Rectangle destinationRect);
     }
 
     readonly ICollection<Item> items;
@@ -27,9 +30,6 @@ internal class GridMenu : IClickableMenu
     readonly string _title;
     readonly Action<Item>? onPress;
 
-    public Item? hovered;
-    protected Signal<int> rowsScrolled = new(0);
-    Computed<int> scrollbarY;
     public List<ClickableComponent> itemGrid = [];
 
     // private Dictionary<string, Texture2D> _skinIdToTextures = [];
@@ -44,6 +44,11 @@ internal class GridMenu : IClickableMenu
     ClickableTextureComponent downArrow;
     ClickableTextureComponent scrollBar;
     Rectangle scrollBarRunner;
+
+    Signal<Item?> hovered = new(null);
+    Signal<int> rowsScrolled = new(0);
+    Computed<int> scrollbarY;
+    Computed<List<IDraw>> RenderSignal;
 
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
 
@@ -96,6 +101,7 @@ internal class GridMenu : IClickableMenu
                             buttonWidth,
                             buttonHeight
                         ),
+                        // new Rectangle((buttonWidth * column), (buttonHeight * row), buttonWidth, buttonHeight),
                         ""
                     )
                     {
@@ -163,7 +169,13 @@ internal class GridMenu : IClickableMenu
             var listProgress =
                 VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
             var moveableHeight = scrollBarRunner.Height - scrollBar.bounds.Height;
-            return (int)(scrollBarRunner.Top + (moveableHeight * listProgress));
+            return (int)(moveableHeight * listProgress);
+        });
+        this.RenderSignal = new(() =>
+        {
+            var builder = new DrawableBuilder();
+            this.Render(builder);
+            return builder.Finish();
         });
     }
 
@@ -248,19 +260,24 @@ internal class GridMenu : IClickableMenu
 
     public override void performHoverAction(int x, int y)
     {
-        this.hovered = null;
         if (Game1.IsFading())
         {
+            hovered.Value = null;
             return;
         }
 
+        Item? hovering = null;
         foreach (var (button, menuItem) in elementsOnScreen)
         {
             if (button.containsPoint(x, y))
             {
-                this.hovered = menuItem;
+                if (hovered != menuItem)
+                {
+                    hovering = menuItem;
+                }
             }
         }
+        hovered.Value = hovering;
     }
 
     public override void receiveKeyPress(Keys key)
@@ -376,7 +393,7 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    IEnumerable<(ClickableComponent, Item)> elementsOnScreen
+    IEnumerable<(ClickableComponent button, Item item)> elementsOnScreen
     {
         get
         {
@@ -385,100 +402,212 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    public override void draw(SpriteBatch batch)
+    record Grid(GridSize Size, List<IDraw> Children) : IDraw
     {
-        if (!Game1.dialogueUp && !Game1.IsFading())
+        public Grid(GridSize size, Action<DrawableBuilder> ChildrenFn)
+            : this(size, DrawableBuilder.Create(ChildrenFn)) { }
+
+        public void Draw(SpriteBatch batch, Rectangle destination)
         {
-            batch.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.75f);
-            SpriteText.drawStringWithScrollCenteredAt(
-                batch,
-                _title,
-                base.xPositionOnScreen + (base.width / 4),
-                base.yPositionOnScreen - 64
-            );
+            // if (Children.Count() > Size.Count)
+            //     throw new ArgumentException("Children is bigger than the amount of grid items");
+
+            var itemWidth = destination.Width / Size.Columns;
+            var itemHeight = destination.Height / Size.Rows;
+
+            new DrawableGroup(
+                Children.Select(
+                    (child, index) =>
+                        child.Frame(
+                            new Rectangle(
+                                itemWidth * Size.ColumnFor(index),
+                                itemHeight * Size.RowFor(index),
+                                itemWidth,
+                                itemHeight
+                            )
+                        )
+                )
+            ).Draw(batch, destination);
+        }
+    }
+
+    record HoverText(string Text, SpriteFont? Font = null) : IDraw
+    {
+        public void Draw(SpriteBatch batch, Rectangle destination)
+        {
+            IClickableMenu.drawHoverText(batch, Text, Font ?? Game1.smallFont);
+        }
+    }
+
+    record TextureBox() : IDraw
+    {
+        [SetsRequiredMembers]
+        public TextureBox(TextureSprite texture, IDraw? child = null)
+            : this()
+        {
+            Texture = texture;
+            Child = child;
+        }
+
+        public required TextureSprite Texture;
+        public IEnumerable<IDraw> Children = [];
+        public IDraw? Child = null;
+        public Padding Padding = new();
+
+        public Color Color = Color.White;
+        public bool DrawShadow = true;
+
+        public void Draw(SpriteBatch batch, Rectangle destination)
+        {
+            var borderInset = new Padding(all: 16) { Top = 20, Right = 12 };
+            // var padding = new Padding(all: 16);
+            // var menuarea = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
+            // var buttonarea = menuarea - borderInset - padding;
+            // var buttonWidth = buttonarea.Width / gridSize.Columns;
+            // var buttonHeight = buttonarea.Height / gridSize.Rows;
+
             IClickableMenu.drawTextureBox(
                 batch,
-                Game1.mouseCursors,
-                new Rectangle(384, 373, 18, 18),
-                base.xPositionOnScreen,
-                base.yPositionOnScreen,
-                base.width,
-                base.height,
-                Color.White,
-                4f
+                Texture.Texture,
+                Texture.SourceRect,
+                destination.X,
+                destination.Y,
+                destination.Width,
+                destination.Height,
+                Color,
+                4f,
+                DrawShadow
             );
 
-            foreach (var (button, option) in elementsOnScreen)
-            {
-                IClickableMenu.drawTextureBox(
-                    batch,
-                    VisualTheme.ItemRowBackgroundTexture,
-                    VisualTheme.ItemRowBackgroundSourceRect,
-                    button.bounds.X,
-                    button.bounds.Y,
-                    button.bounds.Width,
-                    button.bounds.Height,
-                    (button.containsPoint(Game1.getOldMouseX(), Game1.getOldMouseY()) && !scrolling)
-                        ? VisualTheme.ItemRowBackgroundHoverColor
-                        : Color.White,
-                    4f,
-                    drawShadow: false
-                );
+            new DrawableGroup(Children).Padding(Padding).Draw(batch, destination);
+            Child?.Padding(Padding).Draw(batch, destination);
+        }
+    }
 
-                var borderInset = new Padding(all: 12);
-                var littleInset = button.bounds - borderInset;
-                option.Draw(batch, littleInset);
+    record StringWithScrollCenteredAt(string Title, string? placeHolderWidthText = null) : IDraw
+    {
+        public void Draw(SpriteBatch batch, Rectangle destination)
+        {
+            SpriteText.drawStringWithScrollCenteredAt(
+                batch,
+                Title,
+                destination.X,
+                destination.Y,
+                placeHolderWidthText ?? ""
+            );
+        }
+    }
+
+    record Mouse() : IDraw
+    {
+        readonly bool IgnoreTransparency = false;
+        readonly int Cursor = -1;
+
+        public void Draw(SpriteBatch batch, Rectangle destination)
+        {
+            if (!Game1.options.hardwareCursor)
+            {
+                var num = Game1.mouseCursorTransparency;
+                if (IgnoreTransparency)
+                {
+                    num = 1f;
+                }
+
+                var cursor =
+                    Cursor >= 0 ? Cursor : ((Game1.options.snappyMenus && Game1.options.gamepadControls) ? 44 : 0);
+
+                batch.Draw(
+                    Game1.mouseCursors,
+                    new Vector2(Game1.getMouseX(), Game1.getMouseY()),
+                    Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, cursor, 16, 16),
+                    Color.White * num,
+                    0f,
+                    Vector2.Zero,
+                    4f + (Game1.dialogueButtonScale / 150f),
+                    SpriteEffects.None,
+                    1f
+                );
+            }
+        }
+    }
+
+    TextureSprite ItemRowBackground =>
+        VisualTheme.ItemRowBackgroundTexture.Clip(VisualTheme.ItemRowBackgroundSourceRect);
+
+    TextureSprite ScrollUpSprite => VisualTheme.ScrollUpTexture.Clip(VisualTheme.ScrollUpSourceRect);
+    TextureSprite ScrollDownSprite => VisualTheme.ScrollDownTexture.Clip(VisualTheme.ScrollDownSourceRect);
+    TextureSprite ScrollBarFrontSprite => VisualTheme.ScrollBarFrontTexture.Clip(VisualTheme.ScrollBarFrontSourceRect);
+    TextureSprite ScrollBarBackSprite => VisualTheme.ScrollBarBackTexture.Clip(VisualTheme.ScrollBarBackSourceRect);
+    TextureSprite MouseCursorOrSomethingSprite = Game1.mouseCursors.Clip(new Rectangle(384, 373, 18, 18));
+
+    public void Render(DrawableBuilder UI)
+    {
+        UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
+        using (UI.Group(x => x.Frame(base.xPositionOnScreen, base.yPositionOnScreen, base.width, base.height)))
+        {
+            UI += new StringWithScrollCenteredAt(_title).At(base.width / 4, -64);
+
+            var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
+            using (UI.Group(x => new TextureBox(MouseCursorOrSomethingSprite, x.Padding(menuPadding))))
+            {
+                using (UI.Group(x => new Grid(gridSize, x.Drawables)))
+                {
+                    foreach (var (button, item) in elementsOnScreen)
+                    {
+                        UI += new DrawableGroup([
+                            new TextureBox()
+                            {
+                                Texture = ItemRowBackground,
+                                Color =
+                                    (this.hovered == item && !scrolling)
+                                        ? VisualTheme.ItemRowBackgroundHoverColor
+                                        : Color.White,
+                                DrawShadow = false,
+                            },
+                            item.Padding(new Padding(all: 12)),
+                        ]);
+                    }
+                }
             }
 
             if (items.Count > gridSize.Count)
             {
-                upArrow.draw(batch);
-                downArrow.draw(batch);
-                IClickableMenu.drawTextureBox(
-                    batch,
-                    VisualTheme.ScrollBarBackTexture,
-                    VisualTheme.ScrollBarBackSourceRect,
-                    scrollBarRunner.X,
-                    scrollBarRunner.Y,
-                    scrollBarRunner.Width,
-                    scrollBarRunner.Height,
-                    Color.White,
-                    4f
-                );
+                using (UI.Group(x => x.Frame(x: base.width, y: 0, width: 48, height: base.height).Padding(all: 4)))
+                {
+                    UI += ScrollUpSprite.Frame(x: 0, y: 0, width: 44, height: 48);
+                    using (UI.Group(x => x.Padding(left: 12, top: 48 + 12, bottom: 48 + 12, right: 0)))
+                    {
+                        UI += new TextureBox(ScrollBarBackSprite);
+                        UI += ScrollBarFrontSprite.Frame(0, 0, 24, 40).At(0, scrollbarY);
+                    }
+                    UI += ScrollDownSprite.Frame(x: 0, y: base.height - 48, width: 44, height: 48);
+                }
+            }
 
-                scrollBar.bounds.Y = scrollbarY;
-                scrollBar.draw(batch);
+            if (hovered?.Value?.DisplayName is { } displayName)
+            {
+                UI += new StringWithScrollCenteredAt(displayName, "Hover over an item to see its texture name!").At(
+                    base.width / 4,
+                    base.height
+                );
             }
         }
 
-        /// TODO Hover
-        if (this.hovered?.DisplayName is { } text)
+        if (this.hovered?.Value?.HoverText is { } hoverText)
         {
-            // var technicalName = $"{hovered.TextureIdentifier.Owner} > {hovered.TextureIdentifier.Variation + 1}";
-            // if (hovered.DisplayName is { } displayName)
-            // {
-            //     hoverInfoText = technicalName;
-            //     hoverDisplayName = displayName;
-            // }
-            // else
-            // {
-            //     hoverDisplayName = technicalName;
-            // }
-            SpriteText.drawStringWithScrollCenteredAt(
-                batch,
-                text,
-                Game1.uiViewport.Width / 2,
-                base.yPositionOnScreen + base.height + 16,
-                "Hover over an item to see its texture name!"
-            );
+            UI += new HoverText(hoverText);
         }
 
-        // if (!String.IsNullOrEmpty(hoverInfoText))
-        // {
-        //     IClickableMenu.drawHoverText(batch, hoverInfoText, Game1.smallFont);
-        // }
+        UI += new Mouse();
+    }
 
-        Game1.mouseCursorTransparency = 1f;
-        base.drawMouse(batch);
+    public override void draw(SpriteBatch batch)
+    {
+        if (!Game1.dialogueUp && !Game1.IsFading())
+        {
+            var UI = new DrawableBuilder();
+            UI += new DrawableGroup(RenderSignal.Value);
+            new DrawableGroup(UI.Finish()).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
+        }
     }
 }

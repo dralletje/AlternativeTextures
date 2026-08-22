@@ -8,6 +8,8 @@ using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.MetaFramework;
 using Incubator;
+using Incubator.MonoGame;
+using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -363,15 +365,11 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                 var rows = texture.Height / 32;
                 foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
                 {
-                    yield return (
+                    yield return new IdentityTexture(
                         FlattenDecorationTexture(
-                                Game1.graphics.GraphicsDevice,
-                                new SubTexture(
-                                    texture.ITexture(),
-                                    new Rectangle((index % 8) * 32, (index / 8) * 32, 32, 32)
-                                )
-                            )
-                            .ITexture()
+                            Game1.graphics.GraphicsDevice,
+                            new SubTexture(texture, new Rectangle((index % 8) * 32, (index / 8) * 32, 32, 32))
+                        )
                     );
                 }
             }
@@ -381,15 +379,11 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                 var rows = texture.Height / 48;
                 foreach (var index in Enumerable.Range(0, rows * texturesPerRow))
                 {
-                    yield return (
+                    yield return new IdentityTexture(
                         FlattenDecorationTexture(
-                                Game1.graphics.GraphicsDevice,
-                                new SubTexture(
-                                    texture.ITexture(),
-                                    new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48)
-                                )
-                            )
-                            .ITexture()
+                            Game1.graphics.GraphicsDevice,
+                            new SubTexture(texture, new Rectangle((index % 16) * 16, (index / 16) * 48, 16, 48))
+                        )
                     );
                     // yield return new ITexture()
                     // {
@@ -422,7 +416,7 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
             foreach (var index in Enumerable.Range(0, variantionsInTexture))
             {
                 var bestDrawable = new SubTexture(
-                    texture.ITexture(),
+                    texture,
                     new Rectangle()
                     {
                         X = 0,
@@ -434,7 +428,7 @@ class ContentPackLoaderMod<TParent>(DralModContext<TParent, ContentPackLoaderMod
                 );
 
                 /// TODO Don't flatten, once the rest of the code knows of ITexture
-                yield return bestDrawable.Flatten(Game1.graphics.GraphicsDevice).ITexture();
+                yield return new IdentityTexture(bestDrawable.Flatten(Game1.graphics.GraphicsDevice));
             }
         }
     }

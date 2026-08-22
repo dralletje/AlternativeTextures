@@ -12,6 +12,30 @@ public record GridSize(int rows, int columns)
     {
         get { return Rows * Columns; }
     }
+
+    public int ColumnFor(int index)
+    {
+        if (index >= Count)
+            throw new ArgumentException("Higher index than possible in the GridSize");
+
+        return index % Columns;
+    }
+
+    public int RowFor(int index)
+    {
+        if (index >= Count)
+            throw new ArgumentException("Higher index than possible in the GridSize");
+
+        return index / Columns;
+    }
+
+    public (int Row, int Column) PositionForIndex(int index)
+    {
+        if (index >= Count)
+            throw new ArgumentException("Higher index than possible in the GridSize");
+
+        return (index / Columns, index % Columns);
+    }
 }
 
 public static class GridExtensions

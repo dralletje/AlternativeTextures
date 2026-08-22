@@ -1,6 +1,7 @@
-using System.Drawing;
+using System;
+using Microsoft.Xna.Framework;
 
-namespace DralGeometry;
+namespace Incubator.MonoGame;
 
 public record Padding()
 {
@@ -25,6 +26,15 @@ public record Padding()
         Bottom = horizontal;
         Left = vertical;
         Right = vertical;
+    }
+
+    public Padding(int left = 0, int right = 0, int top = 0, int bottom = 0)
+        : this()
+    {
+        Top = top;
+        Bottom = bottom;
+        Left = left;
+        Right = right;
     }
 
     public static Padding operator *(Padding p, int factor) =>
@@ -69,7 +79,6 @@ public static class PaddingExtensions
             };
         }
 
-        public static Rectangle operator -(Rectangle rect, Padding padding) =>
-            rect + (padding * -1);
+        public static Rectangle operator -(Rectangle rect, Padding padding) => rect + (padding * -1);
     }
 }

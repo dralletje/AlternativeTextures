@@ -25,7 +25,7 @@ internal class TextureManager(IModHelper helper)
 
     private List<AlternativeTextureModel> _alternativeTextures = [];
     private Dictionary<string, AlternativeTextureModel> legacyIdToModel = [with(StringComparer.OrdinalIgnoreCase)];
-    private Dictionary<string, AlternativeTextureModel> tokenToModel = [with(StringComparer.OrdinalIgnoreCase)];
+    private Dictionary<string, AlternativeTextureModel> texturePathToModel = [with(StringComparer.OrdinalIgnoreCase)];
 
     static int? FindIndexOrNull<T>(List<T> haystack, System.Predicate<T> findNeedle)
     {
@@ -48,9 +48,7 @@ internal class TextureManager(IModHelper helper)
 
         texturesByIdentifier[model.UniqueIdentifier] = model;
         legacyIdToModel[model.LegacyId] = model;
-
-        var token = $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{model.GetTokenId()}";
-        tokenToModel[token] = model;
+        texturePathToModel[model.TexturePath] = model;
     }
 
     public List<AlternativeTextureModel> GetAllTextures()
@@ -74,8 +72,8 @@ internal class TextureManager(IModHelper helper)
         return texturesByIdentifier.GetValueOrNull(identifier);
     }
 
-    public AlternativeTextureModel? GetModelByToken(string token)
+    public AlternativeTextureModel? GetTextureForPath(string path)
     {
-        return tokenToModel.GetValueOrNull(token);
+        return texturePathToModel.GetValueOrNull(path);
     }
 }

@@ -1,10 +1,10 @@
 using Incubator;
 using StardewValley;
 
-namespace AlternativeTextures.Framework.Paintable;
+namespace AlternativeTextures.Framework.Paintables;
 
 /// TODO Validate TextureIdent against the ModelIdentifier ??
-public record MailboxPaintable(GameLocation Location) : IPaintable
+record MailboxPaintable(GameLocation Location) : IPaintable
 {
     const string TEXTURE_NAME_KEY = "AlternativeTextureName.Mailbox";
     const string TEXTURE_VARIATION_KEY = "AlternativeTextureVariation.Mailbox";

@@ -1,7 +1,7 @@
 using Incubator;
 using StardewValley.Mods;
 
-namespace AlternativeTextures.Framework.Paintable;
+namespace AlternativeTextures.Framework.Paintables;
 
 /// TODO Validate TextureIdent against the ModelIdentifier ??
 record PaintableFromModData(ModDataDictionary modData) : IPaintable

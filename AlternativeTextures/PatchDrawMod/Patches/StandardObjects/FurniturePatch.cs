@@ -12,6 +12,11 @@ using Object = StardewValley.Object;
 
 namespace AlternativeTextures.PatchDrawMod.Patches.StandardObjects;
 
+class Container<T>(T @default)
+{
+    public T Value = @default;
+}
+
 internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
 {
     private readonly Type _object = typeof(Furniture);
@@ -26,6 +31,7 @@ internal class FurniturePatch(IModHelper modHelper) : PatchTemplate()
             ),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
+
         harmony.Patch(
             AccessTools.Method(
                 _object,

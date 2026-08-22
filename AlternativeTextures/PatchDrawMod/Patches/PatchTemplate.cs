@@ -222,4 +222,16 @@ internal class PatchTemplate()
 
         return AlternativeTextures.textureManager.GetTexture(textureIdentifier);
     }
+
+    public static AlternativeTextureModel? GetTextureForUse(IPaintable? maybePaintable)
+    {
+        if (maybePaintable is not { } paintable)
+            return null;
+
+        if (paintable.TextureIdentifier is null || paintable.TextureIdentifier.IsDefault)
+            return null;
+
+        var season = Game1.currentLocation.GetSeason();
+        return AlternativeTextures.textureManager.GetTexture(paintable.TextureIdentifier.WithSeason(season));
+    }
 }

@@ -15,7 +15,7 @@
     <DebugType>portable</DebugType>
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 
-    <!-- <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies> -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +33,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
+    <!-- <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" ExcludeAssets="all" />
+    <PackageReference Include="System.Collections.Immutable" Version="10.0.11" /> -->
     <!-- <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" /> -->
   </ItemGroup>
 

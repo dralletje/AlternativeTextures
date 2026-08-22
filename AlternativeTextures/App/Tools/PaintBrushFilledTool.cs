@@ -106,18 +106,18 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
         if (this.Texture is { } texture && target?.WorldObject is WorldObject.TerrainFeature(var floor))
         {
-            var newfloor = floor.ShallowClone();
-            var clonedModData = new ModDataDictionary();
+            // var newfloor = floor.ShallowClone();
+            // var clonedModData = new ModDataDictionary();
 
-            clonedModData.CopyFrom(floor.modData); // Or populate as needed
-            var paintable = new PaintableFromModData(clonedModData)
-            {
-                ModelIdentifier = TextureType.Unknown.WithName(""),
-            };
-            paintable.ApplyTexture(texture);
-            modDataRef(newfloor) = clonedModData;
+            // clonedModData.CopyFrom(floor.modData); // Or populate as needed
+            // var paintable = new PaintableFromModData(clonedModData)
+            // {
+            //     ModelIdentifier = TextureType.Unknown.WithName(""),
+            // };
+            // paintable.ApplyTexture(texture);
+            // modDataRef(newfloor) = clonedModData;
 
-            newfloor.draw(e.SpriteBatch);
+            // newfloor.draw(e.SpriteBatch);
         }
         else
         {

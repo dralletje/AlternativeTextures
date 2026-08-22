@@ -109,7 +109,7 @@ static class SourceRects
         );
     }
 
-    public static Rectangle GetFlooringSourceRect(Flooring flooring, int variation, int textureHeight)
+    public static byte FlooringDrawSum(Flooring flooring)
     {
         byte drawSum = 0;
 
@@ -142,6 +142,12 @@ static class SourceRects
             drawSum = (byte)(drawSum + 1);
         }
 
+        return drawSum;
+    }
+
+    public static Rectangle GetFlooringSourceRect(Flooring flooring, int variation, int textureHeight)
+    {
+        var drawSum = FlooringDrawSum(flooring);
         var sourceRectPosition = Flooring.drawGuide[drawSum];
 
         if (variation == -1)

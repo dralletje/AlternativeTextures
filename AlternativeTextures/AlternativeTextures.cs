@@ -11,8 +11,8 @@ using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Paintable;
 using AlternativeTextures.MetaFramework;
 using AlternativeTextures.PatchDrawMod;
-using Incubator;
-using Microsoft.Xna.Framework;
+using Incubator.MonoGame;
+using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -188,13 +188,32 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
         if (e.DataType == typeof(Texture2D))
         {
             var asset = e.Name;
-            if (textureManager.GetModelByToken(asset.Name) is { } textureModel)
+            if (textureManager.GetTextureForPath(asset.Name) is { } textureModel)
             {
-                var clonedTexture = textureModel.Texture.CreateSelectiveCopy(
-                    Game1.graphics.GraphicsDevice,
-                    new Rectangle(0, 0, textureModel.Texture.Width, textureModel.Texture.Height)
+                var isCurrentlyDrawing = Helper.Reflection.GetField<bool>(Game1.spriteBatch, "_beginCalled").GetValue();
+                Console.Log(
+                    $"Loading {asset.Name} ({textureModel.Texture.Height} x {textureModel.Texture.Width}) where drawing = {isCurrentlyDrawing}"
                 );
-                e.LoadFrom(() => clonedTexture, AssetLoadPriority.Exclusive);
+
+                e.LoadFrom(
+                    () =>
+                    {
+                        var isCurrentlyDrawing = Helper
+                            .Reflection.GetField<bool>(Game1.spriteBatch, "_beginCalled")
+                            .GetValue();
+                        Console.Log($"Loaded {asset.Name} while drawing = {isCurrentlyDrawing}");
+                        var clonedTexture = isCurrentlyDrawing
+                            ? textureModel.Texture.CreateSelectiveCopy(
+                                Game1.graphics.GraphicsDevice,
+                                textureModel.Texture.Bounds
+                            )
+                            : new IdentityTexture(textureModel.Texture).Flatten(Game1.graphics.GraphicsDevice);
+                        return clonedTexture;
+                    },
+                    AssetLoadPriority.Exclusive
+                );
+
+                // e.LoadFrom(() => textureModel.Texture, AssetLoadPriority.Exclusive);
             }
         }
         else if (e.NameWithoutLocale.IsEquivalentTo("Data/AdditionalWallpaperFlooring"))
@@ -214,9 +233,9 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
                         )
                 )
                 {
-                    var texture =
-                        $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
-
+                    // var texture =
+                    //     $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
+                    var texture = textureModel.TexturePath;
                     var decoration = new ModWallpaperOrFlooring()
                     {
                         Id = DecorationIdHelper.ToString(textureModel.UniqueIdentifierWithoutSeason),

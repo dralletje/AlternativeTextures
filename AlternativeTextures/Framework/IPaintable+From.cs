@@ -1,4 +1,5 @@
-using AlternativeTextures.Framework.Paintable;
+using AlternativeTextures.Framework.Paintables;
+using StardewValley.Buildings;
 using StardewValley.TerrainFeatures;
 
 namespace AlternativeTextures.Framework;
@@ -7,13 +8,20 @@ public static class IPaintable_From
 {
     extension(IPaintable paintable)
     {
-        public static IPaintable? From(StardewValley.Object obj) =>
+        public static IPaintable From(StardewValley.Object obj) =>
             new PaintableFromModData(obj.modData) { ModelIdentifier = ModelIdentifier.From(obj) };
 
         public static IPaintable? From(TerrainFeature terrainFeature) =>
             ModelIdentifier.From(terrainFeature) is { } modelIdentifier
-                ? new PaintableFromModData(terrainFeature.modData) { ModelIdentifier = modelIdentifier }
+                ? terrainFeature switch
+                {
+                    Tree tree => new PaintableTree(tree) { ModelIdentifier = modelIdentifier },
+                    _ => new PaintableFromModData(terrainFeature.modData) { ModelIdentifier = modelIdentifier },
+                }
                 : null;
+
+        public static IPaintable From(Building building) =>
+            new PaintableBuilding(building) { ModelIdentifier = ModelIdentifier.From(building) };
 
         public static IPaintable? From(WorldObject worldObject) =>
             worldObject switch
@@ -32,10 +40,7 @@ public static class IPaintable_From
                     ),
                 },
                 WorldObject.Mailbox(var farm) => new MailboxPaintable(farm),
-                WorldObject.Building(var building) => new PaintableBuilding(building)
-                {
-                    ModelIdentifier = ModelIdentifier.From(building),
-                },
+                WorldObject.Building(var building) => From(building),
             };
     }
 }
