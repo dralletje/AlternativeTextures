@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -6,6 +7,7 @@ using ConsoleLog;
 using DralGeometry;
 using Incubator;
 using Incubator.MonoGame;
+using Incubator.MonoGame.Drawables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -402,7 +404,7 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    record Grid(GridSize Size, List<IDraw> Children) : IDraw
+    record Grid(GridSize Size, IEnumerable<IDraw> Children) : IDraw
     {
         public Grid(GridSize size, Action<DrawableBuilder> ChildrenFn)
             : this(size, DrawableBuilder.Create(ChildrenFn)) { }
@@ -522,6 +524,72 @@ internal class GridMenu : IClickableMenu
         }
     }
 
+    public static class ForeachGrid
+    {
+        public static _ForeachGrid<T> Create<T>(DrawableBuilder UI, GridSize Size, IEnumerable<T> Items) =>
+            new(UI, Size, Items);
+    }
+
+    public ref struct _ForeachGrid<Element>(DrawableBuilder UI, GridSize Size, IEnumerable<Element> Items)
+    {
+        // public static _ForeachGrid<T> Create<T>(DrawableBuilder UI, GridSize Size, IEnumerable<T> Items) =>
+        //     new(UI, Size, Items);
+
+        // public IEnumerator<T> GetEnumerator()
+        // {
+        //     var index = 0;
+        //     var size = Size;
+        //     foreach (var item in Items)
+        //     {
+        //         var itemWidth = (1f / Size.Columns).Pc;
+        //         var itemHeight = (1f / Size.Rows).Pc;
+        //         var x = itemWidth * Size.ColumnFor(index);
+        //         var y = itemHeight * Size.RowFor(index);
+
+        //         using (UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight)))
+        //         {
+        //             yield return item;
+        //         }
+
+        //         index += 1;
+        //     }
+        // }
+
+        public ForeachGridEnumerator GetEnumerator() => new ForeachGridEnumerator(UI, Items, Size);
+
+        public ref struct ForeachGridEnumerator(DrawableBuilder UI, IEnumerable<Element> items, GridSize size)
+        {
+            private int index = -1;
+            private IEnumerator<Element> enumerator = items.GetEnumerator();
+            private ActionDisposableStruct _currentGroup = new(); // Assuming UI.Group returns IDisposable
+
+            public Element Current => enumerator.Current;
+
+            public bool MoveNext()
+            {
+                index++;
+                if (enumerator.MoveNext() is false)
+                    return false;
+
+                // Dispose the group from the previous iteration
+
+                var itemWidth = (1f / size.Columns).Pc;
+                var itemHeight = (1f / size.Rows).Pc;
+                var x = itemWidth * size.ColumnFor(index);
+                var y = itemHeight * size.RowFor(index);
+
+                // Open the scope for the current iteration
+                _currentGroup.Dispose();
+                _currentGroup = UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight));
+
+                return true;
+            }
+
+            // Duck-typed Dispose called automatically by 'foreach'
+            public void Dispose() => _currentGroup.Dispose();
+        }
+    }
+
     TextureSprite ItemRowBackground =>
         VisualTheme.ItemRowBackgroundTexture.Clip(VisualTheme.ItemRowBackgroundSourceRect);
 
@@ -533,38 +601,60 @@ internal class GridMenu : IClickableMenu
 
     public void Render(DrawableBuilder UI)
     {
+        var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
+        var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, base.width, base.height);
+
         UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
-        using (
-            UI.Group(x =>
-                x.Frame(x: base.xPositionOnScreen, y: base.yPositionOnScreen, width: base.width, height: base.height)
-            )
-        )
+        using (UI.Group(x => x.Frame(Bounds)))
         {
             UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
 
             var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
             using (UI.Group(x => new TextureBox(MouseCursorOrSomethingSprite, x.Padding(menuPadding))))
             {
-                using (UI.Group(x => new Grid(gridSize, x.Drawables)))
+                // using (UI.Group(x => new Grid(gridSize, x.Drawables)))
+                // {
+                //     foreach (var (button, item) in elementsOnScreen)
+                //     {
+                //         using (UI.Group())
+                //         {
+                //             UI += new TextureBox()
+                //             {
+                //                 Texture = ItemRowBackground,
+                //                 Color =
+                //                     (this.hovered == item && !scrolling)
+                //                         ? VisualTheme.ItemRowBackgroundHoverColor
+                //                         : Color.White,
+                //                 DrawShadow = false,
+                //             };
+                //             UI += item.Padding(new Padding(all: 12));
+                //         }
+                //     }
+                // }
+
+                foreach (var (button, item) in ForeachGrid.Create(UI, gridSize, elementsOnScreen))
                 {
-                    foreach (var (button, item) in elementsOnScreen)
+                    UI += new TextureBox()
                     {
-                        using (UI.Group())
-                        {
-                            UI += new TextureBox()
-                            {
-                                Texture = ItemRowBackground,
-                                Color =
-                                    (this.hovered == item && !scrolling)
-                                        ? VisualTheme.ItemRowBackgroundHoverColor
-                                        : Color.White,
-                                DrawShadow = false,
-                            };
-                            UI += item.Padding(new Padding(all: 12));
-                        }
-                    }
+                        Texture = ItemRowBackground,
+                        Color =
+                            (this.hovered == item && !scrolling)
+                                ? VisualTheme.ItemRowBackgroundHoverColor
+                                : Color.White,
+                        DrawShadow = false,
+                    };
+                    UI += item.Padding(new Padding(all: 12));
                 }
             }
+
+            // using (var Column = new VStack(UI))
+            // {
+            //     using (Column.Item(1)) { }
+
+            //     using (Column.Item(1)) { }
+
+            //     using (Column.Item(1)) { }
+            // }
 
             if (items.Count > gridSize.Count)
             {
@@ -582,7 +672,7 @@ internal class GridMenu : IClickableMenu
 
             if (hovered?.Value?.DisplayName is { } displayName)
             {
-                UI += new StringWithScrollCenteredAt(displayName, "").At((1f / 2).Pc, 1f.Pc);
+                UI += new StringWithScrollCenteredAt(displayName, "").At(x: (1f / 2).Pc, y: 1f.Pc);
             }
         }
 

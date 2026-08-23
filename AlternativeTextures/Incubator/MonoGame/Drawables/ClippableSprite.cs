@@ -6,7 +6,7 @@ using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame;
+namespace Incubator.MonoGame.Drawables;
 
 public readonly record struct ClippableSpritePart(
     Texture2D Texture,

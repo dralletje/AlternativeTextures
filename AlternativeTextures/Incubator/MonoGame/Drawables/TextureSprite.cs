@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame;
+namespace Incubator.MonoGame.Drawables;
 
 record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
 {

@@ -1,92 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Dunet;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-namespace Incubator.MonoGame;
+namespace Incubator.MonoGame.Drawables;
 
 public interface IDraw
 {
     public void Draw(SpriteBatch spriteBatch, Rectangle destination);
-}
-
-public enum Operator
-{
-    Plus,
-    Minus,
-}
-
-[Union]
-public partial record Calc
-{
-    public partial record Px(int pixels);
-
-    public partial record Vw(float viewportWidth);
-
-    public partial record Vh(float viewportHeight);
-
-    public partial record Pc(float percentage);
-
-    public partial record Binary(Calc a, Operator @operator, Calc b);
-
-    ///
-    public static Calc operator +(Calc a, Calc b) => new Binary(a, Operator.Plus, b);
-
-    public static Calc operator -(Calc a, Calc b) => new Binary(a, Operator.Minus, b);
-
-    public static Calc operator *(Calc calculation, float f) =>
-        calculation switch
-        {
-            Px(var pixels) => new Px((int)(pixels * f)),
-            Vw(var viewportWidth) => new Vw(viewportWidth * f),
-            Vh(var viewportHeight) => new Vh(viewportHeight * f),
-            Pc(var percentage) => new Pc(percentage * f),
-            Binary(var a, var @operator, var b) => new Binary(a * f, @operator, b * f),
-        };
-
-    public static Calc operator /(Calc calculation, int f) => calculation * (1 / f);
-
-    public int Calculate(int pc, int vh, int vw) =>
-        this switch
-        {
-            Px(var amount) => amount,
-            Vw(var fraction) => (int)(fraction * vw),
-            Vh(var fraction) => (int)(fraction * vh),
-            Pc(var fraction) => (int)(fraction * pc),
-            Binary(var a, var @operator, var b) => ApplyOperator(
-                a.Calculate(pc, vh, vw),
-                @operator,
-                b.Calculate(pc, vh, vw)
-            ),
-        };
-
-    public static Calc Zero = new Calc.Px(0);
-
-    static int ApplyOperator(int a, Operator @operator, int b) =>
-        @operator switch
-        {
-            Operator.Plus => a + b,
-            Operator.Minus => a - b,
-        };
-
-    public static implicit operator Calc(int pixels) => new Calc.Px(pixels);
-}
-
-public static class CalcExtensions
-{
-    extension(int amount)
-    {
-        public Calc Px => new Calc.Px(amount);
-    }
-
-    extension(float amount)
-    {
-        public Calc Pc => new Calc.Pc(amount);
-        public Calc Vw => new Calc.Vw(amount);
-        public Calc Vh => new Calc.Vh(amount);
-    }
 }
 
 static class IDraw_At
@@ -104,8 +26,11 @@ static class IDraw_At
         public IDraw Frame(Calc? x = null, Calc? y = null, Calc? width = null, Calc? height = null) =>
             new FramedDrawable(drawable, X: x, Y: y, Width: width, Height: height);
 
-        public IDraw Frame(Calc? width = null, Calc? height = null) =>
-            new FramedDrawable(drawable, Width: width, Height: height);
+        // public IDraw Frame(Calc? width = null, Calc? height = null) =>
+        //     new FramedDrawable(drawable, Width: width, Height: height);
+
+        public IDraw Frame(Rectangle frame) =>
+            new FramedDrawable(drawable, X: frame.X, Y: frame.Y, Width: frame.Width, Height: frame.Height);
 
         public IDraw Padding(LayoutPadding padding) => new PaddedDrawable(drawable, padding);
 
@@ -222,12 +147,12 @@ public record PositionedDrawable(IDraw Drawable, Calc X, Calc Y) : IDraw
 }
 
 // [CollectionBuilder(typeof(DrawableGroup), nameof(DrawableGroup.Create))]
-public record DrawableGroup(List<IDraw> Drawables) : IDraw
+public record DrawableGroup(IEnumerable<IDraw> Drawables) : IDraw, IEnumerable<IDraw>
 {
     // public static DrawableGroup Create(ReadOnlySpan<IDraw> values) => new(values);
 
-    public DrawableGroup(IEnumerable<IDraw> values)
-        : this([.. values]) { }
+    public DrawableGroup()
+        : this([]) { }
 
     public DrawableGroup(Action<DrawableBuilder> buildFn)
         : this(DrawableBuilder.Create(buildFn)) { }
@@ -239,84 +164,15 @@ public record DrawableGroup(List<IDraw> Drawables) : IDraw
             drawable.Draw(spriteBatch, destination);
         }
     }
-}
 
-public interface IDrawableBuilder
-{
-    public void Add(IDraw drawable);
-
-    public void operator +=(IDraw drawable) => Add(drawable);
-
-    public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
-}
-
-// public class SubGroupBuilder(IDrawableBuilder parent, Func<IDraw, IDraw> propsFn) : IDrawableBuilder, IDisposable
-// {
-//     List<IDraw> Drawables = [];
-
-//     public void Add(IDraw drawable)
-//     {
-//         Drawables.Add(drawable);
-//     }
-
-//     public void operator +=(IDraw drawable) => Add(drawable);
-
-//     public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
-
-//     public void Dispose()
-//     {
-//         parent.Add(propsFn(new DrawableGroup(Drawables)));
-//     }
-// }
-
-public class DrawableBuilder() : IDrawableBuilder
-{
-    Stack<(List<IDraw> drawables, Func<DrawableGroup, IDraw> finisher)> DrawablesStack = new([
-        (drawables: [], finisher: (x) => x),
-    ]);
-
-    public static List<IDraw> Create(Action<DrawableBuilder> buildFn)
+    public IEnumerator<IDraw> GetEnumerator()
     {
-        var builder = new DrawableBuilder();
-        buildFn(builder);
-        var children = builder.Finish();
-        return children;
+        return Drawables.GetEnumerator();
     }
 
-    public void Add(IDraw drawable)
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
-        DrawablesStack.Peek().drawables.Add(drawable);
-    }
-
-    public void operator +=(IDraw drawable) => Add(drawable);
-
-    public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
-
-    public IDisposable Group(Func<DrawableGroup, IDraw>? propsFn = null)
-    {
-        if (DrawablesStack.Count is 0)
-            throw new ArgumentException("DrawableBuilder is dead!!");
-
-        DrawablesStack.Push((drawables: [], finisher: propsFn ?? (x => x)));
-
-        // return new SubGroupBuilder(this, propsFn);
-        return new ActionDisposable(() =>
-        {
-            var (drawables, finisher) = DrawablesStack.Pop();
-            Add(finisher(new DrawableGroup(drawables)));
-        });
-    }
-
-    public List<IDraw> Finish()
-    {
-        var (drawables, finisher) = DrawablesStack.Count switch
-        {
-            0 => throw new ArgumentException("Drawables stack too empty"),
-            > 1 => throw new ArgumentException("Drawables stack too full"),
-            < 1 => throw new ArgumentException("Huh?"),
-            1 => DrawablesStack.Pop(),
-        };
-        return drawables;
+        return GetEnumerator();
     }
 }
 

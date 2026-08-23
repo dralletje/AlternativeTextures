@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame;
+namespace Incubator.MonoGame.Drawables;
 
 public readonly record struct SpritePart(
     ISprite Drawable,
