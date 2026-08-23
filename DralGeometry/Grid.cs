@@ -13,6 +13,13 @@ public record GridSize(int rows, int columns)
         get { return Rows * Columns; }
     }
 
+    public List<(int Column, int Row)> Coords() =>
+        [
+            .. Enumerable
+                .Range(0, Rows)
+                .SelectMany(Row => Enumerable.Range(0, Columns).Select(Column => (Column, Row))),
+        ];
+
     public int ColumnFor(int index)
     {
         if (index >= Count)
@@ -29,12 +36,12 @@ public record GridSize(int rows, int columns)
         return index / Columns;
     }
 
-    public (int Row, int Column) PositionForIndex(int index)
+    public (int Column, int Row) PositionForIndex(int index)
     {
         if (index >= Count)
             throw new ArgumentException("Higher index than possible in the GridSize");
 
-        return (index / Columns, index % Columns);
+        return (index % Columns, index / Columns);
     }
 }
 

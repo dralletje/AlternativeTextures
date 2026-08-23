@@ -57,12 +57,15 @@ static class PaintableExtensions
 
             if (location is DecoratableLocation decoratableLocation)
             {
+                Console.Log($"location: DecoratableLocation");
                 if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
                 {
+                    Console.Log($"wallId: {wallId}");
                     yield return new WorldObject.Decoration(DecorationType.Wallpaper, decoratableLocation, wallId);
                 }
                 else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
                 {
+                    Console.Log($"wallId: {floorId}");
                     yield return new WorldObject.Decoration(DecorationType.Floor, decoratableLocation, floorId);
                 }
             }

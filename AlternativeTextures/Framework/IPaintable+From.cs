@@ -34,7 +34,7 @@ public static class IPaintable_From
                         decoration.Location,
                         decoration.RoomId
                     ),
-                    { Type: DecorationType.Wallpaper } => new FloorDecorationPaintable(
+                    { Type: DecorationType.Wallpaper } => new WallpaperDecorationPaintable(
                         decoration.Location,
                         decoration.RoomId
                     ),

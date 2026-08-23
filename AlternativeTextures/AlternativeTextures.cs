@@ -11,6 +11,7 @@ using AlternativeTextures.Framework.Managers;
 using AlternativeTextures.Framework.Paintable;
 using AlternativeTextures.MetaFramework;
 using AlternativeTextures.PatchDrawMod;
+using Incubator;
 using Incubator.MonoGame;
 using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,6 +54,11 @@ static class Monitor
 static class ModHelper
 {
     public static IModHelper shared;
+}
+
+public static class Game2
+{
+    public static readonly State<bool> SnappyMenus = new(Game1.options.SnappyMenus);
 }
 
 class ModConfigStub
@@ -159,6 +165,14 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
         // this.customToolPlugin.Start();
 
         // new Commands(this).Register();
+
+        Helper.Events.GameLoop.UpdateTicking += (sender, input) =>
+        {
+            if (Game2.SnappyMenus.Value != Game1.options.SnappyMenus)
+            {
+                Game2.SnappyMenus.Value = Game1.options.SnappyMenus;
+            }
+        };
 
         // // Hook into the Content events
         Helper.Events.Content.AssetRequested += OnContentAssetRequested;

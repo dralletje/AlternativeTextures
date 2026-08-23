@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ConsoleLog;
 using DralGeometry;
 using Incubator;
 using Incubator.MonoGame;
@@ -13,7 +10,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Netcode;
 using StardewValley;
-using StardewValley.BellsAndWhistles;
 using StardewValley.Menus;
 
 namespace AlternativeTextures.App.UI;
@@ -32,8 +28,6 @@ internal class GridMenu : IClickableMenu
     readonly string _title;
     readonly Action<Item>? onPress;
 
-    public List<ClickableComponent> itemGrid = [];
-
     // private Dictionary<string, Texture2D> _skinIdToTextures = [];
     // private Dictionary<string, Texture2D> _breedIdToTextures = [];
 
@@ -42,15 +36,12 @@ internal class GridMenu : IClickableMenu
         get { return (int)Math.Ceiling((double)items.Count / gridSize.Columns); }
     }
 
-    ClickableTextureComponent upArrow;
-    ClickableTextureComponent downArrow;
-    ClickableTextureComponent scrollBar;
-    Rectangle scrollBarRunner;
+    State<Item?> hovered = new(null);
+    State<int> rowsScrolled = new(0);
 
-    Signal<Item?> hovered = new(null);
-    Signal<int> rowsScrolled = new(0);
-    Computed<int> scrollbarY;
-    Computed<IEnumerable<IDraw>> RenderSignal;
+    // Computed<DrawableBuilder.Result> RenderSignal;
+    Watcher<DrawableBuilder.Result> RenderWatcher;
+    DrawableBuilder.Result? LastResult = null;
 
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
 
@@ -77,108 +68,17 @@ internal class GridMenu : IClickableMenu
             base.height += 64;
         }
 
-        var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
-        base.xPositionOnScreen = (int)topLeft.X;
-        base.yPositionOnScreen = (int)topLeft.Y;
+        // var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
+        // base.xPositionOnScreen = (int)topLeft.X;
+        // base.yPositionOnScreen = (int)topLeft.Y;
 
-        /////////////////////////////////////
-
-        var borderInset = new Padding(all: 16) { Top = 20, Right = 12 };
-        var padding = new Padding(all: 16);
-        var menuarea = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
-        var buttonarea = menuarea - borderInset - padding;
-        var buttonWidth = buttonarea.Width / gridSize.Columns;
-        var buttonHeight = buttonarea.Height / gridSize.Rows;
-
-        foreach (var row in Enumerable.Range(0, gridSize.Rows))
-        {
-            foreach (var column in Enumerable.Range(0, gridSize.Columns))
-            {
-                var componentId = column + (row * gridSize.Columns);
-                this.itemGrid.Add(
-                    new ClickableComponent(
-                        new Rectangle(
-                            buttonarea.X + (buttonWidth * column),
-                            buttonarea.Y + (buttonHeight * row),
-                            buttonWidth,
-                            buttonHeight
-                        ),
-                        // new Rectangle((buttonWidth * column), (buttonHeight * row), buttonWidth, buttonHeight),
-                        ""
-                    )
-                    {
-                        myID = componentId,
-                        downNeighborID = ClickableComponent.CUSTOM_SNAP_BEHAVIOR,
-                        upNeighborID = ClickableComponent.CUSTOM_SNAP_BEHAVIOR,
-                        rightNeighborID =
-                            column == (gridSize.Columns - 1) ? ClickableComponent.SNAP_AUTOMATIC : componentId + 1,
-                        leftNeighborID = column > 0 ? componentId - 1 : ClickableComponent.SNAP_AUTOMATIC,
-                    }
-                );
-            }
-        }
-
-        /////////////////////////////////////
-
-        upArrow = new ClickableTextureComponent(
-            new Rectangle(xPositionOnScreen + width + 16, yPositionOnScreen + 16, 44, 48),
-            VisualTheme.ScrollUpTexture,
-            VisualTheme.ScrollUpSourceRect,
-            4f
-        )
-        {
-            myID = 97865,
-            downNeighborID = 106,
-            leftNeighborID = 3546,
-        };
-        downArrow = new ClickableTextureComponent(
-            new Rectangle(xPositionOnScreen + width + 16, yPositionOnScreen + height - 64, 44, 48),
-            VisualTheme.ScrollDownTexture,
-            VisualTheme.ScrollDownSourceRect,
-            4f
-        )
-        {
-            myID = 106,
-            upNeighborID = 97865,
-            leftNeighborID = 3546,
-        };
-
-        scrollBar = new ClickableTextureComponent(
-            new Rectangle(upArrow.bounds.X + 12, upArrow.bounds.Y + upArrow.bounds.Height + 4, 24, 40),
-            VisualTheme.ScrollBarFrontTexture,
-            VisualTheme.ScrollBarFrontSourceRect,
-            4f
-        );
-        scrollBarRunner = new Rectangle(
-            scrollBar.bounds.X,
-            upArrow.bounds.Bottom + 4,
-            scrollBar.bounds.Width,
-            this.height - 64 - upArrow.bounds.Height - 28
-        );
-
-        ////////////////////////////////////////////
-
-        // Call snap functions
-        if (Game1.options.SnappyMenus)
-        {
-            base.populateClickableComponentList();
-            this.setCurrentlySnappedComponentTo(0);
-            this.snapCursorToCurrentSnappedComponent();
-        }
-
-        this.scrollbarY = new(() =>
-        {
-            var listProgress =
-                VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
-            var moveableHeight = scrollBarRunner.Height - scrollBar.bounds.Height;
-            return (int)(moveableHeight * listProgress);
-        });
-        this.RenderSignal = new(() =>
+        RenderWatcher = new(() =>
         {
             var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-            this.Render(builder);
+            this.Render(ref builder);
             return builder.Finish();
         });
+        // LastResult = RenderWatcher.Value;
     }
 
     public void ScrollTo(int index)
@@ -197,67 +97,133 @@ internal class GridMenu : IClickableMenu
         rowsScrolled.Value = row;
 
         var indexRelativeToRow = index - (row * gridSize.Columns);
-        if (itemGrid.ElementAtOrDefault(indexRelativeToRow) is { } element)
+        if (gridSize.Coords().ElementAtOrDefault(indexRelativeToRow) is { } coord)
         {
             if (Game1.options.SnappyMenus)
             {
-                this.currentlySnappedComponent = element;
-                this.snapCursorToCurrentSnappedComponent();
+                // var coord = gridSize.PositionForIndex(indexRelativeToRow);
+                if (gridSize.Coords().Contains(coord))
+                {
+                    Focus.Value = new FocusElement.InGrid(coord);
+                }
+                else
+                {
+                    Focus.Value = new FocusElement.InGrid((0, 0));
+                }
             }
         }
     }
 
-    static class Direction
+    public override void update(GameTime time)
     {
-        public const int UP = 0;
-        public const int DOWN = 2;
+        if (LastResult is null)
+        {
+            LastResult = RenderWatcher.Value;
+            /// Very first update
+            foreach (var handler in LastResult?.UpdateHandlers ?? [])
+            {
+                handler(true);
+            }
+        }
+
+        foreach (var handler in LastResult?.TickHandlers ?? [])
+        {
+            handler(time);
+        }
+
+        if (RenderWatcher.HasChanges)
+        {
+            foreach (var handler in LastResult?.UpdateHandlers ?? [])
+            {
+                handler(false);
+            }
+            LastResult = RenderWatcher.Run();
+        }
     }
 
-    protected override void customSnapBehavior(int direction, int oldRegion, int oldID)
+    protected void snapBehavior(Direction direction, (int column, int row) coords)
     {
-        var thisRow = oldID / gridSize.Columns;
-        var isFirstRow = thisRow == 0;
-        var isLastRow = thisRow + 1 == gridSize.Rows;
-        if (direction is Direction.DOWN)
-        {
-            if (isLastRow && rowsScrolled + gridSize.Rows < VirtualRows)
-            {
-                rowsScrolled.Value++;
-            }
-            else if ((rowsScrolled * gridSize.Columns) + oldID + gridSize.Columns < items.Count)
-            {
-                if (Game1.options.SnappyMenus)
-                {
-                    this.setCurrentlySnappedComponentTo(oldID + gridSize.Columns);
-                    this.snapCursorToCurrentSnappedComponent();
-                }
-            }
-            else
-            {
-                /// Do something at the bottom of the bottom?
-            }
-        }
-        else if (direction is Direction.UP)
-        {
-            if (isFirstRow && rowsScrolled > 0)
-            {
-                rowsScrolled.Value--;
-            }
-            else if ((rowsScrolled * gridSize.Columns) + oldID - gridSize.Columns >= 0)
-            {
-                if (Game1.options.SnappyMenus)
-                {
-                    this.setCurrentlySnappedComponentTo(oldID - gridSize.Columns);
-                    this.snapCursorToCurrentSnappedComponent();
-                }
-            }
-            else
-            {
-                /// Do something at the top of the top?
-            }
-        }
+        var (column, row) = coords;
+        var index = (row * gridSize.Columns) + row;
 
-        base.customSnapBehavior(direction, oldRegion, oldID);
+        var isFirstRow = row == 0;
+        var isLastRow = row + 1 == gridSize.Rows;
+
+        var isFirstColumn = column == 0;
+        var isLastColumn = column + 1 == gridSize.Columns;
+
+        var canScrollMore = rowsScrolled + gridSize.Rows < VirtualRows;
+        var itemsScrolled = rowsScrolled * gridSize.Columns;
+
+        var gridCoords = gridSize.Coords();
+
+        switch (direction)
+        {
+            case Direction.Down:
+            {
+                if (isLastRow && canScrollMore)
+                {
+                    rowsScrolled.Value++;
+                }
+                else if (itemsScrolled + index + gridSize.Columns < items.Count)
+                {
+                    if (Game1.options.SnappyMenus)
+                    {
+                        Focus.Value = new FocusElement.InGrid((column, row + 1));
+                    }
+                }
+                else
+                {
+                    /// Do something at the bottom of the bottom?
+                }
+                break;
+            }
+            case Direction.Up:
+            {
+                if (isFirstRow && rowsScrolled > 0)
+                {
+                    rowsScrolled.Value--;
+                }
+                else if (itemsScrolled + index - gridSize.Columns >= 0)
+                {
+                    if (Game1.options.SnappyMenus)
+                    {
+                        Focus.Value = new FocusElement.InGrid((column, row - 1));
+                    }
+                }
+                else
+                {
+                    /// Do something at the top of the top?
+                }
+                break;
+            }
+            case Direction.Left:
+            {
+                var to = (column - 1, row);
+                if (gridCoords.Contains(to))
+                {
+                    Focus.Value = new FocusElement.InGrid(to);
+                }
+                break;
+            }
+            case Direction.Right:
+            {
+                var to = (column + 1, row);
+                if (gridCoords.Contains(to))
+                {
+                    Focus.Value = new FocusElement.InGrid(to);
+                }
+                else if (row + (1 / gridSize.Rows) > 0.5)
+                {
+                    Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.DownArrow);
+                }
+                else
+                {
+                    Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow);
+                }
+                break;
+            }
+        }
     }
 
     public override void performHoverAction(int x, int y)
@@ -269,14 +235,12 @@ internal class GridMenu : IClickableMenu
         }
 
         Item? hovering = null;
-        foreach (var (button, menuItem) in elementsOnScreen)
+        var point = new Point(x, y);
+        foreach (var handler in LastResult?.HoverHandlers ?? [])
         {
-            if (button.containsPoint(x, y))
+            if (handler(point))
             {
-                if (hovered != menuItem)
-                {
-                    hovering = menuItem;
-                }
+                return;
             }
         }
         hovered.Value = hovering;
@@ -292,92 +256,101 @@ internal class GridMenu : IClickableMenu
     {
         base.receiveLeftClick(x, y, playSound);
         if (Game1.activeClickableMenu == null)
-        {
             return;
-        }
 
-        foreach (var (button, item) in elementsOnScreen)
+        var point = new Point(x, y);
+        foreach (var handler in LastResult?.LeftClickHandlers ?? [])
         {
-            if (!button.containsPoint(x, y))
-                continue;
-
-            if (this.onPress is { } onPress)
+            if (handler(point))
             {
-                onPress(item);
-                this.exitThisMenu();
+                return;
             }
-
-            return;
         }
 
-        if (downArrow.containsPoint(x, y) && rowsScrolled < Math.Max(0, VirtualRows - gridSize.Rows))
-        {
-            downArrowPressed();
-            Game1.playSound("shwip");
-        }
-        else if (upArrow.containsPoint(x, y) && rowsScrolled > 0)
-        {
-            upArrowPressed();
-            Game1.playSound("shwip");
-        }
-        else if (scrollBar.containsPoint(x, y))
-        {
-            scrolling = true;
-        }
-        else if (
-            !downArrow.containsPoint(x, y)
-            && x > xPositionOnScreen + width
-            && x < xPositionOnScreen + width + 128
-            && y > yPositionOnScreen
-            && y < yPositionOnScreen + height
-        )
-        {
-            scrolling = true;
-            leftClickHeld(x, y);
-            releaseLeftClick(x, y);
-        }
+        // foreach (var (button, item) in elementsOnScreen)
+        // {
+        //     if (!button.containsPoint(x, y))
+        //         continue;
+
+        //     if (this.onPress is { } onPress)
+        //     {
+        //         onPress(item);
+        //         this.exitThisMenu();
+        //     }
+
+        //     return;
+        // }
+
+        // if (downArrow.containsPoint(x, y) && rowsScrolled < Math.Max(0, VirtualRows - gridSize.Rows))
+        // {
+        //     downArrowPressed();
+        //     Game1.playSound("shwip");
+        // }
+        // else if (upArrow.containsPoint(x, y) && rowsScrolled > 0)
+        // {
+        //     upArrowPressed();
+        //     Game1.playSound("shwip");
+        // }
+        // else if (scrollBar.containsPoint(x, y))
+        // {
+        //     scrolling = true;
+        // }
+        // else if (
+        //     !downArrow.containsPoint(x, y)
+        //     && x > xPositionOnScreen + width
+        //     && x < xPositionOnScreen + width + 128
+        //     && y > yPositionOnScreen
+        //     && y < yPositionOnScreen + height
+        // )
+        // {
+        //     scrolling = true;
+        //     leftClickHeld(x, y);
+        //     releaseLeftClick(x, y);
+        // }
     }
 
-    private bool scrolling = false;
+    private readonly State<bool> IsScrolling = new(false);
 
     private void downArrowPressed()
     {
-        downArrow.scale = downArrow.baseScale;
         rowsScrolled.Value++;
     }
 
     private void upArrowPressed()
     {
-        upArrow.scale = upArrow.baseScale;
         rowsScrolled.Value--;
     }
 
     public override void leftClickHeld(int x, int y)
     {
         base.leftClickHeld(x, y);
-        if (scrolling)
+        if (IsScrolling)
         {
-            var y2 = scrollBar.bounds.Y;
-            scrollBar.bounds.Y = Math.Min(
-                yPositionOnScreen + height - 64 - 12 - scrollBar.bounds.Height,
-                Math.Max(y, yPositionOnScreen + upArrow.bounds.Height + 20)
-            );
-            var num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
-            rowsScrolled.Value = Math.Min(
-                Math.Max(0, VirtualRows - gridSize.Rows),
-                Math.Max(0, (int)((float)VirtualRows * num))
-            );
-            if (y2 != scrollBar.bounds.Y)
-            {
-                Game1.playSound("shiny4");
-            }
+            // var num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
+            // var newRowsScrolled = Math.Min(
+            //     Math.Max(0, VirtualRows - gridSize.Rows),
+            //     Math.Max(0, (int)((float)VirtualRows * num))
+            // );
+            // if (rowsScrolled != scrollBar.bounds.Y)
+            // {
+            //     Game1.playSound("shiny4");
+            //     rowsScrolled.Value = newRowsScrolled;
+            // }
+        }
+    }
+
+    public override void applyMovementKey(int directionInt)
+    {
+        foreach (var handler in LastResult?.MovementKeyHandlers ?? [])
+        {
+            handler(Direction.FromNumber(directionInt));
         }
     }
 
     public override void releaseLeftClick(int x, int y)
     {
         base.releaseLeftClick(x, y);
-        scrolling = false;
+        IsScrolling.Value = false;
     }
 
     public override void receiveScrollWheelAction(int direction)
@@ -395,187 +368,52 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    IEnumerable<(ClickableComponent button, Item item)> elementsOnScreen
+    record InScrollbarLens(IState<FocusElement?> state) : IState<VerticalScrollbar.FocusElement?>
     {
-        get
+        public VerticalScrollbar.FocusElement? Value
         {
-            var pageOffset = rowsScrolled * gridSize.Columns;
-            return Enumerable.Zip(this.itemGrid, this.items.Skip(pageOffset));
-        }
-    }
-
-    record HoverText(string Text, SpriteFont? Font = null) : IDraw
-    {
-        public void Draw(SpriteBatch batch, Rectangle destination)
-        {
-            IClickableMenu.drawHoverText(batch, Text, Font ?? Game1.smallFont);
-        }
-    }
-
-    record TextureBox() : IDraw
-    {
-        [SetsRequiredMembers]
-        public TextureBox(TextureSprite texture)
-            : this()
-        {
-            Texture = texture;
-        }
-
-        public required TextureSprite Texture;
-
-        public Color Color = Color.White;
-        public bool DrawShadow = true;
-
-        public void Draw(SpriteBatch batch, Rectangle destination)
-        {
-            IClickableMenu.drawTextureBox(
-                batch,
-                Texture.Texture,
-                Texture.SourceRect,
-                destination.X,
-                destination.Y,
-                destination.Width,
-                destination.Height,
-                Color,
-                4f,
-                DrawShadow
-            );
-        }
-    }
-
-    record StringWithScrollCenteredAt(string Title, string? placeHolderWidthText = null) : IDraw
-    {
-        public void Draw(SpriteBatch batch, Rectangle destination)
-        {
-            SpriteText.drawStringWithScrollCenteredAt(
-                batch,
-                Title,
-                destination.X,
-                destination.Y,
-                placeHolderWidthText ?? ""
-            );
-        }
-    }
-
-    record Mouse() : IDraw
-    {
-        readonly bool IgnoreTransparency = false;
-        readonly int Cursor = -1;
-
-        public void Draw(SpriteBatch batch, Rectangle destination)
-        {
-            if (!Game1.options.hardwareCursor)
+            get => state.Value is FocusElement.InScrollbar(var x) ? x : null;
+            set
             {
-                var num = Game1.mouseCursorTransparency;
-                if (IgnoreTransparency)
+                if (value is { } notnull)
                 {
-                    num = 1f;
+                    state.Value = new FocusElement.InScrollbar(notnull);
                 }
-
-                var cursor =
-                    Cursor >= 0 ? Cursor : ((Game1.options.snappyMenus && Game1.options.gamepadControls) ? 44 : 0);
-
-                batch.Draw(
-                    Game1.mouseCursors,
-                    new Vector2(Game1.getMouseX(), Game1.getMouseY()),
-                    Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, cursor, 16, 16),
-                    Color.White * num,
-                    0f,
-                    Vector2.Zero,
-                    4f + (Game1.dialogueButtonScale / 150f),
-                    SpriteEffects.None,
-                    1f
-                );
+                else
+                {
+                    state.Value = null;
+                }
             }
         }
     }
 
-    public static class ForeachGrid
+    // [Union]
+    public partial record FocusElement
     {
-        public static _ForeachGrid<T> Create<T>(DrawableBuilder UI, GridSize Size, IEnumerable<T> Items) =>
-            new(UI, Size, Items);
-    }
-
-    public ref struct _ForeachGrid<Element>(DrawableBuilder UI, GridSize Size, IEnumerable<Element> Items)
-    {
-        // public static _ForeachGrid<T> Create<T>(DrawableBuilder UI, GridSize Size, IEnumerable<T> Items) =>
-        //     new(UI, Size, Items);
-
-        private DrawableBuilder _ui = UI;
-
-        // public IEnumerator<T> GetEnumerator()
-        // {
-        //     var index = 0;
-        //     var size = Size;
-        //     foreach (var item in Items)
-        //     {
-        //         var itemWidth = (1f / Size.Columns).Pc;
-        //         var itemHeight = (1f / Size.Rows).Pc;
-        //         var x = itemWidth * Size.ColumnFor(index);
-        //         var y = itemHeight * Size.RowFor(index);
-
-        //         using (UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight)))
-        //         {
-        //             yield return item;
-        //         }
-
-        //         index += 1;
-        //     }
-        // }
-
-        public ForeachGridEnumerator GetEnumerator() => new ForeachGridEnumerator(_ui, Items, Size);
-
-        public ref struct ForeachGridEnumerator(DrawableBuilder UI, IEnumerable<Element> items, GridSize size)
+        // 3. Define the union variants as inner partial records.
+        public partial record InScrollbar(VerticalScrollbar.FocusElement focusElement)
+            : FocusElement,
+                IVariant<InScrollbar, FocusElement, VerticalScrollbar.FocusElement>
         {
-            private DrawableBuilder _UI = UI;
+            public VerticalScrollbar.FocusElement Extract() => this.focusElement;
 
-            private int index = -1;
-            private IEnumerator<Element> enumerator = items.GetEnumerator();
-            private ActionDisposableStruct _currentGroup = new(); // Assuming UI.Group returns IDisposable
+            public static InScrollbar Pack(VerticalScrollbar.FocusElement inner) => new InScrollbar(inner);
 
-            public Element Current => enumerator.Current;
-
-            public bool MoveNext()
-            {
-                index++;
-                if (enumerator.MoveNext() is false)
-                    return false;
-
-                // Dispose the group from the previous iteration
-
-                // var itemWidth = (1f / size.Columns).Pc;
-                // var itemHeight = (1f / size.Rows).Pc;
-                // var x = itemWidth * size.ColumnFor(index);
-                // var y = itemHeight * size.RowFor(index);
-
-                // Open the scope for the current iteration
-                _currentGroup.Dispose();
-
-                var itemWidth = _UI.Frame.Width / size.Columns;
-                var itemHeight = _UI.Frame.Height / size.Rows;
-                var x = _UI.Frame.X + (itemWidth * size.ColumnFor(index));
-                var y = _UI.Frame.Y + (itemHeight * size.RowFor(index));
-
-                _currentGroup = _UI.Group(new(x: x, y: y, width: itemWidth, height: itemHeight));
-
-                return true;
-            }
-
-            // Duck-typed Dispose called automatically by 'foreach'
-            public void Dispose() => _currentGroup.Dispose();
+            public static IState<VerticalScrollbar.FocusElement> Lens(IState<FocusElement?> container) =>
+                new VariantLens<FocusElement, VerticalScrollbar.FocusElement, InScrollbar>(container);
         }
+
+        public partial record InGrid((int column, int row) Element) : FocusElement;
     }
+
+    // State<FocusElement?> Focus = new(null);
+    State<FocusElement?> Focus = new(new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow));
 
     TextureSprite ItemRowBackground =>
         VisualTheme.ItemRowBackgroundTexture.Clip(VisualTheme.ItemRowBackgroundSourceRect);
-
-    TextureSprite ScrollUpSprite => VisualTheme.ScrollUpTexture.Clip(VisualTheme.ScrollUpSourceRect);
-    TextureSprite ScrollDownSprite => VisualTheme.ScrollDownTexture.Clip(VisualTheme.ScrollDownSourceRect);
-    TextureSprite ScrollBarFrontSprite => VisualTheme.ScrollBarFrontTexture.Clip(VisualTheme.ScrollBarFrontSourceRect);
-    TextureSprite ScrollBarBackSprite => VisualTheme.ScrollBarBackTexture.Clip(VisualTheme.ScrollBarBackSourceRect);
     TextureSprite MouseCursorOrSomethingSprite = Game1.mouseCursors.Clip(new Rectangle(384, 373, 18, 18));
 
-    public void Render(DrawableBuilder UI)
+    public void Render(ref DrawableBuilder UI)
     {
         var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
         var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, base.width, base.height);
@@ -590,18 +428,49 @@ internal class GridMenu : IClickableMenu
             var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
             using (UI.Group(UI.Frame - menuPadding))
             {
-                foreach (var (button, item) in ForeachGrid.Create(UI, gridSize, elementsOnScreen))
+                var currentPageItems = items.Skip(rowsScrolled * gridSize.Columns).Take(gridSize.Count);
+                foreach (var (coord, item) in GridLayout.Create(UI, gridSize, currentPageItems))
                 {
                     UI += new TextureBox()
                     {
                         Texture = ItemRowBackground,
                         Color =
-                            (this.hovered == item && !scrolling)
+                            (this.hovered.Value == item && !IsScrolling)
                                 ? VisualTheme.ItemRowBackgroundHoverColor
                                 : Color.White,
                         DrawShadow = false,
                     };
+
                     UI += item.Padding(new Padding(all: 12));
+
+                    if (this.onPress is { } onPress)
+                    {
+                        UI += new OnEventsLayout()
+                        {
+                            OnLeftClick = () =>
+                            {
+                                onPress(item);
+                                this.exitThisMenu();
+                                return true;
+                            },
+                        };
+                    }
+
+                    UI += new FocusHandlerLayoutClass<FocusElement>(Focus, new FocusElement.InGrid(coord))
+                    {
+                        OnUnhandledMove = (direction) => snapBehavior(direction, coord),
+                    };
+
+                    var currentFrame = UI.Frame;
+                    UI.OnHover += (point) =>
+                    {
+                        if (currentFrame.Contains(point))
+                        {
+                            hovered.Value = item;
+                            return true;
+                        }
+                        return false;
+                    };
                 }
             }
 
@@ -616,24 +485,46 @@ internal class GridMenu : IClickableMenu
 
             if (items.Count > gridSize.Count)
             {
-                var frame = new Rectangle(
-                    x: UI.Frame.X + UI.Frame.Width,
-                    y: UI.Frame.Y,
-                    width: 48,
-                    height: UI.Frame.Height
-                );
-                using (UI.Group(frame - new Padding(all: 4)))
+                var scrollProgress =
+                    VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
+                var frame =
+                    new Rectangle(
+                        x: UI.Frame.X + UI.Frame.Width + 16,
+                        y: UI.Frame.Y,
+                        width: 48,
+                        height: UI.Frame.Height
+                    ) - new Padding(vertical: 16);
+
+                UI += new VerticalScrollbar(Progress: scrollProgress)
                 {
-                    UI += ScrollUpSprite.Frame(x: 0, y: 0, width: 44, height: 48);
-                    var frame2 = UI.Frame - new Padding(top: 48 + 12, bottom: 48 + 12);
-                    var centered = Geometry.Centered(frame2, 24);
-                    using (UI.Group(centered))
+                    // Focus = FocusElement.InScrollbar.Lens(Focus),
+                    Focus = new InScrollbarLens(Focus),
+                    OnUpClick = this.upArrowPressed,
+                    OnDownClick = this.downArrowPressed,
+                    OnThumbClick = () =>
                     {
-                        UI += new TextureBox(ScrollBarBackSprite);
-                        UI += ScrollBarFrontSprite.At(0, scrollbarY).Frame(24, 40);
-                    }
-                    UI += ScrollDownSprite.Frame(x: 0, y: 1f.Pc - 48, width: 44, height: 48);
-                }
+                        this.IsScrolling.Value = true;
+                    },
+                    OnUnhandledMove = (from, direction) =>
+                    {
+                        Console.Log($"Unhandled move from scrollbar {direction}");
+                        var gridCoords = gridSize.Coords();
+                        if (direction is Direction.Left)
+                        {
+                            var startindex = from switch
+                            {
+                                VerticalScrollbar.FocusElement.UpArrow => gridSize.Columns - 1,
+                                VerticalScrollbar.FocusElement.Thumb => (gridSize.Rows / 2) * gridSize.Columns - 1,
+                                VerticalScrollbar.FocusElement.DownArrow => gridSize.Count - 1,
+                            };
+
+                            var itemsInCurrentView = items.Count - (rowsScrolled * gridSize.Columns);
+                            startindex = Math.Clamp(startindex, 0, itemsInCurrentView - 1);
+                            var coord = gridSize.PositionForIndex(startindex);
+                            Focus.Value = new FocusElement.InGrid(coord);
+                        }
+                    },
+                }.Frame(frame);
             }
 
             if (hovered?.Value?.DisplayName is { } displayName)
@@ -654,9 +545,12 @@ internal class GridMenu : IClickableMenu
     {
         if (!Game1.dialogueUp && !Game1.IsFading())
         {
-            var UI = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-            UI += new DrawableGroup(RenderSignal.Value);
-            new DrawableGroup(UI.Finish()).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
+            // var UI = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
+            new DrawableGroup(LastResult?.Drawables ?? []).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
+
+            // var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds, batch);
+            // this.Render(builder);
+            // builder.Finish();
         }
     }
 }

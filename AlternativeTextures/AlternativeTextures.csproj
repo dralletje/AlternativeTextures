@@ -16,6 +16,8 @@
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <NoWarn>$(NoWarn);CA2252</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,7 +37,7 @@
     <PackageReference Include="PolySharp" Version="1.16.0" />
     <!-- <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" ExcludeAssets="all" />
     <PackageReference Include="System.Collections.Immutable" Version="10.0.11" /> -->
-    <!-- <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" /> -->
+    <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>

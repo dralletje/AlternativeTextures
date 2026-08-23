@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using AlternativeTextures;
+using AlternativeTextures.App.UI;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Incubator.MonoGame.Drawables;
 
@@ -16,9 +18,68 @@ public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
     }
 }
 
-/// TODO Turns into `ref struct` when I got rid of all lambda based uses
-public ref struct DrawableBuilder(Rectangle rootFrame)
+public interface ILayout
 {
+    public void Render(ref DrawableBuilder UI);
+}
+
+static class ILayoutExtensions
+{
+    extension(ILayout component)
+    {
+        public ILayout Frame(Rectangle frame) => new FramedLayout(component, frame);
+
+        // public ILayout ID()
+    }
+}
+
+record FramedLayout(ILayout Layout, Rectangle Frame) : ILayout
+{
+    public void Render(ref DrawableBuilder UI)
+    {
+        using (UI.Group(Frame))
+        {
+            Layout.Render(ref UI);
+        }
+    }
+}
+
+// interface ILayoutBuilder
+// {
+//     public Rectangle RootFrame { get; }
+//     public Rectangle Frame { get; }
+
+//     public void operator +=(IDraw drawable);
+
+//     public ActionDisposableStruct Group(Rectangle newFrame);
+// }
+
+public record Collector<T>
+{
+    public List<T> Values = [];
+
+    public void operator +=(T value) => Values.Add(value);
+}
+
+/// TODO Turns into `ref struct` when I got rid of all lambda based uses
+public ref struct DrawableBuilder(Rectangle rootFrame, SpriteBatch? ImmediatePainter = null)
+{
+    public record Result
+    {
+        public required List<IDraw> Drawables { get; init; }
+        public required List<Func<Point, bool>> LeftClickHandlers { get; init; }
+        public required List<Action<bool>> UpdateHandlers { get; init; }
+        public required List<Action<GameTime>> TickHandlers { get; init; }
+        public required List<Action<Direction>> MovementKeyHandlers { get; init; }
+        public required List<Func<Point, bool>> HoverHandlers { get; init; }
+    }
+
+    public Collector<Func<Point, bool>> OnLeftClick = new();
+    public Collector<Func<Point, bool>> OnHover = new();
+    public Collector<Action<bool>> OnUpdate = new();
+    public Collector<Action<GameTime>> OnTick = new();
+    public Collector<Action<Direction>> OnMovementKey = new();
+
     /// Until I have everything "ref-ed up", I'm going to save some stuff in a reference type
     record Layer()
     {
@@ -37,27 +98,24 @@ public ref struct DrawableBuilder(Rectangle rootFrame)
     public Rectangle RootFrame => rootFrame;
     public Rectangle Frame => Current.Frame;
 
-    // public static List<IDraw> Create(Action<DrawableBuilder> buildFn)
-    // {
-    //     var builder = new DrawableBuilder();
-    //     buildFn(builder);
-    //     var children = builder.Finish();
-    //     return children;
-    // }
-
     public void Add(IDraw drawable)
     {
         DrawablesStack.Peek().drawables.Add(drawable);
+        if (ImmediatePainter is not null)
+        {
+            drawable.Draw(ImmediatePainter, Current.Frame);
+        }
     }
 
     public void operator +=(IDraw drawable) => Add(drawable);
 
-    // public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
+    public void operator +=(ILayout drawable)
+    {
+        drawable.Render(ref this);
+    }
 
     public ActionDisposableStruct Group(Rectangle newFrame)
     {
-        // state.CurrentFrame = new();
-
         if (DrawablesStack.Count is 0)
             throw new ArgumentException("DrawableBuilder is dead!!");
 
@@ -73,11 +131,10 @@ public ref struct DrawableBuilder(Rectangle rootFrame)
 
             var layer = _DrawablesStack.Pop();
             _DrawablesStack.Peek().drawables.Add(new DrawableGroup(layer.drawables).AbsoluteFrame(layer.Frame));
-            // _DrawablesStack.Peek().drawables.AddRange(layer.drawables);
         });
     }
 
-    public List<IDraw> Finish()
+    public Result Finish()
     {
         var layer = DrawablesStack.Count switch
         {
@@ -86,6 +143,14 @@ public ref struct DrawableBuilder(Rectangle rootFrame)
             1 => DrawablesStack.Pop(),
             > 1 => throw new InvalidOperationException("Drawables stack too full"),
         };
-        return layer.drawables;
+        return new Result()
+        {
+            Drawables = layer.drawables,
+            LeftClickHandlers = OnLeftClick.Values,
+            UpdateHandlers = OnUpdate.Values,
+            TickHandlers = OnTick.Values,
+            MovementKeyHandlers = OnMovementKey.Values,
+            HoverHandlers = OnHover.Values,
+        };
     }
 }

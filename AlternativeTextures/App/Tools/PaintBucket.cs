@@ -52,7 +52,7 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
         /// If you stand before a wall with something on it and you try to use this,
         /// it will only find the wall, not the item.
         /// So a small fix to check on tile above if standing in front of a wall:
-        if (objects.Count == 0)
+        if (objects.All(x => x is WorldObject.Decoration))
         {
             if (location is DecoratableLocation loc && loc.GetWallpaperID(tile.X, tile.Y) is { } roomId)
             {
@@ -64,8 +64,10 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
 
         foreach (var worldObject in objects)
         {
+            Console.Log($"worldObject: {worldObject.ToString()}");
             if (IPaintable.From(worldObject) is not { } paintable)
                 continue;
+            Console.Log($"paintable: {paintable.ModelIdentifier}");
 
             Console.Log($"PAINTBUCKET: {paintable.TextureIdentifier}");
 

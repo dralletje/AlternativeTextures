@@ -26,8 +26,8 @@ static class IDraw_At
         public IDraw Frame(Calc? x = null, Calc? y = null, Calc? width = null, Calc? height = null) =>
             new FramedDrawable(drawable, X: x, Y: y, Width: width, Height: height);
 
-        // public IDraw Frame(Calc? width = null, Calc? height = null) =>
-        //     new FramedDrawable(drawable, Width: width, Height: height);
+        public IDraw Frame(Calc? width = null, Calc? height = null) =>
+            new FramedDrawable(drawable, Width: width, Height: height);
 
         public IDraw Frame(Rectangle frame) =>
             new FramedDrawable(drawable, X: frame.X, Y: frame.Y, Width: frame.Width, Height: frame.Height);

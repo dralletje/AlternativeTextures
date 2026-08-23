@@ -19,7 +19,7 @@ public record Padding()
         Right = all;
     }
 
-    public Padding(int horizontal, int vertical)
+    public Padding(int horizontal = 0, int vertical = 0)
         : this()
     {
         Top = horizontal;

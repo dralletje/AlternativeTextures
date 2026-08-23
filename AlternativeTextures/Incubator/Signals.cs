@@ -28,7 +28,12 @@ internal static class ReactiveContext
     }
 }
 
-public class Signal<T>(T initialValue) : ISignal<T>
+public interface IState<T>
+{
+    public T Value { get; set; }
+}
+
+public class State<T>(T initialValue) : ISignal<T>, IState<T>
 {
     private readonly Dictionary<object, Action> _subscribers = [];
 
@@ -53,7 +58,7 @@ public class Signal<T>(T initialValue) : ISignal<T>
 
     public void Unsubscribe(object owner) => _subscribers.Remove(owner);
 
-    public static implicit operator T(Signal<T> w) => w.Value;
+    public static implicit operator T(State<T> w) => w.Value;
 }
 
 public class Computed<T>(Func<T> compute) : ISignal<T>

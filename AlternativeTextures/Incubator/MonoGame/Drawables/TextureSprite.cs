@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Incubator.MonoGame.Drawables;
 
-record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
+public record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
 {
     public TextureSprite(Texture2D Texture)
         : this(Texture, Texture.Bounds) { }
@@ -26,7 +26,7 @@ record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
     public int Width { get; } = SourceRect.Width;
 }
 
-static class Texture2D_TextureSprite
+public static class Texture2D_TextureSprite
 {
     extension(Texture2D texture)
     {
@@ -34,7 +34,7 @@ static class Texture2D_TextureSprite
     }
 }
 
-static class TextureSprite_ClippableSprite
+public static class TextureSprite_ClippableSprite
 {
     extension(TextureSprite texture)
     {
