@@ -241,6 +241,7 @@ static class DrawPaintable
                             textureModel.Texture,
                             building.getSourceRect()
                         ),
+                        _ => null,
                     };
                 }
 

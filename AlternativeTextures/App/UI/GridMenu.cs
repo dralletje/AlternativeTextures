@@ -415,17 +415,15 @@ internal class GridMenu : IClickableMenu
             var itemWidth = destination.Width / Size.Columns;
             var itemHeight = destination.Height / Size.Rows;
 
+            Console.Log($"itemWidth: {itemWidth}, {itemHeight}");
+            Console.Log($"{Size.ColumnFor(0)}");
+
             new DrawableGroup(
                 Children.Select(
                     (child, index) =>
-                        child.Frame(
-                            new Rectangle(
-                                itemWidth * Size.ColumnFor(index),
-                                itemHeight * Size.RowFor(index),
-                                itemWidth,
-                                itemHeight
-                            )
-                        )
+                        child
+                            .Frame(width: itemWidth, height: itemHeight)
+                            .At(x: itemWidth * Size.ColumnFor(index), y: itemHeight * Size.RowFor(index))
                 )
             ).Draw(batch, destination);
         }
@@ -459,13 +457,6 @@ internal class GridMenu : IClickableMenu
 
         public void Draw(SpriteBatch batch, Rectangle destination)
         {
-            var borderInset = new Padding(all: 16) { Top = 20, Right = 12 };
-            // var padding = new Padding(all: 16);
-            // var menuarea = new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
-            // var buttonarea = menuarea - borderInset - padding;
-            // var buttonWidth = buttonarea.Width / gridSize.Columns;
-            // var buttonHeight = buttonarea.Height / gridSize.Rows;
-
             IClickableMenu.drawTextureBox(
                 batch,
                 Texture.Texture,
@@ -543,9 +534,13 @@ internal class GridMenu : IClickableMenu
     public void Render(DrawableBuilder UI)
     {
         UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
-        using (UI.Group(x => x.Frame(base.xPositionOnScreen, base.yPositionOnScreen, base.width, base.height)))
+        using (
+            UI.Group(x =>
+                x.Frame(x: base.xPositionOnScreen, y: base.yPositionOnScreen, width: base.width, height: base.height)
+            )
+        )
         {
-            UI += new StringWithScrollCenteredAt(_title).At(base.width / 4, -64);
+            UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
 
             var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
             using (UI.Group(x => new TextureBox(MouseCursorOrSomethingSprite, x.Padding(menuPadding))))
@@ -554,8 +549,9 @@ internal class GridMenu : IClickableMenu
                 {
                     foreach (var (button, item) in elementsOnScreen)
                     {
-                        UI += new DrawableGroup([
-                            new TextureBox()
+                        using (UI.Group())
+                        {
+                            UI += new TextureBox()
                             {
                                 Texture = ItemRowBackground,
                                 Color =
@@ -563,33 +559,30 @@ internal class GridMenu : IClickableMenu
                                         ? VisualTheme.ItemRowBackgroundHoverColor
                                         : Color.White,
                                 DrawShadow = false,
-                            },
-                            item.Padding(new Padding(all: 12)),
-                        ]);
+                            };
+                            UI += item.Padding(new Padding(all: 12));
+                        }
                     }
                 }
             }
 
             if (items.Count > gridSize.Count)
             {
-                using (UI.Group(x => x.Frame(x: base.width, y: 0, width: 48, height: base.height).Padding(all: 4)))
+                using (UI.Group(x => x.Frame(x: 1f.Pc, y: 0, width: 48, height: 1f.Pc).Padding(all: 4)))
                 {
                     UI += ScrollUpSprite.Frame(x: 0, y: 0, width: 44, height: 48);
-                    using (UI.Group(x => x.Padding(left: 12, top: 48 + 12, bottom: 48 + 12, right: 0)))
+                    using (UI.Group(x => x.Padding(top: 48 + 12, bottom: 48 + 12).Centered(24)))
                     {
                         UI += new TextureBox(ScrollBarBackSprite);
-                        UI += ScrollBarFrontSprite.Frame(0, 0, 24, 40).At(0, scrollbarY);
+                        UI += ScrollBarFrontSprite.Frame(24, 40).At(0, scrollbarY);
                     }
-                    UI += ScrollDownSprite.Frame(x: 0, y: base.height - 48, width: 44, height: 48);
+                    UI += ScrollDownSprite.Frame(x: 0, y: 1f.Pc - 48, width: 44, height: 48);
                 }
             }
 
             if (hovered?.Value?.DisplayName is { } displayName)
             {
-                UI += new StringWithScrollCenteredAt(displayName, "Hover over an item to see its texture name!").At(
-                    base.width / 4,
-                    base.height
-                );
+                UI += new StringWithScrollCenteredAt(displayName, "").At((1f / 2).Pc, 1f.Pc);
             }
         }
 
