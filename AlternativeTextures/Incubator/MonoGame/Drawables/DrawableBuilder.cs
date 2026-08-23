@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Microsoft.Xna.Framework;
 
 namespace Incubator.MonoGame.Drawables;
 
@@ -15,11 +17,25 @@ public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
 }
 
 /// TODO Turns into `ref struct` when I got rid of all lambda based uses
-public ref struct DrawableBuilder()
+public ref struct DrawableBuilder(Rectangle rootFrame)
 {
-    Stack<(List<IDraw> drawables, Func<DrawableGroup, IDraw> finisher)> DrawablesStack = new([
-        (drawables: [], finisher: (x) => x),
-    ]);
+    /// Until I have everything "ref-ed up", I'm going to save some stuff in a reference type
+    record Layer()
+    {
+        public object Identity { get; } = new();
+        public required Rectangle Frame;
+        public List<IDraw> drawables = [];
+    }
+
+    Stack<Layer> DrawablesStack = new([new Layer() { Frame = rootFrame }]);
+
+    Layer Current =>
+        DrawablesStack.TryPeek(out var layer)
+            ? layer
+            : throw new InvalidOperationException("DrawableBuilder is already finished");
+
+    public Rectangle RootFrame => rootFrame;
+    public Rectangle Frame => Current.Frame;
 
     // public static List<IDraw> Create(Action<DrawableBuilder> buildFn)
     // {
@@ -38,30 +54,38 @@ public ref struct DrawableBuilder()
 
     // public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
 
-    public ActionDisposableStruct Group(Func<DrawableGroup, IDraw>? propsFn = null)
+    public ActionDisposableStruct Group(Rectangle newFrame)
     {
+        // state.CurrentFrame = new();
+
         if (DrawablesStack.Count is 0)
             throw new ArgumentException("DrawableBuilder is dead!!");
 
-        DrawablesStack.Push((drawables: [], finisher: propsFn ?? (x => x)));
+        var layer = new Layer() { Frame = newFrame };
+        DrawablesStack.Push(layer);
 
+        var layerIdentity = layer.Identity;
         var _DrawablesStack = DrawablesStack;
         return new ActionDisposableStruct(() =>
         {
-            var (drawables, finisher) = _DrawablesStack.Pop();
-            _DrawablesStack.Peek().drawables.Add(finisher(new DrawableGroup(drawables)));
+            if (!object.ReferenceEquals(_DrawablesStack.Peek().Identity, layerIdentity))
+                throw new InvalidOperationException("Popping another Layer from DrawableBuilder then expected");
+
+            var layer = _DrawablesStack.Pop();
+            _DrawablesStack.Peek().drawables.Add(new DrawableGroup(layer.drawables).AbsoluteFrame(layer.Frame));
+            // _DrawablesStack.Peek().drawables.AddRange(layer.drawables);
         });
     }
 
     public List<IDraw> Finish()
     {
-        var (drawables, finisher) = DrawablesStack.Count switch
+        var layer = DrawablesStack.Count switch
         {
-            0 => throw new ArgumentException("Drawables stack too empty"),
-            > 1 => throw new ArgumentException("Drawables stack too full"),
-            < 1 => throw new ArgumentException("Huh?"),
+            < 0 => throw new InvalidOperationException("Huh?"),
+            0 => throw new InvalidOperationException("Drawables stack too empty"),
             1 => DrawablesStack.Pop(),
+            > 1 => throw new InvalidOperationException("Drawables stack too full"),
         };
-        return drawables;
+        return layer.drawables;
     }
 }

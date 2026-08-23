@@ -57,6 +57,16 @@ static class IDraw_At
             );
 
         public IDraw Centered(Calc width) => new HorizontalCenteredDrawable(drawable, width);
+
+        public IDraw AbsoluteFrame(Rectangle frame) => new AbsoluteFramedDrawable(drawable, frame);
+    }
+}
+
+public record AbsoluteFramedDrawable(IDraw Drawable, Rectangle Frame) : IDraw
+{
+    public void Draw(SpriteBatch spriteBatch, Rectangle destination)
+    {
+        Drawable.Draw(spriteBatch, Frame);
     }
 }
 
@@ -103,11 +113,21 @@ public record HorizontalCenteredDrawable(IDraw Drawable, Calc Width) : IDraw
             vw: Game1.graphics.GraphicsDevice.Viewport.Width,
             vh: Game1.graphics.GraphicsDevice.Viewport.Height
         );
+        Console.Log($"width: {width}");
         var spareSpace = destination.Width - width;
         Drawable.Draw(
             spriteBatch,
-            new(destination.X + spareSpace / 2, destination.Y, destination.Width - spareSpace, destination.Height)
+            new(destination.X + (spareSpace / 2), destination.Y, destination.Width - spareSpace, destination.Height)
         );
+    }
+}
+
+public static class Geometry
+{
+    public static Rectangle Centered(Rectangle frame, int width)
+    {
+        var spareSpace = frame.Width - width;
+        return new(frame.X + (spareSpace / 2), frame.Y, frame.Width - spareSpace, frame.Height);
     }
 }
 

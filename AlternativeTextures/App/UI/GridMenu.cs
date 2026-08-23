@@ -50,7 +50,7 @@ internal class GridMenu : IClickableMenu
     Signal<Item?> hovered = new(null);
     Signal<int> rowsScrolled = new(0);
     Computed<int> scrollbarY;
-    Computed<List<IDraw>> RenderSignal;
+    Computed<IEnumerable<IDraw>> RenderSignal;
 
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
 
@@ -175,7 +175,7 @@ internal class GridMenu : IClickableMenu
         });
         this.RenderSignal = new(() =>
         {
-            var builder = new DrawableBuilder();
+            var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
             this.Render(builder);
             return builder.Finish();
         });
@@ -404,33 +404,6 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    record Grid(GridSize Size, IEnumerable<IDraw> Children) : IDraw
-    {
-        // public Grid(GridSize size, Action<DrawableBuilder> ChildrenFn)
-        //     : this(size, DrawableBuilder.Create(ChildrenFn)) { }
-
-        public void Draw(SpriteBatch batch, Rectangle destination)
-        {
-            // if (Children.Count() > Size.Count)
-            //     throw new ArgumentException("Children is bigger than the amount of grid items");
-
-            var itemWidth = destination.Width / Size.Columns;
-            var itemHeight = destination.Height / Size.Rows;
-
-            Console.Log($"itemWidth: {itemWidth}, {itemHeight}");
-            Console.Log($"{Size.ColumnFor(0)}");
-
-            new DrawableGroup(
-                Children.Select(
-                    (child, index) =>
-                        child
-                            .Frame(width: itemWidth, height: itemHeight)
-                            .At(x: itemWidth * Size.ColumnFor(index), y: itemHeight * Size.RowFor(index))
-                )
-            ).Draw(batch, destination);
-        }
-    }
-
     record HoverText(string Text, SpriteFont? Font = null) : IDraw
     {
         public void Draw(SpriteBatch batch, Rectangle destination)
@@ -442,17 +415,13 @@ internal class GridMenu : IClickableMenu
     record TextureBox() : IDraw
     {
         [SetsRequiredMembers]
-        public TextureBox(TextureSprite texture, IDraw? child = null)
+        public TextureBox(TextureSprite texture)
             : this()
         {
             Texture = texture;
-            Child = child;
         }
 
         public required TextureSprite Texture;
-        public IEnumerable<IDraw> Children = [];
-        public IDraw? Child = null;
-        public Padding Padding = new();
 
         public Color Color = Color.White;
         public bool DrawShadow = true;
@@ -471,9 +440,6 @@ internal class GridMenu : IClickableMenu
                 4f,
                 DrawShadow
             );
-
-            new DrawableGroup(Children).Padding(Padding).Draw(batch, destination);
-            Child?.Padding(Padding).Draw(batch, destination);
         }
     }
 
@@ -577,14 +543,20 @@ internal class GridMenu : IClickableMenu
 
                 // Dispose the group from the previous iteration
 
-                var itemWidth = (1f / size.Columns).Pc;
-                var itemHeight = (1f / size.Rows).Pc;
-                var x = itemWidth * size.ColumnFor(index);
-                var y = itemHeight * size.RowFor(index);
+                // var itemWidth = (1f / size.Columns).Pc;
+                // var itemHeight = (1f / size.Rows).Pc;
+                // var x = itemWidth * size.ColumnFor(index);
+                // var y = itemHeight * size.RowFor(index);
 
                 // Open the scope for the current iteration
                 _currentGroup.Dispose();
-                _currentGroup = _UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight));
+
+                var itemWidth = _UI.Frame.Width / size.Columns;
+                var itemHeight = _UI.Frame.Height / size.Rows;
+                var x = _UI.Frame.X + (itemWidth * size.ColumnFor(index));
+                var y = _UI.Frame.Y + (itemHeight * size.RowFor(index));
+
+                _currentGroup = _UI.Group(new(x: x, y: y, width: itemWidth, height: itemHeight));
 
                 return true;
             }
@@ -609,33 +581,15 @@ internal class GridMenu : IClickableMenu
         var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, base.width, base.height);
 
         UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
-        using (UI.Group(x => x.Frame(Bounds)))
+        using (UI.Group(Bounds))
         {
             UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
 
-            var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
-            using (UI.Group(x => new TextureBox(MouseCursorOrSomethingSprite, x.Padding(menuPadding))))
-            {
-                // using (UI.Group(x => new Grid(gridSize, x.Drawables)))
-                // {
-                //     foreach (var (button, item) in elementsOnScreen)
-                //     {
-                //         using (UI.Group())
-                //         {
-                //             UI += new TextureBox()
-                //             {
-                //                 Texture = ItemRowBackground,
-                //                 Color =
-                //                     (this.hovered == item && !scrolling)
-                //                         ? VisualTheme.ItemRowBackgroundHoverColor
-                //                         : Color.White,
-                //                 DrawShadow = false,
-                //             };
-                //             UI += item.Padding(new Padding(all: 12));
-                //         }
-                //     }
-                // }
+            UI += new TextureBox(MouseCursorOrSomethingSprite);
 
+            var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
+            using (UI.Group(UI.Frame - menuPadding))
+            {
                 foreach (var (button, item) in ForeachGrid.Create(UI, gridSize, elementsOnScreen))
                 {
                     UI += new TextureBox()
@@ -662,13 +616,21 @@ internal class GridMenu : IClickableMenu
 
             if (items.Count > gridSize.Count)
             {
-                using (UI.Group(x => x.Frame(x: 1f.Pc, y: 0, width: 48, height: 1f.Pc).Padding(all: 4)))
+                var frame = new Rectangle(
+                    x: UI.Frame.X + UI.Frame.Width,
+                    y: UI.Frame.Y,
+                    width: 48,
+                    height: UI.Frame.Height
+                );
+                using (UI.Group(frame - new Padding(all: 4)))
                 {
                     UI += ScrollUpSprite.Frame(x: 0, y: 0, width: 44, height: 48);
-                    using (UI.Group(x => x.Padding(top: 48 + 12, bottom: 48 + 12).Centered(24)))
+                    var frame2 = UI.Frame - new Padding(top: 48 + 12, bottom: 48 + 12);
+                    var centered = Geometry.Centered(frame2, 24);
+                    using (UI.Group(centered))
                     {
                         UI += new TextureBox(ScrollBarBackSprite);
-                        UI += ScrollBarFrontSprite.Frame(24, 40).At(0, scrollbarY);
+                        UI += ScrollBarFrontSprite.At(0, scrollbarY).Frame(24, 40);
                     }
                     UI += ScrollDownSprite.Frame(x: 0, y: 1f.Pc - 48, width: 44, height: 48);
                 }
@@ -692,7 +654,7 @@ internal class GridMenu : IClickableMenu
     {
         if (!Game1.dialogueUp && !Game1.IsFading())
         {
-            var UI = new DrawableBuilder();
+            var UI = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
             UI += new DrawableGroup(RenderSignal.Value);
             new DrawableGroup(UI.Finish()).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
         }
