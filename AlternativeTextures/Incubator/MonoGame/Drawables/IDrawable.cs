@@ -154,8 +154,8 @@ public record DrawableGroup(IEnumerable<IDraw> Drawables) : IDraw, IEnumerable<I
     public DrawableGroup()
         : this([]) { }
 
-    public DrawableGroup(Action<DrawableBuilder> buildFn)
-        : this(DrawableBuilder.Create(buildFn)) { }
+    // public DrawableGroup(Action<DrawableBuilder> buildFn)
+    //     : this(DrawableBuilder.Create(buildFn)) { }
 
     public void Draw(SpriteBatch spriteBatch, Rectangle destination)
     {

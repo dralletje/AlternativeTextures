@@ -3,15 +3,6 @@ using System.Collections.Generic;
 
 namespace Incubator.MonoGame.Drawables;
 
-public interface IDrawableBuilder
-{
-    public void Add(IDraw drawable);
-
-    public void operator +=(IDraw drawable) => Add(drawable);
-
-    public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
-}
-
 public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
 {
     public void Dispose()
@@ -24,19 +15,19 @@ public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
 }
 
 /// TODO Turns into `ref struct` when I got rid of all lambda based uses
-public class DrawableBuilder() : IDrawableBuilder
+public ref struct DrawableBuilder()
 {
     Stack<(List<IDraw> drawables, Func<DrawableGroup, IDraw> finisher)> DrawablesStack = new([
         (drawables: [], finisher: (x) => x),
     ]);
 
-    public static List<IDraw> Create(Action<DrawableBuilder> buildFn)
-    {
-        var builder = new DrawableBuilder();
-        buildFn(builder);
-        var children = builder.Finish();
-        return children;
-    }
+    // public static List<IDraw> Create(Action<DrawableBuilder> buildFn)
+    // {
+    //     var builder = new DrawableBuilder();
+    //     buildFn(builder);
+    //     var children = builder.Finish();
+    //     return children;
+    // }
 
     public void Add(IDraw drawable)
     {
@@ -45,7 +36,7 @@ public class DrawableBuilder() : IDrawableBuilder
 
     public void operator +=(IDraw drawable) => Add(drawable);
 
-    public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
+    // public void operator +=(Action<DrawableBuilder> buildFn) => Add(new DrawableGroup(buildFn));
 
     public ActionDisposableStruct Group(Func<DrawableGroup, IDraw>? propsFn = null)
     {
@@ -54,11 +45,11 @@ public class DrawableBuilder() : IDrawableBuilder
 
         DrawablesStack.Push((drawables: [], finisher: propsFn ?? (x => x)));
 
-        // return new SubGroupBuilder(this, propsFn);
+        var _DrawablesStack = DrawablesStack;
         return new ActionDisposableStruct(() =>
         {
-            var (drawables, finisher) = DrawablesStack.Pop();
-            Add(finisher(new DrawableGroup(drawables)));
+            var (drawables, finisher) = _DrawablesStack.Pop();
+            _DrawablesStack.Peek().drawables.Add(finisher(new DrawableGroup(drawables)));
         });
     }
 

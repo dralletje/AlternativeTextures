@@ -406,8 +406,8 @@ internal class GridMenu : IClickableMenu
 
     record Grid(GridSize Size, IEnumerable<IDraw> Children) : IDraw
     {
-        public Grid(GridSize size, Action<DrawableBuilder> ChildrenFn)
-            : this(size, DrawableBuilder.Create(ChildrenFn)) { }
+        // public Grid(GridSize size, Action<DrawableBuilder> ChildrenFn)
+        //     : this(size, DrawableBuilder.Create(ChildrenFn)) { }
 
         public void Draw(SpriteBatch batch, Rectangle destination)
         {
@@ -535,6 +535,8 @@ internal class GridMenu : IClickableMenu
         // public static _ForeachGrid<T> Create<T>(DrawableBuilder UI, GridSize Size, IEnumerable<T> Items) =>
         //     new(UI, Size, Items);
 
+        private DrawableBuilder _ui = UI;
+
         // public IEnumerator<T> GetEnumerator()
         // {
         //     var index = 0;
@@ -555,10 +557,12 @@ internal class GridMenu : IClickableMenu
         //     }
         // }
 
-        public ForeachGridEnumerator GetEnumerator() => new ForeachGridEnumerator(UI, Items, Size);
+        public ForeachGridEnumerator GetEnumerator() => new ForeachGridEnumerator(_ui, Items, Size);
 
         public ref struct ForeachGridEnumerator(DrawableBuilder UI, IEnumerable<Element> items, GridSize size)
         {
+            private DrawableBuilder _UI = UI;
+
             private int index = -1;
             private IEnumerator<Element> enumerator = items.GetEnumerator();
             private ActionDisposableStruct _currentGroup = new(); // Assuming UI.Group returns IDisposable
@@ -580,7 +584,7 @@ internal class GridMenu : IClickableMenu
 
                 // Open the scope for the current iteration
                 _currentGroup.Dispose();
-                _currentGroup = UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight));
+                _currentGroup = _UI.Group(group => group.Frame(x: x, y: y, width: itemWidth, height: itemHeight));
 
                 return true;
             }
