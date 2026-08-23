@@ -54,6 +54,13 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
     public ClippableSprite(Texture2D texture)
         : this(ImmutableArray.Create(ClippableSpritePart.Create(texture))) { }
 
+    public static ImmutableArray<int> X()
+    {
+        var b = ImmutableArray.Create("A", "B");
+        ImmutableArray<int> x = [];
+        return x;
+    }
+
     ///////////////////////////////////////////////
 
     public ClippableSprite Clip(Rectangle clipRect)

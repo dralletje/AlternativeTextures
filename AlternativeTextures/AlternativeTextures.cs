@@ -217,10 +217,7 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
                             .GetValue();
                         Console.Log($"Loaded {asset.Name} while drawing = {isCurrentlyDrawing}");
                         var clonedTexture = isCurrentlyDrawing
-                            ? textureModel.Texture.CreateSelectiveCopy(
-                                Game1.graphics.GraphicsDevice,
-                                textureModel.Texture.Bounds
-                            )
+                            ? textureModel.CreateTexture()
                             : new IdentityTexture(textureModel.Texture).Flatten(Game1.graphics.GraphicsDevice);
                         return clonedTexture;
                     },

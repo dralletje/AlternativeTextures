@@ -24,7 +24,7 @@ public interface ILayout
 
 public interface IGroupLayout : ILayout
 {
-    public IEnumerable<ILayout> Children { get; init; }
+    public ILayout WithChildren(IEnumerable<ILayout> Children);
 }
 
 static class ILayoutExtensions

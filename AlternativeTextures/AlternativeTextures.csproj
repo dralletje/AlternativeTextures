@@ -16,8 +16,10 @@
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
     <NoWarn>$(NoWarn);CA2252</NoWarn>
+    
+
+    <BundleExtraAssemblies>ThirdParty</BundleExtraAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,16 +30,30 @@
 
   <PropertyGroup>
     <WarningsAsErrors>CS8509</WarningsAsErrors>
+    <WarningsAsErrors>CS8618</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dunet" Version="1.16.2" IncludeAssets="analyzers; build" />
+    <!-- <PackageReference Include="Dunet" Version="1.16.2" /> -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
-    <!-- <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" ExcludeAssets="all" />
-    <PackageReference Include="System.Collections.Immutable" Version="10.0.11" /> -->
+    <!-- <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" ExcludeAssets="all" /> -->
+    <PackageReference Include="System.Collections.Immutable" Version="10.0.11" />
     <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" />
+    <PackageReference Include="System.Text.Json" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SkiaSharp">
+      <HintPath>$(GamePath)\SkiaSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -78,23 +94,26 @@
 		</None> -->
   </ItemGroup>
 
+  <Target Name="RepackMod" AfterTargets="Build">
+    <ItemGroup>
+      <InputAssemblies Include="$(TargetPath)" />
+      <InputAssemblies Include="$(TargetDir)System.Collections.Immutable.dll" />
+    </ItemGroup>
+
+    <ILRepack
+      Parallel="true"
+      Internalize="true"
+      RenameInternalized="true"
+      InputAssemblies="@(InputAssemblies)"
+      OutputFile="$(TargetPath)"
+      LibraryPath="$(TargetDir);@(ReferencePath->'%(RootDir)%(Directory)'->Distinct())"
+    />
+  </Target>
+
   <PropertyGroup>
     <PostBuildEventDependsOn>
 			$(PostBuildEventDependsOn);
 			PostBuildMacros;
 		</PostBuildEventDependsOn>
-    <!-- <PostBuildEvent>
-			powershell -Command "(ls *manifest.json -rec | foreach-object { $f=$_.FullName; (gc -LiteralPath \"$f\") -replace 'REPLACE_ME_WITH_VERSION',  '$(Version)' | sc -LiteralPath \"$f\" })"
-
-			powershell Remove-Item -Path 'C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures"' -Recurse -Force
-			xcopy /s /y /i "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\bin\Debug\$(TargetFramework)" "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures"
-			7z a -tzip "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\AlternativeTextures-$(Version).zip" "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures"
-
-			powershell Remove-Item -Path '$(GameModsPath)\AlternativeTextures' -Recurse -Force
-			powershell Remove-Item -Path '$(GameModsPath)\Alternative Textures Examples' -Recurse -Force
-
-			xcopy /s /y /i "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\releases\latest\AlternativeTextures" "$(GameModsPath)\AlternativeTextures"
-			xcopy /s /y /i "C:\Users\Floogen\Documents\GitHub Repos\AlternativeTextures\AlternativeTextures\Examples\*" "$(GameModsPath)\Alternative Textures Examples"
-		</PostBuildEvent> -->
   </PropertyGroup>
 </Project>

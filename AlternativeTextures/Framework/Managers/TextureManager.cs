@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Incubator;
 using Microsoft.Xna.Framework;
@@ -8,6 +9,11 @@ using StardewModdingAPI;
 using StardewValley;
 
 namespace AlternativeTextures.Framework.Managers;
+
+internal class ModelsByIdentifier : KeyedCollection<UniqueTextureIdentifier, AlternativeTextureModel>
+{
+    protected override UniqueTextureIdentifier GetKeyForItem(AlternativeTextureModel item) => item.UniqueIdentifier;
+}
 
 internal class TextureManager(IModHelper helper)
 {
@@ -23,37 +29,20 @@ internal class TextureManager(IModHelper helper)
         return ErrorTexture;
     });
 
-    private List<AlternativeTextureModel> _alternativeTextures = [];
+    private ModelsByIdentifier textures = [];
     private Dictionary<string, AlternativeTextureModel> legacyIdToModel = [with(StringComparer.OrdinalIgnoreCase)];
     private Dictionary<string, AlternativeTextureModel> texturePathToModel = [with(StringComparer.OrdinalIgnoreCase)];
 
-    static int? FindIndexOrNull<T>(List<T> haystack, System.Predicate<T> findNeedle)
-    {
-        var result = haystack.FindIndex(findNeedle);
-        return result is -1 ? null : result;
-    }
-
-    public Dictionary<UniqueTextureIdentifier, AlternativeTextureModel> texturesByIdentifier = [];
-
     public void AddAlternativeTexture(AlternativeTextureModel model)
     {
-        if (FindIndexOrNull(_alternativeTextures, t => t.UniqueIdentifier == model.UniqueIdentifier) is { } index)
-        {
-            _alternativeTextures[index] = model;
-        }
-        else
-        {
-            _alternativeTextures.Add(model);
-        }
-
-        texturesByIdentifier[model.UniqueIdentifier] = model;
+        textures.Add(model);
         legacyIdToModel[model.LegacyId] = model;
         texturePathToModel[model.TexturePath] = model;
     }
 
-    public List<AlternativeTextureModel> GetAllTextures()
+    public IEnumerable<AlternativeTextureModel> GetAllTextures()
     {
-        return _alternativeTextures;
+        return textures;
     }
 
     [Obsolete("Use .GetTexture(identifier)")]
@@ -64,12 +53,12 @@ internal class TextureManager(IModHelper helper)
 
     public List<AlternativeTextureModel> GetTexturesForModel(ModelIdentifier modelIdentifier, Season season)
     {
-        return _alternativeTextures.Where(t => t.ForModel == modelIdentifier && t.Season == season).ToList();
+        return textures.Where(t => t.ForModel == modelIdentifier && t.Season == season).ToList();
     }
 
     public AlternativeTextureModel? GetTexture(UniqueTextureIdentifier identifier)
     {
-        return texturesByIdentifier.GetValueOrNull(identifier);
+        return textures.TryGetValue(identifier, out var model) ? model : null;
     }
 
     public AlternativeTextureModel? GetTextureForPath(string path)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Incubator;
+using Incubator.MonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
@@ -134,7 +135,14 @@ public record TextureQuery
     public required Season Season;
 }
 
-public record AlternativeTextureModel
+public record ImageBytes
+{
+    public required int Width;
+    public required int Height;
+    public required byte[] Bytes;
+}
+
+public partial record AlternativeTextureModel
 {
     public required ModelIdentifier ForModel;
     public required Season Season;
@@ -144,7 +152,12 @@ public record AlternativeTextureModel
     public required string? DisplayName;
     public required int TextureWidth;
     public required int TextureHeight;
-    public required Texture2D Texture;
+
+    public required ImageBytes TextureRaw;
+
+    // public Texture2D Texture => field ??= this.CreateTexture();
+
+    // public required Texture2D Texture;
 
     public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
     public List<string> Keywords = [];
@@ -155,10 +168,35 @@ public record AlternativeTextureModel
     public TextureIdentifierWithoutSeason UniqueIdentifierWithoutSeason => new(Owner, ForModel, Variation);
 }
 
+partial record AlternativeTextureModel
+{
+    public Texture2D Texture => field ??= this.CreateTexture();
+}
+
 static class AlternativeTextureModelExtensions
 {
     extension(AlternativeTextureModel textureModel)
     {
+        // public Texture2D CreateTexture()
+        // {
+        //     return textureModel.Texture.CreateSelectiveCopy(Game1.graphics.GraphicsDevice, textureModel.Texture.Bounds);
+        // }
+
+        public Texture2D CreateTexture()
+        {
+            var texture = new Texture2D(
+                Game1.graphics.GraphicsDevice,
+                textureModel.TextureRaw.Width,
+                textureModel.TextureRaw.Height
+            )
+            {
+                Name =
+                    $"{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}",
+            };
+            texture.SetData(textureModel.TextureRaw.Bytes);
+            return texture;
+        }
+
         /////////////////////////////
 
         // internal string ModelName

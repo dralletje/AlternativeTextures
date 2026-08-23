@@ -33,8 +33,8 @@ record AlternativeTextureFile
     public required int TextureHeight;
 
     public int Variations = 1;
-    public string? ItemName;
-    public string? ItemId;
+    public string? ItemName = null;
+    public string? ItemId = null;
     public List<string> CollectiveNames = [];
     public List<string> CollectiveIds = [];
 
