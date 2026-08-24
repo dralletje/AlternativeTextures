@@ -20,16 +20,12 @@ internal class GridMenu : IClickableMenu
     {
         public string? DisplayName { get; init; }
         public string? HoverText { get; init; }
-        // public void Draw(SpriteBatch batch, Rectangle destinationRect);
     }
 
     readonly ICollection<Item> items;
     readonly GridSize gridSize;
     readonly string _title;
     readonly Action<Item>? onPress;
-
-    // private Dictionary<string, Texture2D> _skinIdToTextures = [];
-    // private Dictionary<string, Texture2D> _breedIdToTextures = [];
 
     int VirtualRows
     {
@@ -40,8 +36,8 @@ internal class GridMenu : IClickableMenu
     State<int> rowsScrolled = new(0);
 
     // Computed<DrawableBuilder.Result> RenderSignal;
-    Watcher<DrawableBuilder.Result> RenderWatcher;
-    DrawableBuilder.Result? LastResult = null;
+    Watcher<DrawableBuilder.Result>? RenderWatcher;
+    DrawableBuilder.Result? RenderResult = null;
 
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
 
@@ -51,34 +47,17 @@ internal class GridMenu : IClickableMenu
         string uiTitle = "Paint Bucket",
         Action<Item>? onPress = null
     )
-        : base(0, 0, 832, 576, showUpperRightCloseButton: true)
+        : base(
+            0,
+            0,
+            Game1.graphics.GraphicsDevice.Viewport.Bounds.Width,
+            Game1.graphics.GraphicsDevice.Viewport.Bounds.Height
+        )
     {
         this.items = items;
         this.gridSize = gridSize;
         this._title = uiTitle;
         this.onPress = onPress;
-
-        // Set up menu structure
-        if (
-            LocalizedContentManager.CurrentLanguageCode
-            is LocalizedContentManager.LanguageCode.ko
-                or LocalizedContentManager.LanguageCode.fr
-        )
-        {
-            base.height += 64;
-        }
-
-        // var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
-        // base.xPositionOnScreen = (int)topLeft.X;
-        // base.yPositionOnScreen = (int)topLeft.Y;
-
-        RenderWatcher = new(() =>
-        {
-            var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-            this.Render(ref builder);
-            return builder.Finish();
-        });
-        // LastResult = RenderWatcher.Value;
     }
 
     public void ScrollTo(int index)
@@ -116,28 +95,34 @@ internal class GridMenu : IClickableMenu
 
     public override void update(GameTime time)
     {
-        if (LastResult is null)
+        if (RenderWatcher is null)
         {
-            LastResult = RenderWatcher.Value;
+            RenderWatcher = new(() =>
+            {
+                var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
+                this.Render(ref builder);
+                return builder.Finish();
+            });
+            RenderResult = RenderWatcher.Value;
             /// Very first update
-            foreach (var handler in LastResult?.UpdateHandlers ?? [])
+            foreach (var handler in RenderResult?.UpdateHandlers ?? [])
             {
                 handler(true);
             }
         }
 
-        foreach (var handler in LastResult?.TickHandlers ?? [])
+        foreach (var handler in RenderResult?.TickHandlers ?? [])
         {
             handler(time);
         }
 
         if (RenderWatcher.HasChanges)
         {
-            foreach (var handler in LastResult?.UpdateHandlers ?? [])
+            foreach (var handler in RenderResult?.UpdateHandlers ?? [])
             {
                 handler(false);
             }
-            LastResult = RenderWatcher.Run();
+            RenderResult = RenderWatcher.Run();
         }
     }
 
@@ -236,7 +221,7 @@ internal class GridMenu : IClickableMenu
 
         Item? hovering = null;
         var point = new Point(x, y);
-        foreach (var handler in LastResult?.HoverHandlers ?? [])
+        foreach (var handler in RenderResult?.HoverHandlers ?? [])
         {
             if (handler(point))
             {
@@ -259,7 +244,7 @@ internal class GridMenu : IClickableMenu
             return;
 
         var point = new Point(x, y);
-        foreach (var handler in LastResult?.LeftClickHandlers ?? [])
+        foreach (var handler in RenderResult?.LeftClickHandlers ?? [])
         {
             if (handler(point))
             {
@@ -341,7 +326,7 @@ internal class GridMenu : IClickableMenu
 
     public override void applyMovementKey(int directionInt)
     {
-        foreach (var handler in LastResult?.MovementKeyHandlers ?? [])
+        foreach (var handler in RenderResult?.MovementKeyHandlers ?? [])
         {
             handler(Direction.FromNumber(directionInt));
         }
@@ -415,12 +400,25 @@ internal class GridMenu : IClickableMenu
 
     public void Render(ref DrawableBuilder UI)
     {
-        var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(base.width, base.height);
-        var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, base.width, base.height);
+        var menuWidth = 832;
+        var menuHeight = 576;
+        if (
+            LocalizedContentManager.CurrentLanguageCode
+            is LocalizedContentManager.LanguageCode.ko
+                or LocalizedContentManager.LanguageCode.fr
+        )
+        {
+            menuHeight += 64;
+        }
+
+        // var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(menuWidth, menuHeight);
+        // var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, menuWidth, menuHeight);
 
         UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
-        using (UI.Group(Bounds))
+        using (UI.Group(Rectangle.CenteredInside(UI.Frame, width: menuWidth, height: menuHeight)))
         {
+            UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
+
             UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
 
             UI += new TextureBox(MouseCursorOrSomethingSprite);
@@ -546,7 +544,7 @@ internal class GridMenu : IClickableMenu
         if (!Game1.dialogueUp && !Game1.IsFading())
         {
             // var UI = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-            new DrawableGroup(LastResult?.Drawables ?? []).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
+            new DrawableGroup(RenderResult?.Drawables ?? []).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
 
             // var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds, batch);
             // this.Render(builder);

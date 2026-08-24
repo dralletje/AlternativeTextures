@@ -122,6 +122,24 @@ public record HorizontalCenteredDrawable(IDraw Drawable, Calc Width) : IDraw
     }
 }
 
+// public record CenteredLayout(Calc Width, ) : IGroupLayout
+// {
+//     public void Draw(SpriteBatch spriteBatch, Rectangle destination)
+//     {
+//         var width = Width.Calculate(
+//             pc: destination.Width,
+//             vw: Game1.graphics.GraphicsDevice.Viewport.Width,
+//             vh: Game1.graphics.GraphicsDevice.Viewport.Height
+//         );
+//         Console.Log($"width: {width}");
+//         var spareSpace = destination.Width - width;
+//         Drawable.Draw(
+//             spriteBatch,
+//             new(destination.X + (spareSpace / 2), destination.Y, destination.Width - spareSpace, destination.Height)
+//         );
+//     }
+// }
+
 public static class Geometry
 {
     public static Rectangle Centered(Rectangle frame, int width)

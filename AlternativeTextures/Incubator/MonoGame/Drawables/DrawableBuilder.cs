@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using AlternativeTextures;
 using AlternativeTextures.App.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,6 +20,11 @@ public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
 public interface ILayout
 {
     public void Render(ref DrawableBuilder UI);
+}
+
+public interface IGroupLayout : ILayout
+{
+    public IEnumerable<ILayout> Children { get; init; }
 }
 
 static class ILayoutExtensions

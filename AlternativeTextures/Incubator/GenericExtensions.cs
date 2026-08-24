@@ -12,4 +12,13 @@ static class GenericExtensions
             return dictionary.TryGetValue(key, out var value) ? value : null;
         }
     }
+
+    extension<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
+        where TValue : struct
+    {
+        public TValue? GetValueOrNullable(TKey key)
+        {
+            return dictionary.TryGetValue(key, out var value) ? value : null;
+        }
+    }
 }

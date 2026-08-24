@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -35,7 +36,37 @@ public interface ISprite : IDraw
     }
 }
 
-static class SpriteBatch_ISprite
+public static class ISpriteExtensions
+{
+    extension(ISprite sprite)
+    {
+        /// Has destination position and scale arguments
+        public FitSprite Fit() => new(sprite);
+    }
+}
+
+public record FitSprite(ISprite sprite) : ISprite
+{
+    public int Height => sprite.Height;
+    public int Width => sprite.Width;
+
+    public void Draw(
+        SpriteBatch spriteBatch,
+        Vector2 position,
+        Color color,
+        float rotation,
+        Vector2 origin,
+        Vector2 scale,
+        SpriteEffects effects,
+        float depth
+    )
+    {
+        var lowestScale = Math.Min(scale.X, scale.Y);
+        sprite.Draw(spriteBatch, position, color, rotation, origin, new(lowestScale, lowestScale), effects, depth);
+    }
+}
+
+public static class SpriteBatch_ISprite
 {
     extension(SpriteBatch spritebatch)
     {

@@ -60,3 +60,8 @@ public record StringWithScrollCenteredAt(string Title, string? placeHolderWidthT
         );
     }
 }
+
+public static class StardewSprites
+{
+    public static TextureSprite CloseSprite = Game1.mouseCursors.Clip(new Rectangle(337, 494, 12, 12));
+}
