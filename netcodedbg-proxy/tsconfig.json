@@ -1,0 +1,15 @@
+{
+  "extends": [
+    /// "lib": [...], "module", "target", "esModuleInterop", "skipLibCheck", "moduleResolution"
+    "@tsconfig/node26/tsconfig.json",
+    /// "rewriteRelativeImportExtensions": true, "erasableSyntaxOnly": true, "verbatimModuleSyntax": true
+    "@tsconfig/node-ts/tsconfig.json",
+    "@dral/tsconfig/modern",
+    "@dral/tsconfig/reasonable",
+  ],
+  "compilerOptions": {
+    "types": ["node"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+}

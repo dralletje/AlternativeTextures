@@ -1,0 +1,35 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  // {
+  //   "label": "Launch Stardew Valley",
+  //   "adapter": "netcoredbg",
+  //   "request": "launch",
+  //   // "preLaunchTask": "build",
+  //   "program": "$ZED_WORKTREE_ROOT/stardew_install_symlink/StardewModdingAPI.dll",
+  //   "cwd": "$ZED_WORKTREE_ROOT/stardew_install_symlink",
+  //   "targetArchitecture": "x86_64",
+  //   "build": "build",
+  //   "console": "internalConsole",
+  //   "env": {
+  //     "LD_LIBRARY_PATH": "${workspaceFolder}/stardew_install_symlink/lib64:${LD_LIBRARY_PATH}",
+  //     "DYLD_LIBRARY_PATH": "${workspaceFolder}/stardew_install_symlink/MacOS:${DYLD_LIBRARY_PATH}",
+  //   },
+  // },
+
+  {
+    "label": "Attach to Stardew Valley",
+    "adapter": "netcoredbg",
+    "request": "attach",
+    "cwd": "$ZED_WORKTREE_ROOT/stardew_install_symlink",
+    "targetArchitecture": "x86_64",
+    // "processId": "$ZED_PICK_PID",
+    "processId": "0",
+    "processName": "StardewModdingAPI",
+    // "sourceFileMap": {
+    //   "D:\\GitlabRunner\\builds\\Gq5qA5P4\\1\\ConcernedApe\\stardewvalley\\Farmer\\Farmer": "$ZED_WORKTREE_ROOT/.Stardew Source/StardewValley/StardewValley"
+    // }
+  },
+]

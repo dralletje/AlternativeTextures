@@ -1,0 +1,29 @@
+// Folder-specific settings
+//
+// For a full list of overridable settings, and general information on folder-specific settings,
+// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
+{
+  "dap": {
+    "netcoredbg": {
+      // "binary": "~/bin/_netcoredbg/netcoredbg",
+      // "args": ["--interpreter=vscode"],
+      "binary": "netcodedbg-proxy/app.ts",
+      // "env": {
+      //   "NODE_NO_WARNINGS": "1",
+      // }
+    },
+  },
+
+  "languages": {
+    "CSharp": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "dotnet",
+          "arguments": ["csharpier", "format", "--stdin-path", "{buffer_path}"]
+        }
+      }
+    },
+  },
+
+}
