@@ -6,20 +6,23 @@
     <EnableHarmony>true</EnableHarmony>
     <Nullable>enable</Nullable>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <DebugType>portable</DebugType>
+
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);CA2252</NoWarn>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <BundleExtraAssemblies>ThirdParty</BundleExtraAssemblies>
 
     <EnableModZip>false</EnableModZip>
     <!-- <EnableModDeploy>false</EnableModDeploy> -->
     <!-- <GameModsPath>E:\SteamLibrary\steamapps\common\Stardew Valley\Mods</GameModsPath> -->
     <GamePath>../stardew_install_symlink</GamePath>
     <EnableModDeploy>true</EnableModDeploy>
-    <DebugType>portable</DebugType>
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
 
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <NoWarn>$(NoWarn);CA2252</NoWarn>
-    
-
-    <BundleExtraAssemblies>ThirdParty</BundleExtraAssemblies>
+    <!-- <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath> -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,14 +38,12 @@
 
   <ItemGroup>
     <PackageReference Include="Dunet" Version="1.16.2" IncludeAssets="analyzers; build" />
-    <!-- <PackageReference Include="Dunet" Version="1.16.2" /> -->
+
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
-    <!-- <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" ExcludeAssets="all" /> -->
     <PackageReference Include="System.Collections.Immutable" Version="10.0.11" />
     <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" />
-    <PackageReference Include="System.Text.Json" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,34 +60,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ConsoleLog\ConsoleLog.csproj" />
     <ProjectReference Include="..\DralGeometry\DralGeometry.csproj" />
+    <ProjectReference Include="..\Prisms\Prisms.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="i18n\de.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\fr.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\ko.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\default.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\pt.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\ru.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\th.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\tr.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="i18n\uk.json">
+    <None Update="i18n\**.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <!-- <None Update="manifest.json">

@@ -23,11 +23,6 @@ internal record VerticalScrollbar(float Progress) : ILayout
         DownArrow,
     }
 
-    TextureSprite ScrollUpSprite => VisualTheme.ScrollUpTexture.Clip(VisualTheme.ScrollUpSourceRect);
-    TextureSprite ScrollDownSprite => VisualTheme.ScrollDownTexture.Clip(VisualTheme.ScrollDownSourceRect);
-    TextureSprite ScrollBarFrontSprite => VisualTheme.ScrollBarFrontTexture.Clip(VisualTheme.ScrollBarFrontSourceRect);
-    TextureSprite ScrollBarBackSprite => VisualTheme.ScrollBarBackTexture.Clip(VisualTheme.ScrollBarBackSourceRect);
-
     public void Render(ref DrawableBuilder UI)
     {
         var currentFocus = Focus?.Value;
@@ -35,7 +30,7 @@ internal record VerticalScrollbar(float Progress) : ILayout
         {
             using (UI.Group(new(x: UI.Frame.X, y: UI.Frame.Y, width: 44, height: 48)))
             {
-                UI += ScrollUpSprite;
+                UI += VisualTheme.ScrollUpSprite;
 
                 UI += new OnEventsLayout()
                 {
@@ -56,14 +51,14 @@ internal record VerticalScrollbar(float Progress) : ILayout
             var frame2 = UI.Frame - new Padding(top: 48 + 12, bottom: 48 + 12);
             using (UI.Group(Geometry.Centered(frame2, 24)))
             {
-                UI += new TextureBox(ScrollBarBackSprite);
+                UI += new TextureBox(VisualTheme.ScrollBarBackSprite);
 
                 var moveableHeight = UI.Frame.Height - 40;
                 var scrollbarY = moveableHeight * Progress;
 
                 using (UI.Group(new(x: UI.Frame.X, y: UI.Frame.Y + (int)scrollbarY, width: 24, height: 40)))
                 {
-                    UI += ScrollBarFrontSprite;
+                    UI += VisualTheme.ScrollBarFrontSprite;
 
                     UI += new OnEventsLayout()
                     {
@@ -85,7 +80,7 @@ internal record VerticalScrollbar(float Progress) : ILayout
 
             using (UI.Group(new(x: UI.Frame.X, y: UI.Frame.Y + UI.Frame.Height - 48, width: 44, height: 48)))
             {
-                UI += ScrollDownSprite;
+                UI += VisualTheme.ScrollDownSprite;
 
                 UI += new OnEventsLayout()
                 {

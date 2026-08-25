@@ -6,15 +6,22 @@ using Incubator;
 using Incubator.MonoGame;
 using Incubator.MonoGame.Drawables;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using MyOptics;
 using Netcode;
 using StardewValley;
 using StardewValley.Menus;
 
 namespace AlternativeTextures.App.UI;
 
-internal class GridMenu : IClickableMenu
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+public class GenerateLensesAttribute : Attribute { }
+
+internal class GridMenu(
+    ICollection<GridMenu.Item> items,
+    GridSize gridSize,
+    string uiTitle = "Paint Bucket",
+    Action<GridMenu.Item>? onPress = null
+) : LayoutMenu
 {
     internal interface Item : IDraw
     {
@@ -22,43 +29,176 @@ internal class GridMenu : IClickableMenu
         public string? HoverText { get; init; }
     }
 
-    readonly ICollection<Item> items;
-    readonly GridSize gridSize;
-    readonly string _title;
-    readonly Action<Item>? onPress;
+    readonly State<FocusElement?> Focus = new(new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow));
+    readonly State<bool> IsScrolling = new(false);
+    readonly State<Item?> hovered = new(null);
+    readonly State<int> rowsScrolled = new(0);
 
-    int VirtualRows
+    public override void receiveScrollWheelAction(int direction)
     {
-        get { return (int)Math.Ceiling((double)items.Count / gridSize.Columns); }
+        base.receiveScrollWheelAction(direction);
+        if (direction > 1)
+        {
+            rowsScrolled.Value--;
+        }
+        else if (direction < 3)
+        {
+            rowsScrolled.Value++;
+        }
     }
 
-    State<Item?> hovered = new(null);
-    State<int> rowsScrolled = new(0);
+    public override void Render(ref DrawableBuilder UI)
+    {
+        var menuWidth = 832;
+        var menuHeight = 576;
+        if (
+            LocalizedContentManager.CurrentLanguageCode
+            is LocalizedContentManager.LanguageCode.ko
+                or LocalizedContentManager.LanguageCode.fr
+        )
+        {
+            menuHeight += 64;
+        }
 
-    // Computed<DrawableBuilder.Result> RenderSignal;
-    Watcher<DrawableBuilder.Result>? RenderWatcher;
-    DrawableBuilder.Result? RenderResult = null;
+        // var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(menuWidth, menuHeight);
+        // var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, menuWidth, menuHeight);
+
+        UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
+        using (UI.Group(Rectangle.CenteredInside(UI.Frame, width: menuWidth, height: menuHeight)))
+        {
+            UI += new StringWithScrollCenteredAt(uiTitle).At((1f / 2).Pc, -64);
+
+            UI += new TextureBox(MouseCursorOrSomethingSprite);
+
+            var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
+            using (UI.Group(UI.Frame - menuPadding))
+            {
+                var currentPageItems = items.Skip(rowsScrolled * gridSize.Columns).Take(gridSize.Count);
+                foreach (var (coord, item) in GridLayout.Create(UI, gridSize, currentPageItems))
+                {
+                    UI += new TextureBox()
+                    {
+                        Texture = VisualTheme.ItemRowBackgroundSprite,
+                        Color =
+                            (this.hovered.Value == item && !IsScrolling)
+                                ? VisualTheme.ItemRowBackgroundHoverColor
+                                : Color.White,
+                        DrawShadow = false,
+                    };
+
+                    UI += item.Padding(new Padding(all: 12));
+
+                    if (onPress is { } onPressYeah)
+                    {
+                        UI += new OnEventsLayout()
+                        {
+                            OnLeftClick = () =>
+                            {
+                                onPressYeah(item);
+                                this.exitThisMenu();
+                                return true;
+                            },
+                        };
+                    }
+
+                    UI += new FocusHandlerLayoutClass<FocusElement>(Focus, new FocusElement.InGrid(coord))
+                    {
+                        OnUnhandledMove = (direction) => snapBehavior(direction, coord),
+                    };
+
+                    var currentFrame = UI.Frame;
+                    UI.OnHover += (point) =>
+                    {
+                        if (currentFrame.Contains(point))
+                        {
+                            hovered.Value = item;
+                            return true;
+                        }
+                        return false;
+                    };
+                }
+            }
+
+            // using (var Column = new VStack(UI))
+            // {
+            //     using (Column.Item(1)) { }
+
+            //     using (Column.Item(1)) { }
+
+            //     using (Column.Item(1)) { }
+            // }
+
+            if (items.Count > gridSize.Count)
+            {
+                var scrollProgress =
+                    VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
+                var frame =
+                    new Rectangle(
+                        x: UI.Frame.X + UI.Frame.Width + 16,
+                        y: UI.Frame.Y,
+                        width: 48,
+                        height: UI.Frame.Height
+                    ) - new Padding(vertical: 16);
+
+                UI += new VerticalScrollbar(Progress: scrollProgress)
+                {
+                    // Focus = FocusElement.InScrollbar.Lens(Focus),
+                    // Focus = new InScrollbarLens(Focus),
+                    // Focus = new PrismStateStruct<FocusElement, VerticalScrollbar.FocusElement>(
+                    //     Focus,
+                    //     FocusElement.InScrollbar.Prism
+                    // ),
+                    Focus = FocusElement.InScrollbar.Prism.ZoomStruct(Focus),
+                    OnUpClick = this.upArrowPressed,
+                    OnDownClick = this.downArrowPressed,
+                    OnThumbClick = () =>
+                    {
+                        this.IsScrolling.Value = true;
+                    },
+                    OnUnhandledMove = (from, direction) =>
+                    {
+                        Console.Log($"Unhandled move from scrollbar {direction}");
+                        var gridCoords = gridSize.Coords();
+                        if (direction is Direction.Left)
+                        {
+                            var startindex = from switch
+                            {
+                                VerticalScrollbar.FocusElement.UpArrow => gridSize.Columns - 1,
+                                VerticalScrollbar.FocusElement.Thumb => (gridSize.Rows / 2) * gridSize.Columns - 1,
+                                VerticalScrollbar.FocusElement.DownArrow => gridSize.Count - 1,
+                            };
+
+                            var itemsInCurrentView = items.Count - (rowsScrolled * gridSize.Columns);
+                            startindex = Math.Clamp(startindex, 0, itemsInCurrentView - 1);
+                            var coord = gridSize.PositionForIndex(startindex);
+                            Focus.Value = new FocusElement.InGrid(coord);
+                        }
+                    },
+                }.Frame(frame);
+            }
+
+            if (hovered?.Value?.DisplayName is { } displayName)
+            {
+                UI += new StringWithScrollCenteredAt(displayName, "").At(x: (1f / 2).Pc, y: 1f.Pc);
+            }
+        }
+
+        if (this.hovered?.Value?.HoverText is { } hoverText)
+        {
+            UI += new HoverText(hoverText);
+        }
+
+        UI += new Mouse();
+    }
+
+    protected override void ClearHover()
+    {
+        this.hovered.Value = null;
+    }
 
     ShopMenu.ShopCachedTheme VisualTheme = new(null);
 
-    public GridMenu(
-        ICollection<Item> items,
-        GridSize gridSize,
-        string uiTitle = "Paint Bucket",
-        Action<Item>? onPress = null
-    )
-        : base(
-            0,
-            0,
-            Game1.graphics.GraphicsDevice.Viewport.Bounds.Width,
-            Game1.graphics.GraphicsDevice.Viewport.Bounds.Height
-        )
-    {
-        this.items = items;
-        this.gridSize = gridSize;
-        this._title = uiTitle;
-        this.onPress = onPress;
-    }
+    int VirtualRows => (int)Math.Ceiling((double)items.Count / gridSize.Columns);
 
     public void ScrollTo(int index)
     {
@@ -93,40 +233,7 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    public override void update(GameTime time)
-    {
-        if (RenderWatcher is null)
-        {
-            RenderWatcher = new(() =>
-            {
-                var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-                this.Render(ref builder);
-                return builder.Finish();
-            });
-            RenderResult = RenderWatcher.Value;
-            /// Very first update
-            foreach (var handler in RenderResult?.UpdateHandlers ?? [])
-            {
-                handler(true);
-            }
-        }
-
-        foreach (var handler in RenderResult?.TickHandlers ?? [])
-        {
-            handler(time);
-        }
-
-        if (RenderWatcher.HasChanges)
-        {
-            foreach (var handler in RenderResult?.UpdateHandlers ?? [])
-            {
-                handler(false);
-            }
-            RenderResult = RenderWatcher.Run();
-        }
-    }
-
-    protected void snapBehavior(Direction direction, (int column, int row) coords)
+    void snapBehavior(Direction direction, (int column, int row) coords)
     {
         var (column, row) = coords;
         var index = (row * gridSize.Columns) + row;
@@ -211,91 +318,6 @@ internal class GridMenu : IClickableMenu
         }
     }
 
-    public override void performHoverAction(int x, int y)
-    {
-        if (Game1.IsFading())
-        {
-            hovered.Value = null;
-            return;
-        }
-
-        Item? hovering = null;
-        var point = new Point(x, y);
-        foreach (var handler in RenderResult?.HoverHandlers ?? [])
-        {
-            if (handler(point))
-            {
-                return;
-            }
-        }
-        hovered.Value = hovering;
-    }
-
-    public override void receiveKeyPress(Keys key)
-    {
-        PrettyPrint.Log("KeyPress", key);
-        base.receiveKeyPress(key);
-    }
-
-    public override void receiveLeftClick(int x, int y, bool playSound = false)
-    {
-        base.receiveLeftClick(x, y, playSound);
-        if (Game1.activeClickableMenu == null)
-            return;
-
-        var point = new Point(x, y);
-        foreach (var handler in RenderResult?.LeftClickHandlers ?? [])
-        {
-            if (handler(point))
-            {
-                return;
-            }
-        }
-
-        // foreach (var (button, item) in elementsOnScreen)
-        // {
-        //     if (!button.containsPoint(x, y))
-        //         continue;
-
-        //     if (this.onPress is { } onPress)
-        //     {
-        //         onPress(item);
-        //         this.exitThisMenu();
-        //     }
-
-        //     return;
-        // }
-
-        // if (downArrow.containsPoint(x, y) && rowsScrolled < Math.Max(0, VirtualRows - gridSize.Rows))
-        // {
-        //     downArrowPressed();
-        //     Game1.playSound("shwip");
-        // }
-        // else if (upArrow.containsPoint(x, y) && rowsScrolled > 0)
-        // {
-        //     upArrowPressed();
-        //     Game1.playSound("shwip");
-        // }
-        // else if (scrollBar.containsPoint(x, y))
-        // {
-        //     scrolling = true;
-        // }
-        // else if (
-        //     !downArrow.containsPoint(x, y)
-        //     && x > xPositionOnScreen + width
-        //     && x < xPositionOnScreen + width + 128
-        //     && y > yPositionOnScreen
-        //     && y < yPositionOnScreen + height
-        // )
-        // {
-        //     scrolling = true;
-        //     leftClickHeld(x, y);
-        //     releaseLeftClick(x, y);
-        // }
-    }
-
-    private readonly State<bool> IsScrolling = new(false);
-
     private void downArrowPressed()
     {
         rowsScrolled.Value++;
@@ -304,53 +326,6 @@ internal class GridMenu : IClickableMenu
     private void upArrowPressed()
     {
         rowsScrolled.Value--;
-    }
-
-    public override void leftClickHeld(int x, int y)
-    {
-        base.leftClickHeld(x, y);
-        if (IsScrolling)
-        {
-            // var num = (float)(y - scrollBarRunner.Y) / (float)scrollBarRunner.Height;
-            // var newRowsScrolled = Math.Min(
-            //     Math.Max(0, VirtualRows - gridSize.Rows),
-            //     Math.Max(0, (int)((float)VirtualRows * num))
-            // );
-            // if (rowsScrolled != scrollBar.bounds.Y)
-            // {
-            //     Game1.playSound("shiny4");
-            //     rowsScrolled.Value = newRowsScrolled;
-            // }
-        }
-    }
-
-    public override void applyMovementKey(int directionInt)
-    {
-        foreach (var handler in RenderResult?.MovementKeyHandlers ?? [])
-        {
-            handler(Direction.FromNumber(directionInt));
-        }
-    }
-
-    public override void releaseLeftClick(int x, int y)
-    {
-        base.releaseLeftClick(x, y);
-        IsScrolling.Value = false;
-    }
-
-    public override void receiveScrollWheelAction(int direction)
-    {
-        base.receiveScrollWheelAction(direction);
-        if (direction > 0 && rowsScrolled > 0)
-        {
-            rowsScrolled.Value--;
-            Game1.playSound("shiny4");
-        }
-        else if (direction < 0 && (gridSize.Rows + rowsScrolled) < VirtualRows)
-        {
-            rowsScrolled.Value++;
-            Game1.playSound("shiny4");
-        }
     }
 
     record InScrollbarLens(IState<FocusElement?> state) : IState<VerticalScrollbar.FocusElement?>
@@ -372,183 +347,148 @@ internal class GridMenu : IClickableMenu
         }
     }
 
+    // interface ILens<Out, In>
+    // {
+    //     abstract static T? TryGet();
+    //     abstract static T? TryGet();
+    // }
+
     // [Union]
-    public partial record FocusElement
+    public abstract record FocusElement
     {
         // 3. Define the union variants as inner partial records.
-        public partial record InScrollbar(VerticalScrollbar.FocusElement focusElement)
-            : FocusElement,
-                IVariant<InScrollbar, FocusElement, VerticalScrollbar.FocusElement>
+        [MyOptics.WithPrism]
+        public record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement
         {
-            public VerticalScrollbar.FocusElement Extract() => this.focusElement;
+            // public VerticalScrollbar.FocusElement Extract() => this.focusElement;
 
-            public static InScrollbar Pack(VerticalScrollbar.FocusElement inner) => new InScrollbar(inner);
+            // public static InScrollbar Pack(VerticalScrollbar.FocusElement inner) => new InScrollbar(inner);
 
-            public static IState<VerticalScrollbar.FocusElement> Lens(IState<FocusElement?> container) =>
-                new VariantLens<FocusElement, VerticalScrollbar.FocusElement, InScrollbar>(container);
+            // public static IState<VerticalScrollbar.FocusElement> Lens(IState<FocusElement?> container) =>
+            //     new VariantLens<FocusElement, VerticalScrollbar.FocusElement, InScrollbar>(container);
         }
 
-        public partial record InGrid((int column, int row) Element) : FocusElement;
+        public record InGrid((int column, int row) Element) : FocusElement;
     }
 
-    // State<FocusElement?> Focus = new(null);
-    State<FocusElement?> Focus = new(new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow));
+    // IState<Inner> StatePrism<Outer, Inner>(IPrism<Outer, Inner> prism)
+    // {
 
-    TextureSprite ItemRowBackground =>
-        VisualTheme.ItemRowBackgroundTexture.Clip(VisualTheme.ItemRowBackgroundSourceRect);
+    // }
+
+    /// TODO Go over the code and collect these `Game!.mouseCursors` sprites
+    /// .... because I don't know what they are, but they aint mouseCursors
     TextureSprite MouseCursorOrSomethingSprite = Game1.mouseCursors.Clip(new Rectangle(384, 373, 18, 18));
+}
 
-    public void Render(ref DrawableBuilder UI)
+static class IPrismExtensions
+{
+    class PrismStateStruct<Outer, Inner>(IState<Outer?> state, IPrism<Outer, Inner> prism) : IState<Inner?>
+        where Inner : struct
     {
-        var menuWidth = 832;
-        var menuHeight = 576;
-        if (
-            LocalizedContentManager.CurrentLanguageCode
-            is LocalizedContentManager.LanguageCode.ko
-                or LocalizedContentManager.LanguageCode.fr
-        )
+        public Inner? Value
         {
-            menuHeight += 64;
-        }
-
-        // var topLeft = Utility.getTopLeftPositionForCenteringOnScreen(menuWidth, menuHeight);
-        // var Bounds = new Rectangle((int)topLeft.X, (int)topLeft.Y, menuWidth, menuHeight);
-
-        UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
-        using (UI.Group(Rectangle.CenteredInside(UI.Frame, width: menuWidth, height: menuHeight)))
-        {
-            UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
-
-            UI += new StringWithScrollCenteredAt(_title).At((1f / 2).Pc, -64);
-
-            UI += new TextureBox(MouseCursorOrSomethingSprite);
-
-            var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
-            using (UI.Group(UI.Frame - menuPadding))
-            {
-                var currentPageItems = items.Skip(rowsScrolled * gridSize.Columns).Take(gridSize.Count);
-                foreach (var (coord, item) in GridLayout.Create(UI, gridSize, currentPageItems))
+            get =>
+                state.Value switch
                 {
-                    UI += new TextureBox()
-                    {
-                        Texture = ItemRowBackground,
-                        Color =
-                            (this.hovered.Value == item && !IsScrolling)
-                                ? VisualTheme.ItemRowBackgroundHoverColor
-                                : Color.White,
-                        DrawShadow = false,
-                    };
-
-                    UI += item.Padding(new Padding(all: 12));
-
-                    if (this.onPress is { } onPress)
-                    {
-                        UI += new OnEventsLayout()
-                        {
-                            OnLeftClick = () =>
-                            {
-                                onPress(item);
-                                this.exitThisMenu();
-                                return true;
-                            },
-                        };
-                    }
-
-                    UI += new FocusHandlerLayoutClass<FocusElement>(Focus, new FocusElement.InGrid(coord))
-                    {
-                        OnUnhandledMove = (direction) => snapBehavior(direction, coord),
-                    };
-
-                    var currentFrame = UI.Frame;
-                    UI.OnHover += (point) =>
-                    {
-                        if (currentFrame.Contains(point))
-                        {
-                            hovered.Value = item;
-                            return true;
-                        }
-                        return false;
-                    };
-                }
-            }
-
-            // using (var Column = new VStack(UI))
-            // {
-            //     using (Column.Item(1)) { }
-
-            //     using (Column.Item(1)) { }
-
-            //     using (Column.Item(1)) { }
-            // }
-
-            if (items.Count > gridSize.Count)
-            {
-                var scrollProgress =
-                    VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
-                var frame =
-                    new Rectangle(
-                        x: UI.Frame.X + UI.Frame.Width + 16,
-                        y: UI.Frame.Y,
-                        width: 48,
-                        height: UI.Frame.Height
-                    ) - new Padding(vertical: 16);
-
-                UI += new VerticalScrollbar(Progress: scrollProgress)
-                {
-                    // Focus = FocusElement.InScrollbar.Lens(Focus),
-                    Focus = new InScrollbarLens(Focus),
-                    OnUpClick = this.upArrowPressed,
-                    OnDownClick = this.downArrowPressed,
-                    OnThumbClick = () =>
-                    {
-                        this.IsScrolling.Value = true;
-                    },
-                    OnUnhandledMove = (from, direction) =>
-                    {
-                        Console.Log($"Unhandled move from scrollbar {direction}");
-                        var gridCoords = gridSize.Coords();
-                        if (direction is Direction.Left)
-                        {
-                            var startindex = from switch
-                            {
-                                VerticalScrollbar.FocusElement.UpArrow => gridSize.Columns - 1,
-                                VerticalScrollbar.FocusElement.Thumb => (gridSize.Rows / 2) * gridSize.Columns - 1,
-                                VerticalScrollbar.FocusElement.DownArrow => gridSize.Count - 1,
-                            };
-
-                            var itemsInCurrentView = items.Count - (rowsScrolled * gridSize.Columns);
-                            startindex = Math.Clamp(startindex, 0, itemsInCurrentView - 1);
-                            var coord = gridSize.PositionForIndex(startindex);
-                            Focus.Value = new FocusElement.InGrid(coord);
-                        }
-                    },
-                }.Frame(frame);
-            }
-
-            if (hovered?.Value?.DisplayName is { } displayName)
-            {
-                UI += new StringWithScrollCenteredAt(displayName, "").At(x: (1f / 2).Pc, y: 1f.Pc);
-            }
+                    null => default,
+                    { } notnull when prism.TryDowncast(notnull, out var x) => x,
+                    _ => default,
+                };
+            set => state.Value = value is { } notnull ? prism.Upcast(notnull) : default;
         }
 
-        if (this.hovered?.Value?.HoverText is { } hoverText)
-        {
-            UI += new HoverText(hoverText);
-        }
-
-        UI += new Mouse();
+        public IState<Inner?> asState() => this;
     }
 
-    public override void draw(SpriteBatch batch)
-    {
-        if (!Game1.dialogueUp && !Game1.IsFading())
-        {
-            // var UI = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds);
-            new DrawableGroup(RenderResult?.Drawables ?? []).Draw(batch, Game1.graphics.GraphicsDevice.Viewport.Bounds);
+    // extension<From, To>(IPrism<From, To> prism) where To: class
+    // {
+    //     public IState<To?> ZoomClass(IState<From?> outerState)
+    //     {
+    //         return new PrismStateStruct<From, To>(outerState, prism);
+    //     }
+    // }
 
-            // var builder = new DrawableBuilder(Game1.graphics.GraphicsDevice.Viewport.Bounds, batch);
-            // this.Render(builder);
-            // builder.Finish();
+    extension<From, To>(IPrism<From, To> prism)
+        where To : struct
+    {
+        public IState<To?> ZoomStruct(IState<From?> outerState)
+        {
+            return new PrismStateStruct<From, To>(outerState, prism);
         }
     }
 }
+
+// ////////////////////////////////////////////////////////////
+
+// [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+// public class GenerateLensesAttribute : Attribute { }
+
+// public interface IPrism<Outer, Inner>
+// {
+//     public bool TryDowncast(Outer outer, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out Inner inner);
+//     public Outer Upcast(Inner inner);
+// }
+
+// class Prism : IPrism<FocusElement, int>
+// {
+//     public bool TryDowncast(FocusElement outer, [MaybeNullWhen(false)] out int inner)
+//     {
+//         if (outer is FocusElement.InScrollbar(var x))
+//         {
+//             inner = x;
+//             return true;
+//         }
+//         else
+//         {
+//             inner = default;
+//             return false;
+//         }
+//     }
+
+//     public FocusElement Upcast(int inner) => new FocusElement.InScrollbar(inner);
+// }
+
+// public delegate bool TryDowncaster<Outer, Inner>(Outer outer, [MaybeNullWhen(false)] out Inner value);
+
+// public class Prism<Outer, Inner>(TryDowncaster<Outer, Inner> tryDowncast, Func<Inner, Outer> upcast)
+//     : IPrism<Outer, Inner>
+// {
+//     public bool TryDowncast(Outer outer, [MaybeNullWhen(false)] out Inner inner) => tryDowncast(outer, out inner);
+
+//     public Outer Upcast(Inner inner) => upcast(inner);
+// }
+
+// public abstract record FocusElement
+// {
+//     public record InScrollbar(int focusElement) : FocusElement;
+
+//     public record InGrid((int column, int row) Element) : FocusElement;
+// }
+
+// static class OpticsExtensions
+// {
+//     class Prism : IPrism<FocusElement, int>
+//     {
+//         public bool TryDowncast(FocusElement outer, out int inner)
+//         {
+//             if (outer is FocusElement.InScrollbar(var x))
+//             {
+//                 inner = x;
+//                 return true;
+//             }
+//             else
+//             {
+//                 inner = default;
+//                 return false;
+//             }
+//         }
+
+//         public FocusElement Upcast(int inner) => new FocusElement.InScrollbar(inner);
+//     }
+
+//     extension(FocusElement.InScrollbar target)
+//     {
+//         public IPrism<FocusElement, int> Lens => new Prism();
+//     }
+// }

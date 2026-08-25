@@ -130,6 +130,7 @@ static class ContentPackLoaderAsync
         // Load in the alternative textures
         foreach (var textureFolder in textureFolders)
         {
+            var relativeFolderName = textureFolder.FullName.Replace(contentPackRootFolder, string.Empty)[1..];
             try
             {
                 if (File.Exists(Path.Combine(textureFolder.FullName, "texture.json")) is false)
@@ -140,28 +141,13 @@ static class ContentPackLoaderAsync
                     continue;
                 }
 
-                /// TODO Just use textureFolder.FullName?
-                var relativeFolderName = textureFolder.FullName.Replace(contentPackRootFolder, string.Empty)[1..];
-                // var textureFolderPath = Path.Combine(parentFolderName, textureFolder.Name);
-
-                // Console.Log($"textureFolderPath: {relativeFolderName}");
-                // Console.Log($"textureFolder: {textureFolder.FullName}");
                 var modelPath = Path.Combine(textureFolder.FullName, "texture.json");
-                // Console.Log($"modelPath: {modelPath}");
-
                 var text = File.ReadAllText(modelPath);
                 var file =
-                    JsonConvert.DeserializeObject<AlternativeTextureFile>(
-                        text,
-                        new JsonSerializerSettings() { ContractResolver = new StrictNullabilityContractResolver() }
-                    ) ?? throw new ContentPackTextureException("Couldn't parse texture.json");
-                // Console.Log($"ok: {file}");
+                    JsonConvert.DeserializeObject<AlternativeTextureFile>(text, SaneJson.Settings)
+                    ?? throw new ContentPackTextureException("Couldn't parse texture.json");
 
-                Console.Log($"AdditionalData: {file.AdditionalData}");
-
-                // var file =
-                //     contentPack.ReadJsonFile<AlternativeTextureFile>(relativeFolderName)
-                //     ?? throw new ContentPackTextureException("Couldn't parse texture.json");
+                Console.Log($"Extra: {file.Extra}");
 
                 var ids = file.ItemId is null ? file.CollectiveIds : [.. file.CollectiveIds, file.ItemId];
                 var names = file.ItemName is null ? file.CollectiveNames : [.. file.CollectiveNames, file.ItemName];
@@ -290,9 +276,18 @@ static class ContentPackLoaderAsync
                     }
                 }
             }
+            catch (JsonException error)
+            {
+                Monitor.Log(
+                    PrettyPrint.InspectFormat(
+                        $"{TAG:raw} Error loading {$"{relativeFolderName}/texture.json"}: {error.Message.Red():raw}"
+                    ),
+                    LogLevel.Warn
+                );
+            }
             catch (Exception error)
             {
-                Monitor.Log($"{TAG} Error loading texture {textureFolder}: {error}".BrightBlack(), LogLevel.Warn);
+                Monitor.Log($"{TAG} Error loading texture {relativeFolderName}: {error}".BrightBlack(), LogLevel.Warn);
             }
         }
 

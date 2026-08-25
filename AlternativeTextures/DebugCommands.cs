@@ -97,7 +97,7 @@ class DebugCommands(IMod mod)
 
         foreach (var tile in gameLocation.terrainFeatures.Pairs.Where(t => t.Value is HoeDirt))
         {
-            var crop = (tile.Value as HoeDirt).crop;
+            var crop = (tile.Value as HoeDirt)!.crop;
 
             if (crop is null || crop.indexOfHarvest.Value != args[0])
             {

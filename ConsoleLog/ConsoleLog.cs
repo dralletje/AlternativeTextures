@@ -1,63 +1,12 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text;
+using ConsoleLog.Strings;
 
 namespace ConsoleLog;
 
-/// <summary>
-///  TODO Maybe just look at the nodejs colors?
-/// </summary>
-public static class Colors
-{
-    public static string NORMAL = Console.IsOutputRedirected ? "" : "\x1b[39m";
-    public static string RED = Console.IsOutputRedirected ? "" : "\x1b[31m";
-    public static string GREEN = Console.IsOutputRedirected ? "" : "\x1b[32m";
-    public static string YELLOW = Console.IsOutputRedirected ? "" : "\x1b[33m";
-    public static string BLUE = Console.IsOutputRedirected ? "" : "\x1b[34m";
-    public static string MAGENTA = Console.IsOutputRedirected ? "" : "\x1b[35m";
-    public static string CYAN = Console.IsOutputRedirected ? "" : "\x1b[36m";
-    public static string GREY = Console.IsOutputRedirected ? "" : "\x1b[37m";
-    public static string BOLD = Console.IsOutputRedirected ? "" : "\x1b[1m";
-    public static string NOBOLD = Console.IsOutputRedirected ? "" : "\x1b[22m";
-    public static string UNDERLINE = Console.IsOutputRedirected ? "" : "\x1b[4m";
-    public static string NOUNDERLINE = Console.IsOutputRedirected ? "" : "\x1b[24m";
-    public static string REVERSE = Console.IsOutputRedirected ? "" : "\x1b[7m";
-    public static string NOREVERSE = Console.IsOutputRedirected ? "" : "\x1b[27m";
-
-    public static string BRIGHT_BLACK = Console.IsOutputRedirected ? "" : "\x1b[90m";
-
-    // extension(string text)
-    public static string Red(this string text) => $"{RED}{text}{NORMAL}";
-
-    public static string Green(this string text) => $"{GREEN}{text}{NORMAL}";
-
-    public static string Yellow(this string text) => $"{YELLOW}{text}{NORMAL}";
-
-    public static string Blue(this string text) => $"{BLUE}{text}{NORMAL}";
-
-    public static string Magenta(this string text) => $"{MAGENTA}{text}{NORMAL}";
-
-    public static string Cyan(this string text) => $"{CYAN}{text}{NORMAL}";
-
-    public static string Grey(this string text) => $"{GREY}{text}{NORMAL}";
-
-    public static string Bold(this string text) => $"{BOLD}{text}{NOBOLD}";
-
-    public static string Underline(this string text) => $"{UNDERLINE}{text}{NOUNDERLINE}";
-
-    public static string Reverse(this string text) => $"{REVERSE}{text}{NOREVERSE}";
-
-    public static string BrightBlack(this string text) => $"{BRIGHT_BLACK}{text}{NORMAL}";
-}
-
 static class Util
 {
-    // extension(string text)
-    public static string Indent(this string text, string prefix)
-    {
-        return string.Join("\n", text.Split('\n').Select(line => prefix + line));
-    }
-
     // extension(Type type)
     public static string FullName(this Type type)
     {
@@ -130,7 +79,9 @@ public ref struct InspectString(int literalLength, int formattedCount)
         }
         else
         {
-            _builder.Append(PrettyPrint.Inspect(value));
+            var textBuilder = new TextBuilder(_builder);
+            textBuilder += new InspectComponent(value);
+            // _builder.Append(PrettyPrint.Inspect(value));
         }
     }
 
@@ -170,6 +121,11 @@ public static class PrettyPrint
         return message.ToString();
     }
 
+    public static bool ContainsNewline(string text, int maxScanLength = 256)
+    {
+        return text.AsSpan(0, Math.Min(text.Length, maxScanLength)).IndexOfAny('\n', '\r') >= 0;
+    }
+
     public static string Inspect(object? value, int maxdepth = 3, int depth = 0)
     {
         // Handle null case
@@ -179,7 +135,19 @@ public static class PrettyPrint
         }
         else if (value is string s)
         {
-            return $"\"{s}\"".Green();
+            var renderAsMultiline = ContainsNewline(s, 256) || s.Length > 256;
+            if (renderAsMultiline)
+            {
+                return $""""
+                    {"\"\"\"".Bold()}
+                    {s}
+                    {"\"\"\"".Bold()}
+                    """".Green();
+            }
+            else
+            {
+                return $"\"{s}\"".Green();
+            }
         }
         else if (value is bool b)
         {
@@ -201,6 +169,14 @@ public static class PrettyPrint
         {
             return value.ToString()!.Cyan();
         }
+        else if (value is Exception exception)
+        {
+            return TextBuilder.Render(new ErrorPrinter(exception, maxdepth, depth));
+        }
+        else if (value is IFormattable && maxdepth == depth)
+        {
+            return $"{value.GetType().TechnicolorFullName()} {Inspect(value.ToString())}";
+        }
         else if (value is ICollection nongenericList)
         {
             var type = nongenericList.GetType();
@@ -211,14 +187,13 @@ public static class PrettyPrint
             /// Hahahaha 1 items (Ask LLM later idc)
             if (depth >= maxdepth)
                 return $"{type.TechnicolorFullName()}{"[".BrightBlack()} {$"{list.Count()} items...".BrightBlack()} {"]".BrightBlack()}";
-            return $"""
+            return Indented.Create(
+                $"""
                 {type.TechnicolorFullName()}[
-                {string.Join(
-                        "\n",
-                        list.Select(x => Inspect(x, maxdepth: maxdepth, depth: depth + 1))
-                    ).Indent("  ")}
+                    {list.Select(x => Inspect(x, maxdepth: maxdepth, depth: depth + 1))}
                 ]
-                """;
+                """
+            );
         }
         else
         {
@@ -283,17 +258,217 @@ public static class PrettyPrint
                 return $"{typePrefix}{"{}".BrightBlack()}";
 
             var propStrings = propValues.Select(pv =>
-                $"{pv.Name.Magenta()}: {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
+                $"{pv.Name.Magenta()}{":".BrightBlack()} {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
             );
             var fieldStrings = fieldValues.Select(pv =>
-                $"{pv.Name.Yellow()}: {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
+                $"{pv.Name.Yellow()}{":".BrightBlack()} {Inspect(pv.Value, maxdepth: maxdepth, depth: depth + 1)}"
             );
-            var props = string.Join("\n", [.. fieldStrings, .. propStrings]);
-            return $$"""
+
+            IEnumerable<string> extra = value switch
+            {
+                IFormattable formattable => [Inspect(formattable.ToString()), ""],
+                _ => [],
+            };
+
+            return Indented.Create(
+                $$"""
                 {{typePrefix}}{{"{".BrightBlack()}}
-                {{props.Indent("  ")}}
+                    {{[.. extra, .. fieldStrings, .. propStrings]}}
                 {{"}".BrightBlack()}}
-                """;
+                """
+            );
+        }
+    }
+}
+
+public record InspectComponent(object? value, int maxdepth = 3, int depth = 0) : ITextComponent
+{
+    public void RenderText(ref TextBuilder Text)
+    {
+        // Handle null case
+        if (value is null)
+        {
+            Text += "null".Green();
+        }
+        else if (value is string s)
+        {
+            var renderAsMultiline = PrettyPrint.ContainsNewline(s, 256) || s.Length > 256;
+            if (renderAsMultiline)
+            {
+                // Text += $""""
+                //     {"\"\"\"".Bold()}
+                //     {s}
+                //     {"\"\"\"".Bold()}
+                //     """".Green();
+                Text += "\"\"\"".Green().Bold();
+                Text += $"{s}".Green().Bold();
+                Text += "\"\"\"".Green().Bold();
+            }
+            else
+            {
+                Text += $"\"{s}\"".Green();
+            }
+        }
+        else if (value is bool b)
+        {
+            Text += b ? "true".Cyan() : "false".Cyan();
+        }
+        else if (value is char c)
+        {
+            Text += $"'{c}'".Green();
+        }
+        else if (value is decimal or float or double)
+        {
+            Text += value.ToString()!.Cyan();
+        }
+        else if (value.GetType().IsPrimitive)
+        {
+            Text += value.ToString()!.Cyan();
+        }
+        else if (value is Enum)
+        {
+            Text += value.ToString()!.Cyan();
+        }
+        else if (value is Exception exception)
+        {
+            Text += new ErrorPrinter(exception, maxdepth, depth);
+        }
+        else if (value is IFormattable && maxdepth == depth)
+        {
+            Text +=
+                $"{value.GetType().TechnicolorFullName()} {new InspectComponent(value.ToString())}";
+        }
+        else if (value is ICollection nongenericList)
+        {
+            var type = nongenericList.GetType();
+            var list = nongenericList.Cast<object>();
+
+            if (!list.Any())
+            {
+                Text += $"{type.TechnicolorFullName()}{"[]".BrightBlack()}";
+            }
+            else if (depth >= maxdepth)
+            {
+                /// Hahahaha "1 items" (Ask LLM later idc)
+                Text +=
+                    $"{type.TechnicolorFullName()}{"[".BrightBlack()} {$"{list.Count()} items...".BrightBlack()} {"]".BrightBlack()}";
+            }
+            else
+            {
+                // Text += Indented.Create(
+                //     $"""
+                //     {type.TechnicolorFullName()}[
+                //         {list.Select(x => Inspect(x, maxdepth: maxdepth, depth: depth + 1))}
+                //     ]
+                //     """
+                // );
+                Text += $"{type.TechnicolorFullName()}[";
+                using (Text.Indent())
+                {
+                    foreach (var item in list)
+                    {
+                        Text += new InspectComponent(item, maxdepth: maxdepth, depth: depth + 1);
+                    }
+                }
+                Text += $"]";
+            }
+        }
+        else
+        {
+            /// Get the type of the object
+            var type = value.GetType();
+            var typePrefix = type.IsAnonymousType() ? "" : $"{type.TechnicolorFullName()} ";
+
+            if (depth >= maxdepth)
+            {
+                Text += $"{typePrefix}{"{ ... }".BrightBlack()}";
+                return;
+            }
+
+            /// Get the public properties of the object
+            var properties = value
+                .GetType()
+                // .GetProperties(System.Reflection.BindingFlags.Instance)
+                .GetProperties()
+                .Where(p => p.GetIndexParameters().Length == 0)
+                .Where(p => p.GetMethod is { } getMethod && !getMethod.IsStatic)
+                .Where(p => p.GetMethod is { } getMethod && getMethod.IsPublic)
+                .ToList();
+
+            /// Get the name and value of each property
+            var propValues = properties
+                .Select(p =>
+                {
+                    try
+                    {
+                        return new { Name = p.Name, Value = p.GetValue(value) };
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                })
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList();
+
+            var fields = value
+                .GetType()
+                // .GetProperties(System.Reflection.BindingFlags.Instance)
+                .GetFields()
+                .Where(p => p.IsPublic && !p.IsStatic)
+                .ToList();
+
+            var fieldValues = fields
+                .Select(p =>
+                {
+                    try
+                    {
+                        return new { Name = p.Name, Value = p.GetValue(value) };
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                })
+                .Where(x => x is not null)
+                .Select(x => x!)
+                .ToList();
+
+            if (properties.Count == 0 && fieldValues.Count == 0)
+            {
+                Text += $"{typePrefix}{"{}".BrightBlack()}";
+                return;
+            }
+
+            Text += $"{typePrefix}{"{".BrightBlack()}";
+            using (Text.Indent())
+            {
+                InspectComponent? extra = value switch
+                {
+                    IFormattable formattable => new InspectComponent(formattable.ToString()),
+                    _ => null,
+                };
+
+                if (extra is not null)
+                {
+                    Text += extra;
+                    Text += "";
+                }
+
+                foreach (var prop in propValues)
+                {
+                    Text +=
+                        $"{prop.Name.Magenta()}{":".BrightBlack()} {new InspectComponent(prop.Value, maxdepth: maxdepth, depth: depth + 1)}";
+                }
+
+                foreach (var field in fieldValues)
+                {
+                    Text +=
+                        $"{field.Name.Magenta()}{":".BrightBlack()} {new InspectComponent(field.Value, maxdepth: maxdepth, depth: depth + 1)}";
+                }
+            }
+            Text += "}".BrightBlack();
         }
     }
 }

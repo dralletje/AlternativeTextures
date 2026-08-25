@@ -1,12 +1,20 @@
-namespace AlternativeTextures.ContentPackLoaderMod;
-
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-public class StrictNullabilityContractResolver : DefaultContractResolver
+namespace AlternativeTextures.ContentPackLoaderMod;
+
+static class SaneJson
+{
+    public static JsonSerializerSettings Settings = new()
+    {
+        ContractResolver = new StrictNullabilityContractResolver(),
+    };
+}
+
+class StrictNullabilityContractResolver : DefaultContractResolver
 {
     public static StrictNullabilityContractResolver Shared = new();
 

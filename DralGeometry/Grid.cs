@@ -15,10 +15,16 @@ public record GridSize(int rows, int columns)
 
     public List<(int Column, int Row)> Coords() =>
         [
-            .. Enumerable
-                .Range(0, Rows)
-                .SelectMany(Row => Enumerable.Range(0, Columns).Select(Column => (Column, Row))),
+            .. from column in Enumerable.Range(0, Columns)
+            from row in Enumerable.Range(0, Rows)
+            select (column, row),
         ];
+
+    // [
+    //     .. Enumerable
+    //         .Range(0, Rows)
+    //         .SelectMany(Row => Enumerable.Range(0, Columns).Select(Column => (Column, Row))),
+    // ];
 
     public int ColumnFor(int index)
     {

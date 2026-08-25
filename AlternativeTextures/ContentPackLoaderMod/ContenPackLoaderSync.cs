@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Managers;
+using ConsoleLog;
 using Incubator.MonoGame;
 using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;

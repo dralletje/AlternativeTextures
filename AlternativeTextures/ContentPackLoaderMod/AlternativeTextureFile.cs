@@ -16,7 +16,7 @@ record VariationFromFile
     public List<int[]> Tints { get; set; } = [];
 
     [JsonExtensionData]
-    public IDictionary<string, JToken>? ExtraData;
+    public IDictionary<string, JToken>? Extra;
 }
 
 record AnimationModel
@@ -51,5 +51,5 @@ record AlternativeTextureFile
     public bool EnableContentPatcherCheck;
 
     [JsonExtensionData]
-    public IDictionary<string, JToken>? AdditionalData { get; set; }
+    public IDictionary<string, JToken>? Extra { get; set; }
 }

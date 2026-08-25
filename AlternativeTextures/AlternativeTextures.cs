@@ -53,7 +53,7 @@ static class Monitor
 
 static class ModHelper
 {
-    public static IModHelper shared;
+    public static IModHelper shared = null!;
 }
 
 public static class Game2
@@ -92,7 +92,7 @@ public class AlternativeTextures : Mod
     internal static readonly ModConfigStub modConfig = new();
 
     // internal static Multiplayer multiplayer;
-    internal static TextureManager textureManager;
+    internal static TextureManager textureManager = null!;
 
     AlternativeTexturesDralMod? mod = null;
 
