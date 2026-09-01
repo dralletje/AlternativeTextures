@@ -1,25 +1,8 @@
-# AlternativeTextures
- Allows the usage of different textures for placeable items in Stardew Valley.
- 
-## Requirements
-Alternative Textures only requires [SMAPI](https://smapi.io/).
+# AlternativeTexturesPlus
 
-&nbsp;
-## Creating a Content Pack
-See [the wiki](https://github.com/Floogen/AlternativeTextures/wiki) for detailed instructions on how to create content pack for Alternative Textures.
+- Create a symlink `./stardew_install_symlink` to the folder containing the stardew valley installation (this is where your `Mods` folder is)
 
-&nbsp;
-## Example Content Packs
-Some example alternative textures are included in this repository, which can be [found here](https://github.com/Floogen/AlternativeTextures/tree/development/AlternativeTextures/Examples).
-
-# Credits
-## Translations
-Alternative Textures has been generously translated into several languages by the following users:
-
-* **French** - mouahrara
-* **Korean** - ashajin
-* **Russian** - angel4killer
-* **Thai** - ellipszist
-* **Turkish** - KediDili
-* **Ukrainian** - burunduk, ChulkyBow
-* **Portuguese** - Maatsuki, padilhath, Vila dos Tradutores
+- To get nice paths while debugging in Zed:
+  - set `dap.netcoredbg.binary` to `netcoredbg-proxy/app.ts`
+  - Decompile Stardew Valley in `./Decompiled`
+  - Generate a `.pdb` for it and put that in the Stardew installation folder (`Stardew Valley.pdb`, next to `Startdew Valley.dll`)
