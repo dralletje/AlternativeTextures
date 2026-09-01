@@ -87,7 +87,7 @@ internal class HorsePatch(IModHelper modHelper) : PatchTemplate()
         var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
         return
             textureVariation == -1
-            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             ? yOffset
             : yOffset + textureModel.GetTextureOffset(textureVariation);
     }
@@ -110,7 +110,7 @@ internal class HorsePatch(IModHelper modHelper) : PatchTemplate()
         var textureVariation = Int32.Parse(horse.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
         if (
             textureVariation == -1
-            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+            || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
         )
         {
             return;
@@ -144,7 +144,7 @@ internal class HorsePatch(IModHelper modHelper) : PatchTemplate()
             var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 return;

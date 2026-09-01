@@ -347,34 +347,14 @@ internal class GridMenu(
         }
     }
 
-    // interface ILens<Out, In>
-    // {
-    //     abstract static T? TryGet();
-    //     abstract static T? TryGet();
-    // }
-
     // [Union]
     public abstract record FocusElement
     {
-        // 3. Define the union variants as inner partial records.
         [MyOptics.WithPrism]
-        public record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement
-        {
-            // public VerticalScrollbar.FocusElement Extract() => this.focusElement;
-
-            // public static InScrollbar Pack(VerticalScrollbar.FocusElement inner) => new InScrollbar(inner);
-
-            // public static IState<VerticalScrollbar.FocusElement> Lens(IState<FocusElement?> container) =>
-            //     new VariantLens<FocusElement, VerticalScrollbar.FocusElement, InScrollbar>(container);
-        }
+        public record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement { }
 
         public record InGrid((int column, int row) Element) : FocusElement;
     }
-
-    // IState<Inner> StatePrism<Outer, Inner>(IPrism<Outer, Inner> prism)
-    // {
-
-    // }
 
     /// TODO Go over the code and collect these `Game!.mouseCursors` sprites
     /// .... because I don't know what they are, but they aint mouseCursors
@@ -492,3 +472,11 @@ static class IPrismExtensions
 //         public IPrism<FocusElement, int> Lens => new Prism();
 //     }
 // }
+
+public abstract record FocusElement
+{
+    [MyOptics.WithPrism]
+    public record InScrollbarr2222444(int focusElement) : FocusElement { }
+
+    public record InGrid((int column, int row) Element) : FocusElement;
+}

@@ -28,8 +28,8 @@
     // "processId": "$ZED_PICK_PID",
     "processId": "0",
     "processName": "StardewModdingAPI",
-    // "sourceFileMap": {
-    //   "D:\\GitlabRunner\\builds\\Gq5qA5P4\\1\\ConcernedApe\\stardewvalley\\Farmer\\Farmer": "$ZED_WORKTREE_ROOT/.Stardew Source/StardewValley/StardewValley"
-    // }
+    "namespaceFileRoots": {
+      "StardewValley": "$ZED_WORKTREE_ROOT/Decompiled"
+    }
   },
 ]

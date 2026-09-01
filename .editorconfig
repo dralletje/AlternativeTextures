@@ -72,3 +72,5 @@ dotnet_diagnostic.CS0649.severity = suggestion
 # Make field readonly
 dotnet_diagnostic.IDE0044.severity = suggestion
 dotnet_diagnostic.IDE0251.severity = suggestion
+# Make field static
+dotnet_diagnostic.CA1822.severity = suggestion

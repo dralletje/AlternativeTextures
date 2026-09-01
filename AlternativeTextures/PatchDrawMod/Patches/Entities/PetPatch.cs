@@ -44,7 +44,7 @@ internal class PetPatch(IModHelper modHelper) : PatchTemplate()
             var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 __instance.Sprite.LoadTexture(__instance.getPetTextureName());
@@ -81,7 +81,7 @@ internal class PetPatch(IModHelper modHelper) : PatchTemplate()
             var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 return true;

@@ -47,7 +47,7 @@ internal class TorchPatch(IModHelper modHelper) : PatchTemplate()
             var textureVariation = Int32.Parse(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_VARIATION]);
             if (
                 textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 return true;

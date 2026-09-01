@@ -37,10 +37,20 @@ const { server, client } = createDapProxy({
 let serverWriter = server.writable.getWriter();
 let clientWriter = client.writable.getWriter();
 
+type AttachOptions = {
+  namespaceFileRoots?: { [namespace: string]: string };
+};
+let attachoptions: AttachOptions | null = null;
+
 (async () => {
   for await (const msg of client.readable) {
     if (msg.command === "attach") {
+
+
+      attachoptions = { namespaceFileRoots: msg.arguments?.namespaceFileRoots };
       if (msg.arguments?.processName != null) {
+
+
         var processName = msg.arguments?.processName;
         var result = await find("name", processName);
         var processId = result?.[0]?.pid;
@@ -95,12 +105,12 @@ type StackFrame = {
       if (stackTrace.body != null) {
         const { stackFrames, totalFrames } = stackTrace.body;
 
-        var stardewSource =
-          "/Users/michiel/Projects/AlternativeTextures/Decompiled";
         var newmsg = produce(stackTrace, (draft) => {
           for (const frame of stackFrames) {
-            if (frame.source.path.startsWith("StardewValley")) {
-              frame.source.path = `${stardewSource}/${frame.source.path}`;
+            for (let [namespace, root] of Object.entries(attachoptions?.namespaceFileRoots ?? {})) {
+              if (frame.source.path.startsWith(namespace)) {
+                frame.source.path = `${root}/${frame.source.path}`;
+              }
             }
           }
         });

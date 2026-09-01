@@ -19,28 +19,13 @@ public class GeneratorTests
     [Fact]
     public void GeneratesExpectedOutput()
     {
-        Console.Log($"Heya!");
-        // 1. Setup compilation with input source
         var inputTree = CSharpSyntaxTree.ParseText(
-            // """
-            //     public class Primitive;
-
-            //     [MyOptics.WithPrism]
-            //     public record Integer(int x): Primitive;
-            // """,
             """
-            namespace AlternativeTextures.App.UI;
+            namespace MyNamespace.Nested;
 
-            abstract record FocusElement
-            {
-                static void X()
-                {
-                    FocusElement.InScrollbar.Prism;
-                }
-            }
 
-            // 3. Define the union variants as inner partial records.
-            [MyOptics.WithPrism]
+
+            [Dral.Optics.Generate.Prism]
             record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement { }
 
             record InGrid((int column, int row) Element) : FocusElement;

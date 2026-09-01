@@ -68,7 +68,7 @@ internal class CropPatch(IModHelper modHelper) : PatchTemplate()
             if (
                 __instance.dead.Value
                 || textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 return true;
@@ -224,7 +224,7 @@ internal class CropPatch(IModHelper modHelper) : PatchTemplate()
             if (
                 __instance.dead.Value
                 || textureVariation == -1
-                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.GetId(), textureVariation)
+                || AlternativeTextures.modConfig.IsTextureVariationDisabled(textureModel.LegacyId, textureVariation)
             )
             {
                 return true;

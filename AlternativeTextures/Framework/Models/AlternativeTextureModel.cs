@@ -162,14 +162,13 @@ public partial record AlternativeTextureModel
     public bool IgnoreBuildingColorMask; // Only usable by Type == "Building"
     public List<string> Keywords = [];
     public List<AnimationModel> Animation = [];
-
-    public string Owner => PackManifest.UniqueID;
-    public UniqueTextureIdentifier UniqueIdentifier => new(Owner, ForModel, Variation, Season);
-    public TextureIdentifierWithoutSeason UniqueIdentifierWithoutSeason => new(Owner, ForModel, Variation);
 }
 
 partial record AlternativeTextureModel
 {
+    public string Owner => PackManifest.UniqueID;
+    public UniqueTextureIdentifier UniqueIdentifier => field ??= new(Owner, ForModel, Variation, Season);
+    public TextureIdentifierWithoutSeason UniqueIdentifierWithoutSeason => field ??= new(Owner, ForModel, Variation);
     public Texture2D Texture => field ??= this.CreateTexture();
 }
 
@@ -190,6 +189,7 @@ static class AlternativeTextureModelExtensions
                 textureModel.TextureRaw.Height
             )
             {
+                /// Name is just for debugging purposes
                 Name =
                     $"{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}",
             };
@@ -218,18 +218,6 @@ static class AlternativeTextureModelExtensions
         internal string TextureId => textureModel.LegacyId;
 
         public static int MAX_TEXTURE_HEIGHT => 16384;
-
-        /// TODO Make this use UniqueIdentifier?
-        [Obsolete("Use `.LegacyId`")]
-        public string GetId() => textureModel.TextureId;
-
-        public bool IsUsingItemId() => textureModel.ForModel.IsName;
-
-        [Obsolete("Uhhh")]
-        public string? GetNameWithSeason()
-        {
-            return $"{textureModel.ForModel.Type}_{textureModel.ForModel.String}";
-        }
 
         [Obsolete("Variations are separate entities now")]
         public int GetVariations()
@@ -331,12 +319,6 @@ static class AlternativeTextureModelExtensions
         // {
         //     return Animation.Count > 0 || ManualVariations.Any(v => v.Id == variation && v.HasAnimation());
         // }
-
-        [Obsolete("Variations are separate textures now")]
-        public int Variations => 1;
-
-        [Obsolete("Smakes Smo Smense.")]
-        public Dictionary<int, Texture2D> Textures => [];
 
         [Obsolete("Smakes Smo Smense!!!!")]
         public int GetTextureOffset(int _) => 0;
