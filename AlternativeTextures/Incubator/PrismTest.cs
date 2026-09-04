@@ -3,7 +3,7 @@ namespace Incubator;
 public abstract record FocusElement
 {
     // 3. Define the union variants as inner partial records.
-    [MyOptics.WithPrism]
+    [Dral.Optics.Generate.Prism]
     public record InScrollbar2(int Value) : FocusElement
     {
         // public VerticalScrollbar.FocusElement Extract() => this.focusElement;

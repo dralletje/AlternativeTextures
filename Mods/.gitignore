@@ -1,0 +1,5 @@
+Local/*
+!Local/.gitkeep
+
+# This is the mod deployed by `just build`
+AlternativeTextures

@@ -82,6 +82,7 @@ public class PrismGenerator : IIncrementalGenerator
                     // language=C#
                     """
                     using System;
+                    using System.Diagnostics.CodeAnalysis;
 
                     namespace Dral.Optics;
 
@@ -98,7 +99,7 @@ public class PrismGenerator : IIncrementalGenerator
 
         var provider = context
             .SyntaxProvider.ForAttributeWithMetadataName(
-                "MyOptics.WithPrismAttribute",
+                "Dral.Optics.Generate.PrismAttribute",
                 predicate: (node, _) => true,
                 transform: (ctx, _) => ctx.TargetSymbol as INamedTypeSymbol
             )
@@ -115,7 +116,7 @@ public class PrismGenerator : IIncrementalGenerator
                         switch (entry)
                         {
                             case GeneratorEntry.SourceFile file:
-                                ctx.AddSource(file.FileName, file.Content);
+                                ctx.AddSource(file.Value.FileName, file.Value.Content);
                                 break;
                             case GeneratorEntry.Diagnostic diagnostic:
                                 ctx.ReportDiagnostic(diagnostic.Value);

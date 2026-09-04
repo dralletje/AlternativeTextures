@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dral.Optics;
 using DralGeometry;
 using Incubator;
 using Incubator.MonoGame;
 using Incubator.MonoGame.Drawables;
 using Microsoft.Xna.Framework;
-using MyOptics;
 using Netcode;
 using StardewValley;
 using StardewValley.Menus;
@@ -350,7 +350,7 @@ internal class GridMenu(
     // [Union]
     public abstract record FocusElement
     {
-        [MyOptics.WithPrism]
+        [Dral.Optics.Generate.Prism]
         public record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement { }
 
         public record InGrid((int column, int row) Element) : FocusElement;
@@ -475,7 +475,7 @@ static class IPrismExtensions
 
 public abstract record FocusElement
 {
-    [MyOptics.WithPrism]
+    [Dral.Optics.Generate.Prism]
     public record InScrollbarr2222444(int focusElement) : FocusElement { }
 
     public record InGrid((int column, int row) Element) : FocusElement;
