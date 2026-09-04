@@ -16,72 +16,83 @@ public enum DecorationType
     Wallpaper,
 }
 
-[Union]
-public partial record WorldObject
+closed public record WorldObject
 {
-    // 3. Define the union variants as inner partial records.
-    public partial record Object(StardewValley.Object @object);
+  // 3. Define the union variants as inner records.
+  public record Object(StardewValley.Object @object) : WorldObject;
 
-    public partial record TerrainFeature(StardewValley.TerrainFeatures.TerrainFeature terrainFeature);
+  public record TerrainFeature(StardewValley.TerrainFeatures.TerrainFeature terrainFeature) : WorldObject;
 
-    public partial record Building(StardewValley.Buildings.Building building);
+  public record Building(StardewValley.Buildings.Building building) : WorldObject;
 
-    public partial record Mailbox(Farm farm);
+  public record Mailbox(Farm farm) : WorldObject;
 
-    public partial record Decoration(DecorationType Type, DecoratableLocation Location, string RoomId);
+  public record Decoration(DecorationType Type, DecoratableLocation Location, string RoomId) : WorldObject;
 }
+
+public record Decoration(DecorationType Type, DecoratableLocation Location, string RoomId);
+
+public record Mailbox(Farm Farm);
+
+public union WorldObjectUnion(
+  StardewValley.Object,
+  StardewValley.TerrainFeatures.TerrainFeature,
+  StardewValley.Buildings.Building,
+  Mailbox,
+  Decoration
+);
 
 static class PaintableExtensions
 {
-    extension(IPaintable paintable)
+  extension(IPaintable paintable)
+  {
+    /// TODO Move this from IPaintable to it's own thing
+    public static IEnumerable<WorldObject> GetAnythingAtTile(Tile tile)
     {
-        /// TODO Move this from IPaintable to it's own thing
-        public static IEnumerable<WorldObject> GetAnythingAtTile(Tile tile)
+      var location = Game1.currentLocation;
+
+      foreach (var placedObject in location.GetObjectsAtTile(tile))
+      {
+        yield return new WorldObject.Object(placedObject);
+      }
+
+      if (location.GetResourceClumpAt(tile) is { } resourceClump)
+      {
+        yield return new WorldObject.TerrainFeature(resourceClump);
+      }
+
+      if (location.GetTerrainFeatureAtTile(tile) is { } terrainFeature)
+      {
+        yield return new WorldObject.TerrainFeature(terrainFeature);
+      }
+
+      if (location is DecoratableLocation decoratableLocation)
+      {
+        Console.Log($"location: DecoratableLocation");
+        if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
         {
-            var location = Game1.currentLocation;
-
-            foreach (var placedObject in location.GetObjectsAtTile(tile))
-            {
-                yield return new WorldObject.Object(placedObject);
-            }
-
-            if (location.GetResourceClumpAt(tile) is { } resourceClump)
-            {
-                yield return new WorldObject.TerrainFeature(resourceClump);
-            }
-
-            if (location.GetTerrainFeatureAtTile(tile) is { } terrainFeature)
-            {
-                yield return new WorldObject.TerrainFeature(terrainFeature);
-            }
-
-            if (location is DecoratableLocation decoratableLocation)
-            {
-                Console.Log($"location: DecoratableLocation");
-                if (decoratableLocation.GetWallpaperID(tile.X, tile.Y) is { } wallId)
-                {
-                    Console.Log($"wallId: {wallId}");
-                    yield return new WorldObject.Decoration(DecorationType.Wallpaper, decoratableLocation, wallId);
-                }
-                else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
-                {
-                    Console.Log($"wallId: {floorId}");
-                    yield return new WorldObject.Decoration(DecorationType.Floor, decoratableLocation, floorId);
-                }
-            }
-
-            if (location.getBuildingAt(tile.ToVector2()) is { } building)
-            {
-                yield return new WorldObject.Building(building);
-            }
+          Console.Log($"wallId: {wallId}");
+          yield return new WorldObject.Decoration(DecorationType.Wallpaper, decoratableLocation, wallId);
         }
-    }
+        else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
+        {
+          Console.Log($"wallId: {floorId}");
+          yield return new WorldObject.Decoration(DecorationType.Floor, decoratableLocation, floorId);
+        }
+      }
 
-    public static bool IsPositionNearMailbox(GameLocation location, Point mailboxPosition, int x, int y)
-    {
-        var isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
-        return isNearMailbox;
+      if (location.getBuildingAt(tile.ToVector2()) is { } building)
+      {
+        yield return new WorldObject.Building(building);
+      }
     }
+  }
+
+  public static bool IsPositionNearMailbox(GameLocation location, Point mailboxPosition, int x, int y)
+  {
+    var isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
+    return isNearMailbox;
+  }
 }
 
 // static class Test
