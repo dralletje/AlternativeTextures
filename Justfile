@@ -1,15 +1,15 @@
 # default: lint build test
 
-INSTALL_DIRECTORY := "stardew_install_symlink"
+LOCAL_GAME_PATH := "stardew_install_symlink"
 
-build project="AlternativeTextures":
+build project="AlternativeTextures": _install-folder-exists
     #!/usr/bin/env bash
     echo Building…
     cd "{{ project }}"
     dotnet build
 
 run: build
-    "{{ INSTALL_DIRECTORY }}"/StardewModdingAPI --mods-path {{ absolute_path("./Mods") }}
+    "{{ LOCAL_GAME_PATH }}"/StardewModdingAPI --mods-path {{ absolute_path("./Mods") }}
 
 # Decompile Stardew Valley.dll into ./Decompiled
 # and generate a .pdb from it which we put next to  Stardew Valley.dll.
@@ -19,28 +19,40 @@ run: build
 decompile: _install-folder-exists
     #!/usr/bin/env bash
     echo Decompiling Stardew Valley.dll…
-    ilspycmd -p -o ./Decompiled "{{ INSTALL_DIRECTORY }}/Stardew\ Valley.dll"
-    ilspycmd -genpdb "{{ INSTALL_DIRECTORY }}/Stardew\ Valley.dll"
+    ilspycmd -p -o ./Decompiled "{{ LOCAL_GAME_PATH }}/Stardew\ Valley.dll"
+    ilspycmd -genpdb "{{ LOCAL_GAME_PATH }}/Stardew\ Valley.dll"
 
-# Symlink the Stardew Valley game installation folder to
-# ./stardew_install_symlink in this project directory,
-# Most other commands do expect that to be present.
-symlink-stardew-installation path="${HOME}/Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS":
+[doc('
+Symlink the Stardew Valley game installation folder
+to ./stardew_install_symlink in this project directory,
+Most other commands do expect that to be present.
+')]
+symlink-stardew-installation path=(env('HOME') / "Library/Application Support/Steam/steamapps/common/Stardew Valley/Contents/MacOS"):
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ -d "{{ path }}" ]]; then
-        ln -sfn "{{ path }}" "{{ INSTALL_DIRECTORY }}"
-        exit 0
-    else
+    if [[ ! -d "{{ path }}" ]]; then
       echo "Error: Stardew Valley installation directory not found." >&2
       exit 1
     fi
+    if [[ -e "{{ LOCAL_GAME_PATH }}" ]]; then
+      if [[ -L "{{ LOCAL_GAME_PATH }}" && "$(realpath "{{ LOCAL_GAME_PATH }}")" == "$(realpath "{{ path }}")" ]]; then
+        echo "Path already symlinked correctly." >&2
+        exit 0
+      else
+        echo "Error: '{{ LOCAL_GAME_PATH }}' already exists." >&2
+        exit 1
+      fi
+    fi
+
+    ln -sfn "{{ path }}" "{{ LOCAL_GAME_PATH }}"
+    echo "Linked {{ path }} to {{ LOCAL_GAME_PATH }}." >&2
+    exit 0
 
 _install-folder-exists:
     #!/usr/bin/env bash
-    if [ ! -d "{{ INSTALL_DIRECTORY }}" ]; then
-      echo "Error: Directory '{{ INSTALL_DIRECTORY }}' does not exist." >&2
-      just --show symlink-stardew-installation
+    if [ ! -d "{{ LOCAL_GAME_PATH }}" ]; then
+      echo "Error: Directory '{{ LOCAL_GAME_PATH }}' does not exist." >&2
+      just --usage symlink-stardew-installation
       exit 1
     fi

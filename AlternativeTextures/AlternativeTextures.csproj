@@ -7,22 +7,19 @@
     <Nullable>enable</Nullable>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <DebugType>portable</DebugType>
+  </PropertyGroup>
 
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  <PropertyGroup>
+	  <EnableModZip>false</EnableModZip>
+	  <GamePath>../stardew_install_symlink</GamePath>
+	  <EnableModDeploy>true</EnableModDeploy>
+	  <GameModsPath>../Mods</GameModsPath>
+	</PropertyGroup>
 
+  <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <NoWarn>$(NoWarn);CA2252</NoWarn>
-
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <BundleExtraAssemblies>ThirdParty</BundleExtraAssemblies>
-
-    <EnableModZip>false</EnableModZip>
-    <!-- <EnableModDeploy>false</EnableModDeploy> -->
-    <GamePath>../stardew_install_symlink</GamePath>
-    <EnableModDeploy>true</EnableModDeploy>
-    <GameModsPath>../Mods</GameModsPath>
-
-    <!-- <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath> -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,19 +28,19 @@
     <None Remove="releases\**" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <WarningsAsErrors>CS8509</WarningsAsErrors>
-    <WarningsAsErrors>CS8618</WarningsAsErrors>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Dunet" Version="1.16.2" IncludeAssets="analyzers; build" />
-
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
     <PackageReference Include="System.Collections.Immutable" Version="10.0.11" />
     <PackageReference Include="System.Runtime.Experimental" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Packages\ConsoleLog\ConsoleLog.csproj" />
+    <ProjectReference Include="..\Packages\DralGeometry\DralGeometry.csproj" />
+    <ProjectReference Include="..\Packages\Prisms\Prisms.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,11 +54,12 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ConsoleLog\ConsoleLog.csproj" />
-    <ProjectReference Include="..\DralGeometry\DralGeometry.csproj" />
-    <ProjectReference Include="..\Prisms\Prisms.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
+  <PropertyGroup>
+	  <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+	   <NoWarn>$(NoWarn);CA2252</NoWarn>
+    <WarningsAsErrors>CS8509</WarningsAsErrors>
+    <WarningsAsErrors>CS8618</WarningsAsErrors>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="i18n\**.json">

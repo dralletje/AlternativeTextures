@@ -144,10 +144,10 @@ static class ContentPackLoaderAsync
                 var modelPath = Path.Combine(textureFolder.FullName, "texture.json");
                 var text = File.ReadAllText(modelPath);
                 var file =
-                    JsonConvert.DeserializeObject<AlternativeTextureFile>(text, SaneJson.Settings)
+                    JsonConvert.DeserializeObject<AlternativeTextureFile>(text)
                     ?? throw new ContentPackTextureException("Couldn't parse texture.json");
 
-                Console.Log($"Extra: {file.Extra}");
+                // Console.Log($"Extra: {file.Extra}");
 
                 var ids = file.ItemId is null ? file.CollectiveIds : [.. file.CollectiveIds, file.ItemId];
                 var names = file.ItemName is null ? file.CollectiveNames : [.. file.CollectiveNames, file.ItemName];
@@ -330,7 +330,7 @@ static class ContentPackLoaderAsync
                             $"{TAG} provided colliding textures for {group.Key.ToString().Green()}.".BrightBlack(),
                             LogLevel.Warn
                         );
-                        Monitor.Log(PrettyPrint.InspectFormat($"{(file1, file2)}"), LogLevel.Info);
+                        // Monitor.Log(PrettyPrint.InspectFormat($"{(file1, file2)}"), LogLevel.Info);
                     }
 
                     break;
