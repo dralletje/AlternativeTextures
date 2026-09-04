@@ -1,6 +1,9 @@
 {
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.csharpier-src.url = "./csharpier-nix/csharpier.nix";
+  inputs.csharpier-src = {
+    url = "./csharpier-nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
 
   outputs =
     { nixpkgs, csharpier-src, ... }:
@@ -37,7 +40,7 @@
                 useDotnetFromEnv = false;
               });
 
-          csharpier-main = csharpier-src.packages.${pkgs.system}.default;
+          csharpier-main = csharpier-src.packages.${system}.default;
 
           # csharpier-latest = pkgs.buildDotnetGlobalTool {
           #   pname = "csharpier";
