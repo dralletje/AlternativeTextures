@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
 using Incubator;
@@ -16,8 +15,6 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
 {
     internal const string PAINT_BRUSH_FLAG = "AlternativeTextures.PaintBrushFlag";
 
-    //////////////////////////////////
-
     public IDisposable? Start()
     {
         return null;
@@ -27,7 +24,7 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
     {
         if (e.Button is SButton.MouseRight)
         {
-            var tile = new Tile(e.Cursor.Tile);
+            var tile = new WorldTile(Game1.currentLocation, e.Cursor.Tile);
             Console.Log($"[MouseRight] Paint Brush");
             DoReadTexture(tile);
             yield return true;
@@ -35,7 +32,7 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
         else if (e.Button.IsUseToolButton())
         {
             var tile = Game1.player.ActiveTargetTile;
-            Console.Log($"[IsUseToolButton] Paint Brush {tile}");
+            Console.Log($"[IsUseToolButton] Paint Brush");
 
             var placedObject = Game1.currentLocation.getObjectAtTile(tile.X, tile.Y);
             if (placedObject?.QualifiedItemId == AlternativeTextures.PAINTPAIL)
@@ -54,10 +51,10 @@ class PaintBrushEmptyTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     ////////////////////////////////////////////
 
-    private void DoReadTexture(Tile tile)
+    private void DoReadTexture(WorldTile tile)
     {
-        var paintableMaybe = IPaintable
-            .GetAnythingAtTile(tile)
+        var paintableMaybe = tile
+            .GetWorldObjects()
             .Select(x => IPaintable.From(x))
             .WhereNotNull()
             .FirstOrDefault();

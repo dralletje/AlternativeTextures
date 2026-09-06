@@ -1,9 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Dral.Sprites;
 
-static class Texture2D_ClippableSprite
+public static class Texture2D_ClippableSprite
 {
     extension(Texture2D texture)
     {

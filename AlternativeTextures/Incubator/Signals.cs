@@ -3,6 +3,62 @@ using System.Collections.Generic;
 
 namespace Incubator;
 
+public interface IState<T>
+{
+    public T Value { get; set; }
+}
+
+public record MappedState<TContained, TExposed>(
+    IState<TContained> container,
+    Func<TContained, TExposed> @in,
+    Func<TExposed, TContained> @out
+) : IState<TExposed>
+{
+    public TExposed Value
+    {
+        get => @in(container.Value);
+        set => container.Value = @out(value);
+    }
+}
+
+public record ClampedState(IState<int> Container, int Min, int Max) : IState<int>
+{
+    public int Value
+    {
+        get => Math.Clamp(Container.Value, Min, Max);
+        set => Container.Value = Math.Clamp(value, Min, Max);
+    }
+}
+
+public interface ILens<TContained, TExposed>
+{
+    public TExposed ToExposed(TContained contained);
+    public TContained ToContained(TExposed exposed);
+}
+record LensedState<TContained, TExposed>(
+    IState<TContained> container,
+    ILens<TContained, TExposed> lens
+) : IState<TExposed>
+{
+    public TExposed Value
+    {
+        get => lens.ToExposed(container.Value);
+        set => container.Value = lens.ToContained(value);
+    }
+}
+static class LensExtensions
+{
+    extension<TContained>(IState<TContained> state)
+    {
+        public IState<TExposed> Through<TExposed>(ILens<TContained, TExposed> lens) => new LensedState<TContained, TExposed>(state, lens);
+    }
+}
+public record ClampedLens(IState<int> Container, int Min, int Max) : ILens<int, int>
+{
+    public int ToExposed(int contained) => Math.Clamp(contained, Min, Max);
+    public int ToContained(int exposed) => Math.Clamp(exposed, Min, Max);
+}
+
 public interface ISignalBase
 {
     void Subscribe(object owner, Action callback);
@@ -26,11 +82,6 @@ internal static class ReactiveContext
             signal.Subscribe(owner, callback);
         }
     }
-}
-
-public interface IState<T>
-{
-    public T Value { get; set; }
 }
 
 public class State<T>(T initialValue) : ISignal<T>, IState<T>

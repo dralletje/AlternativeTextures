@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using AlternativeTextures.App.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Dral.Sprites;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Incubator.MonoGame;
 
 public readonly ref struct ActionDisposableStruct(Action? a) : IDisposable
 {

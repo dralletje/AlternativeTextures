@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Dral.Sprites;
 
 public readonly record struct SpritePart(
     ISprite Drawable,
@@ -42,18 +43,13 @@ public readonly record struct SpritePart(
     }
 }
 
-[CollectionBuilder(typeof(Sprite), nameof(Sprite.Create))]
-public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
+public record Sprite(IEnumerable<SpritePart> Parts) : ISprite
 {
-    public static Sprite Create(ReadOnlySpan<Sprite> values) => new(values);
-
     public Sprite(ISprite drawable)
         : this(ImmutableArray.Create(SpritePart.Create(drawable))) { }
 
-    public static ClippableSprite Create(Texture2D texture) => new(texture);
-
-    public Sprite(ReadOnlySpan<Sprite> values)
-        : this(Helpers.Combine(values)) { }
+    public Sprite(IEnumerable<ISprite> values)
+        : this(values.Select(v => SpritePart.Create(v))) { }
 
     ///////////////////////////////////////////////
 
@@ -63,7 +59,7 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
     public Sprite Scale(Vector2 scale, Vector2 origin) =>
         new(
             Parts
-                .Select(p => p with { Position = (p.Position - origin) * scale + origin, Scale = p.Scale * scale })
+                .Select(p => p with { Position = ((p.Position - origin) * scale) + origin, Scale = p.Scale * scale })
                 .ToImmutableArray()
         );
 
@@ -76,8 +72,8 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
                     p with
                     {
                         Position = new(
-                            (p.Position.X - origin.X) * cos - (p.Position.Y - origin.Y) * sin + origin.X,
-                            (p.Position.X - origin.X) * sin + (p.Position.Y - origin.Y) * cos + origin.Y
+                            ((p.Position.X - origin.X) * cos) - ((p.Position.Y - origin.Y) * sin) + origin.X,
+                            ((p.Position.X - origin.X) * sin) + ((p.Position.Y - origin.Y) * cos) + origin.Y
                         ),
                         Rotation = p.Rotation + angle,
                     }
@@ -117,7 +113,7 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
 
     public virtual Rectangle GetBounds()
     {
-        if (Parts.Length == 0)
+        if (Parts.Count() == 0)
             return Rectangle.Empty;
 
         float minX = float.MaxValue,
@@ -157,15 +153,15 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
         float depth
     )
     {
-        bool flipX = effects.HasFlag(SpriteEffects.FlipHorizontally);
-        bool flipY = effects.HasFlag(SpriteEffects.FlipVertically);
-        bool invertRot = flipX ^ flipY;
+        var flipX = effects.HasFlag(SpriteEffects.FlipHorizontally);
+        var flipY = effects.HasFlag(SpriteEffects.FlipVertically);
+        var invertRot = flipX ^ flipY;
 
         var (sinGrp, cosGrp) = MathF.SinCos(rotation);
 
         foreach (var p in Parts)
         {
-            Vector2 relPos = p.Position - origin;
+            var relPos = p.Position - origin;
 
             if (flipX)
                 relPos.X = -relPos.X;
@@ -174,17 +170,17 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
 
             relPos *= scale;
 
-            Vector2 rotatedRelPos = relPos;
+            var rotatedRelPos = relPos;
             if (rotation != 0f)
             {
                 rotatedRelPos = new Vector2(
-                    relPos.X * cosGrp - relPos.Y * sinGrp,
-                    relPos.X * sinGrp + relPos.Y * cosGrp
+                    (relPos.X * cosGrp) - (relPos.Y * sinGrp),
+                    (relPos.X * sinGrp) + (relPos.Y * cosGrp)
                 );
             }
 
-            Vector2 finalPos = rotatedRelPos + position;
-            float finalRot = (invertRot ? -p.Rotation : p.Rotation) + rotation;
+            var finalPos = rotatedRelPos + position;
+            var finalRot = (invertRot ? -p.Rotation : p.Rotation) + rotation;
 
             // Origin mirroring
             float srcWidth = p.Drawable.Width;
@@ -240,8 +236,11 @@ public record Sprite(ImmutableArray<SpritePart> Parts) : ISprite
     // }
 
     public virtual Sprite ProjectTo(Rectangle DestinationRectangle) =>
-        this.Scale(new(Width / DestinationRectangle.Width, Height / DestinationRectangle.Height), new(0, 0))
-            .Translate(new(DestinationRectangle.X, DestinationRectangle.Y));
+    this
+        .Scale(new((float)DestinationRectangle.Width / (float)Width, (float)DestinationRectangle.Height / (float)Height), new(0, 0))
+        // .Scale(new(2, 5), new(0, 0))
+        .Translate(new(DestinationRectangle.X, DestinationRectangle.Y))
+    ;
 }
 
 file static class Helpers
@@ -250,7 +249,7 @@ file static class Helpers
     {
         var size = 0;
         foreach (var x in values)
-            size += x.Parts.Length;
+            size += x.Parts.Count();
 
         var builder = ImmutableArray.CreateBuilder<SpritePart>(size);
 
@@ -259,4 +258,19 @@ file static class Helpers
 
         return builder.MoveToImmutable();
     }
+
+    internal static ImmutableArray<SpritePart> Combine(IEnumerable<Sprite> values)
+    {
+        var size = 0;
+        foreach (var x in values)
+            size += x.Parts.Count();
+
+        var builder = ImmutableArray.CreateBuilder<SpritePart>(size);
+
+        foreach (var x in values)
+            builder.AddRange(x.Parts);
+
+        return builder.MoveToImmutable();
+    }
+
 }

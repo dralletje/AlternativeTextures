@@ -557,6 +557,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             : building is ShippingBin ? textureModel.TextureWidth
             : baseTexture.Width;
 
+        Console.Log($"Hmmm hmmm hmmm");
         var texture2D = new SubTexture(
             baseTexture,
             new Rectangle(0, yOffset, textureWidth, baseTexture.Height)

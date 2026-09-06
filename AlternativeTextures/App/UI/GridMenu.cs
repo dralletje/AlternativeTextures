@@ -5,7 +5,7 @@ using Dral.Optics;
 using DralGeometry;
 using Incubator;
 using Incubator.MonoGame;
-using Incubator.MonoGame.Drawables;
+using Dral.Sprites;
 using Microsoft.Xna.Framework;
 using Netcode;
 using StardewValley;
@@ -32,7 +32,18 @@ internal class GridMenu(
     readonly State<FocusElement?> Focus = new(new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow));
     readonly State<bool> IsScrolling = new(false);
     readonly State<Item?> hovered = new(null);
-    readonly State<int> rowsScrolled = new(0);
+    // readonly State<int> rowsScrolled = new(0);
+
+    ShopMenu.ShopCachedTheme VisualTheme = new(null);
+
+    int VirtualRows => (int)Math.Ceiling((double)items.Count / gridSize.Columns);
+    int MaxScroll => (int)Math.Max(0, Math.Ceiling((double)items.Count / gridSize.Columns) - gridSize.Rows);
+
+    public IState<int> rowsScrolled => field ??= new MappedState<int, int>(
+        new State<int>(0),
+        v => Math.Clamp(v, 0, this.MaxScroll),
+        v => Math.Clamp(v, 0, this.MaxScroll)
+    );
 
     public override void receiveScrollWheelAction(int direction)
     {
@@ -66,14 +77,14 @@ internal class GridMenu(
         UI += Game1.fadeToBlackRect.MultiplyColor(Color.Black * 0.75f);
         using (UI.Group(Rectangle.CenteredInside(UI.Frame, width: menuWidth, height: menuHeight)))
         {
-            UI += new StringWithScrollCenteredAt(uiTitle).At((1f / 2).Pc, -64);
+            UI += new StringWithScrollCenteredAt(uiTitle).At(UI.Frame.Width / 2, -64);
 
             UI += new TextureBox(MouseCursorOrSomethingSprite);
 
             var menuPadding = new Padding(all: 16) { Top = 20, Right = 12 } + new Padding(all: 16);
             using (UI.Group(UI.Frame - menuPadding))
             {
-                var currentPageItems = items.Skip(rowsScrolled * gridSize.Columns).Take(gridSize.Count);
+                var currentPageItems = items.Skip(rowsScrolled.Value * gridSize.Columns).Take(gridSize.Count);
                 foreach (var (coord, item) in GridLayout.Create(UI, gridSize, currentPageItems))
                 {
                     UI += new TextureBox()
@@ -131,7 +142,7 @@ internal class GridMenu(
             if (items.Count > gridSize.Count)
             {
                 var scrollProgress =
-                    VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled / (VirtualRows - gridSize.Rows), 0, 1);
+                    VirtualRows == 0 ? 0 : Math.Clamp((float)rowsScrolled.Value / (VirtualRows - gridSize.Rows), 0, 1);
                 var frame =
                     new Rectangle(
                         x: UI.Frame.X + UI.Frame.Width + 16,
@@ -164,11 +175,11 @@ internal class GridMenu(
                             var startindex = from switch
                             {
                                 VerticalScrollbar.FocusElement.UpArrow => gridSize.Columns - 1,
-                                VerticalScrollbar.FocusElement.Thumb => (gridSize.Rows / 2) * gridSize.Columns - 1,
+                                VerticalScrollbar.FocusElement.Thumb => (gridSize.Rows / 2) * (gridSize.Columns - 1),
                                 VerticalScrollbar.FocusElement.DownArrow => gridSize.Count - 1,
                             };
 
-                            var itemsInCurrentView = items.Count - (rowsScrolled * gridSize.Columns);
+                            var itemsInCurrentView = items.Count - (rowsScrolled.Value * gridSize.Columns);
                             startindex = Math.Clamp(startindex, 0, itemsInCurrentView - 1);
                             var coord = gridSize.PositionForIndex(startindex);
                             Focus.Value = new FocusElement.InGrid(coord);
@@ -179,7 +190,7 @@ internal class GridMenu(
 
             if (hovered?.Value?.DisplayName is { } displayName)
             {
-                UI += new StringWithScrollCenteredAt(displayName, "").At(x: (1f / 2).Pc, y: 1f.Pc);
+                UI += new StringWithScrollCenteredAt(displayName, "").At(x: UI.Frame.Width / 2, y: UI.Frame.Height);
             }
         }
 
@@ -195,10 +206,6 @@ internal class GridMenu(
     {
         this.hovered.Value = null;
     }
-
-    ShopMenu.ShopCachedTheme VisualTheme = new(null);
-
-    int VirtualRows => (int)Math.Ceiling((double)items.Count / gridSize.Columns);
 
     public void ScrollTo(int index)
     {
@@ -244,77 +251,77 @@ internal class GridMenu(
         var isFirstColumn = column == 0;
         var isLastColumn = column + 1 == gridSize.Columns;
 
-        var canScrollMore = rowsScrolled + gridSize.Rows < VirtualRows;
-        var itemsScrolled = rowsScrolled * gridSize.Columns;
+        var canScrollMore = rowsScrolled.Value + gridSize.Rows < VirtualRows;
+        var itemsScrolled = rowsScrolled.Value * gridSize.Columns;
 
         var gridCoords = gridSize.Coords();
 
         switch (direction)
         {
             case Direction.Down:
-            {
-                if (isLastRow && canScrollMore)
                 {
-                    rowsScrolled.Value++;
-                }
-                else if (itemsScrolled + index + gridSize.Columns < items.Count)
-                {
-                    if (Game1.options.SnappyMenus)
+                    if (isLastRow && canScrollMore)
                     {
-                        Focus.Value = new FocusElement.InGrid((column, row + 1));
+                        rowsScrolled.Value++;
                     }
+                    else if (itemsScrolled + index + gridSize.Columns < items.Count)
+                    {
+                        if (Game1.options.SnappyMenus)
+                        {
+                            Focus.Value = new FocusElement.InGrid((column, row + 1));
+                        }
+                    }
+                    else
+                    {
+                        /// Do something at the bottom of the bottom?
+                    }
+                    break;
                 }
-                else
-                {
-                    /// Do something at the bottom of the bottom?
-                }
-                break;
-            }
             case Direction.Up:
-            {
-                if (isFirstRow && rowsScrolled > 0)
                 {
-                    rowsScrolled.Value--;
-                }
-                else if (itemsScrolled + index - gridSize.Columns >= 0)
-                {
-                    if (Game1.options.SnappyMenus)
+                    if (isFirstRow && rowsScrolled.Value > 0)
                     {
-                        Focus.Value = new FocusElement.InGrid((column, row - 1));
+                        rowsScrolled.Value--;
                     }
+                    else if (itemsScrolled + index - gridSize.Columns >= 0)
+                    {
+                        if (Game1.options.SnappyMenus)
+                        {
+                            Focus.Value = new FocusElement.InGrid((column, row - 1));
+                        }
+                    }
+                    else
+                    {
+                        /// Do something at the top of the top?
+                    }
+                    break;
                 }
-                else
-                {
-                    /// Do something at the top of the top?
-                }
-                break;
-            }
             case Direction.Left:
-            {
-                var to = (column - 1, row);
-                if (gridCoords.Contains(to))
                 {
-                    Focus.Value = new FocusElement.InGrid(to);
+                    var to = (column - 1, row);
+                    if (gridCoords.Contains(to))
+                    {
+                        Focus.Value = new FocusElement.InGrid(to);
+                    }
+                    break;
                 }
-                break;
-            }
             case Direction.Right:
-            {
-                var to = (column + 1, row);
-                if (gridCoords.Contains(to))
                 {
-                    Focus.Value = new FocusElement.InGrid(to);
+                    var to = (column + 1, row);
+                    if (gridCoords.Contains(to))
+                    {
+                        Focus.Value = new FocusElement.InGrid(to);
+                    }
+                    else if (row + (1 / gridSize.Rows) > 0.5)
+                    {
+                        Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.DownArrow);
+                    }
+                    else
+                    {
+                        Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow);
+                    }
+                    break;
                 }
-                else if (row + (1 / gridSize.Rows) > 0.5)
-                {
-                    Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.DownArrow);
-                }
-                else
-                {
-                    Focus.Value = new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow);
-                }
-                break;
-            }
         }
     }
 
@@ -328,27 +335,8 @@ internal class GridMenu(
         rowsScrolled.Value--;
     }
 
-    record InScrollbarLens(IState<FocusElement?> state) : IState<VerticalScrollbar.FocusElement?>
-    {
-        public VerticalScrollbar.FocusElement? Value
-        {
-            get => state.Value is FocusElement.InScrollbar(var x) ? x : null;
-            set
-            {
-                if (value is { } notnull)
-                {
-                    state.Value = new FocusElement.InScrollbar(notnull);
-                }
-                else
-                {
-                    state.Value = null;
-                }
-            }
-        }
-    }
-
     // [Union]
-    public abstract record FocusElement
+    public closed record FocusElement
     {
         [Dral.Optics.Generate.Prism]
         public record InScrollbar(VerticalScrollbar.FocusElement focusElement) : FocusElement { }

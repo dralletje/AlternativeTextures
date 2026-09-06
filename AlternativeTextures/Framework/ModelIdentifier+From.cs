@@ -16,11 +16,8 @@ public static class ModelIdentifier_From
             {
                 WorldObject.Object(var @object) => From(@object),
                 WorldObject.TerrainFeature(var terrainFeature) => From(terrainFeature),
-                WorldObject.Decoration decoration => decoration switch
-                {
-                    { Type: DecorationType.Floor } => ModelIdentifier.Floor,
-                    { Type: DecorationType.Wallpaper } => ModelIdentifier.Wallpaper,
-                },
+                WorldObject.Floor decoration => ModelIdentifier.Floor,
+                WorldObject.Wallpaper decoration => ModelIdentifier.Wallpaper,
                 WorldObject.Mailbox => ModelIdentifier.Mailbox,
                 /// TODO There was an exception to make the Tractor mod work too, lets test if that exception is still necessary
                 WorldObject.Building({ buildingType.Value: "Farmhouse" }) => TextureType.Building.WithName(
@@ -105,16 +102,16 @@ public static class ModelIdentifier_From
                 },
                 Tree tree => TextureType.Tree.WithName(
                     tree.treeType.Value switch
-                    {
-                        Tree.bushyTree => "Oak",
-                        Tree.leafyTree => "Maple",
-                        Tree.pineTree => "Pine",
-                        Tree.mahoganyTree => "Mahogany",
-                        Tree.mushroomTree => "Mushroom",
-                        Tree.palmTree => "Palm_1",
-                        Tree.palmTree2 => "Palm_2",
-                        _ => tree.treeType.Value,
-                    }
+                      {
+                          Tree.bushyTree => "Oak",
+                          Tree.leafyTree => "Maple",
+                          Tree.pineTree => "Pine",
+                          Tree.mahoganyTree => "Mahogany",
+                          Tree.mushroomTree => "Mushroom",
+                          Tree.palmTree => "Palm_1",
+                          Tree.palmTree2 => "Palm_2",
+                          _ => tree.treeType.Value,
+                      }
                 ),
 
                 /// Previously the code checked `Game1.fruitTreeData.ContainsKey(fruitTree.treeId.Value)` first... Not sure why

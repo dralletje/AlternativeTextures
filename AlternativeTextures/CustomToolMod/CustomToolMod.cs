@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AlternativeTextures.MetaFramework;
 using AlternativeTextures.Stardew;
 using ConsoleLog;
+using HarmonyLib;
 using Incubator;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -14,6 +15,24 @@ namespace AlternativeTextures.CustomToolMod;
 interface ICustomToolMod
 {
     public void Register(string toolId, Func<GenericTool, ICustomTool> factory);
+}
+
+record CustomToolCache
+{
+    public Item? Item { get; init; }
+    public ICustomTool? Tool { get; init; }
+    public IDisposable? Disposable { get; init; }
+}
+
+/// This sucks, but not sure there is another way
+/// to get stuff "on to" the patches
+static class CustomToolGlobal
+{
+    static internal CustomToolCache currentCustomToolCache = new();
+    static public ICustomTool? Current
+    {
+        get { return currentCustomToolCache.Tool; }
+    }
 }
 
 public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParent>> context) : DralMod, ICustomToolMod
@@ -30,6 +49,9 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
 
     public override IDisposable? Entry()
     {
+        var harmony = new Harmony(context.ModManifest.UniqueID);
+        harmony.CreateClassProcessor(typeof(DrawMouseCursorPatch)).Patch();
+
         Helper.Events.GameLoop.UpdateTicked += OnTickUpdateCurrentTool;
 
         Helper.Events.Input.ButtonPressed += OnButtonPressed;
@@ -46,25 +68,13 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
         });
     }
 
-    public ICustomTool? Current
-    {
-        get { return currentCustomToolCache.Tool; }
-    }
-
-    record CustomToolCache
-    {
-        public Item? Item { get; init; }
-        public ICustomTool? Tool { get; init; }
-        public IDisposable? Disposable { get; init; }
-    }
-
-    private CustomToolCache currentCustomToolCache = new();
+    static public ICustomTool? Current => CustomToolGlobal.Current;
 
     private void OnTickUpdateCurrentTool(object? sender, UpdateTickedEventArgs e)
     {
-        if (Game1.player.CurrentItem != this.currentCustomToolCache.Item)
+        if (Game1.player.CurrentItem != CustomToolGlobal.currentCustomToolCache.Item)
         {
-            if (this.currentCustomToolCache.Disposable is { } disposable)
+            if (CustomToolGlobal.currentCustomToolCache.Disposable is { } disposable)
             {
                 disposable.Dispose();
             }
@@ -75,7 +85,7 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
             )
             {
                 var nextCustomTool = toolFactory(currentTool);
-                currentCustomToolCache = new()
+                CustomToolGlobal.currentCustomToolCache = new()
                 {
                     Item = currentTool,
                     Tool = nextCustomTool,
@@ -84,7 +94,7 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
             }
             else
             {
-                currentCustomToolCache = new()
+                CustomToolGlobal.currentCustomToolCache = new()
                 {
                     Item = Game1.player.CurrentItem,
                     Tool = null,
@@ -109,7 +119,7 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
 
         Console.Log($"[OnButtonPressed] {e.Button}");
 
-        if (this.Current is { } tool)
+        if (Current is { } tool)
         {
             if (tool.OnButton(e) is { } routine && routine.MoveNext())
             {
@@ -132,7 +142,7 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
 
     private void OnButtonReleased(object? sender, ButtonReleasedEventArgs e)
     {
-        if (this.Current is { } tool)
+        if (Current is { } tool)
         {
             if (this.currentPressRoutine is { } routine && routine.Button == e.Button && routine.Tool == tool)
             {
@@ -145,7 +155,7 @@ public class CustomToolMod<TParent>(DralModContext<TParent, CustomToolMod<TParen
 
     private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
     {
-        if (this.Current is { } tool)
+        if (Current is { } tool)
         {
             if (this.currentPressRoutine is { } routine)
             {

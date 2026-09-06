@@ -1,7 +1,7 @@
 using System;
+using Dral.Sprites;
 using Incubator;
 using Incubator.MonoGame;
-using Incubator.MonoGame.Drawables;
 using StardewValley.Menus;
 
 namespace AlternativeTextures.App.UI;

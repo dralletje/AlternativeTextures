@@ -25,10 +25,10 @@ class StrictNullabilityContractResolver : DefaultContractResolver
         var property = base.CreateProperty(member, memberSerialization);
 
         // 1. C# 11 `required` keyword
-        bool isRequired = member.GetCustomAttribute<RequiredMemberAttribute>() != null;
+        var isRequired = member.GetCustomAttribute<RequiredMemberAttribute>() != null;
 
         // 2. Non-nullable reference / value types
-        bool isNonNullable = member switch
+        var isNonNullable = member switch
         {
             PropertyInfo pi => IsNonNullable(pi),
             FieldInfo fi => IsNonNullable(fi),

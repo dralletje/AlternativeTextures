@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using AlternativeTextures;
 using AlternativeTextures.App.UI;
 using Incubator;
-using Incubator.MonoGame.Drawables;
+using Dral.Sprites;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using Incubator.MonoGame;
 
 static class MouseHelper
 {

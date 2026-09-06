@@ -1,7 +1,9 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Dral.Sprites;
 
 public record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
 {
@@ -19,11 +21,19 @@ public record TextureSprite(Texture2D Texture, Rectangle SourceRect) : ISprite
         float depth
     )
     {
+        // spriteBatch.Draw(Texture, position, SourceRect, color, rotation, origin, scale, effects, depth);
         spriteBatch.Draw(Texture, position, SourceRect, color, rotation, origin, scale, effects, depth);
     }
 
     public int Height { get; } = SourceRect.Height;
     public int Width { get; } = SourceRect.Width;
+
+
+    [return: NotNullIfNotNull(nameof(w))]
+    public static implicit operator ClippableSprite?(TextureSprite? w) =>
+        w is null ? null : new ClippableSprite(w.Texture).Clip(w.SourceRect);
+    // public static implicit operator ClippableSprite(TextureSprite? w) => w is null ? null : new ClippableSprite(w.Texture).Clip(w.SourceRect);
+    // public static implicit operator ClippableSprite(TextureSprite w) => new ClippableSprite(w.Texture).Clip(w.SourceRect);
 }
 
 public static class Texture2D_TextureSprite
@@ -40,6 +50,7 @@ public static class TextureSprite_ClippableSprite
     {
         public ClippableSprite ToClippableSprite() => new ClippableSprite(texture.Texture).Clip(texture.SourceRect);
 
+        /// TODO This can return a TextureSprite (but why is that usefull?)
         public ClippableSprite Clip(Rectangle clipRect) => texture.ToClippableSprite().Clip(clipRect);
 
         public Sprite Rotate(float angle, Vector2 origin) => texture.ToClippableSprite().Rotate(angle, origin);
@@ -51,6 +62,8 @@ public static class TextureSprite_ClippableSprite
         public ClippableSprite MultiplyColor(Color color) => texture.ToClippableSprite().MultiplyColor(color);
 
         public ClippableSprite AddDepth(float depthOffset) => texture.ToClippableSprite().AddDepth(depthOffset);
+
+        public ClippableSprite ProjectTo(Rectangle destination) => texture.ToClippableSprite().ProjectTo(destination);
 
         public ClippableSprite Flip(SpriteEffects effect, Vector2 origin) =>
             texture.ToClippableSprite().Flip(effect, origin);

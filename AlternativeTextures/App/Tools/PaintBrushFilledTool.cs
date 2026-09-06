@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlternativeTextures.App.UI;
 using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
+using Dral.Sprites;
 using HarmonyLib;
 using Incubator;
 using Microsoft.Xna.Framework;
@@ -54,9 +56,11 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
     public IDisposable? Start()
     {
         helper.Events.Display.RenderedWorld += OnRenderedWorld;
+        helper.Events.Display.RenderedHud += OnRenderedHud;
         return new ActionDisposable(() =>
         {
             helper.Events.Display.RenderedWorld -= OnRenderedWorld;
+            helper.Events.Display.RenderedHud -= OnRenderedHud;
         });
     }
 
@@ -66,6 +70,18 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
     >("<modData>k__BackingField");
 
     record PaintableOnTheWorld(WorldObject WorldObject, IPaintable Paintable);
+
+    private IEnumerable<IPaintable> PaintablesAt(WorldTile tile)
+    {
+        return tile.GetWorldObjects()
+            .Select(worldObject => IPaintable.From(worldObject))
+            .WhereNotNull();
+    }
+
+    public void OnRenderedHud(object? sender, RenderedHudEventArgs e)
+    {
+
+    }
 
     public void OnRenderedWorld(object? sender, RenderedWorldEventArgs e)
     {
@@ -79,27 +95,39 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
             return;
         }
 
-        var worldObjects = IPaintable.GetAnythingAtTile(targetTile);
-        var target = worldObjects
+        var anytarget = targetTile.GetWorldObjects()
             .Select(worldObject =>
                 IPaintable.From(worldObject) is { } paintable ? new PaintableOnTheWorld(worldObject, paintable) : null
             )
             .WhereNotNull()
+            .ToList();
+
+        if (anytarget.Count is 0)
+        {
+            return;
+        }
+
+        var target = anytarget
             .FirstOrDefault(paintable => paintable.Paintable.ModelIdentifier == this.ModelIdentifier);
 
         var positionOnScreen = Game1.GlobalToLocal(Game1.viewport, targetTile.ToVector2() * Game1.tileSize);
         var overlayColor = target is not null ? Color.Green * 1f : Color.Red * 0.7f;
 
-        e.SpriteBatch.Draw(
-            Game1.mouseCursors,
-            new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize),
-            new Rectangle(194, 388, 16, 16), // Source rect for vanilla placement square
-            overlayColor,
-            0f,
-            Vector2.Zero,
-            SpriteEffects.None,
-            0.0001f // Draw depth (just above ground)
+        (StardewSprites.PlacementSquare.MultiplyColor(overlayColor) as IDraw)
+        .Draw(
+            e.SpriteBatch,
+            new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize)
         );
+
+        // e.SpriteBatch.Draw(
+        //     StardewSprites.PlacementSquare,
+        //     new Rectangle((int)positionOnScreen.X, (int)positionOnScreen.Y, Game1.tileSize, Game1.tileSize),
+        //     overlayColor,
+        //     0f,
+        //     Vector2.Zero,
+        //     SpriteEffects.None,
+        //     0.0001f // Draw depth (just above ground)
+        // );
 
         if (this.Texture is { } texture && target?.WorldObject is WorldObject.TerrainFeature(var floor))
         {
@@ -190,24 +218,27 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
     {
         if (e.Button is SButton.MouseRight)
         {
-            var tile = new Tile(e.Cursor.Tile);
+            var tile = new WorldTile(Game1.currentLocation, e.Cursor.Tile);
             PrettyPrint.Log("[MouseRight] Paint Brush");
             DoReadTexture(tile);
             yield return true;
         }
         else if (e.Button.IsUseToolButton())
         {
-            var textureModel = AlternativeTextures.textureManager.GetTexture(
-                Texture.WithSeason(Game1.currentLocation.GetSeason())
-            );
-
             var tile = Game1.player.ActiveTargetTile;
             Console.Log($"[IsUseToolButton] Paint Brush");
 
+            var paintables = PaintablesAt(tile).ToList();
             var placedObject = Game1.currentLocation.getObjectAtTile(tile.X, tile.Y);
             if (placedObject?.QualifiedItemId == AlternativeTextures.PAINTPAIL)
             {
                 Console.Log($"Cleaning using the PAINTPAIL");
+                Game1.player.Items[Game1.player.CurrentToolIndex] = PaintBrushEmptyTool.CreateItem();
+                yield return false;
+            }
+            else if (placedObject is null && paintables.Count is 0)
+            {
+                /// Not sure about this yet, but I think we can make it a bit more ergonomic this way
                 Game1.player.Items[Game1.player.CurrentToolIndex] = PaintBrushEmptyTool.CreateItem();
                 yield return false;
             }
@@ -224,13 +255,9 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
 
     ////////////////////////////////////////////
 
-    private void DoReadTexture(Tile tile)
+    private void DoReadTexture(WorldTile tile)
     {
-        var paintableMaybe = IPaintable
-            .GetAnythingAtTile(tile)
-            .Select(x => IPaintable.From(x))
-            .WhereNotNull()
-            .FirstOrDefault();
+        var paintableMaybe = PaintablesAt(tile).FirstOrDefault();
         if (paintableMaybe is { } paintable)
         {
             var item = PaintBrushFilledTool.CreateItem(
@@ -240,9 +267,9 @@ class PaintBrushFilledTool(IModHelper helper, GenericTool tool) : ICustomTool
         }
     }
 
-    private void DoApplyTexture(Tile tile)
+    private void DoApplyTexture(WorldTile tile)
     {
-        var paintables = IPaintable.GetAnythingAtTile(tile).Select(x => IPaintable.From(x)).WhereNotNull();
+        var paintables = PaintablesAt(tile);
         foreach (var paintable in paintables)
         {
             if (paintable.ModelIdentifier == this.ModelIdentifier)

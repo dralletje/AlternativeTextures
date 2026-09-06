@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using Incubator.MonoGame.Drawables;
+using Dral.Sprites;
+using Incubator.MonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -64,4 +65,5 @@ public record StringWithScrollCenteredAt(string Title, string? placeHolderWidthT
 public static class StardewSprites
 {
     public static TextureSprite CloseSprite = Game1.mouseCursors.Clip(new Rectangle(337, 494, 12, 12));
+    public static TextureSprite PlacementSquare = Game1.mouseCursors.Clip(new Rectangle(194, 388, 16, 16));
 }

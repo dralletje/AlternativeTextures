@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using DralGeometry;
-using Incubator.MonoGame.Drawables;
+using Dral.Sprites;
+using Incubator.MonoGame;
 
 namespace AlternativeTextures.App.UI;
 

@@ -1,12 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Dral.Sprites;
 
 public readonly record struct ClippableSpritePart(
     Texture2D Texture,
@@ -43,7 +43,7 @@ public readonly record struct ClippableSpritePart(
     }
 }
 
-[CollectionBuilder(typeof(ClippableSprite), nameof(ClippableSprite.Create))]
+// [CollectionBuilder(typeof(ClippableSprite), nameof(ClippableSprite.Create))]
 public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISprite
 {
     public static ClippableSprite Create(ReadOnlySpan<ClippableSprite> values) => new(values);
@@ -51,15 +51,11 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
     public ClippableSprite(ReadOnlySpan<ClippableSprite> values)
         : this(Helpers.Combine(values)) { }
 
+    public ClippableSprite(IEnumerable<ClippableSprite> values)
+        : this(Helpers.Combine(values)) { }
+
     public ClippableSprite(Texture2D texture)
         : this(ImmutableArray.Create(ClippableSpritePart.Create(texture))) { }
-
-    public static ImmutableArray<int> X()
-    {
-        var b = ImmutableArray.Create("A", "B");
-        ImmutableArray<int> x = [];
-        return x;
-    }
 
     ///////////////////////////////////////////////
 
@@ -68,22 +64,23 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
         var newParts = ImmutableArray.CreateBuilder<ClippableSpritePart>(Parts.Length);
         foreach (var p in Parts)
         {
-            Rectangle src = p.SourceRect ?? new Rectangle(0, 0, p.Texture.Width, p.Texture.Height);
-            Vector2 topLeft = p.Position - (p.Origin * p.Scale);
+            var src = p.SourceRect ?? new Rectangle(0, 0, p.Texture.Width, p.Texture.Height);
+            var topLeft = p.Position - (p.Origin * p.Scale);
 
-            int localX = (int)((clipRect.X - topLeft.X) / p.Scale.X) + src.X;
-            int localY = (int)((clipRect.Y - topLeft.Y) / p.Scale.Y) + src.Y;
-            int localW = (int)(clipRect.Width / p.Scale.X);
-            int localH = (int)(clipRect.Height / p.Scale.Y);
+            var localX = (int)((clipRect.X - topLeft.X) / p.Scale.X) + src.X;
+            var localY = (int)((clipRect.Y - topLeft.Y) / p.Scale.Y) + src.Y;
+            var localW = (int)(clipRect.Width / p.Scale.X);
+            var localH = (int)(clipRect.Height / p.Scale.Y);
 
-            Rectangle inter = Rectangle.Intersect(src, new Rectangle(localX, localY, localW, localH));
+            var inter = Rectangle.Intersect(src, new Rectangle(localX, localY, localW, localH));
             if (inter.IsEmpty)
                 continue;
 
-            Vector2 newPos =
+            var newPos =
                 topLeft
                 + new Vector2((inter.X - src.X) * p.Scale.X, (inter.Y - src.Y) * p.Scale.Y)
-                + (p.Origin * p.Scale);
+                + (p.Origin * p.Scale)
+                - new Vector2(clipRect.X, clipRect.Y);
             newParts.Add(p with { SourceRect = inter, Position = newPos });
         }
         return new(newParts.ToImmutable());
@@ -101,7 +98,7 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
     public ClippableSprite Scale(Vector2 scale, Vector2 origin) =>
         new(
             Parts
-                .Select(p => p with { Position = (p.Position - origin) * scale + origin, Scale = p.Scale * scale })
+                .Select(p => p with { Position = ((p.Position - origin) * scale) + origin, Scale = p.Scale * scale })
                 .ToImmutableArray()
         );
 
@@ -176,15 +173,15 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
         float depth
     )
     {
-        bool flipX = effects.HasFlag(SpriteEffects.FlipHorizontally);
-        bool flipY = effects.HasFlag(SpriteEffects.FlipVertically);
-        bool invertRot = flipX ^ flipY;
+        var flipX = effects.HasFlag(SpriteEffects.FlipHorizontally);
+        var flipY = effects.HasFlag(SpriteEffects.FlipVertically);
+        var invertRot = flipX ^ flipY;
 
         var (sinGrp, cosGrp) = MathF.SinCos(rotation);
 
         foreach (var p in Parts)
         {
-            Vector2 relPos = p.Position - origin;
+            var relPos = p.Position - origin;
 
             if (flipX)
                 relPos.X = -relPos.X;
@@ -193,17 +190,17 @@ public record ClippableSprite(ImmutableArray<ClippableSpritePart> Parts) : ISpri
 
             relPos *= scale;
 
-            Vector2 rotatedRelPos = relPos;
+            var rotatedRelPos = relPos;
             if (rotation != 0f)
             {
                 rotatedRelPos = new Vector2(
-                    relPos.X * cosGrp - relPos.Y * sinGrp,
-                    relPos.X * sinGrp + relPos.Y * cosGrp
+                    (relPos.X * cosGrp) - (relPos.Y * sinGrp),
+                    (relPos.X * sinGrp) + (relPos.Y * cosGrp)
                 );
             }
 
-            Vector2 finalPos = rotatedRelPos + position;
-            float finalRot = rotation;
+            var finalPos = rotatedRelPos + position;
+            var finalRot = rotation;
 
             // Origin mirroring
             float srcWidth = p.SourceRect?.Width ?? p.Texture.Width;
@@ -248,4 +245,19 @@ file static class Helpers
 
         return builder.MoveToImmutable();
     }
+
+    internal static ImmutableArray<ClippableSpritePart> Combine(IEnumerable<ClippableSprite> values)
+    {
+        var size = 0;
+        foreach (var x in values)
+            size += x.Parts.Length;
+
+        var builder = ImmutableArray.CreateBuilder<ClippableSpritePart>(size);
+
+        foreach (var x in values)
+            builder.AddRange(x.Parts);
+
+        return builder.MoveToImmutable();
+    }
+
 }

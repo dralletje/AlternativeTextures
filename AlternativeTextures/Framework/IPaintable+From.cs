@@ -28,39 +28,16 @@ public static class IPaintable_From
             {
                 WorldObject.TerrainFeature(var terrainFeature) => From(terrainFeature),
                 WorldObject.Object(var @object) => From(@object),
-                WorldObject.Decoration decoration => decoration switch
-                {
-                    { Type: DecorationType.Floor } => new FloorDecorationPaintable(
-                        decoration.Location,
-                        decoration.RoomId
-                    ),
-                    { Type: DecorationType.Wallpaper } => new WallpaperDecorationPaintable(
-                        decoration.Location,
-                        decoration.RoomId
-                    ),
-                },
+                WorldObject.Floor decoration => new FloorDecorationPaintable(
+                    decoration.Location,
+                    decoration.RoomId
+                ),
+                WorldObject.Wallpaper decoration => new WallpaperDecorationPaintable(
+                    decoration.Location,
+                    decoration.RoomId
+                ),
                 WorldObject.Mailbox(var farm) => new MailboxPaintable(farm),
                 WorldObject.Building(var building) => From(building),
-            };
-
-        public static IPaintable? From(WorldObjectUnion worldObject) =>
-            worldObject switch
-            {
-                TerrainFeature terrainFeature => From(terrainFeature),
-                StardewValley.Object @object => From(@object),
-                Decoration decoration => decoration switch
-                {
-                    { Type: DecorationType.Floor } => new FloorDecorationPaintable(
-                        decoration.Location,
-                        decoration.RoomId
-                    ),
-                    { Type: DecorationType.Wallpaper } => new WallpaperDecorationPaintable(
-                        decoration.Location,
-                        decoration.RoomId
-                    ),
-                },
-                Mailbox mailbox => new MailboxPaintable(mailbox.Farm),
-                Building building => From(building),
             };
     }
 }

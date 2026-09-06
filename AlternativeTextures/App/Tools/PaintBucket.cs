@@ -43,7 +43,7 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
             return;
 
         var tile = Game1.player.ActiveTargetTile;
-        var objects = IPaintable.GetAnythingAtTile(tile).ToList();
+        var objects = tile.GetWorldObjects().ToList();
         var farmer = Game1.player;
         var location = farmer.currentLocation;
 
@@ -52,12 +52,13 @@ class PaintBucketTool(IModHelper Helper, GenericTool tool) : ICustomTool
         /// If you stand before a wall with something on it and you try to use this,
         /// it will only find the wall, not the item.
         /// So a small fix to check on tile above if standing in front of a wall:
-        if (objects.All(x => x is WorldObject.Decoration))
+        if (objects.All(x => x is WorldObject.Wallpaper))
         {
-            if (location is DecoratableLocation loc && loc.GetWallpaperID(tile.X, tile.Y) is { } roomId)
-            {
-                objects = [.. IPaintable.GetAnythingAtTile(tile with { Y = tile.Y - 1 })];
-            }
+            objects = [.. (tile with { Y = tile.Y - 1 }).GetWorldObjects()];
+            // if (location is DecoratableLocation loc && loc.GetWallpaperID(tile.X, tile.Y) is { } roomId)
+            // {
+            //     objects = [.. (tile with { Y = tile.Y - 1 }).GetWorldObjects()];
+            // }
         }
 
         Console.Log($"objects: {objects.Select(x => x.ToString()).ToList()}");

@@ -8,12 +8,9 @@ using AlternativeTextures.App;
 using AlternativeTextures.CustomToolMod;
 using AlternativeTextures.Framework;
 using AlternativeTextures.Framework.Managers;
-using AlternativeTextures.Framework.Paintable;
 using AlternativeTextures.MetaFramework;
 using AlternativeTextures.PatchDrawMod;
 using Incubator;
-using Incubator.MonoGame;
-using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -216,10 +213,11 @@ class AlternativeTexturesDralMod(DralModContext<ValueTuple, AlternativeTexturesD
                             .Reflection.GetField<bool>(Game1.spriteBatch, "_beginCalled")
                             .GetValue();
                         Console.Log($"Loaded {asset.Name} while drawing = {isCurrentlyDrawing}");
-                        var clonedTexture = isCurrentlyDrawing
-                            ? textureModel.CreateTexture()
-                            : new IdentityTexture(textureModel.Texture).Flatten(Game1.graphics.GraphicsDevice);
-                        return clonedTexture;
+                        // var clonedTexture = isCurrentlyDrawing
+                        //     ? textureModel.CreateTexture()
+                        //     : textureModel.Texture.Flatten(Game1.graphics.GraphicsDevice);
+                        // return clonedTexture;
+                        return textureModel.CreateTexture();
                     },
                     AssetLoadPriority.Exclusive
                 );

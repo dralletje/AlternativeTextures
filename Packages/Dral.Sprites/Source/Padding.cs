@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Incubator.MonoGame;
+namespace Dral.Sprites;
 
 public record Padding()
 {

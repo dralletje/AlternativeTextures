@@ -14,18 +14,18 @@ public static class MyExtensions
 
     extension(Farmer player)
     {
-        internal Tile ActiveTargetTile
+        internal WorldTile ActiveTargetTile
         {
             get
             {
                 if (Game1.wasMouseVisibleThisFrame)
                 {
-                    return new Tile(ModHelper.shared.Input.GetCursorPosition().Tile);
+                    return new WorldTile(Game1.currentLocation, ModHelper.shared.Input.GetCursorPosition().Tile);
                 }
                 else
                 {
                     var toolLoc = player.GetToolLocation();
-                    return new Tile((int)(toolLoc.X / Game1.tileSize), (int)(toolLoc.Y / Game1.tileSize));
+                    return new WorldTile(Game1.currentLocation, (int)(toolLoc.X / Game1.tileSize), (int)(toolLoc.Y / Game1.tileSize));
                 }
             }
         }

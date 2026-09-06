@@ -35,13 +35,14 @@
       },
     },
     "CSharp": {
-      "format_on_save": "on",
-      "formatter": {
-        "external": {
-          "command": ".zed/in-nix.sh",
-          "arguments": ["csharpier", "format", "--stdin-path", "{buffer_path}"],
-        },
-      },
+      "tab_size": 4,
+      // "format_on_save": "on",
+      // "formatter": {
+      //   "external": {
+      //     "command": ".zed/in-nix.sh",
+      //     "arguments": ["csharpier", "format", "--stdin-path", "{buffer_path}"],
+      //   },
+      // },
     },
   },
 
@@ -123,7 +124,10 @@
       "binary": {
         "path": ".zed/in-nix.sh",
         "arguments": [
-          "Microsoft.CodeAnalysis.LanguageServer",
+          "dotnet",
+          "tool",
+          "run",
+          "roslyn-language-server",
           "--stdio",
           "--autoLoadProjects" /* add extra arguments */,
         ],

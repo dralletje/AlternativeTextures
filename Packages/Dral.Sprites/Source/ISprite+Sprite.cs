@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Incubator.MonoGame.Drawables;
+namespace Dral.Sprites;
 
 static class ISprite_Sprite
 {

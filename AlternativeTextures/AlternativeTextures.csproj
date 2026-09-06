@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dunet" Version="1.16.2" IncludeAssets="analyzers; build" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
     <PackageReference Include="PolySharp" Version="1.16.0" />
@@ -40,6 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Packages\ConsoleLog\ConsoleLog.csproj" />
     <ProjectReference Include="..\Packages\DralGeometry\DralGeometry.csproj" />
+    <ProjectReference Include="..\Packages\Dral.Sprites\Dral.Sprites.csproj" />
     <ProjectReference Include="..\Packages\Prisms\Prisms.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
