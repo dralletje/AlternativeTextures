@@ -25,8 +25,8 @@ internal class GridMenu(
 {
     internal interface Item : IDraw
     {
-        public string? DisplayName { get; init; }
-        public string? HoverText { get; init; }
+        public string? DisplayName { get; }
+        public string? HoverText { get; }
     }
 
     readonly State<FocusElement?> Focus = new(new FocusElement.InScrollbar(VerticalScrollbar.FocusElement.UpArrow));

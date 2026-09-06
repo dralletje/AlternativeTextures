@@ -36,18 +36,18 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             AccessTools.Method(_entity, nameof(Building.draw), [typeof(SpriteBatch)]),
             prefix: new HarmonyMethod(GetType(), nameof(DrawPrefix))
         );
-        harmony
-            .CreateReversePatcher(
-                AccessTools.Method(_entity, nameof(Building.resetTexture), null),
-                new HarmonyMethod(GetType(), nameof(ResetTextureReversePatch))
-            )
-            .Patch();
-        harmony
-            .CreateReversePatcher(
-                AccessTools.Method(_entity, nameof(Building.getSourceRect), null),
-                new HarmonyMethod(GetType(), nameof(GetSourceRectReversePatch))
-            )
-            .Patch();
+        // harmony
+        //     .CreateReversePatcher(
+        //         AccessTools.Method(_entity, nameof(Building.resetTexture), null),
+        //         new HarmonyMethod(GetType(), nameof(ResetTextureReversePatch))
+        //     )
+        //     .Patch();
+        // harmony
+        //     .CreateReversePatcher(
+        //         AccessTools.Method(_entity, nameof(Building.getSourceRect), null),
+        //         new HarmonyMethod(GetType(), nameof(GetSourceRectReversePatch))
+        //     )
+        //     .Patch();
     }
 
     private static void UpdatePostfix(Building __instance, GameTime time)
@@ -63,7 +63,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             return;
         }
 
-        var instanceName = String.Concat(
+        var instanceName = string.Concat(
             __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_OWNER],
             ".",
             $"{TextureType.Building}_{GetBuildingName(__instance)}"
@@ -71,12 +71,12 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
         var instanceSeasonName = $"{instanceName}_{Game1.GetSeasonForLocation(Game1.currentLocation)}";
 
         if (
-            !String.Equals(
+            !string.Equals(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                 instanceName,
                 StringComparison.OrdinalIgnoreCase
             )
-            && !String.Equals(
+            && !string.Equals(
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_NAME],
                 instanceSeasonName,
                 StringComparison.OrdinalIgnoreCase
@@ -90,7 +90,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             );
             if (
                 __instance.modData.ContainsKey(ModDataKeys.ALTERNATIVE_TEXTURE_SEASON)
-                && !String.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
+                && !string.IsNullOrEmpty(__instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON])
             )
             {
                 __instance.modData[ModDataKeys.ALTERNATIVE_TEXTURE_SEASON] = Game1
@@ -107,220 +107,220 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
         }
     }
 
-    internal static void CondensedDrawInMenu(
-        Building building,
-        Texture2D texture,
-        SpriteBatch b,
-        int x,
-        int y,
-        float scale,
-        float alpha = 1f
-    )
-    {
-        switch (building)
-        {
-            case FishPond fishPond:
-                y += 32;
-                //building.drawShadow(b, x, y);
-                b.Draw(
-                    texture,
-                    new Vector2(x, y),
-                    new Rectangle(0, 80, 80, 80),
-                    new Color(60, 126, 150) * alpha,
-                    0f,
-                    new Vector2(0f, 0f),
-                    scale,
-                    SpriteEffects.None,
-                    1f
-                );
-                for (var yWater = building.tileY.Value; yWater < building.tileY.Value + 5; yWater++)
-                {
-                    for (var xWater = building.tileX.Value; xWater < building.tileX.Value + 4; xWater++)
-                    {
-                        var num = yWater == building.tileY.Value + 4;
-                        var topY = yWater == building.tileY.Value;
-                        if (num)
-                        {
-                            b.Draw(
-                                Game1.mouseCursors,
-                                new Vector2(
-                                    x + (xWater * 64) + 32,
-                                    y + ((yWater + 1) * 64) - (int)Game1.currentLocation.waterPosition - 32
-                                ),
-                                new Rectangle(
-                                    Game1.currentLocation.waterAnimationIndex * 64,
-                                    2064
-                                        + (
-                                            ((xWater + yWater) % 2 != 0)
-                                                ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
-                                                : (Game1.currentLocation.waterTileFlip ? 128 : 0)
-                                        ),
-                                    64,
-                                    32 + (int)Game1.currentLocation.waterPosition - 5
-                                ),
-                                Game1.currentLocation.waterColor.Value,
-                                0f,
-                                Vector2.Zero,
-                                1f,
-                                SpriteEffects.None,
-                                1f
-                            );
-                        }
-                        else
-                        {
-                            b.Draw(
-                                Game1.mouseCursors,
-                                new Vector2(
-                                    x + (xWater * 64) + 32,
-                                    y + (yWater * 64) + 32 - (int)((!topY) ? Game1.currentLocation.waterPosition : 0f)
-                                ),
-                                new Rectangle(
-                                    Game1.currentLocation.waterAnimationIndex * 64,
-                                    2064
-                                        + (
-                                            ((xWater + yWater) % 2 != 0)
-                                                ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
-                                                : (Game1.currentLocation.waterTileFlip ? 128 : 0)
-                                        )
-                                        + (topY ? ((int)Game1.currentLocation.waterPosition) : 0),
-                                    64,
-                                    64 + (topY ? ((int)(0f - Game1.currentLocation.waterPosition)) : 0)
-                                ),
-                                Game1.currentLocation.waterColor.Value,
-                                0f,
-                                Vector2.Zero,
-                                1f,
-                                SpriteEffects.None,
-                                1f
-                            );
-                        }
-                    }
-                }
-                b.Draw(
-                    texture,
-                    new Vector2(x, y),
-                    new Rectangle(0, 0, 80, 80),
-                    Color.White * alpha,
-                    0f,
-                    new Vector2(0f, 0f),
-                    scale,
-                    SpriteEffects.None,
-                    1f
-                );
-                b.Draw(
-                    texture,
-                    new Vector2(
-                        x + 32,
-                        y + 24 + ((Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 2500.0 < 1250.0) ? 4 : 0)
-                    ),
-                    new Rectangle(16, 160, 48, 7),
-                    Color.White * alpha,
-                    0f,
-                    Vector2.Zero,
-                    scale,
-                    SpriteEffects.None,
-                    1f
-                );
-                b.Draw(
-                    texture,
-                    new Vector2(x, y - 64),
-                    new Rectangle(80, fishPond.nettingStyle.Value * 48, 80, 48),
-                    Color.White * alpha,
-                    0f,
-                    new Vector2(0f, 0f),
-                    scale,
-                    SpriteEffects.None,
-                    1f
-                );
-                return;
-            case JunimoHut junimoHut:
-                //building.drawShadow(b, x, y);
-                b.Draw(
-                    texture,
-                    new Vector2(x, y),
-                    junimoHut.getSourceRect(),
-                    Color.White,
-                    0f,
-                    new Vector2(0f, 0f),
-                    scale,
-                    SpriteEffects.None,
-                    0.89f
-                );
-                return;
-            case ShippingBin shippingBin:
-            default:
-                //building.drawShadow(b, x, y);
-                //b.Draw(texture, new Vector2(x, y), building.getSourceRect(), Color.White, 0f, new Vector2(0f, 0f), scale, SpriteEffects.None, 0.89f);
+    // internal static void CondensedDrawInMenu(
+    //     Building building,
+    //     Texture2D texture,
+    //     SpriteBatch b,
+    //     int x,
+    //     int y,
+    //     float scale,
+    //     float alpha = 1f
+    // )
+    // {
+    //     switch (building)
+    //     {
+    //         case FishPond fishPond:
+    //             y += 32;
+    //             //building.drawShadow(b, x, y);
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(x, y),
+    //                 new Rectangle(0, 80, 80, 80),
+    //                 new Color(60, 126, 150) * alpha,
+    //                 0f,
+    //                 new Vector2(0f, 0f),
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 1f
+    //             );
+    //             for (var yWater = building.tileY.Value; yWater < building.tileY.Value + 5; yWater++)
+    //             {
+    //                 for (var xWater = building.tileX.Value; xWater < building.tileX.Value + 4; xWater++)
+    //                 {
+    //                     var num = yWater == building.tileY.Value + 4;
+    //                     var topY = yWater == building.tileY.Value;
+    //                     if (num)
+    //                     {
+    //                         b.Draw(
+    //                             Game1.mouseCursors,
+    //                             new Vector2(
+    //                                 x + (xWater * 64) + 32,
+    //                                 y + ((yWater + 1) * 64) - (int)Game1.currentLocation.waterPosition - 32
+    //                             ),
+    //                             new Rectangle(
+    //                                 Game1.currentLocation.waterAnimationIndex * 64,
+    //                                 2064
+    //                                     + (
+    //                                         ((xWater + yWater) % 2 != 0)
+    //                                             ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
+    //                                             : (Game1.currentLocation.waterTileFlip ? 128 : 0)
+    //                                     ),
+    //                                 64,
+    //                                 32 + (int)Game1.currentLocation.waterPosition - 5
+    //                             ),
+    //                             Game1.currentLocation.waterColor.Value,
+    //                             0f,
+    //                             Vector2.Zero,
+    //                             1f,
+    //                             SpriteEffects.None,
+    //                             1f
+    //                         );
+    //                     }
+    //                     else
+    //                     {
+    //                         b.Draw(
+    //                             Game1.mouseCursors,
+    //                             new Vector2(
+    //                                 x + (xWater * 64) + 32,
+    //                                 y + (yWater * 64) + 32 - (int)((!topY) ? Game1.currentLocation.waterPosition : 0f)
+    //                             ),
+    //                             new Rectangle(
+    //                                 Game1.currentLocation.waterAnimationIndex * 64,
+    //                                 2064
+    //                                     + (
+    //                                         ((xWater + yWater) % 2 != 0)
+    //                                             ? ((!Game1.currentLocation.waterTileFlip) ? 128 : 0)
+    //                                             : (Game1.currentLocation.waterTileFlip ? 128 : 0)
+    //                                     )
+    //                                     + (topY ? ((int)Game1.currentLocation.waterPosition) : 0),
+    //                                 64,
+    //                                 64 + (topY ? ((int)(0f - Game1.currentLocation.waterPosition)) : 0)
+    //                             ),
+    //                             Game1.currentLocation.waterColor.Value,
+    //                             0f,
+    //                             Vector2.Zero,
+    //                             1f,
+    //                             SpriteEffects.None,
+    //                             1f
+    //                         );
+    //                     }
+    //                 }
+    //             }
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(x, y),
+    //                 new Rectangle(0, 0, 80, 80),
+    //                 Color.White * alpha,
+    //                 0f,
+    //                 new Vector2(0f, 0f),
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 1f
+    //             );
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(
+    //                     x + 32,
+    //                     y + 24 + ((Game1.currentGameTime.TotalGameTime.TotalMilliseconds % 2500.0 < 1250.0) ? 4 : 0)
+    //                 ),
+    //                 new Rectangle(16, 160, 48, 7),
+    //                 Color.White * alpha,
+    //                 0f,
+    //                 Vector2.Zero,
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 1f
+    //             );
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(x, y - 64),
+    //                 new Rectangle(80, fishPond.nettingStyle.Value * 48, 80, 48),
+    //                 Color.White * alpha,
+    //                 0f,
+    //                 new Vector2(0f, 0f),
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 1f
+    //             );
+    //             return;
+    //         case JunimoHut junimoHut:
+    //             //building.drawShadow(b, x, y);
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(x, y),
+    //                 junimoHut.getSourceRect(),
+    //                 Color.White,
+    //                 0f,
+    //                 new Vector2(0f, 0f),
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 0.89f
+    //             );
+    //             return;
+    //         case ShippingBin shippingBin:
+    //         default:
+    //             //building.drawShadow(b, x, y);
+    //             //b.Draw(texture, new Vector2(x, y), building.getSourceRect(), Color.White, 0f, new Vector2(0f, 0f), scale, SpriteEffects.None, 0.89f);
 
-                var data = building.GetData();
-                if (data != null)
-                {
-                    x += (int)(data.DrawOffset.X * 4f);
-                    y += (int)(data.DrawOffset.Y * 4f);
-                }
-                float baseSortY = building.tilesHigh.Value * 64;
-                var sortY = baseSortY;
-                if (data != null)
-                {
-                    sortY -= data.SortTileOffset * 64f;
-                }
-                sortY /= 10000f;
-                if (building.ShouldDrawShadow(data))
-                {
-                    //building.drawShadow(b, x, y);
-                }
-                var mainSourceRect = GetSourceRectReversePatch(building);
-                b.Draw(
-                    texture,
-                    new Vector2(x, y),
-                    mainSourceRect,
-                    building.color,
-                    0f,
-                    new Vector2(0f, 0f),
-                    scale,
-                    SpriteEffects.None,
-                    sortY
-                );
-                if (data?.DrawLayers == null)
-                {
-                    return;
-                }
-                foreach (var drawLayer in data.DrawLayers)
-                {
-                    if (drawLayer.OnlyDrawIfChestHasContents == null)
-                    {
-                        sortY = baseSortY - (drawLayer.SortTileOffset * 64f);
-                        sortY += 1f;
-                        if (drawLayer.DrawInBackground)
-                        {
-                            sortY = 0f;
-                        }
-                        sortY /= 10000f;
-                        var sourceRect = drawLayer.GetSourceRect(
-                            (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds
-                        );
-                        sourceRect = building.ApplySourceRectOffsets(sourceRect);
-                        var layerTexture = texture;
-                        if (drawLayer.Texture != null)
-                        {
-                            layerTexture = Game1.content.Load<Texture2D>(drawLayer.Texture);
-                        }
-                        b.Draw(
-                            layerTexture,
-                            new Vector2(x, y) + (drawLayer.DrawPosition * scale),
-                            sourceRect,
-                            Color.White,
-                            0f,
-                            new Vector2(0f, 0f),
-                            scale,
-                            SpriteEffects.None,
-                            sortY
-                        );
-                    }
-                }
-                return;
-        }
-    }
+    //             var data = building.GetData();
+    //             if (data != null)
+    //             {
+    //                 x += (int)(data.DrawOffset.X * 4f);
+    //                 y += (int)(data.DrawOffset.Y * 4f);
+    //             }
+    //             float baseSortY = building.tilesHigh.Value * 64;
+    //             var sortY = baseSortY;
+    //             if (data != null)
+    //             {
+    //                 sortY -= data.SortTileOffset * 64f;
+    //             }
+    //             sortY /= 10000f;
+    //             if (building.ShouldDrawShadow(data))
+    //             {
+    //                 //building.drawShadow(b, x, y);
+    //             }
+    //             var mainSourceRect = GetSourceRectReversePatch(building);
+    //             b.Draw(
+    //                 texture,
+    //                 new Vector2(x, y),
+    //                 mainSourceRect,
+    //                 building.color,
+    //                 0f,
+    //                 new Vector2(0f, 0f),
+    //                 scale,
+    //                 SpriteEffects.None,
+    //                 sortY
+    //             );
+    //             if (data?.DrawLayers == null)
+    //             {
+    //                 return;
+    //             }
+    //             foreach (var drawLayer in data.DrawLayers)
+    //             {
+    //                 if (drawLayer.OnlyDrawIfChestHasContents == null)
+    //                 {
+    //                     sortY = baseSortY - (drawLayer.SortTileOffset * 64f);
+    //                     sortY += 1f;
+    //                     if (drawLayer.DrawInBackground)
+    //                     {
+    //                         sortY = 0f;
+    //                     }
+    //                     sortY /= 10000f;
+    //                     var sourceRect = drawLayer.GetSourceRect(
+    //                         (int)Game1.currentGameTime.TotalGameTime.TotalMilliseconds
+    //                     );
+    //                     sourceRect = building.ApplySourceRectOffsets(sourceRect);
+    //                     var layerTexture = texture;
+    //                     if (drawLayer.Texture != null)
+    //                     {
+    //                         layerTexture = Game1.content.Load<Texture2D>(drawLayer.Texture);
+    //                     }
+    //                     b.Draw(
+    //                         layerTexture,
+    //                         new Vector2(x, y) + (drawLayer.DrawPosition * scale),
+    //                         sourceRect,
+    //                         Color.White,
+    //                         0f,
+    //                         new Vector2(0f, 0f),
+    //                         scale,
+    //                         SpriteEffects.None,
+    //                         sortY
+    //                     );
+    //                 }
+    //             }
+    //             return;
+    //     }
+    // }
 
     internal static bool ResetTexturePrefix(Building __instance)
     {
@@ -557,7 +557,6 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             : building is ShippingBin ? textureModel.TextureWidth
             : baseTexture.Width;
 
-        Console.Log($"Hmmm hmmm hmmm");
         var texture2D = new SubTexture(
             baseTexture,
             new Rectangle(0, yOffset, textureWidth, baseTexture.Height)
@@ -711,13 +710,13 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
         }
     }
 
-    public static void ResetTextureReversePatch(Building __instance)
-    {
-        new NotImplementedException("It's a stub!");
-    }
+    // public static void ResetTextureReversePatch(Building __instance)
+    // {
+    //     new NotImplementedException("It's a stub!");
+    // }
 
-    public static Rectangle GetSourceRectReversePatch(Building __instance)
-    {
-        return new Rectangle();
-    }
+    // public static Rectangle GetSourceRectReversePatch(Building __instance)
+    // {
+    //     return new Rectangle();
+    // }
 }

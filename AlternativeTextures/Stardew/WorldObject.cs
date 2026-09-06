@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Locations;
 
@@ -29,6 +30,12 @@ closed public record WorldObject
 
 static class WorldObjectExtensions
 {
+    public static bool IsPositionNearMailbox(GameLocation location, Point mailboxPosition, int x, int y)
+    {
+        var isNearMailbox = (mailboxPosition.X == x) && (mailboxPosition.Y == y || mailboxPosition.Y == y + 1);
+        return isNearMailbox;
+    }
+
     extension(GameLocation location)
     {
         public IEnumerable<WorldObject> GetWorldObjectsAt(Tile tile)
@@ -57,6 +64,15 @@ static class WorldObjectExtensions
                 else if (decoratableLocation.GetFloorID(tile.X, tile.Y) is { } floorId)
                 {
                     yield return new WorldObject.Floor(decoratableLocation, floorId);
+                }
+            }
+
+            if (location is Farm farm)
+            {
+                var point = farm.GetMainMailboxPosition();
+                if (IsPositionNearMailbox(location, point, tile.X, tile.Y))
+                {
+                    yield return new WorldObject.Mailbox(farm);
                 }
             }
 

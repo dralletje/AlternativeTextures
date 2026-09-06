@@ -5,7 +5,6 @@ using AlternativeTextures.App.UI;
 using Incubator;
 using Incubator.MonoGame;
 using Dral.Sprites;
-// using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -150,10 +149,7 @@ static class DrawPaintable
                 {
                     if (textureIdentifier.IsDefault)
                     {
-                        var x = TextureHelper.GetDefault(textureIdentifier.ForModel, MaybeRelated);
-                        Console.Log($"x: {x.Parts[0]}");
-                        Console.Log($"x: {x}");
-                        return x;
+                        return TextureHelper.GetDefault(textureIdentifier.ForModel, MaybeRelated);
                     }
                     else
                     {

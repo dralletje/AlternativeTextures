@@ -35,9 +35,6 @@ record TextureGridMenuItem : GridMenu.Item
             { } drawableTexture
         )
         {
-            var blackTexture = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
-            blackTexture.SetData([Color.Black]);
-
             var littleInset =
                 destinationRect
                 - new Padding()
@@ -48,25 +45,8 @@ record TextureGridMenuItem : GridMenu.Item
                     Right = 8,
                 };
             var rectangle = littleInset.FitInside(new Rectangle(0, 0, drawableTexture.Width, drawableTexture.Height));
-            // Console.Log($"destinationRect: {destinationRect}");
-            // Console.Log($"drawableTexture.GetBounds(): {drawableTexture.GetBounds()}");
-            // drawableTexture.Parts[0].Texture.Clip(drawableTexture.Parts[0].Texture.Bounds),
-
-            var combined = new Sprite([
-                SpritePart.Create(blackTexture.Clip(blackTexture.Bounds).ProjectTo(drawableTexture.GetBounds())),
-                // SpritePart.Create(drawableTexture.ProjectTo(drawableTexture.GetBounds())),
-            ]);
-
-            // (drawableTexture as IDraw).Draw(batch, rectangle);
-
             batch.Draw(
                 drawableTexture,
-                // combined,
-                // blackTexture.Clip(blackTexture.Bounds).ProjectTo(drawableTexture.GetBounds()),
-                // blackTexture.Clip(blackTexture.Bounds).ProjectTo(drawableTexture.GetBounds()),
-                // drawableTexture.Parts[0].Texture.Clip(drawableTexture.Parts[0].Texture.Bounds),
-                // blackTexture.Clip(blackTexture.Bounds),
-                // drawableTexture.Clip(new Rectangle(0, 0, drawableTexture.Width, drawableTexture.Height)),
                 rectangle,
                 Color.White,
                 0f,

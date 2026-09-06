@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Dral.Sprites;
-using Incubator.MonoGame;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
