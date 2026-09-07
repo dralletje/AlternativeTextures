@@ -4,8 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Dral.Sprites;
 
-public interface ISprite
-: IDraw
+public interface ISprite : IDraw
 {
     public void Draw(
         SpriteBatch spriteBatch,

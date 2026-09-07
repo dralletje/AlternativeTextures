@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlternativeTextures.Framework;
+using Dral.Sprites;
 using HarmonyLib;
 using Incubator;
-using Incubator.MonoGame.FlexibleTextures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -557,17 +557,11 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             : building is ShippingBin ? textureModel.TextureWidth
             : baseTexture.Width;
 
-        var texture2D = new SubTexture(
-            baseTexture,
-            new Rectangle(0, yOffset, textureWidth, baseTexture.Height)
-        ).Flatten(Game1.graphics.GraphicsDevice);
+        var texture2D = baseTexture.Clip(new(0, yOffset, textureWidth, baseTexture.Height)).Flatten(Game1.graphics.GraphicsDevice);
 
         if (canReallyBePainted)
         {
-            var paintedTexture2D = new SubTexture(
-                baseTexture,
-                new Rectangle(textureWidth, yOffset, textureWidth, baseTexture.Height)
-            ).Flatten(Game1.graphics.GraphicsDevice);
+            var paintedTexture2D = baseTexture.Clip(new(textureWidth, yOffset, textureWidth, baseTexture.Height)).Flatten(Game1.graphics.GraphicsDevice);
 
             building.paintedTexture = GetPaintedOverlay(
                 building,

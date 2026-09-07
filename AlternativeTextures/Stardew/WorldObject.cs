@@ -6,12 +6,6 @@ using StardewValley.Locations;
 
 namespace AlternativeTextures.Stardew;
 
-// public enum DecorationType
-// {
-//     Floor,
-//     Wallpaper,
-// }
-
 closed public record WorldObject
 {
     // 3. Define the union variants as inner records.
