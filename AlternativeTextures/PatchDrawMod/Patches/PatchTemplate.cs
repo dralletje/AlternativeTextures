@@ -220,7 +220,8 @@ internal class PatchTemplate()
         if (textureIdentifier.IsDefault)
             return null;
 
-        return AlternativeTextures.textureManager.GetTexture(textureIdentifier);
+        var season = Game1.currentLocation.GetSeason();
+        return AlternativeTextures.textureManager.GetTexture(textureIdentifier.WithoutSeason.WithSeason(season));
     }
 
     public static AlternativeTextureModel? GetTextureForUse(IPaintable? maybePaintable)

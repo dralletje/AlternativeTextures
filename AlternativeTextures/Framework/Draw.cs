@@ -11,6 +11,7 @@ using StardewValley;
 using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using AlternativeTextures.Drawing;
 
 namespace AlternativeTextures.Framework.Paintable;
 
@@ -35,10 +36,19 @@ static class DrawPaintable
         return fullTexture.Clip(new Rectangle(sourceRectPosition % 16 * 16, sourceRectPosition / 16 * 16, 16, 16));
     }
 
-    public static ClippableSprite? PreviewTexture(UniqueTextureIdentifier textureIdentifier, WorldObject? MaybeRelated)
+    public static ISprite? PreviewTexture(UniqueTextureIdentifier textureIdentifier, WorldObject? MaybeRelated)
     {
         switch (textureIdentifier)
         {
+            case { ForModel.Type: TextureType.Tree }:
+                {
+                    var textureModel = AlternativeTextures.textureManager.GetTexture(textureIdentifier);
+                    var drawable_tree = new DrawableWorldObject.Tree(textureIdentifier.ForModel) with { HasMoss = true };
+                    if (MaybeRelated is WorldObject.TerrainFeature { terrainFeature: StardewValley.TerrainFeatures.Tree tree })
+                        return drawable_tree.With(tree).Sprite(textureModel, location: tree.Location);
+                    else
+                        return drawable_tree.Sprite(textureModel, location: null);
+                }
             case { ForModel.Type: TextureType.Flooring }:
                 return PreviewTextureForFloor(textureIdentifier, MaybeRelated);
 
@@ -171,9 +181,17 @@ static class DrawPaintable
                             ),
                             WorldObject.TerrainFeature(var terrainFeature) => terrainFeature switch
                             {
-                                Tree tree => textureModel.Texture.Clip(
-                                    SourceRects.GetTreeSourceRect(tree, textureModel.Variation, textureModel.TextureHeight)
-                                ),
+                                // Tree tree => textureModel.Texture.Clip(
+                                //     SourceRects.GetTreeSourceRect(tree, textureModel.Variation, textureModel.TextureHeight)
+                                // ),
+                                Tree tree => new ClippableSprite([
+                                    new ClippableSprite([
+                                        textureModel.Texture.Clip(Tree.shadowSourceRect),
+                                        textureModel.Texture.Clip(Tree.stumpSourceRect),
+                                    ]).Translate(new(Tree.treeTopSourceRect.Width - 32, Tree.treeTopSourceRect.Height - 32)),
+                                    textureModel.Texture.Clip(Tree.treeTopSourceRect),
+                                ]),
+
                                 FruitTree fruitTree => textureModel.Texture.Clip(
                                     SourceRects.GetFruitTreeSourceRect(
                                         fruitTree,
@@ -389,6 +407,16 @@ static class DrawPaintable
 
 static class TextureHelper
 {
+    // public static Vector2 stumpPositionForTree()
+    // {
+    //     // var shakeTimer = 0f;
+    //     // return new Vector2(
+    //     //     ((shakeTimer > 0f) ? ((float)Math.Sin(Math.PI * 2.0 / (double)shakeTimer) * 3f) : 0f),
+    //     //      -64f
+    //     // );
+    //     return new Vector2
+    // }
+
     /// TODO: Do this without `related`?
     public static ClippableSprite? GetDefault(ModelIdentifier modelIdentifier, WorldObject? related)
     {
@@ -414,7 +442,14 @@ static class TextureHelper
 
             WorldObject.TerrainFeature(var terrainFeature) => terrainFeature switch
             {
-                Tree tree => tree.texture.Value.Clip(SourceRects.GetTreeSourceRect(tree, variation, 0)),
+                // Tree tree => tree.texture.Value.Clip(SourceRects.GetTreeSourceRect(tree, variation, 0)),
+                Tree tree => new ClippableSprite([
+                    new ClippableSprite([
+                        tree.texture.Value.Clip(Tree.shadowSourceRect),
+                        tree.texture.Value.Clip(Tree.stumpSourceRect),
+                    ]).Translate(new(Tree.treeTopSourceRect.Width - 32, Tree.treeTopSourceRect.Height - 32)),
+                    tree.texture.Value.Clip(Tree.treeTopSourceRect),
+                ]),
 
                 FruitTree fruitTree => fruitTree.texture.Clip(
                     SourceRects.GetFruitTreeSourceRect(fruitTree, variation, 0)

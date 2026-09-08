@@ -98,7 +98,8 @@ public record TextureIdentifierWithoutSeason(
     [property: JsonProperty(Required = Required.Always)] string Owner,
     [property: JsonProperty(Required = Required.Always)] ModelIdentifier ForModel,
     [property: JsonProperty(Required = Required.Always)] int Variation
-) { }
+)
+{ }
 
 static class TextureIdentifierWithoutSeasonExtensions
 {
@@ -355,7 +356,7 @@ static class AlternativeTextureModelExtensions
         public bool HasTint() => false;
 
         public string TexturePath =>
-            $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}";
+            $"{AlternativeTextures.TEXTURE_TOKEN_HEADER}{textureModel.Owner}/{textureModel.ForModel.Type}/{textureModel.ForModel.String}/{textureModel.Variation}/{textureModel.Season}";
 
         internal bool IsFrameValid(int currentFrame, bool isMachineActive) => false;
 

@@ -35,6 +35,7 @@
       },
     },
     "CSharp": {
+      "semantic_tokens": "combined",
       "tab_size": 4,
       // "format_on_save": "on",
       // "formatter": {

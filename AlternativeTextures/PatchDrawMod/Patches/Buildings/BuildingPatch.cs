@@ -557,6 +557,7 @@ internal class BuildingPatch(IModHelper modHelper) : PatchTemplate()
             : building is ShippingBin ? textureModel.TextureWidth
             : baseTexture.Width;
 
+        /// TODO Pretty sure this happens during drawing, and .Flatten will make the screen flash UGHHH
         var texture2D = baseTexture.Clip(new(0, yOffset, textureWidth, baseTexture.Height)).Flatten(Game1.graphics.GraphicsDevice);
 
         if (canReallyBePainted)

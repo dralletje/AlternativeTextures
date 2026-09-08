@@ -168,7 +168,8 @@ static class SourceRects
     {
         var source_rect = Tree.treeTopSourceRect;
 
-        // TODO: Review if this code block is actually used
+        /// TODO: Review if this code block is actually used
+        /// 9 should be PalmTree?
         /*
         if (tree.treeType.Value == 9)
         {
